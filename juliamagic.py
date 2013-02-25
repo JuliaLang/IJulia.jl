@@ -46,8 +46,25 @@ class JuliaMagics(Magics):
 
         """
         super(JuliaMagics, self).__init__(shell)
-        self._j = ctypes.CDLL('libjulia-release.so', ctypes.RTLD_GLOBAL)
-        self._j.jl_init()
+        j = ctypes.CDLL('libjulia-release.so', ctypes.RTLD_GLOBAL)
+        j.jl_init()
+        
+        j.jl_typeof_str.restype = ctypes.c_char_p
+
+        unbox_map = dict(float32 = ctypes.c_float,
+                         float64 = ctypes.c_double,
+                         int32 = ctypes.c_short,
+                         int64 = ctypes.c_int,
+                         )
+
+        j_unboxers = {}
+        for jname, ctype in unbox_map.iteritems():
+            junboxer = getattr(j, 'jl_unbox_' + jname)
+            junboxer.restype = ctype
+            j_unboxers[jname] = junboxer
+
+        self._junboxers = j_unboxers
+        self._j = j
         self._plot_format = 'png'
 
         # Allow publish_display_data to be overridden for
@@ -138,7 +155,14 @@ class JuliaMagics(Magics):
         '''
         src = str(line if cell is None else cell)
         ans = self._j.jl_eval_string(src)
-        return self._j.jl_unbox_int64(ans)
+        anstype = self._j.jl_typeof_str(ans).lower()
+        try:
+            unboxer = self._junboxers[anstype]
+        except KeyError:
+            #print "Unboxer not found for return type:", anstype  # dbg
+            return None
+        else:
+            return unboxer(ans)
 
     @needs_local_scope
     @argument(
