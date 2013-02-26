@@ -8,10 +8,12 @@
 #  the file COPYING, distributed as part of this software.
 #-----------------------------------------------------------------------------
 
+# Global to ensure we don't try to initialize the Julia interpreter more than
+# once, so this can actually be reloaded.
+
 import ctypes
+import sys
 
-
-from IPython.core.displaypub import publish_display_data
 from IPython.core.magic import ( Magics, magics_class,
                                  line_cell_magic )
 
@@ -22,7 +24,7 @@ class JuliaMagicError(Exception):
 
 @magics_class
 class JuliaMagics(Magics):
-    """A set of magics useful for interactive work with Julia via oct2py.
+    """A set of magics useful for interactive work with Julia.
     """
     def __init__(self, shell):
         """
@@ -31,10 +33,21 @@ class JuliaMagics(Magics):
         shell : IPython shell
 
         """
-        super(JuliaMagics, self).__init__(shell)
-        j = ctypes.CDLL('libjulia-release.so', ctypes.RTLD_GLOBAL)
-        j.jl_init()
+
+        global _julia_initialized
         
+        super(JuliaMagics, self).__init__(shell)
+
+        # Ugly hack to register the julia interpreter globally so we can reload
+        # this extension without trying to re-open the shared lib, which kills
+        # the python interpreter.  Nasty but useful while debugging
+        if hasattr(sys, '_julia_initialized'):
+            j = sys._julia_initialized
+        else: 
+            j = ctypes.CDLL('libjulia-release.so', ctypes.RTLD_GLOBAL)
+            j.jl_init()
+            sys._julia_initialized = j
+       
         j.jl_typeof_str.restype = ctypes.c_char_p
 
         unbox_map = dict(float32 = ctypes.c_float,
@@ -51,11 +64,6 @@ class JuliaMagics(Magics):
 
         self._junboxers = j_unboxers
         self._j = j
-        self._plot_format = 'png'
-
-        # Allow publish_display_data to be overridden for
-        # testing purposes.
-        self._publish_display_data = publish_display_data
 
     @line_cell_magic
     def julia(self, line, cell=None):
