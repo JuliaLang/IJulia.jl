@@ -66,7 +66,7 @@ class JuliaMagics(Magics):
         src = str(line if cell is None else cell)
         ans = self._j.jl_eval_string(src)
         anstype = self._j.jl_typeof_str(ans).lower()
-        print 'anstype:', anstype
+        #print 'anstype:', anstype
         try:
             unboxer = self._junboxers[anstype]
         except KeyError:
