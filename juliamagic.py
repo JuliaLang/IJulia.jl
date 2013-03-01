@@ -66,7 +66,7 @@ class JuliaMagics0(Magics):
         self._j = j
 
     @line_cell_magic
-    def julia0(self, line, cell=None):
+    def julia(self, line, cell=None):
         '''
         Execute code in Julia, and pull some of the results back into the
         Python namespace.
@@ -78,7 +78,7 @@ class JuliaMagics0(Magics):
         try:
             unboxer = self._junboxers[anstype]
         except KeyError:
-            print "Unboxer not found for return type:", anstype  # dbg
+            #print "Unboxer not found for return type:", anstype  # dbg
             return None
         else:
             return unboxer(ans)
@@ -107,20 +107,34 @@ class JuliaMagics(Magics):
         # the python interpreter.  Nasty but useful while debugging
         if hasattr(sys, '_julia_initialized'):
             j = sys._julia_initialized
-        else: 
-            j = ctypes.CDLL('libjulia-release.so', ctypes.RTLD_GLOBAL)
-            j.jl_init("/home/fperez/tmp/src/julia/usr/lib")
-            sys._julia_initialized = j
-            
-            j.jl_eval_string('using PyCall;pyinitialize("%s")' %
-            sys.executable)
-            jpyobj = j.jl_eval_string('PyObject')
-       
-        j.jl_typeof_str.restype = ctypes.c_char_p
-        j.jl_unbox_voidpointer.restype = ctypes.py_object
+            self._j = j
+            return
+        
+        j = ctypes.CDLL('libjulia-release.so', ctypes.RTLD_GLOBAL)
+        j.jl_init("/home/fperez/tmp/src/julia/usr/lib")
+        sys._julia_initialized = j
 
         self._j = j
+        j.jl_typeof_str.restype = ctypes.c_char_p
+        j.jl_unbox_voidpointer.restype = ctypes.py_object
+        
+        self.jcall('using PyCall')
+        self.jcall('pyinitialize("%s")' % sys.executable)
+        jpyobj = self.jcall('PyObject')
         self._j_py_obj = jpyobj
+       
+        
+
+    def jcall(self, src):
+        print '>> J:', src
+        sys.stdout.flush()
+        ans = self._j.jl_eval_string(src)
+        anstype = self._j.jl_typeof_str(ans)
+        print 't   :', anstype
+        if anstype == "ErrorException":
+            raise JuliaMagicError("ErrorException in Julia: %s" %src)
+        else:
+            return ans
 
     @line_cell_magic
     def julia(self, line, cell=None):
@@ -129,9 +143,18 @@ class JuliaMagics(Magics):
         Python namespace.
         '''
         j = self._j
+        tstr = self._j.jl_typeof_str
         src = str(line if cell is None else cell)
-        ans = self._j.jl_eval_string(src)
-        pyans = j.jl_get_field(j.jl_call1(self._j_py_obj, ans), 'o')
+        ans = self.jcall(src)
+        anstype = tstr(ans)
+        print 'anstype:', anstype
+        print 'pyo', tstr(self._j_py_obj)
+        
+        xx = j.jl_call1(self._j_py_obj, ans)
+        print 'xx type' , tstr(xx)
+        
+        sys.stdout.flush()
+        pyans = j.jl_get_field(xx, 'o')
         return j.jl_unbox_voidpointer(pyans)
 
 
@@ -142,5 +165,5 @@ __doc__ = __doc__.format(
 
 def load_ipython_extension(ip):
     """Load the extension in IPython."""
-    #ip.register_magics(JuliaMagics0)
-    ip.register_magics(JuliaMagics)
+    ip.register_magics(JuliaMagics0)
+    #ip.register_magics(JuliaMagics)
