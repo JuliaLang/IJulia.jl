@@ -13,6 +13,7 @@
 
 import ctypes
 import sys
+import commands
 
 from IPython.core.magic import ( Magics, magics_class,
                                  line_cell_magic )
@@ -21,10 +22,11 @@ from IPython.core.magic import ( Magics, magics_class,
 class JuliaMagicError(Exception):
     pass
 
-
+###########################################################################
+# Original magics hack (limited type conversions)
 @magics_class
 class JuliaMagics0(Magics):
-    """A set of magics useful for interactive work with Julia.
+    """Original set of limited magics useful for interactive work with Julia.
     """
     def __init__(self, shell):
         """
@@ -83,8 +85,8 @@ class JuliaMagics0(Magics):
         else:
             return unboxer(ans)
 
-
-
+###########################################################################
+# Julia magics using Julia PyCall module to perform type conversions
 
 @magics_class
 class JuliaMagics(Magics):
@@ -110,28 +112,29 @@ class JuliaMagics(Magics):
             self._j = j
             return
         
-        j = ctypes.CDLL('libjulia-release.so', ctypes.RTLD_GLOBAL)
-        j.jl_init("/home/fperez/tmp/src/julia/usr/lib")
+        print 'Finding Julia install directory...'
+        status, JULIA_HOME = commands.getstatusoutput('julia -e "print(JULIA_HOME)"')
+        if status != 0:
+            raise JuliaMagicError("error executing julia command")
+        j = ctypes.PyDLL('%s/../lib/libjulia-release.so' % JULIA_HOME, 
+                         ctypes.RTLD_GLOBAL)
+        print 'Initializing Julia...'
+        j.jl_init('%s/../lib' % JULIA_HOME)
         sys._julia_initialized = j
 
         self._j = j
         j.jl_typeof_str.restype = ctypes.c_char_p
         j.jl_unbox_voidpointer.restype = ctypes.py_object
         
+        print 'Initializing Julia PyCall module...'
         self.jcall('using PyCall')
-        self.jcall('pyinitialize("%s")' % sys.executable)
+        self.jcall('pyinitialize(C_NULL)')
         jpyobj = self.jcall('PyObject')
         self._j_py_obj = jpyobj
-       
-        
 
     def jcall(self, src):
-        print '>> J:', src
-        sys.stdout.flush()
         ans = self._j.jl_eval_string(src)
-        anstype = self._j.jl_typeof_str(ans)
-        print 't   :', anstype
-        if anstype == "ErrorException":
+        if self._j.jl_typeof_str(ans) == "ErrorException":
             raise JuliaMagicError("ErrorException in Julia: %s" %src)
         else:
             return ans
@@ -146,17 +149,10 @@ class JuliaMagics(Magics):
         tstr = self._j.jl_typeof_str
         src = str(line if cell is None else cell)
         ans = self.jcall(src)
-        anstype = tstr(ans)
-        print 'anstype:', anstype
-        print 'pyo', tstr(self._j_py_obj)
-        
         xx = j.jl_call1(self._j_py_obj, ans)
-        print 'xx type' , tstr(xx)
-        
-        sys.stdout.flush()
-        pyans = j.jl_get_field(xx, 'o')
-        return j.jl_unbox_voidpointer(pyans)
-
+        pyans = j.jl_unbox_voidpointer(j.jl_get_field(xx, 'o'))
+        ctypes.pythonapi.Py_IncRef(ctypes.py_object(pyans))
+        return pyans
 
 __doc__ = __doc__.format(
     JULIA_DOC = ' '*8 + JuliaMagics.julia.__doc__,
@@ -165,5 +161,5 @@ __doc__ = __doc__.format(
 
 def load_ipython_extension(ip):
     """Load the extension in IPython."""
-    ip.register_magics(JuliaMagics0)
-    #ip.register_magics(JuliaMagics)
+    #ip.register_magics(JuliaMagics0)
+    ip.register_magics(JuliaMagics)
