@@ -55,8 +55,8 @@ class JuliaMagics(Magics):
         status, JULIA_HOME = commands.getstatusoutput('julia -e "print(JULIA_HOME)"')
         if status != 0:
             raise JuliaMagicError("error executing julia command")
-        jpath = os.path.abspath('%s/../lib/libjulia-release' % JULIA_HOME)
-        j = ctypes.PyDLL(ctypes.util.find_library(jpath), ctypes.RTLD_GLOBAL)
+        jpath = os.path.abspath('%s/../lib/libjulia-release.so' % JULIA_HOME)
+        j = ctypes.PyDLL(jpath, ctypes.RTLD_GLOBAL)
         print 'Initializing Julia...'
         j.jl_init('%s/../lib' % JULIA_HOME)
         sys._julia_initialized = j
