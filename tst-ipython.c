@@ -1,6 +1,8 @@
 #include <Python.h>
 #include <stdio.h>
 
+#include "traceback.c"
+
 int main() {
         Py_InitializeEx(0) ;
 		PyObject *sys = PyImport_ImportModule("sys");
