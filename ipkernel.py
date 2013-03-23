@@ -18,6 +18,13 @@ from zmq.eventloop.zmqstream import ZMQStream
 
 class JuliaKernel(Kernel):
 
+    def __init__(self, **kwargs):
+        super(JuliaKernel, self).__init__(**kwargs)
+        
+        from juliamagic import Julia
+        j = Julia(init_julia=False)
+        self.j = j
+
     def execute_request(self, stream, ident, parent):
         """handle an execute_request"""
         
@@ -73,6 +80,12 @@ class JuliaKernel(Kernel):
         try:
             # FIXME: the shell calls the exception handler itself.
             shell.run_cell(code, store_history=store_history, silent=silent)
+            print 'code:', code
+            jans = self.j.run(code)
+            print 'fetching jans', jans, type(jans)
+            jcode = compile('jans', '<julia>', 'single')
+            #exec jcode in locals()
+            
         except:
             status = u'error'
             # FIXME: this code right now isn't being used yet by default,
