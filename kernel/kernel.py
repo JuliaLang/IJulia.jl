@@ -216,7 +216,8 @@ class Kernel(object):
     def start(self):
         while True:
             ident = self.reply_socket.recv()
-            assert self.reply_socket.rcvmore(), "Unexpected missing message part."
+            assert self.reply_socket.rcvmore, "Unexpected missing message part."
+                
             msg = self.reply_socket.recv_json()
             omsg = Message(msg)
             print>>sys.__stdout__, omsg
