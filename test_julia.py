@@ -16,12 +16,11 @@
 from unittest import TestCase
 
 # Third-party
-import nose.tools as nt
+import numpy as np
 import numpy.testing as npt
 
 # Our own
 import julia
-reload(julia)
 
 #-----------------------------------------------------------------------------
 # Test suite begins
@@ -40,3 +39,7 @@ class JuliaTestCase(TestCase):
         for t in [ ('1', 1, int), ('1.0', 1.0, float),
                    ('1+2', 3, int), ('1+2.0', 3.0, float)]:
             self.check_expr(*t)
+
+    def test_numpy_creation(self):
+        a = self.j.run('[1:10]')
+        npt.assert_array_equal(a, np.arange(1, 11))
