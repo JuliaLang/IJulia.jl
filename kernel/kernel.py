@@ -50,7 +50,7 @@ class OutStream(object):
                 content = {u'name':self.name, u'data':data}
                 msg = self.session.msg(u'stream', content=content,
                                        parent=self.parent_header)
-                print>>sys.__stdout__, Message(msg)
+                print >> sys.__stdout__, Message(msg)
                 self.pub_socket.send_json(msg)
                 self._buffer_len = 0
                 self._buffer = []
@@ -156,12 +156,12 @@ class Kernel(object):
             else:
                 assert self.reply_socket.rcvmore(), "Unexpected missing message part."
                 msg = self.reply_socket.recv_json()
-            print>>sys.__stdout__, "Aborting:"
-            print>>sys.__stdout__, Message(msg)
+            print >> sys.__stdout__, "Aborting:"
+            print >> sys.__stdout__, Message(msg)
             msg_type = msg['msg_type']
             reply_type = msg_type.split('_')[0] + '_reply'
             reply_msg = self.session.msg(reply_type, {'status' : 'aborted'}, msg)
-            print>>sys.__stdout__, Message(reply_msg)
+            print >> sys.__stdout__, Message(reply_msg)
             self.reply_socket.send(ident,zmq.SNDMORE)
             self.reply_socket.send_json(reply_msg)
             # We need to wait a bit for requests to come in. This can probably
@@ -172,8 +172,8 @@ class Kernel(object):
         try:
             code = parent[u'content'][u'code']
         except:
-            print>>sys.__stderr__, "Got bad msg: "
-            print>>sys.__stderr__, Message(parent)
+            print >> sys.__stderr__, "Got bad msg: "
+            print >> sys.__stderr__, Message(parent)
             return
         pyin_msg = self.session.msg(u'pyin',{u'code':code}, parent=parent)
         self.pub_socket.send_json(pyin_msg)
@@ -197,7 +197,7 @@ class Kernel(object):
         else:
             reply_content = {'status' : 'ok'}
         reply_msg = self.session.msg(u'execute_reply', reply_content, parent)
-        print>>sys.__stdout__, Message(reply_msg)
+        print >> sys.__stdout__, Message(reply_msg)
         self.reply_socket.send(ident, zmq.SNDMORE)
         self.reply_socket.send_json(reply_msg)
         if reply_msg['content']['status'] == u'error':
@@ -220,13 +220,50 @@ class Kernel(object):
                 
             msg = self.reply_socket.recv_json()
             omsg = Message(msg)
-            print>>sys.__stdout__, omsg
+            print >> sys.__stdout__, omsg
             handler = self.handlers.get(omsg.msg_type, None)
             if handler is None:
                 print >> sys.__stderr__, "UNKNOWN MESSAGE TYPE:", omsg
             else:
                 handler(ident, omsg)
 
+
+class JuliaKernel(Kernel):
+    def execute_request(self, ident, parent):
+        try:
+            code = parent[u'content'][u'code']
+        except:
+            print >> sys.__stderr__, "Got bad msg: "
+            print >> sys.__stderr__, Message(parent)
+            return
+        pyin_msg = self.session.msg(u'pyin',{u'code':code}, parent=parent)
+        self.pub_socket.send_json(pyin_msg)
+        try:
+            comp_code = self.compiler(code, '<zmq-kernel>')
+            sys.displayhook.set_parent(parent)
+            exec comp_code in self.user_ns, self.user_ns
+        except:
+            result = u'error'
+            etype, evalue, tb = sys.exc_info()
+            tb = traceback.format_exception(etype, evalue, tb)
+            exc_content = {
+                u'status' : u'error',
+                u'traceback' : tb,
+                u'etype' : unicode(etype),
+                u'evalue' : unicode(evalue)
+            }
+            exc_msg = self.session.msg(u'pyerr', exc_content, parent)
+            self.pub_socket.send_json(exc_msg)
+            reply_content = exc_content
+        else:
+            reply_content = {'status' : 'ok'}
+        reply_msg = self.session.msg(u'execute_reply', reply_content, parent)
+        print >> sys.__stdout__, Message(reply_msg)
+        self.reply_socket.send(ident, zmq.SNDMORE)
+        self.reply_socket.send_json(reply_msg)
+        if reply_msg['content']['status'] == u'error':
+            self.abort_queue()
+            
 
 def main():
     c = zmq.Context()
