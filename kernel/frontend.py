@@ -22,7 +22,7 @@ import completer
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-class Console(code.InteractiveConsole):
+class PythonConsole(code.InteractiveConsole):
 
     def __init__(self, locals=None, filename="<console>",
                  session = session,
@@ -153,23 +153,37 @@ class Console(code.InteractiveConsole):
             print >> sys.stderr, 'ERROR!!! kernel never got back to us!!!'
 
 
+class JuliaConsole(PythonConsole):
+    def __init__(self, *args, **kw):
+        PythonConsole.__init__(self, *args, **kw)
+        # Set system prompts
+        sys.ps1 = 'julia> '
+        sys.ps2 = '   ... '
+        sys.ps3 = 'Out  : '
+
+
 class InteractiveClient(object):
-    def __init__(self, session, request_socket, sub_socket):
+    def __init__(self, session, request_socket, sub_socket, console=JuliaConsole):
         self.session = session
         self.request_socket = request_socket
         self.sub_socket = sub_socket
-        self.console = Console(None, '<zmq-console>',
+        self.console = console(None, '<zmq-%s>' % console.__name__,
                                session, request_socket, sub_socket)
 
     def interact(self):
         self.console.interact()
 
 
-def main():
+def main(argv):
+    try:
+        kind = argv[1]
+    except IndexError:
+        kind = 'julia'
+
+    console = JuliaConsole if kind == 'julia' else PythonConsole
+        
     # Defaults
-    #ip = '192.168.2.109'
     ip = '127.0.0.1'
-    #ip = '99.146.222.252'
     port_base = 5555
     connection = ('tcp://%s' % ip) + ':%i'
     req_conn = connection % port_base
@@ -186,9 +200,10 @@ def main():
 
     # Make session and user-facing client
     sess = session.Session()
-    client = InteractiveClient(sess, request_socket, sub_socket)
+    client = InteractiveClient(sess, request_socket, sub_socket, console)
     client.interact()
 
 
 if __name__ == '__main__':
-    main()
+    import sys
+    main(sys.argv)

@@ -1,40 +1,31 @@
-=======================================================
- Simple interactive Python kernel/frontend with ZeroMQ
-=======================================================
+==================================================================
+ Simple Julia kernel/frontend with ZeroMQ in the style of IPython
+==================================================================
 
-This is the code that served as the original prototype for today's IPython
-client/server model.  It is kept here purely as a reference to illustrate how
-to implement similar ideas for interactive Python interpreters on top of
-zeromq.  This example used to be included with pyzmq but for some reason was
-removed, so it's available here in standalone form.  It should be useful to
-anyone wishing to either implement a similar system or understand IPython's
-basic architecture without all of the details.
-
-The message spec included here was the original, minimal spec we used for this
-implementation, today's IPython messaging is based on these ideas but has
-evolved substantially.
+Sample, minimalistic Julia kernel.  Just enough to test the protocol ideas.
+Once we get this working, all development should be done on the real IPython
+kernel code.  But that code is way more complex than this.
 
 
 Usage
 =====
 
-Run in one terminal::
+This code can be used in one of two ways, from a plain terminal or within
+Julia.  To use it from a plain terminal, simply type::
 
   ./kernel.py
 
-and in another::
+while from Julia, use::
+
+  include("jip.jl")
+
+Regardless of which approach you use above, once the kernel shows that it's
+active, from another terminal start the frontend::
 
   ./frontend.py
 
-In the latter, you can type python code, tab-complete, etc.  The kernel
-terminal prints all messages for debugging.  Exit the frontend with Ctrl-D, and
-the kernel with Ctrl-\ (note that Ctrl-C will *not* stop the kernel).
+Exit the frontend with Ctrl-D, and the kernel with Ctrl-\ (note that Ctrl-C
+will *not* stop the kernel).
 
-
-License
-=======
-
-This code is released under the terms of the BSD license, same as IPython
-itself.  It was originally authored by Brian Granger and Fernando Perez, but no
-further development is planned, as all the ideas illustrated here are now
-implemented in IPython and developed there as production code.
+Note that you can restart either component (kernel or frontend) without
+restarting the other.

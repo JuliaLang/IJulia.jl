@@ -23,6 +23,20 @@ import zmq
 from session import Session, Message, extract_header
 from completer import KernelCompleter
 
+
+# Hack, for now insert the parent directory in the search path, so this can be
+# run in-place without installing anything.  That's where the julia module lives.
+import os
+sys.path.insert(0, os.path.split(os.path.abspath(__file__))[0].rsplit('/', 1)[0])
+# /hack
+from julia import Julia
+
+
+def log(msg):
+    print >> sys.__stderr__, msg
+    sys.__stderr__.flush()
+
+
 class OutStream(object):
     """A file like object that publishes the stream to a 0MQ PUB socket."""
 
@@ -50,7 +64,7 @@ class OutStream(object):
                 content = {u'name':self.name, u'data':data}
                 msg = self.session.msg(u'stream', content=content,
                                        parent=self.parent_header)
-                print >> sys.__stdout__, Message(msg)
+                log(content)
                 self.pub_socket.send_json(msg)
                 self._buffer_len = 0
                 self._buffer = []
@@ -96,6 +110,7 @@ class DisplayHook(object):
         self.parent_header = {}
 
     def __call__(self, obj):
+        
         if obj is None:
             return
 
@@ -156,12 +171,12 @@ class Kernel(object):
             else:
                 assert self.reply_socket.rcvmore(), "Unexpected missing message part."
                 msg = self.reply_socket.recv_json()
-            print >> sys.__stdout__, "Aborting:"
-            print >> sys.__stdout__, Message(msg)
+            log("Aborting:")
+            log(Message(msg))
             msg_type = msg['msg_type']
             reply_type = msg_type.split('_')[0] + '_reply'
             reply_msg = self.session.msg(reply_type, {'status' : 'aborted'}, msg)
-            print >> sys.__stdout__, Message(reply_msg)
+            log(Message(reply_msg))
             self.reply_socket.send(ident,zmq.SNDMORE)
             self.reply_socket.send_json(reply_msg)
             # We need to wait a bit for requests to come in. This can probably
@@ -172,8 +187,8 @@ class Kernel(object):
         try:
             code = parent[u'content'][u'code']
         except:
-            print >> sys.__stderr__, "Got bad msg: "
-            print >> sys.__stderr__, Message(parent)
+            log("Got bad msg: ")
+            log(Message(parent))
             return
         pyin_msg = self.session.msg(u'pyin',{u'code':code}, parent=parent)
         self.pub_socket.send_json(pyin_msg)
@@ -197,7 +212,7 @@ class Kernel(object):
         else:
             reply_content = {'status' : 'ok'}
         reply_msg = self.session.msg(u'execute_reply', reply_content, parent)
-        print >> sys.__stdout__, Message(reply_msg)
+        log(reply_content)
         self.reply_socket.send(ident, zmq.SNDMORE)
         self.reply_socket.send_json(reply_msg)
         if reply_msg['content']['status'] == u'error':
@@ -208,7 +223,7 @@ class Kernel(object):
                    'status' : 'ok'}
         completion_msg = self.session.send(self.reply_socket, 'complete_reply',
                                            matches, parent, ident)
-        print >> sys.__stdout__, completion_msg
+        log(completion_msg)
 
     def complete(self, msg):
         return self.completer.complete(msg.content.line, msg.content.text)
@@ -220,28 +235,37 @@ class Kernel(object):
                 
             msg = self.reply_socket.recv_json()
             omsg = Message(msg)
-            print >> sys.__stdout__, omsg
+            log(omsg)
             handler = self.handlers.get(omsg.msg_type, None)
             if handler is None:
-                print >> sys.__stderr__, "UNKNOWN MESSAGE TYPE:", omsg
+                log("UNKNOWN MESSAGE TYPE: %s" % omsg)
             else:
                 handler(ident, omsg)
 
 
 class JuliaKernel(Kernel):
+
+    def __init__(self, *args, **kw):
+        log("Initializing Julia, please be patient...")
+        self.j = Julia(kw.pop('init_julia', True))
+        log("Julia up and running!")
+        super(JuliaKernel, self).__init__(*args, **kw)
+
+    
     def execute_request(self, ident, parent):
         try:
             code = parent[u'content'][u'code']
         except:
-            print >> sys.__stderr__, "Got bad msg: "
-            print >> sys.__stderr__, Message(parent)
+            log("Got bad msg: ")
+            log(Message(parent))
             return
         pyin_msg = self.session.msg(u'pyin',{u'code':code}, parent=parent)
         self.pub_socket.send_json(pyin_msg)
         try:
-            comp_code = self.compiler(code, '<zmq-kernel>')
             sys.displayhook.set_parent(parent)
-            exec comp_code in self.user_ns, self.user_ns
+            log('CODE: %s' % code)
+            jout = self.j.run(code)
+            log('JOUT: %r' % jout)
         except:
             result = u'error'
             etype, evalue, tb = sys.exc_info()
@@ -257,8 +281,9 @@ class JuliaKernel(Kernel):
             reply_content = exc_content
         else:
             reply_content = {'status' : 'ok'}
+            sys.displayhook(jout)
         reply_msg = self.session.msg(u'execute_reply', reply_content, parent)
-        print >> sys.__stdout__, Message(reply_msg)
+        #log(Message(reply_msg))
         self.reply_socket.send(ident, zmq.SNDMORE)
         self.reply_socket.send_json(reply_msg)
         if reply_msg['content']['status'] == u'error':
@@ -266,6 +291,9 @@ class JuliaKernel(Kernel):
             
 
 def main():
+    # Whether the Julia interpreter is already runnig or not.
+    init_julia = sys.argv[0] != 'julia'
+    
     c = zmq.Context()
 
     ip = '127.0.0.1'
@@ -274,8 +302,8 @@ def main():
     rep_conn = connection % port_base
     pub_conn = connection % (port_base+1)
 
-    print >>sys.__stdout__, "Starting the kernel..."
-    print >>sys.__stdout__, "On:",rep_conn, pub_conn
+    log("Starting the kernel...")
+    log("On: %s %s" % (rep_conn, pub_conn))
 
     session = Session(username=u'kernel')
 
@@ -290,17 +318,11 @@ def main():
     sys.stdout = stdout
     sys.stderr = stderr
 
-    display_hook = DisplayHook(session, pub_socket)
-    sys.displayhook = display_hook
+    sys.displayhook = DisplayHook(session, pub_socket)
 
-    kernel = Kernel(session, reply_socket, pub_socket)
+    kernel = JuliaKernel(session, reply_socket, pub_socket, init_julia=init_julia)
 
-    # For debugging convenience, put sleep and a string in the namespace, so we
-    # have them every time we start.
-    kernel.user_ns['sleep'] = time.sleep
-    kernel.user_ns['s'] = 'Test string'
-
-    print >>sys.__stdout__, "Use Ctrl-\\ (NOT Ctrl-C!) to terminate."
+    log("Use Ctrl-\\ (NOT Ctrl-C!) to terminate.")
     kernel.start()
 
 
