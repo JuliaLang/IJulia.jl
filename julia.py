@@ -20,7 +20,6 @@ import os
 import sys
 import commands
 
-
 #-----------------------------------------------------------------------------
 # Classes and funtions
 #-----------------------------------------------------------------------------
@@ -58,8 +57,7 @@ class Julia(object):
         # this extension without trying to re-open the shared lib, which kills
         # the python interpreter.  Nasty but useful while debugging
         if hasattr(sys, '_julia_runtime'):
-            j = sys._julia_runtime
-            self._setup(j)
+            self.j = sys._julia_runtime
             return
         
         if init_julia:
@@ -79,7 +77,7 @@ class Julia(object):
             j = ctypes.PyDLL('')
 
         # Store the running interpreter reference so we can start using it via self.jcall
-        self._setup(j)
+        self.j = j
 
         # Set the return types of some of the bridge functions in ctypes terminology
         j.jl_eval_string.restype = ctypes.c_void_p
@@ -92,19 +90,16 @@ class Julia(object):
             # print 'Initializing Julia PyCall module...' # dbg
             self.jcall('using PyCall')
             self.jcall('pyinitialize(C_NULL)')
-            self.j_py_obj = self.jcall('PyObject')
+            # Upon initialization of the Python bridge, we MUST create at least
+            # one instance of PyObject.  Since this will be needed on every
+            # call, we hold it in the Julia object itself so it can survive
+            # across reinitializations.
+            j.PyObject = self.jcall('PyObject')
 
         # Flag process-wide that Julia is initialized and store the actual
         # runtime interpreter, so we can reuse it across calls and module reloads.
         sys._julia_runtime = j
         
-    def _setup(self, j):
-        """Set up our own state with the necessary objects from Julia itself.
-        """
-        self.j = j
-        self.j_py_obj = ctypes.c_void_p(self.jcall('PyObject'))
-        #self.j_py_obj = self.jcall('PyObject')
-
     def jcall(self, src):
         """Low-level call to execute a snippet of Julia source.
 
@@ -134,7 +129,7 @@ class Julia(object):
         j = self.j
         void_p = ctypes.c_void_p
         # Unbox the Julia result into something Python understands
-        xx = j.jl_call1(self.j_py_obj, void_p(ans))
+        xx = j.jl_call1(j.PyObject, void_p(ans))
         pyans = j.jl_unbox_voidpointer(void_p(j.jl_get_field(void_p(xx), 'o')))
         # make sure we incref it before returning it, since this is a borrowed ref
         ctypes.pythonapi.Py_IncRef(ctypes.py_object(pyans))
