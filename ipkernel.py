@@ -80,10 +80,11 @@ class JuliaKernel(Kernel):
         try:
             # FIXME: the shell calls the exception handler itself.
             shell.run_cell(code, store_history=store_history, silent=silent)
-            print 'code:', code
+            #print 'code:', code   # dbg
             jans = self.j.run(code)
-            print 'fetching jans', jans, type(jans)
-            jcode = compile('jans', '<julia>', 'single')
+            #print 'fetching jans', jans, type(jans)  # dbg
+            #jcode = compile('jans', '<julia>', 'single')
+            sys.displayhook(jans)
             #exec jcode in locals()
             
         except:

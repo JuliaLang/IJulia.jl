@@ -90,11 +90,12 @@ class Julia(object):
             # print 'Initializing Julia PyCall module...' # dbg
             self.jcall('using PyCall')
             self.jcall('pyinitialize(C_NULL)')
-            # Upon initialization of the Python bridge, we MUST create at least
-            # one instance of PyObject.  Since this will be needed on every
-            # call, we hold it in the Julia object itself so it can survive
-            # across reinitializations.
-            j.PyObject = self.jcall('PyObject')
+
+        # Whether we initialized Julia or not, we MUST create at least one
+        # instance of PyObject.  Since this will be needed on every call, we
+        # hold it in the Julia object itself so it can survive across
+        # reinitializations.
+        j.PyObject = self.jcall('PyObject')
 
         # Flag process-wide that Julia is initialized and store the actual
         # runtime interpreter, so we can reuse it across calls and module reloads.
@@ -133,4 +134,5 @@ class Julia(object):
         pyans = j.jl_unbox_voidpointer(void_p(j.jl_get_field(void_p(xx), 'o')))
         # make sure we incref it before returning it, since this is a borrowed ref
         ctypes.pythonapi.Py_IncRef(ctypes.py_object(pyans))
+        #print 'Pyans (s, r):', str(pyans), '|||', repr(pyans)  # dbg
         return pyans
