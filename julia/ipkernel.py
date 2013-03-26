@@ -21,7 +21,7 @@ class JuliaKernel(Kernel):
     def __init__(self, **kwargs):
         super(JuliaKernel, self).__init__(**kwargs)
         
-        from juliamagic import Julia
+        from julia import Julia
         j = Julia(init_julia=False)
         self.j = j
 

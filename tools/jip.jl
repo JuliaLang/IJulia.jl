@@ -1,3 +1,3 @@
 using PyCall
-@pyimport ipkernel
+@pyimport julia.ipkernel as ipkernel
 ipkernel.main()
