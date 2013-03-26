@@ -109,7 +109,7 @@ class Julia(object):
         management.  It should never be used for returning the result of Julia
         expressions, only to execute statements.
         """
-        ans = self.j.jl_eval_string(src)
+        ans = self.j.jl_eval_string(str(src))
         if self.j.jl_typeof_str(ctypes.c_void_p(ans)) == 'ErrorException':
             raise JuliaMagicError('ErrorException in Julia: %s' %src)
         else:
