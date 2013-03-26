@@ -77,24 +77,15 @@ class JuliaKernel(Kernel):
             self._publish_pyin(code, parent, shell.execution_count)
 
         reply_content = {}
+        # Return the execution counter so clients can display prompts
+        reply_content['execution_count'] = shell.execution_count
         try:
-            # FIXME: the shell calls the exception handler itself.
-            shell.run_cell(code, store_history=store_history, silent=silent)
-            #print 'code:', code   # dbg
             jans = self.j.run(code)
-            #print 'fetching jans', jans, type(jans)  # dbg
-            #jcode = compile('jans', '<julia>', 'single')
-            sys.displayhook(jans)
-            #exec jcode in locals()
-            
+            if not silent:
+                shell.displayhook(jans)
+                shell.execution_count += 1
         except:
             status = u'error'
-            # FIXME: this code right now isn't being used yet by default,
-            # because the run_cell() call above directly fires off exception
-            # reporting.  This code, therefore, is only active in the scenario
-            # where runlines itself has an unhandled exception.  We need to
-            # uniformize this, for all exception construction to come from a
-            # single location in the codbase.
             etype, evalue, tb = sys.exc_info()
             tb_list = traceback.format_exception(etype, evalue, tb)
             reply_content.update(shell._showtraceback(etype, evalue, tb_list))
@@ -108,35 +99,10 @@ class JuliaKernel(Kernel):
                  __builtin__.raw_input = self._sys_raw_input
 
         reply_content[u'status'] = status
-
-        # Return the execution counter so clients can display prompts
-        reply_content['execution_count'] = shell.execution_count - 1
-
-        # FIXME - fish exception info out of shell, possibly left there by
-        # runlines.  We'll need to clean up this logic later.
-        if shell._reply_content is not None:
-            reply_content.update(shell._reply_content)
-            e_info = dict(engine_uuid=self.ident, engine_id=self.int_id, method='execute')
-            reply_content['engine_info'] = e_info
-            # reset after use
-            shell._reply_content = None
         
-        if 'traceback' in reply_content:
-            self.log.info("Exception in execute request:\n%s", '\n'.join(reply_content['traceback']))
-        
-
-        # At this point, we can tell whether the main code execution succeeded
-        # or not.  If it did, we proceed to evaluate user_variables/expressions
-        if reply_content['status'] == 'ok':
-            reply_content[u'user_variables'] = \
-                         shell.user_variables(content.get(u'user_variables', []))
-            reply_content[u'user_expressions'] = \
-                         shell.user_expressions(content.get(u'user_expressions', {}))
-        else:
-            # If there was an error, don't even try to compute variables or
-            # expressions
-            reply_content[u'user_variables'] = {}
-            reply_content[u'user_expressions'] = {}
+        # FIXME: We need to get user_variables and user_expressions in Julia.
+        reply_content[u'user_variables'] = {}
+        reply_content[u'user_expressions'] = {}
 
         # Payloads should be retrieved regardless of outcome, so we can both
         # recover partial output (that could have been generated early in a
