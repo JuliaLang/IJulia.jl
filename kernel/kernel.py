@@ -265,7 +265,7 @@ class JuliaKernel(Kernel):
             sys.displayhook.set_parent(parent)
             log('CODE: %s' % code)
             jout = self.j.run(code)
-            log('JOUT: %r' % jout)
+            log('JOUT: %r - %s' % (jout, type(jout)))
         except:
             result = u'error'
             etype, evalue, tb = sys.exc_info()
