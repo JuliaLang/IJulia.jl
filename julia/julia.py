@@ -1,5 +1,5 @@
 """
-Bridge Python and Julia by initializing the Julia interpreter inside the Python one.
+Bridge Python and Julia by initializing the Julia interpreter inside Python.
 """
 
 #-----------------------------------------------------------------------------
@@ -76,10 +76,12 @@ class Julia(object):
             # so we're fishing for symbols in our own process table
             j = ctypes.PyDLL('')
 
-        # Store the running interpreter reference so we can start using it via self.jcall
+        # Store the running interpreter reference so we can start using it via
+        # self.jcall
         self.j = j
 
-        # Set the return types of some of the bridge functions in ctypes terminology
+        # Set the return types of some of the bridge functions in ctypes
+        # terminology
         j.jl_eval_string.restype = ctypes.c_void_p
         j.jl_call1.restype = ctypes.c_void_p
         j.jl_get_field.restype = ctypes.c_void_p
@@ -98,7 +100,8 @@ class Julia(object):
         j.PyObject = self.jcall('PyObject')
 
         # Flag process-wide that Julia is initialized and store the actual
-        # runtime interpreter, so we can reuse it across calls and module reloads.
+        # runtime interpreter, so we can reuse it across calls and module
+        # reloads.
         sys._julia_runtime = j
         
     def jcall(self, src):
@@ -134,7 +137,8 @@ class Julia(object):
         if not xx: # TODO: more descriptive exception
             raise JuliaMagicError('ErrorException in Julia PyObject: %s' %src)
         pyans = j.jl_unbox_voidpointer(void_p(j.jl_get_field(void_p(xx), 'o')))
-        # make sure we incref it before returning it, since this is a borrowed ref
+        # make sure we incref it before returning it, since this is a borrowed
+        # ref
         ctypes.pythonapi.Py_IncRef(ctypes.py_object(pyans))
         #print 'Pyans (s, r):', str(pyans), '|||', repr(pyans)  # dbg
         return pyans
