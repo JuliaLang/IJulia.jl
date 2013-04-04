@@ -110,8 +110,8 @@ class Julia(object):
         expressions, only to execute statements.
         """
         ans = self.j.jl_eval_string(str(src))
-        if self.j.jl_typeof_str(ctypes.c_void_p(ans)) == 'ErrorException':
-            raise JuliaMagicError('ErrorException in Julia: %s' %src)
+        if not ans: # TODO: more descriptive exception
+            raise JuliaMagicError('Exception in Julia: %s' %src)
         else:
             return ans
 
@@ -131,6 +131,8 @@ class Julia(object):
         void_p = ctypes.c_void_p
         # Unbox the Julia result into something Python understands
         xx = j.jl_call1(j.PyObject, void_p(ans))
+        if not xx: # TODO: more descriptive exception
+            raise JuliaMagicError('ErrorException in Julia PyObject: %s' %src)
         pyans = j.jl_unbox_voidpointer(void_p(j.jl_get_field(void_p(xx), 'o')))
         # make sure we incref it before returning it, since this is a borrowed ref
         ctypes.pythonapi.Py_IncRef(ctypes.py_object(pyans))
