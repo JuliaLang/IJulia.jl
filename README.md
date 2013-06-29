@@ -14,7 +14,7 @@ not depending on all of the real IPython, and therefore being much easier to
 understand and debug.
 
 Once we get that working, development will switch to the `ipkernel.py` module
-in tihs directory, that uses the real IPython protocols.
+in the `julia` directory, that uses the real IPython protocols.
 
 The `julia.py` file implements the main interface to Julia itself, and is the
 most stable part of this story.  It even has a small test suite!

@@ -34,7 +34,7 @@ class Julia(object):
     This uses the Julia PyCall module to perform type conversions and allow
     full access to the entire Julia interpreter.
     """
-    
+
 
     def __init__(self, init_julia=True):
         """Create a Python object that represents a live Julia interpreter.
@@ -52,21 +52,21 @@ class Julia(object):
           to avoid re-initializing it.  The purpose of the flag is only to
           manage situations when Julia was initialized from outside this code.
         """
-        
+
         # Ugly hack to register the julia interpreter globally so we can reload
         # this extension without trying to re-open the shared lib, which kills
         # the python interpreter.  Nasty but useful while debugging
         if hasattr(sys, '_julia_runtime'):
             self.j = sys._julia_runtime
             return
-        
+
         if init_julia:
             # print 'Finding Julia install directory...'  # dbg
             status, JULIA_HOME = commands.getstatusoutput(
                                      'julia -e "print(JULIA_HOME)"')
             if status != 0:
                 raise JuliaMagicError('error starting up the Julia process')
-            
+
             jpath = os.path.abspath('%s/../lib/libjulia-release.so' % JULIA_HOME)
             j = ctypes.PyDLL(jpath, ctypes.RTLD_GLOBAL)
             # print 'Initializing Julia...'  # dbg
@@ -103,7 +103,7 @@ class Julia(object):
         # runtime interpreter, so we can reuse it across calls and module
         # reloads.
         sys._julia_runtime = j
-        
+
     def jcall(self, src):
         """Low-level call to execute a snippet of Julia source.
 
@@ -125,7 +125,7 @@ class Julia(object):
         """
         if src is None:
             return None
-        
+
         #print 'Running src:', src  # dbg
         ans = self.jcall(src)
         #print 'Ans:', ans  # dbg

@@ -27,7 +27,7 @@ import julia
 #-----------------------------------------------------------------------------
 
 class JuliaTestCase(TestCase):
-    
+
     def setUp(self):
         self.j = julia.Julia()
 
