@@ -22,7 +22,7 @@ class JuliaKernel(Kernel):
         super(JuliaKernel, self).__init__(**kwargs)
         
         from julia import Julia
-        j = Julia(init_julia=False)
+        j = Julia(init_julia=True)
         self.j = j
 
     def execute_request(self, stream, ident, parent):
@@ -143,28 +143,7 @@ class JuliaKernel(Kernel):
 
 class JuliaKernelApp(IPKernelApp):
     name = 'juliakernel'
-    kernel_class = DottedObjectName('juliamagic.ipkernel.JuliaKernel')
-
-    # This is a bug in IPython itself, which should be honoring our class
-    # declaration but isn't.  For now, we patch it here.
-    
-    kernel_class2 = JuliaKernel
-
-    def init_kernel(self):
-        """Create the Kernel object itself"""
-        shell_stream = ZMQStream(self.shell_socket)
-
-        Kernel = self.kernel_class2
-        
-        kernel = Kernel(config=self.config, session=self.session,
-                                shell_streams=[shell_stream],
-                                iopub_socket=self.iopub_socket,
-                                stdin_socket=self.stdin_socket,
-                                log=self.log,
-                                profile_dir=self.profile_dir,
-        )
-        kernel.record_ports(self.ports)
-        self.kernel = kernel
+    kernel_class = DottedObjectName('julia.ipkernel.JuliaKernel')
 
 
 
