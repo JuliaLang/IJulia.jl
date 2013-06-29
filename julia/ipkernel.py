@@ -1,12 +1,17 @@
 """An IPython kernel for Julia.
 """
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
 # Standard library imports
 import __builtin__
 import sys
 import time
 import traceback
 
+# Third-party
 from IPython.kernel.zmq.kernelapp import IPKernelApp
 from IPython.kernel.zmq.ipkernel import Kernel
 from IPython.utils import py3compat
@@ -15,15 +20,18 @@ from IPython.utils.traitlets import DottedObjectName
 
 from zmq.eventloop.zmqstream import ZMQStream
 
+#-----------------------------------------------------------------------------
+# Main classes
+#-----------------------------------------------------------------------------
 
 class JuliaKernel(Kernel):
 
     def __init__(self, **kwargs):
         super(JuliaKernel, self).__init__(**kwargs)
+        init_julia = kwargs.pop('init_julia', True)
         
-        from julia import Julia
-        j = Julia(init_julia=True)
-        self.j = j
+        from .core import Julia
+        self.j = Julia(init_julia=init_julia)
 
     def execute_request(self, stream, ident, parent):
         """handle an execute_request"""
@@ -145,14 +153,19 @@ class JuliaKernelApp(IPKernelApp):
     name = 'juliakernel'
     kernel_class = DottedObjectName('julia.ipkernel.JuliaKernel')
 
+#-----------------------------------------------------------------------------
+# Application entry point
+#-----------------------------------------------------------------------------
 
-
-def main():
+def main(init_julia=True):
     """Run a JuliaKernel as an application"""
-    app = JuliaKernelApp.instance()
+    app = JuliaKernelApp.instance(init_julia)
     app.initialize()
     app.start()
 
+#-----------------------------------------------------------------------------
+# Script entry point
+#-----------------------------------------------------------------------------
 
 if __name__ == '__main__':
     main()
