@@ -159,7 +159,7 @@ class JuliaKernelApp(IPKernelApp):
 
 def main(init_julia=True):
     """Run a JuliaKernel as an application"""
-    app = JuliaKernelApp.instance(init_julia)
+    app = JuliaKernelApp.instance()
     app.initialize()
     app.start()
 
