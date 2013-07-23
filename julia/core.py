@@ -133,7 +133,7 @@ class Julia(object):
         j = self.j
         void_p = ctypes.c_void_p
         # Unbox the Julia result into something Python understands
-        xx = j.jl_call1(j.PyObject, void_p(ans))
+        xx = j.jl_call1(void_p(j.PyObject), void_p(ans))
         if not xx: # TODO: more descriptive exception
             raise JuliaMagicError('ErrorException in Julia PyObject: %s' %src)
         pyans = j.jl_unbox_voidpointer(void_p(j.jl_get_field(void_p(xx), 'o')))
