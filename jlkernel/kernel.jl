@@ -37,6 +37,8 @@ _n = 0
 include("msg.jl")
 include("handlers.jl")
 
+send_status("starting")
+
 # heartbeat (should eventually be forked in a separate thread & use zmq_device)
 @async begin
     while true
