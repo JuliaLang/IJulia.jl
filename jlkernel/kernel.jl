@@ -32,7 +32,7 @@ bind(raw_input, "$(profile["transport"])://$(profile["ip"]):$(profile["stdin_por
 bind(heartbeat, "$(profile["transport"])://$(profile["ip"]):$(profile["hb_port"])")
 
 # execution counter
-_n = 1
+_n = 0
 
 include("msg.jl")
 include("handlers.jl")

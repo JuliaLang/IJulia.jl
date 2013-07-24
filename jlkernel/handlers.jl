@@ -2,6 +2,7 @@ function execute_request(socket, msg)
     user_variables = Dict() # TODO
     user_expressions = Dict() # TODO
     result = try 
+        global _n += 1
         println("Executing ", msg.content["code"])
         eval(parse(msg.content["code"]))
     catch
