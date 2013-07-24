@@ -1,8 +1,7 @@
 using ZMQ
 using JSON
 
-using PyCall
-uuid4() = pyimport("uuid")[:uuid4]()[:__str__]()
+uuid4() = repr(Random.uuid4())
 
 const port0 = 5678
 const profile = ["ip" => "127.0.0.1", "transport" => "tcp",
