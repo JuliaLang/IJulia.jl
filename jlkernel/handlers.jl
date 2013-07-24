@@ -40,15 +40,6 @@ function execute_request(socket, msg)
         # ??
     end
 
-    send_status("idle")
-
-    send_ipython(requests, msg_reply(msg, "execute_reply",
-                                     ["status" => "ok",
-                                      "execution_count" => _n,
-                                      "payload" => [],
-                                      "user_variables" => user_variables,
-                                      "user_expressions" => user_expressions]))
-
     if result != nothing
         send_ipython(publish, 
                      msg_pub(msg, "pyout",
@@ -57,6 +48,15 @@ function execute_request(socket, msg)
                                          sprint(repl_show, result) ]
                               ]))
     end
+
+    send_ipython(requests, msg_reply(msg, "execute_reply",
+                                     ["status" => "ok",
+                                      "execution_count" => _n,
+                                      "payload" => [],
+                                      "user_variables" => user_variables,
+                                      "user_expressions" => user_expressions]))
+
+    send_status("idle")
 end
 
 const handlers = (String=>Function)[
