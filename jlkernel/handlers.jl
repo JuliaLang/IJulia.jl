@@ -76,6 +76,8 @@ function execute_request_0x535c5df2(socket, msg)
     send_status("idle")
 end
 
+using REPL
+
 function complete_request(socket, msg)
     text = msg.content["text"]
     line = msg.content["line"]
@@ -90,7 +92,7 @@ function complete_request(socket, msg)
         end
     end
     send_ipython(requests, msg_reply(msg, "complete_reply",
-                                     [ "matches" => matches ]))
+                                     [ "matches" => REPL.completions(line,cursorpos) ]))
 end
 
 function kernel_info_request(socket, msg)
