@@ -89,7 +89,28 @@ function complete_request(socket, msg)
                                      [ "matches" => matches ]))
 end
 
+function kernel_info_request(socket, msg)
+    send_ipython(requests,
+                 msg_reply(msg, "kernel_info_reply",
+                           ["protocol_version" => [4, 0],
+                            "language_version" => [VERSION.major,
+                                                   VERSION.minor,
+                                                   VERSION.patch],
+                            "language" => "julia" ]))
+end
+
+function connect_request(socket, msg)
+    send_ipython(requests,
+                 msg_reply(msg, "connect_reply",
+                           ["shell_port" => profile["shell_port"],
+                            "iopub_port" => profile["iopub_port"],
+                            "stdin_port" => profile["stdin_port"],
+                            "hb_port" => profile["hb_port"]]))
+end
+
 const handlers = (String=>Function)[
     "execute_request" => execute_request_0x535c5df2,
     "complete_request" => complete_request,
+    "kernel_info_request" => kernel_info_request,
+    "connect_request" => connect_request,
 ]
