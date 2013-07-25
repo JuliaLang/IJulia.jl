@@ -26,12 +26,12 @@ else
     end
 end
 
-ctx = Context()
-publish = Socket(ctx, PUB)
-raw_input = Socket(ctx, ROUTER)
-requests = Socket(ctx, ROUTER)
-control = Socket(ctx, ROUTER)
-heartbeat = Socket(ctx, REP)
+const ctx = Context()
+const publish = Socket(ctx, PUB)
+const raw_input = Socket(ctx, ROUTER)
+const requests = Socket(ctx, ROUTER)
+const control = Socket(ctx, ROUTER)
+const heartbeat = Socket(ctx, REP)
 
 bind(publish, "$(profile["transport"])://$(profile["ip"]):$(profile["iopub_port"])")
 bind(requests, "$(profile["transport"])://$(profile["ip"]):$(profile["shell_port"])")
