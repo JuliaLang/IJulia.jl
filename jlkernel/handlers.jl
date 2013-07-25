@@ -1,11 +1,13 @@
 function send_status(state::String)
-    send_ipython(publish, 
-                 Msg([ "status" ],
-                     ["msg_id" => uuid4(),
-                      "username" => "jlkernel",
-                      "session" => uuid4(),
-                      "msg_type" => "status"],
-                     [ "execution_state" => state ]))
+    msg = Msg(
+        [ "status" ],
+        [ "msg_id" => uuid4(),
+          "username" => "jlkernel",
+          "session" => uuid4(),
+          "msg_type" => "status" ],
+        [ "execution_state" => state ]
+    )
+    send_ipython(publish, msg)
 end
 
 function execute_request(socket, msg)
@@ -77,6 +79,6 @@ function complete_request(socket, msg)
 end
 
 const handlers = (String=>Function)[
-                                    "execute_request" => execute_request,
-                                    "complete_request" => complete_request,
-                                    ]
+    "execute_request" => execute_request,
+    "complete_request" => complete_request,
+]
