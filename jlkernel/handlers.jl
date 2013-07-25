@@ -115,10 +115,35 @@ function shutdown_request(socket, msg)
     exit()
 end
 
+function object_info_request(socket, msg)
+    try
+        s = symbol(msg["name"])
+        o = eval(s)
+        content = ["name" => msg["name"],
+                   "found" => true,
+                   "ismagic" => false,
+                   "isalias" => false,
+                   "type_name" => string(typeof(foo)),
+                   "base_class" => string(typeof(foo).super),
+                   "string_form" => msg["detail_level"] == 0 ? 
+                   sprint(16384, show, foo) : repr(foo) ]
+        if method_exists(length, (typeof(o),))
+            content["length"] = length(o)
+        end
+        send_ipython(request, msg_reply(msg, "object_info_reply", content))
+    catch
+        send_ipython(request,
+                     msg_reply(msg, "object_info_reply",
+                               ["name" => msg["name"],
+                                "found" => false ]))
+    end
+end
+
 const handlers = (String=>Function)[
     "execute_request" => execute_request_0x535c5df2,
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,
+    "object_info_request" => object_info_request,
     "connect_request" => connect_request,
     "shutdown_request" => shutdown_request,
 ]
