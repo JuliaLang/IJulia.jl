@@ -40,9 +40,6 @@ function show(io::IO, msg::Msg)
     print(io, " ] {\n  header = $(msg.header),\n  metadata = $(msg.metadata),\n  content = $(msg.content)\n}")
 end
 
-# TODO: HMAC signatures (from global key and digest info)
-hmac(strings...) = ""
-
 function send_ipython(socket, m::Msg)
     println("SENDING $m")
     for i in m.idents

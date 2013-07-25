@@ -20,7 +20,7 @@ else
             "hb_port" => port0+2,
             "shell_port" => port0+3,
             "iopub_port" => port0+4,
-            "key" => ""
+            "key" => uuid4()
         ]
         fname = "profile-$(getpid()).json"
         println("connect ipython with --existing $(pwd())/$fname")
@@ -29,6 +29,8 @@ else
         end
     end
 end
+
+include("hmac.jl") # must go after profile is initialized
 
 const ctx = Context()
 const publish = Socket(ctx, PUB)
