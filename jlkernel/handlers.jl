@@ -17,6 +17,10 @@ function execute_request_0x535c5df2(socket, msg)
     global _n
     if !msg.content["silent"]
         _n += 1
+        send_ipython(publish, 
+                     msg_pub(msg, "pyin",
+                             ["execution_count" => _n,
+                              "code" => msg.content["code"]]))
     end
 
     send_status("busy")
