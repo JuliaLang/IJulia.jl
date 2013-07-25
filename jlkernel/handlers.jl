@@ -84,13 +84,6 @@ function complete_request(socket, msg)
     block = msg.content["block"]
     cursorpos = msg.content["cursor_pos"]
 
-    matches = {}
-    for n in names(Base)
-        s = string(n)
-        if beginswith(s, text)
-            push!(matches, s)
-        end
-    end
     send_ipython(requests, msg_reply(msg, "complete_reply",
                                      [ "matches" => REPL.completions(line,cursorpos) ]))
 end
