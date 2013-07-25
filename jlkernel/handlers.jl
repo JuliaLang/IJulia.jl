@@ -117,24 +117,24 @@ end
 
 function object_info_request(socket, msg)
     try
-        s = symbol(msg["name"])
+        s = symbol(msg["oname"])
         o = eval(s)
-        content = ["name" => msg["name"],
+        content = ["oname" => msg.content["oname"],
                    "found" => true,
                    "ismagic" => false,
                    "isalias" => false,
                    "type_name" => string(typeof(foo)),
                    "base_class" => string(typeof(foo).super),
-                   "string_form" => msg["detail_level"] == 0 ? 
+                   "string_form" => get(msg.content,"detail_level",0) == 0 ? 
                    sprint(16384, show, foo) : repr(foo) ]
         if method_exists(length, (typeof(o),))
             content["length"] = length(o)
         end
-        send_ipython(request, msg_reply(msg, "object_info_reply", content))
+        send_ipython(requests, msg_reply(msg, "object_info_reply", content))
     catch
-        send_ipython(request,
+        send_ipython(requests,
                      msg_reply(msg, "object_info_reply",
-                               ["name" => msg["name"],
+                               ["oname" => msg.content["oname"],
                                 "found" => false ]))
     end
 end
