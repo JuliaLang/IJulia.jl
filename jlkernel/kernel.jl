@@ -63,7 +63,16 @@ function eventloop(socket)
             try
                 handlers[msg.header["msg_type"]](socket, msg)
             catch e
-                println("REQUEST ERROR $e in ", msg.header["msg_type"])
+                # FIXME: IPython doesn't seem to do anything with crash msg
+                send_ipython(publish, 
+                             Msg([ "crash" ],
+                                 [ "msg_id" => uuid4(),
+                                  "username" => "jlkernel",
+                                  "session" => uuid4(),
+                                  "msg_type" => "crash" ],
+                                 [ "info" => sprint(Base.error_show, e, 
+                                                    catch_backtrace())]))
+                rethrow(e)
             end
         end
     end
