@@ -89,7 +89,14 @@ function complete_request(socket, msg)
                                      [ "matches" => matches ]))
 end
 
+function shutdown_request(socket, msg)
+    send_ipython(request, msg_reply(msg, "shutdown_reply",
+                                    msg.content))
+    exit()
+end
+
 const handlers = (String=>Function)[
     "execute_request" => execute_request_0x535c5df2,
     "complete_request" => complete_request,
+    "shutdown_request" => shutdown_request,
 ]
