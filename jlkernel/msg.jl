@@ -13,9 +13,13 @@ type Msg
     end
 end
 
-# PUB/broadcast messages use the msg_type as the ident
+# PUB/broadcast messages use the msg_type as the ident, except for
+# stream messages which use the stream name (e.g. "stdout").
+# [According to minrk, "this isn't well defined, or even really part
+# of the spec yet" and is in practice currently ignored since "all
+# subscribers currently subscribe to all topics".]
 msg_pub(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
-  Msg([ msg_type ], 
+  Msg([ msg_type == "stream" ? content["name"] : msg_type ], 
       ["msg_id" => uuid4(),
        "username" => m.header["username"],
        "session" => m.header["session"],
