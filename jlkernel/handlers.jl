@@ -5,7 +5,7 @@ function send_status(state::String)
                       "username" => "jlkernel",
                       "session" => uuid4(),
                       "msg_type" => "status"],
-                     [ "execution_state" => "starting" ]))
+                     [ "execution_state" => state ]))
 end
 
 function execute_request(socket, msg)
