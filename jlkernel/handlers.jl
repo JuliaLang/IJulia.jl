@@ -110,6 +110,7 @@ function connect_request(socket, msg)
                             "iopub_port" => profile["iopub_port"],
                             "stdin_port" => profile["stdin_port"],
                             "hb_port" => profile["hb_port"]]))
+end
 
 function shutdown_request(socket, msg)
     send_ipython(request, msg_reply(msg, "shutdown_reply",
