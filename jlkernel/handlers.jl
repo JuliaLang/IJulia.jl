@@ -79,7 +79,6 @@ end
 function complete_request(socket, msg)
     text = msg.content["text"]
     line = msg.content["line"]
-    block = msg.content["block"]
     cursorpos = msg.content["cursor_pos"]
 
     completions, positions = REPL.completions(line,cursorpos)
