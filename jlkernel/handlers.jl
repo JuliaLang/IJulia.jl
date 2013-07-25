@@ -81,12 +81,15 @@ function complete_request(socket, msg)
     line = msg.content["line"]
     cursorpos = msg.content["cursor_pos"]
 
-    completions, positions = REPL.completions(line,cursorpos)
+    completions, positions, matched_text = REPL.completions(line,cursorpos)
     if sizeof(text) > length(positions)
         completions = [line[(cursorpos-sizeof(text)+1):(cursorpos-length(positions))]*s for s in completions]
     end
-    send_ipython(requests, msg_reply(msg, "complete_reply",
-                                     [ "matches" => completions]))
+    send_ipython(requests, msg_reply(msg, "complete_reply", [
+        "status" => "ok",
+        "matches" => completions,
+        "matched_text" => matched_text,
+    ]))
 end
 
 function kernel_info_request(socket, msg)
