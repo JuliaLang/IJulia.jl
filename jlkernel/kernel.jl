@@ -3,18 +3,26 @@ using JSON
 
 uuid4() = repr(Random.uuid4())
 
-const port0 = 5678
-const profile = ["ip" => "127.0.0.1", "transport" => "tcp",
-                 "stdin_port" => port0,
-                 "control_port" => port0+1,
-                 "hb_port" => port0+2,
-                 "shell_port" => port0+3,
-                 "iopub_port" => port0+4,
-                 "key" => ""]
-let fname = "profile-$(getpid()).json"
-    println("connect ipython with --existing $(pwd())/$fname")
-    open(fname, "w") do f
-        JSON.print(f, profile)
+if length(ARGS) > 0
+    global const profile = open(JSON.parse,ARGS[1])
+else
+    # generate profile and save
+    let port0 = 5678
+        global const profile = (String=>Any)[
+            "ip" => "127.0.0.1",
+            "transport" => "tcp",
+            "stdin_port" => port0,
+            "control_port" => port0+1,
+            "hb_port" => port0+2,
+            "shell_port" => port0+3,
+            "iopub_port" => port0+4,
+            "key" => ""
+        ]
+        fname = "profile-$(getpid()).json"
+        println("connect ipython with --existing $(pwd())/$fname")
+        open(fname, "w") do f
+            JSON.print(f, profile)
+        end
     end
 end
 
