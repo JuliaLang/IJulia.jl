@@ -17,6 +17,10 @@ function execute_request_0x535c5df2(socket, msg)
     global _n
     if !msg.content["silent"]
         _n += 1
+        send_ipython(publish, 
+                     msg_pub(msg, "pyin",
+                             ["execution_count" => _n,
+                              "code" => msg.content["code"]]))
     end
 
     send_status("busy")
@@ -106,6 +110,11 @@ function connect_request(socket, msg)
                             "iopub_port" => profile["iopub_port"],
                             "stdin_port" => profile["stdin_port"],
                             "hb_port" => profile["hb_port"]]))
+
+function shutdown_request(socket, msg)
+    send_ipython(request, msg_reply(msg, "shutdown_reply",
+                                    msg.content))
+    exit()
 end
 
 const handlers = (String=>Function)[
@@ -113,4 +122,5 @@ const handlers = (String=>Function)[
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,
     "connect_request" => connect_request,
+    "shutdown_request" => shutdown_request,
 ]
