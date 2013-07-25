@@ -1,5 +1,9 @@
 using ZMQ
 using JSON
+using REPL
+
+include("msg.jl")
+include("handlers.jl")
 
 uuid4() = repr(Random.uuid4())
 
@@ -41,9 +45,6 @@ bind(heartbeat, "$(profile["transport"])://$(profile["ip"]):$(profile["hb_port"]
 
 # execution counter
 _n = 0
-
-include("msg.jl")
-include("handlers.jl")
 
 send_status("starting")
 
