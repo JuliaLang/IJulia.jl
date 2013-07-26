@@ -26,7 +26,7 @@ function execute_request_0x535c5df2(socket, msg)
     send_status("busy")
 
     try 
-        result = eval(parse(msg.content["code"]))
+        result = eval(Main,parse(msg.content["code"]))
         if msg.content["silent"] || ismatch(r";\s*$", msg.content["code"])
             result = nothing
         end
@@ -34,10 +34,10 @@ function execute_request_0x535c5df2(socket, msg)
         user_variables = Dict()
         user_expressions = Dict()
         for v in msg.content["user_variables"]
-            user_variables[v] = eval(parse(v))
+            user_variables[v] = eval(Main,parse(v))
         end
         for (v,ex) in msg.content["user_expressions"]
-            user_expressions[v] = eval(parse(ex))
+            user_expressions[v] = eval(Main,parse(ex))
         end
 
         if result != nothing

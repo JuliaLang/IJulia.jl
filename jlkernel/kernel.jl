@@ -1,6 +1,10 @@
+module IPythonKernel
+
 using ZMQ
 using JSON
 using REPL
+
+
 
 include("msg.jl")
 include("handlers.jl")
@@ -81,8 +85,13 @@ function eventloop(socket)
     end
 end
 
-for sock in (requests, control)
-    eventloop(sock)
+end # IPythonKernel
+
+import IPythonKernel
+
+for sock in (IPythonKernel.requests, IPythonKernel.control)
+    IPythonKernel.eventloop(sock)
 end
 
 wait()
+
