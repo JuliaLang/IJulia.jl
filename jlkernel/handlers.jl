@@ -10,71 +10,7 @@ function send_status(state::String)
     send_ipython(publish, msg)
 end
 
-# note: 0x535c5df2 is a random integer to make name collisions in
-# backtrace analysis less likely.
-function execute_request_0x535c5df2(socket, msg)
-    println("Executing ", msg.content["code"])
-    global _n
-    if !msg.content["silent"]
-        _n += 1
-        send_ipython(publish, 
-                     msg_pub(msg, "pyin",
-                             ["execution_count" => _n,
-                              "code" => msg.content["code"]]))
-    end
-
-    send_status("busy")
-
-    try 
-        result = eval(Main,parse(msg.content["code"]))
-        if msg.content["silent"] || ismatch(r";\s*$", msg.content["code"])
-            result = nothing
-        end
-
-        user_variables = Dict()
-        user_expressions = Dict()
-        for v in msg.content["user_variables"]
-            user_variables[v] = eval(Main,parse(v))
-        end
-        for (v,ex) in msg.content["user_expressions"]
-            user_expressions[v] = eval(Main,parse(ex))
-        end
-
-        if result != nothing
-            send_ipython(publish, 
-                         msg_pub(msg, "pyout",
-                                 ["execution_count" => _n,
-                                 "data" => [ "text/plain" => 
-                                 sprint(repl_show, result) ]
-                                  ]))
-        end
-
-        send_ipython(requests,
-                     msg_reply(msg, "execute_reply",
-                               ["status" => "ok", "execution_count" => _n,
-                               "payload" => [],
-                               "user_variables" => user_variables,
-                                "user_expressions" => user_expressions]))
-    catch e
-        tb = split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
-                          catch_backtrace(), 1:typemax(Int)), "\n", false)
-        ename = string(typeof(e))
-        evalue = sprint(Base.error_show, e)
-        unshift!(tb, evalue) # fperez says this needs to be in traceback too
-        send_ipython(publish,
-                     msg_pub(msg, "pyerr",
-                               ["execution_count" => _n,
-                               "ename" => ename, "evalue" => evalue,
-                               "traceback" => tb]))
-        send_ipython(requests,
-                     msg_reply(msg, "execute_reply",
-                               ["status" => "error", "execution_count" => _n,
-                               "ename" => ename, "evalue" => evalue,
-                               "traceback" => tb]))
-    end
-
-    send_status("idle")
-end
+include("execute_request.jl")
 
 function complete_request(socket, msg)
     text = msg.content["text"]
