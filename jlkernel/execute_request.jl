@@ -1,5 +1,12 @@
 using DataDisplay
 
+# History: global In/Out and other history variables exported to Main
+const In = Dict{Integer,UTF8String}()
+const Out = Dict{Integer,Any}()
+_ = nothing # FIXME: does Julia treat _ specially?
+ans = nothing
+export In, Out, _, ans
+
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
@@ -44,27 +51,33 @@ function eval_cell_0x535c5df2(s)
 end
 
 function execute_request(socket, msg)
-    println("Executing ", msg.content["code"])
+    println("EXECUTING ", msg.content["code"])
 
     global execute_msg = msg
-    global _n
+    global _n, In, Out, _, ans
     msg.content["silent"] = msg.content["silent"] ||
                             ismatch(r"^[\s;]*$", msg.content["code"])
 
     if !msg.content["silent"]
         _n += 1
+        In[_n] = msg.content["code"]
         send_ipython(publish, 
                      msg_pub(msg, "pyin",
                              ["execution_count" => _n,
                               "code" => msg.content["code"]]))
+    else
+        println("SILENT")
     end
 
     send_status("busy")
 
     try 
         result = eval_cell_0x535c5df2(msg.content["code"])
-        if msg.content["silent"] || ismatch(r";\s*$", msg.content["code"])
+        if msg.content["silent"]
             result = nothing
+        else
+            Out[_n] = ans = _ = result
+            eval(Main, :($(symbol(string("_",_n))) = $result))
         end
 
         user_variables = Dict()
