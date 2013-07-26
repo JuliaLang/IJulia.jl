@@ -42,8 +42,12 @@ end
 # backtrace analysis less likely.
 function execute_request_0x535c5df2(socket, msg)
     println("Executing ", msg.content["code"])
+
     global execute_msg = msg
     global _n
+    msg.content["silent"] = msg.content["silent"] ||
+                            ismatch(r"^[\s;]*$", msg.content["code"])
+
     if !msg.content["silent"]
         _n += 1
         send_ipython(publish, 
