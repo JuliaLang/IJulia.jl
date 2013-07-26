@@ -28,8 +28,13 @@ end
 execute_msg = nothing
 
 # evaluate a whole (multi-line, multi-expression) cell, returning last result
-function eval_cell(s)
-    pos = 1
+# note: 0x535c5df2 is a random integer to make name collisions in
+# backtrace analysis less likely.
+function eval_cell_0x535c5df2(s)
+    # strip out leading comments to avoid a parse error on
+    # cells that contain only comments
+    m = match(r"^(\s*#[^\n]*\n?)*", s)
+    pos = m == nothing ? start(s) : m.offset + length(m.match)
     result = nothing
     while pos < length(s)
         (ex, pos) = parse(s, pos)
@@ -38,9 +43,7 @@ function eval_cell(s)
     return result
 end
 
-# note: 0x535c5df2 is a random integer to make name collisions in
-# backtrace analysis less likely.
-function execute_request_0x535c5df2(socket, msg)
+function execute_request(socket, msg)
     println("Executing ", msg.content["code"])
 
     global execute_msg = msg
@@ -59,7 +62,7 @@ function execute_request_0x535c5df2(socket, msg)
     send_status("busy")
 
     try 
-        result = eval_cell(msg.content["code"])
+        result = eval_cell_0x535c5df2(msg.content["code"])
         if msg.content["silent"] || ismatch(r";\s*$", msg.content["code"])
             result = nothing
         end
@@ -87,7 +90,7 @@ function execute_request_0x535c5df2(socket, msg)
                                "user_variables" => user_variables,
                                 "user_expressions" => user_expressions]))
     catch e
-        tb = split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
+        tb = split(sprint(Base.show_backtrace, :eval_cell_0x535c5df2, 
                           catch_backtrace(), 1:typemax(Int)), "\n", false)
         ename = string(typeof(e))
         evalue = sprint(Base.error_show, e)
