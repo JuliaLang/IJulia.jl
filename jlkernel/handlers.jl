@@ -45,8 +45,8 @@ function connect_request(socket, msg)
 end
 
 function shutdown_request(socket, msg)
-    send_ipython(request, msg_reply(msg, "shutdown_reply",
-                                    msg.content))
+    send_ipython(requests, msg_reply(msg, "shutdown_reply",
+                                     msg.content))
     exit()
 end
 
