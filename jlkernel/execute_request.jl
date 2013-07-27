@@ -3,9 +3,8 @@ using DataDisplay
 # History: global In/Out and other history variables exported to Main
 const In = Dict{Integer,UTF8String}()
 const Out = Dict{Integer,Any}()
-_ = nothing # FIXME: does Julia treat _ specially?
-ans = nothing
-export In, Out, _, ans
+_ = __ = __ = ans = nothing
+export In, Out, _, __, ___, ans
 
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
@@ -54,7 +53,7 @@ function execute_request(socket, msg)
     println("EXECUTING ", msg.content["code"])
 
     global execute_msg = msg
-    global _n, In, Out, _, ans
+    global _n, In, Out, _, __, ___, ans
     msg.content["silent"] = msg.content["silent"] ||
                             ismatch(r"^[\s;]*$", msg.content["code"])
 
@@ -81,6 +80,8 @@ function execute_request(socket, msg)
         if msg.content["silent"]
             result = nothing
         else 
+            ___ = __ # 3rd result from last
+            __ = _ # 2nd result from last
             ans = _ = result
             if store_history
                 Out[_n] = result
