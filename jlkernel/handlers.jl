@@ -74,6 +74,17 @@ function object_info_request(socket, msg)
     end
 end
 
+function history_request(socket, msg)
+    # we will just send back empty history for now, pending clarification
+    # as requested in ipython/ipython#3806
+    hist = []
+    send_ipython(requests,
+                 msg_reply(msg, "history_reply",
+                           ["history" => [get(msg.content, "session", uuid4()),
+                                          _n, hist]]))
+                             
+end
+
 const handlers = (String=>Function)[
     "execute_request" => execute_request,
     "complete_request" => complete_request,
@@ -81,4 +92,5 @@ const handlers = (String=>Function)[
     "object_info_request" => object_info_request,
     "connect_request" => connect_request,
     "shutdown_request" => shutdown_request,
+    "history_request" => history_request,
 ]
