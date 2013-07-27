@@ -1,28 +1,29 @@
 module DataDisplay
 
-export display, set_display,
-   write_html, write_svg, write_png, write_jpeg, write_latex, write_javascript,
-   can_write_html, can_write_svg, can_write_png, can_write_jpeg, can_write_latex, can_write_javascript,
-   repr_html, repr_svg, repr_png, repr_jpeg, repr_latex, repr_javascript,
-   string_html, string_svg, string_png, string_jpeg, string_latex, string_javascript,
-   display_html, display_svg, display_png, display_jpeg, display_latex, display_javascript,
-   can_display_html, can_display_svg, can_display_png, can_display_jpeg, can_display_latex, can_display_javascript
+export display, set_display, get_display,
+   write_html, write_svg, write_png, write_jpeg, write_latex, write_javascript, write_text,
+   can_write_html, can_write_svg, can_write_png, can_write_jpeg, can_write_latex, can_write_javascript, can_write_text,
+   repr_html, repr_svg, repr_png, repr_jpeg, repr_latex, repr_javascript, repr_text,
+   string_html, string_svg, string_png, string_jpeg, string_latex, string_javascript, string_text,
+   display_html, display_svg, display_png, display_jpeg, display_latex, display_javascript, display_text,
+   can_display_html, can_display_svg, can_display_png, can_display_jpeg, can_display_latex, can_display_javascript, can_display_text
 
 abstract Display
 
-immutable StdoutDisplay <: Display end
-display(::StdoutDisplay, x...) = println(x...)
-# TODO: text rendering of HTML etcetera?
+# simplest display, which only knows how to display text/plain
+immutable IODisplay <: Display
+    io::IO
+end
+display_text(d::IODisplay, x) = write_text(d.io, x)
 
-default_display = StdoutDisplay()
+default_display = IODisplay(STDOUT)
 function set_display(d::Display)
     global default_display = d
     return d
 end
 get_display() = default_display::Display
 
-display(d::Display, xs...) = for x in xs; display(d, x); end
-display(x...) = display(default_display, x...)
+display(x) = display(default_display::Display, x)
 
 using Base64
 
@@ -41,7 +42,8 @@ const formats = [(:javascript, "application/javascript"),
                  (:html, "text/html"),
                  (:svg, "image/svg+xml"),
                  (:png, "image/png"),
-                 (:jpeg, "image/jpeg")]
+                 (:jpeg, "image/jpeg"),
+                 (:text, "text/plain")]
 
 istext(mime) = let m = split(mime,"/")
     m[1] == "text" || m[1] == "application"
@@ -55,20 +57,34 @@ for (fmt,mime) in formats
     display_fmt = symbol(string("display_", fmt))
     can_display_fmt = symbol(string("can_display_", fmt))
     @eval begin
-        $display_fmt(x...) = $display_fmt(default_display, x...)
+        $display_fmt(x) = $display_fmt(default_display::Display, x)
         $can_display_fmt() = $can_display_fmt(get_display())
         $can_write_fmt{T}(::T) = method_exists($write_fmt, (IO, T))
     end
     if istext(mime)
+        if fmt == :text
+            # repl_show gives us a usable text representation of any type
+            @eval begin
+                $write_fmt(io, x) = repl_show(io, x)
+                $can_write_fmt(x) = true
+            end
+        else
+            # provide direct conversion of strings to textual MIME types
+            # (but not arbitrary user-defined String types, which might
+            #  already be some rich format, e.g. the user might define 
+            #  an HTML <: String, which we wouldn't want to write as LaTeX)
+            @eval begin
+                $repr_fmt(x::ByteString) = x
+                $string_fmt(x::ByteString) = x
+                $write_fmt(io, x::ByteString) = write(io, x)
+                $can_write_fmt(::ByteString) = false # no auto-detection
+            end
+        end
         @eval begin
             $repr_fmt(x) = sprint($write_fmt, x)
             $string_fmt(x) = sprint($write_fmt, x)
-            $repr_fmt(x::ByteString) = x
-            $string_fmt(x::ByteString) = x
-            $write_fmt(io, x::ByteString) = write(io, x)
-            $can_write_fmt(::ByteString) = false # no auto-detection
             $can_display_fmt{T<:Display}(::T) = 
-               method_exists($display_fmt, (T, ByteString))
+              method_exists($display_fmt, (T, ByteString))
         end
     else
         @eval begin

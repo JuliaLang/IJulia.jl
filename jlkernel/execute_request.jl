@@ -10,7 +10,7 @@ export In, Out, _, ans
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
-    data = [ "text/plain" => sprint(repl_show, x) ] # fallback output
+    data = [ "text/plain" => string_text(x) ]
     if can_write_svg(x)
         data["image/svg+xml"] = string_svg(x)
     end
