@@ -43,7 +43,7 @@ function eval_cell_0x535c5df2(s)
     m = match(r"^(\s*#[^\n]*\n?)*", s)
     pos = m == nothing ? start(s) : m.offset + length(m.match)
     result = nothing
-    while pos < length(s)
+    while pos <= length(s)
         (ex, pos) = parse(s, pos)
         result = eval(Main, ex)
     end
@@ -58,9 +58,14 @@ function execute_request(socket, msg)
     msg.content["silent"] = msg.content["silent"] ||
                             ismatch(r"^[\s;]*$", msg.content["code"])
 
+    # present in spec but missing from notebook's messages:
+    store_history = get(msg.content, "store_history", !msg.content["silent"])
+
     if !msg.content["silent"]
         _n += 1
-        In[_n] = msg.content["code"]
+        if store_history
+            In[_n] = msg.content["code"]
+        end
         send_ipython(publish, 
                      msg_pub(msg, "pyin",
                              ["execution_count" => _n,
@@ -75,9 +80,12 @@ function execute_request(socket, msg)
         result = eval_cell_0x535c5df2(msg.content["code"])
         if msg.content["silent"]
             result = nothing
-        else
-            Out[_n] = ans = _ = result
-            eval(Main, :($(symbol(string("_",_n))) = $result))
+        else 
+            ans = _ = result
+            if store_history
+                Out[_n] = result
+                eval(Main, :($(symbol(string("_",_n))) = $result))
+            end
         end
 
         user_variables = Dict()
