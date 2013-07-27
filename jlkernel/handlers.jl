@@ -10,71 +10,7 @@ function send_status(state::String)
     send_ipython(publish, msg)
 end
 
-# note: 0x535c5df2 is a random integer to make name collisions in
-# backtrace analysis less likely.
-function execute_request_0x535c5df2(socket, msg)
-    println("Executing ", msg.content["code"])
-    global _n
-    if !msg.content["silent"]
-        _n += 1
-        send_ipython(publish, 
-                     msg_pub(msg, "pyin",
-                             ["execution_count" => _n,
-                              "code" => msg.content["code"]]))
-    end
-
-    send_status("busy")
-
-    try 
-        result = eval(parse(msg.content["code"]))
-        if msg.content["silent"] || ismatch(r";\s*$", msg.content["code"])
-            result = nothing
-        end
-
-        user_variables = Dict()
-        user_expressions = Dict()
-        for v in msg.content["user_variables"]
-            user_variables[v] = eval(parse(v))
-        end
-        for (v,ex) in msg.content["user_expressions"]
-            user_expressions[v] = eval(parse(ex))
-        end
-
-        if result != nothing
-            send_ipython(publish, 
-                         msg_pub(msg, "pyout",
-                                 ["execution_count" => _n,
-                                 "data" => [ "text/plain" => 
-                                 sprint(repl_show, result) ]
-                                  ]))
-        end
-
-        send_ipython(requests,
-                     msg_reply(msg, "execute_reply",
-                               ["status" => "ok", "execution_count" => _n,
-                               "payload" => [],
-                               "user_variables" => user_variables,
-                                "user_expressions" => user_expressions]))
-    catch e
-        tb = split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
-                          catch_backtrace(), 1:typemax(Int)), "\n", false)
-        ename = string(typeof(e))
-        evalue = sprint(Base.error_show, e)
-        unshift!(tb, evalue) # fperez says this needs to be in traceback too
-        send_ipython(publish,
-                     msg_pub(msg, "pyerr",
-                               ["execution_count" => _n,
-                               "ename" => ename, "evalue" => evalue,
-                               "traceback" => tb]))
-        send_ipython(requests,
-                     msg_reply(msg, "execute_reply",
-                               ["status" => "error", "execution_count" => _n,
-                               "ename" => ename, "evalue" => evalue,
-                               "traceback" => tb]))
-    end
-
-    send_status("idle")
-end
+include("execute_request.jl")
 
 function complete_request(socket, msg)
     text = msg.content["text"]
@@ -112,40 +48,52 @@ function connect_request(socket, msg)
 end
 
 function shutdown_request(socket, msg)
-    send_ipython(request, msg_reply(msg, "shutdown_reply",
-                                    msg.content))
+    send_ipython(requests, msg_reply(msg, "shutdown_reply",
+                                     msg.content))
     exit()
 end
 
 function object_info_request(socket, msg)
     try
-        s = symbol(msg["name"])
+        s = symbol(msg["oname"])
         o = eval(s)
-        content = ["name" => msg["name"],
+        content = ["oname" => msg.content["oname"],
                    "found" => true,
                    "ismagic" => false,
                    "isalias" => false,
                    "type_name" => string(typeof(foo)),
                    "base_class" => string(typeof(foo).super),
-                   "string_form" => msg["detail_level"] == 0 ? 
+                   "string_form" => get(msg.content,"detail_level",0) == 0 ? 
                    sprint(16384, show, foo) : repr(foo) ]
         if method_exists(length, (typeof(o),))
             content["length"] = length(o)
         end
-        send_ipython(request, msg_reply(msg, "object_info_reply", content))
+        send_ipython(requests, msg_reply(msg, "object_info_reply", content))
     catch
-        send_ipython(request,
+        send_ipython(requests,
                      msg_reply(msg, "object_info_reply",
-                               ["name" => msg["name"],
+                               ["oname" => msg.content["oname"],
                                 "found" => false ]))
     end
 end
 
+function history_request(socket, msg)
+    # we will just send back empty history for now, pending clarification
+    # as requested in ipython/ipython#3806
+    hist = []
+    send_ipython(requests,
+                 msg_reply(msg, "history_reply",
+                           ["history" => [get(msg.content, "session", uuid4()),
+                                          _n, hist]]))
+                             
+end
+
 const handlers = (String=>Function)[
-    "execute_request" => execute_request_0x535c5df2,
+    "execute_request" => execute_request,
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,
     "object_info_request" => object_info_request,
     "connect_request" => connect_request,
     "shutdown_request" => shutdown_request,
+    "history_request" => history_request,
 ]
