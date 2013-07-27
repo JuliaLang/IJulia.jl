@@ -84,7 +84,7 @@ function execute_request(socket, msg)
             __ = _ # 2nd result from last
             ans = _ = result
             if store_history
-                Out[_n] = result
+                Out[_n] = result == Out ? nothing : result # Julia #3066
                 eval(Main, :($(symbol(string("_",_n))) = $result))
             end
         end
