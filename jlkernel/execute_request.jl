@@ -102,6 +102,7 @@ function execute_request(socket, msg)
             send_ipython(publish, 
                          msg_pub(msg, "pyout",
                                  ["execution_count" => _n,
+                                 "metadata" => Dict(), # qtconsole needs this
                                  "data" => display_dict(result) ]))
         end
 

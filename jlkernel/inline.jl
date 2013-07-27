@@ -16,8 +16,8 @@ for (fmt,mime) in DataDisplay.formats
         function $display_fmt(d::InlineDisplay, x)
             send_ipython(publish, 
                          msg_pub(execute_msg, "display_data",
-                                 [#"source" => "julia", # optional
-                                  #"metadata" => Dict(), # optional
+                                 ["source" => "julia", # optional
+                                  "metadata" => Dict(), # optional
                                   "data" => [$mime => $string_fmt(x)] ]))
         end
     end
@@ -28,8 +28,8 @@ end
 function display(d::InlineDisplay, x)
     send_ipython(publish, 
                  msg_pub(execute_msg, "display_data",
-                         [#"source" => "julia", # optional
-                          #"metadata" => Dict(), # optional
+                         ["source" => "julia", # optional
+                          "metadata" => Dict(), # optional
                           "data" => display_dict(x) ]))
 end
 
