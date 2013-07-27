@@ -77,7 +77,9 @@ function eventloop(socket)
                                   "msg_type" => "crash" ],
                                  [ "info" => sprint(Base.error_show, e, 
                                                     catch_backtrace())]))
-                rethrow(e)
+                # rethrow(e) # FIXME: seems to hang?
+                Base.error_show(STDERR, e, catch_backtrace())
+                exit(1)
             end
         end
     end
