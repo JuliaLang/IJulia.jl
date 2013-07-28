@@ -36,7 +36,9 @@ execute_msg = nothing
 # note: 0x535c5df2 is a random integer to make name collisions in
 # backtrace analysis less likely.
 function execute_request_0x535c5df2(socket, msg)
-    println("EXECUTING ", msg.content["code"])
+    if verbose
+        println("EXECUTING ", msg.content["code"])
+    end
 
     global execute_msg = msg
     global _n, In, Out, _, __, ___, ans
@@ -54,7 +56,7 @@ function execute_request_0x535c5df2(socket, msg)
                      msg_pub(msg, "pyin",
                              ["execution_count" => _n,
                               "code" => msg.content["code"]]))
-    else
+    elseif verbose
         println("SILENT")
     end
 

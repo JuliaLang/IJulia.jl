@@ -1,7 +1,7 @@
 module IPythonDataDisplay
 
-using IPythonKernel
-import IPythonKernel: send_ipython, publish, msg_pub, execute_msg, display_dict
+using IJulia
+import IJulia: send_ipython, publish, msg_pub, execute_msg, display_dict
 
 using DataDisplay
 import DataDisplay: display_html, display_svg, display_png, display_jpeg, display_latex, display_javascript, display_text, display, Display

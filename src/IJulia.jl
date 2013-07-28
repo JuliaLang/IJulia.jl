@@ -1,4 +1,11 @@
-module IPythonKernel
+module IJulia
+
+# in the IPython front-end, enable verbose output via IJulia.set_verbose()
+verbose = false
+function set_verbose(v=true)
+    global verbose::Bool = v
+end
+
 
 using ZMQ
 using JSON
@@ -25,7 +32,9 @@ else
             "key" => uuid4()
         ]
         fname = "profile-$(getpid()).json"
-        println("connect ipython with --existing $(pwd())/$fname")
+        if verbose
+            println("connect ipython with --existing $(pwd())/$fname")
+        end
         open(fname, "w") do f
             JSON.print(f, profile)
         end
@@ -64,7 +73,9 @@ function eventloop(socket)
     @async begin
         while true
             msg = recv_ipython(socket)
-            println("RECEIVED $msg")
+            if verbose
+                println("RECEIVED $msg")
+            end
             try
                 handlers[msg.header["msg_type"]](socket, msg)
             catch e
@@ -85,4 +96,5 @@ function eventloop(socket)
     end
 end
 
-end # IPythonKernel
+end # IJulia
+

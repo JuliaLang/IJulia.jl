@@ -41,7 +41,9 @@ function show(io::IO, msg::Msg)
 end
 
 function send_ipython(socket, m::Msg)
-    println("SENDING $m")
+    if verbose
+        println("SENDING $m")
+    end
     for i in m.idents
         send(socket, i, SNDMORE)
     end
@@ -61,12 +63,16 @@ function recv_ipython(socket)
     msg = recv(socket)
     idents = String[]
     s = bytestring(msg)
-    println("got msg part $s")
+    if verbose
+        println("got msg part $s")
+    end
     while s != "<IDS|MSG>"
         push!(idents, s)
         msg = recv(socket)
         s = bytestring(msg)
-        println("got msg part $s")
+        if verbose
+            println("got msg part $s")
+        end
     end
     signature = bytestring(recv(socket))
     request = Dict{String,Any}()
