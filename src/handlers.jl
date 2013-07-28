@@ -53,23 +53,31 @@ function shutdown_request(socket, msg)
     exit()
 end
 
+# TODO: better Julia help integration (issue #13)
+docstring(o) = ""
+docstring(o::Union(Function,DataType)) = sprint(show, methods(o))
+
 function object_info_request(socket, msg)
     try
-        s = symbol(msg["oname"])
+        s = symbol(msg.content["oname"])
         o = eval(s)
         content = ["oname" => msg.content["oname"],
                    "found" => true,
                    "ismagic" => false,
                    "isalias" => false,
-                   "type_name" => string(typeof(foo)),
-                   "base_class" => string(typeof(foo).super),
+                   "docstring" => docstring(o),
+                   "type_name" => string(typeof(o)),
+                   "base_class" => string(typeof(o).super),
                    "string_form" => get(msg.content,"detail_level",0) == 0 ? 
-                   sprint(16384, show, foo) : repr(foo) ]
+                   sprint(16384, show, o) : repr(o) ]
         if method_exists(length, (typeof(o),))
             content["length"] = length(o)
         end
         send_ipython(requests, msg_reply(msg, "object_info_reply", content))
-    catch
+    catch e
+        if verbose
+            Base.error_show(STDOUT, e, catch_backtrace())
+        end
         send_ipython(requests,
                      msg_reply(msg, "object_info_reply",
                                ["oname" => msg.content["oname"],
