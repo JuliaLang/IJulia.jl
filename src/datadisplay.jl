@@ -46,7 +46,7 @@ const formats = [(:javascript, "application/javascript"),
                  (:text, "text/plain")]
 
 istext(mime) = let m = split(mime,"/")
-    m[1] == "text" || m[1] == "application"
+    m[1] == "text" || m[1] == "application" || ismatch(r"\+xml$", m[2])
 end
 
 for (fmt,mime) in formats
