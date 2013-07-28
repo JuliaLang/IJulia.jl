@@ -7,7 +7,7 @@ using DataDisplay
 using IPythonDataDisplay
 set_display(InlineDisplay())
 
-import IJulia
+using IJulia
 for sock in (IJulia.requests, IJulia.control)
     IJulia.eventloop(sock)
 end
