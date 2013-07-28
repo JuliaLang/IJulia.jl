@@ -33,34 +33,19 @@ end
 # global variable so that display can be done in the correct Msg context
 execute_msg = nothing
 
-# evaluate a whole (multi-line, multi-expression) cell, returning last result
 # note: 0x535c5df2 is a random integer to make name collisions in
 # backtrace analysis less likely.
-function eval_cell_0x535c5df2(s)
-    # strip out leading comments to avoid a parse error on
-    # cells that contain only comments
-    m = match(r"^(\s*#[^\n]*\n?)*", s)
-    pos = m == nothing ? start(s) : m.offset + length(m.match)
-    result = nothing
-    while pos <= length(s)
-        (ex, pos) = parse(s, pos)
-        result = eval(Main, ex)
-    end
-    return result
-end
-
-function execute_request(socket, msg)
+function execute_request_0x535c5df2(socket, msg)
     println("EXECUTING ", msg.content["code"])
 
     global execute_msg = msg
     global _n, In, Out, _, __, ___, ans
-    msg.content["silent"] = msg.content["silent"] ||
-                            ismatch(r"^[\s;]*$", msg.content["code"])
+    silent = msg.content["silent"] || ismatch(r";\s*$", msg.content["code"])
 
     # present in spec but missing from notebook's messages:
-    store_history = get(msg.content, "store_history", !msg.content["silent"])
+    store_history = get(msg.content, "store_history", !silent)
 
-    if !msg.content["silent"]
+    if !silent
         _n += 1
         if store_history
             In[_n] = msg.content["code"]
@@ -76,13 +61,13 @@ function execute_request(socket, msg)
     send_status("busy")
 
     try 
-        result = eval_cell_0x535c5df2(msg.content["code"])
-        if msg.content["silent"]
+        ans = result = include_string(msg.content["code"], "In[$_n]")
+        if silent
             result = nothing
-        else 
+        elseif result != nothing
             ___ = __ # 3rd result from last
             __ = _ # 2nd result from last
-            ans = _ = result
+            _ = result
             if store_history
                 Out[_n] = result == Out ? nothing : result # Julia #3066
                 eval(Main, :($(symbol(string("_",_n))) = $result))
@@ -113,8 +98,11 @@ function execute_request(socket, msg)
                                "user_variables" => user_variables,
                                 "user_expressions" => user_expressions]))
     catch e
-        tb = split(sprint(Base.show_backtrace, :eval_cell_0x535c5df2, 
+        tb = split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
                           catch_backtrace(), 1:typemax(Int)), "\n", false)
+        if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])
+            pop!(tb) # don't include include_string in backtrace
+        end
         ename = string(typeof(e))
         evalue = sprint(Base.error_show, e)
         unshift!(tb, evalue) # fperez says this needs to be in traceback too

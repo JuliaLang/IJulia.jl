@@ -89,7 +89,7 @@ function history_request(socket, msg)
 end
 
 const handlers = (String=>Function)[
-    "execute_request" => execute_request,
+    "execute_request" => execute_request_0x535c5df2,
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,
     "object_info_request" => object_info_request,
