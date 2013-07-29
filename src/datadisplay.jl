@@ -1,12 +1,14 @@
 module DataDisplay
 
-export display, set_display, get_display,
+export display, push_display, pop_display, top_display,
    write_html, write_svg, write_png, write_jpeg, write_latex, write_javascript, write_text,
    can_write_html, can_write_svg, can_write_png, can_write_jpeg, can_write_latex, can_write_javascript, can_write_text,
    repr_html, repr_svg, repr_png, repr_jpeg, repr_latex, repr_javascript, repr_text,
    string_html, string_svg, string_png, string_jpeg, string_latex, string_javascript, string_text,
    display_html, display_svg, display_png, display_jpeg, display_latex, display_javascript, display_text,
    can_display_html, can_display_svg, can_display_png, can_display_jpeg, can_display_latex, can_display_javascript, can_display_text
+
+###########################################################################
 
 abstract Display
 
@@ -16,14 +18,38 @@ immutable IODisplay <: Display
 end
 display_text(d::IODisplay, x) = write_text(d.io, x)
 
-default_display = IODisplay(STDOUT)
-function set_display(d::Display)
-    global default_display = d
-    return d
-end
-get_display() = default_display::Display
+###########################################################################
+# We keep a stack of Displays, and calling display(x) uses the topmost
+# Display that is capable of displaying x (doesn't throw an error)
 
-display(x) = display(default_display::Display, x)
+const display_stack = Display[ IODisplay(STDOUT) ]
+function push_display(d::Display)
+    global display_stack
+    push!(display_stack, d)
+end
+pop_display() = pop!(display_stack)
+function pop_display(d::Display)
+    for i = length(display_stack):-1:1
+        if d == display_stack[i]
+            return splice!(display_stack, i)
+        end
+    end
+    throw(KeyError(d))
+end
+top_display() = display_stack[end]
+
+function display_(display_func::Function, x)
+    for i = length(display_stack):-1:1
+        try
+            return display_func(display_stack[i], x)
+        end
+    end
+    throw(MethodError(display_func, (x,)))
+end
+
+display(x) = display_(display, x)
+
+###########################################################################
 
 using Base64
 
@@ -33,6 +59,8 @@ function bprint(f::Function, args...)
     f(s, args...)
     takebuf_array(s)
 end
+
+###########################################################################
 
 # formats and the corresponding MIME types, in descending order
 # of "richness" (following IPython), which determines the default display
@@ -57,7 +85,7 @@ for (fmt,mime) in formats
     display_fmt = symbol(string("display_", fmt))
     can_display_fmt = symbol(string("can_display_", fmt))
     @eval begin
-        $display_fmt(x) = $display_fmt(default_display::Display, x)
+        $display_fmt(x) = display_($display_fmt, x)
         $can_display_fmt() = $can_display_fmt(get_display())
         $can_write_fmt{T}(::T) = method_exists($write_fmt, (IO, T))
     end
@@ -99,7 +127,6 @@ for (fmt,mime) in formats
         end
     end
 end
-
 
 # macro to generate big if-then-else statement to implement generic
 # display(d, x) below.  Calls display_fmt(d, x) for the first format (fmt)

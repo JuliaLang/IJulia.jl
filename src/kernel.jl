@@ -5,7 +5,7 @@ include("inline.jl")
 
 using DataDisplay
 using IPythonDataDisplay
-set_display(InlineDisplay())
+push_display(InlineDisplay())
 
 using IJulia
 for sock in (IJulia.requests, IJulia.control)
