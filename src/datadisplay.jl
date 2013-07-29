@@ -86,7 +86,7 @@ for (fmt,mime) in formats
     can_display_fmt = symbol(string("can_display_", fmt))
     @eval begin
         $display_fmt(x) = display_($display_fmt, x)
-        $can_display_fmt() = $can_display_fmt(get_display())
+        $can_display_fmt() = any($can_display_fmt, display_stack)
         $can_write_fmt{T}(::T) = method_exists($write_fmt, (IO, T))
     end
     if istext(mime)
