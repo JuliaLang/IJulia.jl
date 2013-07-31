@@ -1,12 +1,12 @@
 module DataDisplay
 
 export display, push_display, pop_display, top_display,
-   write_html, write_svg, write_png, write_jpeg, write_latex, write_javascript, write_text,
-   can_write_html, can_write_svg, can_write_png, can_write_jpeg, can_write_latex, can_write_javascript, can_write_text,
-   repr_html, repr_svg, repr_png, repr_jpeg, repr_latex, repr_javascript, repr_text,
-   string_html, string_svg, string_png, string_jpeg, string_latex, string_javascript, string_text,
-   display_html, display_svg, display_png, display_jpeg, display_latex, display_javascript, display_text,
-   can_display_html, can_display_svg, can_display_png, can_display_jpeg, can_display_latex, can_display_javascript, can_display_text
+   write_html, write_svg, write_png, write_jpeg, write_latex, write_text,
+   can_write_html, can_write_svg, can_write_png, can_write_jpeg, can_write_latex, can_write_text,
+   repr_html, repr_svg, repr_png, repr_jpeg, repr_latex, repr_text,
+   string_html, string_svg, string_png, string_jpeg, string_latex, string_text,
+   display_html, display_svg, display_png, display_jpeg, display_latex, display_text,
+   can_display_html, can_display_svg, can_display_png, can_display_jpeg, can_display_latex, can_display_text
 
 ###########################################################################
 
@@ -65,9 +65,8 @@ end
 # formats and the corresponding MIME types, in descending order
 # of "richness" (following IPython), which determines the default display
 # format.
-const formats = [(:javascript, "application/javascript"),
+const formats = [(:html, "text/html"),
                  (:latex, "application/x-latex"),
-                 (:html, "text/html"),
                  (:svg, "image/svg+xml"),
                  (:png, "image/png"),
                  (:jpeg, "image/jpeg"),
