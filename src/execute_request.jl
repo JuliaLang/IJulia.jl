@@ -89,6 +89,8 @@ function execute_request_0x535c5df2(socket, msg)
                                  "metadata" => Dict(), # qtconsole needs this
                                  "data" => display_dict(result) ]))
         end
+        
+        display() # flush pending display requests
 
         send_ipython(requests,
                      msg_reply(msg, "execute_reply",
@@ -97,6 +99,8 @@ function execute_request_0x535c5df2(socket, msg)
                                "user_variables" => user_variables,
                                 "user_expressions" => user_expressions]))
     catch e
+        empty!(displayqueue) # discard pending display requests on an error
+
         tb = split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
                           catch_backtrace(), 1:typemax(Int)), "\n", false)
         if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])

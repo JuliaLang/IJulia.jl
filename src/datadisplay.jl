@@ -1,6 +1,6 @@
 module DataDisplay
 
-export display, push_display, pop_display, top_display,
+export display, push_display, pop_display, displayqueue,
    write_html, write_svg, write_png, write_jpeg, write_latex, write_text,
    can_write_html, can_write_svg, can_write_png, can_write_jpeg, can_write_latex, can_write_text,
    repr_html, repr_svg, repr_png, repr_jpeg, repr_latex, repr_text,
@@ -22,26 +22,25 @@ display_text(d::IODisplay, x) = write_text(d.io, x)
 # We keep a stack of Displays, and calling display(x) uses the topmost
 # Display that is capable of displaying x (doesn't throw an error)
 
-const display_stack = Display[ IODisplay(STDOUT) ]
+const displays = Display[ IODisplay(STDOUT) ]
 function push_display(d::Display)
-    global display_stack
-    push!(display_stack, d)
+    global displays
+    push!(displays, d)
 end
-pop_display() = pop!(display_stack)
+pop_display() = pop!(displays)
 function pop_display(d::Display)
-    for i = length(display_stack):-1:1
-        if d == display_stack[i]
-            return splice!(display_stack, i)
+    for i = length(displays):-1:1
+        if d == displays[i]
+            return splice!(displays, i)
         end
     end
     throw(KeyError(d))
 end
-top_display() = display_stack[end]
 
 function display_(display_func::Function, x)
-    for i = length(display_stack):-1:1
+    for i = length(displays):-1:1
         try
-            return display_func(display_stack[i], x)
+            return display_func(displays[i], x)
         end
     end
     throw(MethodError(display_func, (x,)))
@@ -85,7 +84,7 @@ for (fmt,mime) in formats
     can_display_fmt = symbol(string("can_display_", fmt))
     @eval begin
         $display_fmt(x) = display_($display_fmt, x)
-        $can_display_fmt() = any($can_display_fmt, display_stack)
+        $can_display_fmt() = any($can_display_fmt, displays)
         $can_write_fmt{T}(::T) = method_exists($write_fmt, (IO, T))
     end
     if istext(mime)
@@ -152,5 +151,26 @@ end
 function display(d::Display, x)
     @pickdisplay throw(MethodError(display, (d,x)))
 end
+
+###########################################################################
+# In some cases, it is better to queue something for display later,
+# for example in Matlab-like stateful plotting where you often create
+# a plot and modify it several times, and you only want to display it
+# at the end of the input.  In this case, you would push!(displayqueue, x)
+# instead of display(x), and call display() at the end.
+#
+# (The IJulia interface calls flush_displayqueue() at the end of each cell.)
+
+const displayqueue = Any[] # queue of objects to display (in order 1:end)
+
+function display()
+    for x in displayqueue
+        display(x)
+    end
+    empty!(displayqueue)
+    nothing
+end
+
+###########################################################################
 
 end # module
