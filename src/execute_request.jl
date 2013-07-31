@@ -24,9 +24,6 @@ function display_dict(x)
     if can_write_latex(x)
         data["application/x-latex"] = string_latex(x)
     end
-    if can_write_javascript(x)
-        data["application/javascript"] = string_javascript(x)
-    end
     return data
 end
 
