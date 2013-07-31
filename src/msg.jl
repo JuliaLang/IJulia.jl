@@ -83,6 +83,10 @@ function recv_ipython(socket)
     if signature != hmac(header, parent_header, metadata, content)
         error("Invalid HMAC signature") # What should we do here?
     end
-    return Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
+    m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
+    if verbose
+        println("RECEIVED $m")
+    end
+    return m
 end
 

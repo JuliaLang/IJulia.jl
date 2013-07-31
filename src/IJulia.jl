@@ -73,9 +73,6 @@ function eventloop(socket)
     @async begin
         while true
             msg = recv_ipython(socket)
-            if verbose
-                println("RECEIVED $msg")
-            end
             try
                 handlers[msg.header["msg_type"]](socket, msg)
             catch e
