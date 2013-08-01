@@ -10,6 +10,8 @@ push_display(InlineDisplay())
 
 using IJulia
 
+ccall(:jl_install_sigint_handler, Void, ())
+
 println("Starting kernel event loops.")
 for sock in (IJulia.requests, IJulia.control)
     IJulia.eventloop(sock)
