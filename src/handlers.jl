@@ -88,11 +88,9 @@ end
 function history_request(socket, msg)
     # we will just send back empty history for now, pending clarification
     # as requested in ipython/ipython#3806
-    hist = []
     send_ipython(requests,
                  msg_reply(msg, "history_reply",
-                           ["history" => [get(msg.content, "session", uuid4()),
-                                          _n, hist]]))
+                           ["history" => []]))
                              
 end
 
