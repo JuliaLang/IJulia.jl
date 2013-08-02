@@ -21,7 +21,7 @@ convert(::Type{PylabFigure}, o::PyObject) = PylabFigure(o)
 
 pytype_mapping(plt.pymember("Figure"), PylabFigure)
 
-write_png(io::IO, f::PylabFigure) = f.o["canvas"][:print_figure](io, format="png")
-write_svg(io::IO, f::PylabFigure) = f.o["canvas"][:print_figure](io, format="svg")
+write_png(io::IO, f::PylabFigure) = f.o["canvas"][:print_figure](io, format="png", bbox_inches="tight")
+write_svg(io::IO, f::PylabFigure) = f.o["canvas"][:print_figure](io, format="svg", bbox_inches="tight")
 
 end
