@@ -1,11 +1,11 @@
 include("base64.jl")
-include("datadisplay.jl")
+include("mimedisplay.jl")
 include("IJulia.jl")
 include("inline.jl")
 include("wrappers.jl")
 
-using DataDisplay
-using IPythonDataDisplay
+using MIMEDisplay
+using IPythonDisplay
 push_display(InlineDisplay())
 
 using IJulia

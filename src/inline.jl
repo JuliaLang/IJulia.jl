@@ -1,24 +1,26 @@
-module IPythonDataDisplay
+module IPythonDisplay
 
 using IJulia
 import IJulia: send_ipython, publish, msg_pub, execute_msg, display_dict
 
-using DataDisplay
-import DataDisplay: display_html, display_svg, display_png, display_jpeg, display_latex, display_text, display, Display
-export display_html, display_svg, display_png, display_jpeg, display_latex, display_text, display, InlineDisplay
+using MIMEDisplay
+import MIMEDisplay: display
+export display, InlineDisplay
 
 immutable InlineDisplay <: Display end
 
-for (fmt,mime) in DataDisplay.formats
-    display_fmt = symbol(string("display_", fmt))
-    string_fmt = symbol(string("string_", fmt))
+# supported MIME types for inline display in IPython, in descending order
+# of preference (descending "richness")
+const ipy_mime = [ "text/html", "text/latex", "image/svg+xml", "image/png", "image/jpeg", "text/plain" ]
+
+for mime in ipy_mime
     @eval begin
-        function $display_fmt(d::InlineDisplay, x)
+        function display(d::InlineDisplay, ::@MIME($mime), x)
             send_ipython(publish, 
                          msg_pub(execute_msg, "display_data",
                                  ["source" => "julia", # optional
                                   "metadata" => Dict(), # optional
-                                  "data" => [$mime => $string_fmt(x)] ]))
+                                  "data" => [$mime => mime_string_repr(MIME($mime), x)] ]))
         end
     end
 end

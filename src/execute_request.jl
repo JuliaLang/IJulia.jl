@@ -1,4 +1,4 @@
-using DataDisplay
+using MIMEDisplay
 
 # History: global In/Out and other history variables exported to Main
 const In = Dict{Integer,UTF8String}()
@@ -6,23 +6,31 @@ const Out = Dict{Integer,Any}()
 _ = __ = __ = ans = nothing
 export In, Out, _, __, ___, ans
 
+const text_plain = MIME("text/plain")
+const image_svg = MIME("image/svg+xml")
+const image_png = MIME("image/png")
+const image_jpeg = MIME("image/jpeg")
+const text_html = MIME("text/html")
+const text_latex = MIME("application/x-latex")
+
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
-    data = [ "text/plain" => string_text(x) ]
-    if can_write_svg(x)
-        data["image/svg+xml"] = string_svg(x)
+    data = [ "text/plain" => mime_string_repr(text_plain, x) ]
+    T = typeof(x)
+    if mime_writable(image_svg, T)
+        data[string(image_svg)] = mime_string_repr(image_svg, x)
     end
-    if can_write_png(x)
-        data["image/png"] = string_png(x)
-    elseif can_write_jpeg(x) # sending both jpeg and png seems redundant
-        data["image/jpeg"] = string_jpeg(x)
+    if mime_writable(image_png, T)
+        data[string(image_png)] = mime_string_repr(image_png, x)
+    elseif mime_writable(image_jpeg, T) # don't send jpeg if we have png
+        data[string(image_jpeg)] = mime_string_repr(image_jpeg, x)
     end
-    if can_write_html(x)
-        data["text/html"] = string_html(x)
+    if mime_writable(text_html, T)
+        data[string(text_html)] = mime_string_repr(text_html, x)
     end
-    if can_write_latex(x)
-        data["application/x-latex"] = string_latex(x)
+    if mime_writable(text_latex, T)
+        data[string(text_latex)] = mime_string_repr(text_latex, x)
     end
     return data
 end
