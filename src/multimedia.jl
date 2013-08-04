@@ -1,13 +1,13 @@
-module MIMEDisplay
+module Multimedia
 
-export Display, display, push_display, pop_display, displayqueue, displayable,
-   MIME, @MIME, mime_write, mime_repr, mime_string_repr, istextmime,
-   mime_writable
+export Display, display, push_display, pop_display, displayable, redisplay,
+   MIME, @MIME, mm_write, mm_repr, mm_string_repr, istext,
+   mm_writable, TextDisplay, reinit_displays
 
 ###########################################################################
 # We define a singleton type MIME{mime symbol} for each MIME type, so
 # that Julia's dispatch and overloading mechanisms can be used to
-# dispatch mime_write and to add conversions for new types.
+# dispatch mm_write and to add conversions for new types.
 
 immutable MIME{mime} end
 
@@ -24,58 +24,67 @@ macro MIME(s)
 end
 
 ###########################################################################
-# For any type T one can define mime_write(io, ::@MIME(mime), x::T) = ...
+# For any type T one can define mm_write(io, ::@MIME(mime), x::T) = ...
 # in order to provide a way to export T as a given mime type.
 
 # We provide a fallback text/plain representation of any type:
-mime_write(io, ::@MIME("text/plain"), x) = repl_show(io, x)
+mm_write(io, ::@MIME("text/plain"), x) = repl_show(io, x)
 
-mime_writable{mime}(::MIME{mime}, T::Type) =
-  method_exists(mime_write, (IO, MIME{mime}, T))
+mm_writable{mime}(::MIME{mime}, T::Type) =
+  method_exists(mm_write, (IO, MIME{mime}, T))
+
+# it is convenient to accept strings instead of ::MIME
+mm_write(io, m::String, x) = mm_write(io, MIME(m), x)
+mm_writable(m::String, T::Type) = mm_writable(MIME(m), T)
 
 ###########################################################################
 # MIME types are assumed to be binary data except for a set of types known
-# to be text data (possibly Unicode).  istextmime(m) returns whether
-# m::MIME is text data, and mime_repr(m, x) returns x written to either
+# to be text data (possibly Unicode).  istext(m) returns whether
+# m::MIME is text data, and mm_repr(m, x) returns x written to either
 # a string (for text m::MIME) or a Vector{Uint8} (for binary m::MIME),
-# assuming the corresponding write_mime method exists.  mime_string_repr
-# is like mime_repr except that it always returns a string, which in the
+# assuming the corresponding write_mime method exists.  mm_string_repr
+# is like mm_repr except that it always returns a string, which in the
 # case of binary data is Base64-encoded.
 #
-# Also, if mime_repr is passed a String for a text type or Vector{Uint8} for
+# Also, if mm_repr is passed a String for a text type or Vector{Uint8} for
 # a binary type, the argument is assumed to already be in the corresponding
 # format and is returned unmodified.  This is useful so that raw data can be
 # passed to display(m::MIME, x).
 
 for mime in ["text/cmd", "text/css", "text/csv", "text/html", "text/javascript", "text/plain", "text/vcard", "text/xml", "application/atom+xml", "application/ecmascript", "application/json", "application/rdf+xml", "application/rss+xml", "application/xml-dtd", "application/postscript", "image/svg+xml", "application/x-latex", "application/xhtml+xml", "application/javascript", "application/xml", "model/x3d+xml", "model/x3d+vrml", "model/vrml"]
     @eval begin
-        istextmime(::@MIME($mime)) = true
-        mime_repr(m::@MIME($mime), x::String) = x
-        mime_repr(m::@MIME($mime), x) = sprint(mime_write, m, x)
-        mime_string_repr(m::@MIME($mime), x) = mime_repr(m, x)
+        istext(::@MIME($mime)) = true
+        mm_repr(m::@MIME($mime), x::String) = x
+        mm_repr(m::@MIME($mime), x) = sprint(mm_write, m, x)
+        mm_string_repr(m::@MIME($mime), x) = mm_repr(m, x)
         # avoid method ambiguities with definitions below:
         # (Q: should we treat Vector{Uint8} as a bytestring?)
-        mime_repr(m::@MIME($mime), x::Vector{Uint8}) = sprint(mime_write, m, x)
-        mime_string_repr(m::@MIME($mime), x::Vector{Uint8}) = mime_repr(m, x)
+        mm_repr(m::@MIME($mime), x::Vector{Uint8}) = sprint(mm_write, m, x)
+        mm_string_repr(m::@MIME($mime), x::Vector{Uint8}) = mm_repr(m, x)
     end
 end
 
-istextmime(::MIME) = false
-function mime_repr(m::MIME, x)
+istext(::MIME) = false
+function mm_repr(m::MIME, x)
     s = IOBuffer()
-    mime_write(s, m, x)
+    mm_write(s, m, x)
     takebuf_array(s)
 end
-mime_repr(m::MIME, x::Vector{Uint8}) = x
+mm_repr(m::MIME, x::Vector{Uint8}) = x
 using Base64
-mime_string_repr(m::MIME, x) = base64(mime_write, m, x)
-mime_string_repr(m::MIME, x::Vector{Uint8}) = base64(write, x)
+mm_string_repr(m::MIME, x) = base64(mm_write, m, x)
+mm_string_repr(m::MIME, x::Vector{Uint8}) = base64(write, x)
+
+# it is convenient to accept strings instead of ::MIME
+istext(m::String) = istext(MIME(m))
+mm_repr(m::String, x) = mm_repr(MIME(m), x)
+mm_string_repr(m::String, x) = mm_string_repr(MIME(m), x)
 
 ###########################################################################
 # We have an abstract Display class that can be subclassed in order to
 # define new rich-display output devices.  A typical subclass should
 # overload display(d::Display, m::MIME, x) for supported MIME types m,
-# (typically using mime_repr or mime_string_repr to get the MIME
+# (typically using mm_repr or mm_string_repr to get the MIME
 # representation of x) and should also overload display(d::Display, x)
 # to display x in whatever MIME type is preferred by the Display and
 # is writable by x.  display(..., x) should throw a MethodError if x
@@ -83,22 +92,30 @@ mime_string_repr(m::MIME, x::Vector{Uint8}) = base64(write, x)
 # Display type.
 
 abstract Display
+
+# it is convenient to accept strings instead of ::MIME
 display(d::Display, mime::String, x) = display(d, MIME(mime), x)
 display(mime::String, x) = display(MIME(mime), x)
+displayable(d::Display, mime::String) = displayable(d, MIME(mime))
+displayable(mime::String) = displayable(MIME(mime))
 
 # simplest display, which only knows how to display text/plain
-immutable IODisplay <: Display
+immutable TextDisplay <: Display
     io::IO
 end
-display(d::IODisplay, ::@MIME("text/plain"), x) =
-    mime_write(d.io, MIME("text/plain"), x)
-display(d::IODisplay, x) = display(d, MIME("text/plain"), x)
+display(d::TextDisplay, ::@MIME("text/plain"), x) =
+    mm_write(d.io, MIME("text/plain"), x)
+display(d::TextDisplay, x) = display(d, MIME("text/plain"), x)
+
+import Base: close, flush
+flush(d::TextDisplay) = flush(d.io)
+close(d::TextDisplay) = close(d.io)
 
 ###########################################################################
 # We keep a stack of Displays, and calling display(x) uses the topmost
 # Display that is capable of displaying x (doesn't throw an error)
 
-const displays = Display[ IODisplay(STDOUT) ]
+const displays = Display[]
 function push_display(d::Display)
     global displays
     push!(displays, d)
@@ -112,11 +129,19 @@ function pop_display(d::Display)
     end
     throw(KeyError(d))
 end
+function reinit_displays()
+    empty!(displays)
+    push_display(TextDisplay(STDOUT))
+end
 
 function display(x)
     for i = length(displays):-1:1
         try
             return display(displays[i], x)
+        catch e
+            if !isa(e, MethodError)
+                rethrow()
+            end
         end
     end
     throw(MethodError(display, (x,)))
@@ -126,6 +151,10 @@ function display(m::MIME, x)
     for i = length(displays):-1:1
         try
             return display(displays[i], m, x)
+        catch e
+            if !isa(e, MethodError)
+                rethrow()
+            end
         end
     end
     throw(MethodError(display, (m, x)))
@@ -144,21 +173,42 @@ function displayable(m::MIME)
 end
 
 ###########################################################################
-# In some cases, it is better to queue something for display later,
-# for example in Matlab-like stateful plotting where you often create
-# a plot and modify it several times, and you only want to display it
-# at the end of the input.  In this case, you would push!(displayqueue, x)
-# instead of display(x), and call display() at the end.
-#
-# (The IJulia interface calls flush_displayqueue() at the end of each cell.)
+# The redisplay method can be overridden by a Display in order to
+# update an existing display (instead of, for example, opening a new
+# window), and is used by the IJulia interface to defer display
+# until the next interactive prompt.  This is especially useful
+# for Matlab/Pylab-like stateful plotting interfaces, where
+# a plot is created and then modified many times (xlabel, title, etc.).
 
-const displayqueue = Any[] # queue of objects to display (in order 1:end)
-
-function display()
-    for x in displayqueue
-        display(x)
+function redisplay(x)
+    for i = length(displays):-1:1
+        try
+            return redisplay(displays[i], x)
+        catch e
+            if !isa(e, MethodError)
+                rethrow()
+            end
+        end
     end
+    throw(MethodError(redisplay, (x,)))
 end
+
+function redisplay(m::Union(MIME,String), x)
+    for i = length(displays):-1:1
+        try
+            return redisplay(displays[i], m, x)
+        catch e
+            if !isa(e, MethodError)
+                rethrow()
+            end
+        end
+    end
+    throw(MethodError(redisplay, (m, x)))
+end
+
+# default redisplay is simply to call display
+redisplay(d::Display, x) = display(d, x)
+redisplay(d::Display, m::Union(MIME,String), x) = display(d, m, x)
 
 ###########################################################################
 

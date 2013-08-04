@@ -1,4 +1,4 @@
-using MIMEDisplay
+using Multimedia
 
 # History: global In/Out and other history variables exported to Main
 const In = Dict{Integer,UTF8String}()
@@ -16,24 +16,27 @@ const text_latex = MIME("application/x-latex")
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
-    data = [ "text/plain" => mime_string_repr(text_plain, x) ]
+    data = [ "text/plain" => mm_string_repr(text_plain, x) ]
     T = typeof(x)
-    if mime_writable(image_svg, T)
-        data[string(image_svg)] = mime_string_repr(image_svg, x)
+    if mm_writable(image_svg, T)
+        data[string(image_svg)] = mm_string_repr(image_svg, x)
     end
-    if mime_writable(image_png, T)
-        data[string(image_png)] = mime_string_repr(image_png, x)
-    elseif mime_writable(image_jpeg, T) # don't send jpeg if we have png
-        data[string(image_jpeg)] = mime_string_repr(image_jpeg, x)
+    if mm_writable(image_png, T)
+        data[string(image_png)] = mm_string_repr(image_png, x)
+    elseif mm_writable(image_jpeg, T) # don't send jpeg if we have png
+        data[string(image_jpeg)] = mm_string_repr(image_jpeg, x)
     end
-    if mime_writable(text_html, T)
-        data[string(text_html)] = mime_string_repr(text_html, x)
+    if mm_writable(text_html, T)
+        data[string(text_html)] = mm_string_repr(text_html, x)
     end
-    if mime_writable(text_latex, T)
-        data[string(text_latex)] = mime_string_repr(text_latex, x)
+    if mm_writable(text_latex, T)
+        data[string(text_latex)] = mm_string_repr(text_latex, x)
     end
     return data
 end
+
+# queue of objects to display at end of cell execution
+const displayqueue = Any[]
 
 # global variable so that display can be done in the correct Msg context
 execute_msg = nothing

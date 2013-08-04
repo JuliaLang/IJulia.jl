@@ -1,11 +1,11 @@
 module IPythonDisplay
 
 using IJulia
-import IJulia: send_ipython, publish, msg_pub, execute_msg, display_dict
+import IJulia: send_ipython, publish, msg_pub, execute_msg, display_dict, displayqueue
 
-using MIMEDisplay
-import MIMEDisplay: display
-export display, InlineDisplay
+using Multimedia
+import Multimedia: display, redisplay
+export display, redisplay, InlineDisplay
 
 immutable InlineDisplay <: Display end
 
@@ -33,6 +33,28 @@ function display(d::InlineDisplay, x)
                          ["source" => "julia", # optional
                           "metadata" => Dict(), # optional
                           "data" => display_dict(x) ]))
+end
+
+# we overload redisplay(d, x) to add x to a queue of objects to display,
+# with the actual display occuring when display() is called or when
+# an input cell has finished executing.
+
+function redisplay(d::InlineDisplay, x)
+    if !contains(displayqueue, x)
+        push!(displayqueue, x)
+    end
+    nothing
+end
+
+function display()
+    try
+        for x in displayqueue
+            display(x)
+        end
+    finally
+        empty!(displayqueue)
+    end
+    nothing
 end
 
 end # module

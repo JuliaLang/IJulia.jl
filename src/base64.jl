@@ -2,13 +2,13 @@ module Base64
 import Base: read, write, close
 export Base64Pipe, base64
 
-# TODO: move to Base once display(...) functionality gets figured out
-
-# Base64Pipe is a pipe-like IO object, which converts writes and
-# reads into base64 encode/decode send to a stream.  (You must close
-# the pipe to complete the encode, separate from closing the target stream).
-# We also have a function base64(f, args...) which works like sprint
-# except that it produces base64-encoded data.
+# Base64Pipe is a pipe-like IO object, which converts writes (and
+# someday reads?) into base64 encoded (decoded) data send to a stream.
+# (You must close the pipe to complete the encode, separate from
+# closing the target stream).  We also have a function base64(f,
+# args...) which works like sprint except that it produces
+# base64-encoded data, along with base64(args...)  which is equivalent
+# to base64(write, args...), to return base64 strings.
 
 #############################################################################
 
@@ -19,17 +19,16 @@ type Base64Pipe <: IO
     b1::Uint8
     nb::Uint8 # number of bytes in cache: 0, 1, or 2
 
-    function Base64Pipe(io,b0,b1,nb)
-        b = new(io,b0,b1,nb)
+    function Base64Pipe(io::IO)
+        b = new(io,0,0,0)
         finalizer(b, close)
         return b
     end
 end
-Base64Pipe(io::IO) = Base64Pipe(io, 0,0,0)
 
 #############################################################################
 
-# Stefan's code:
+# Based on code by Stefan Karpinski from https://github.com/hackerschool/WebSockets.jl (distributed under the same MIT license as Julia)
 
 const b64chars = ['A':'Z','a':'z','0':'9','+','/']
 
@@ -52,6 +51,47 @@ function b64(x::Uint8)
 end
 
 #############################################################################
+
+function write(b::Base64Pipe, x::AbstractVector{Uint8})
+    n = length(x)
+    s = 1 # starting index
+    # finish any cached data to write:
+    if b.nb == 1
+        if n >= 2
+            write(b.io, b64(b.b0, x[1], x[2])...)
+            s = 3
+        elseif n == 1
+            b.b1 = x[1]
+            b.nb = 2
+            return
+        else
+            return
+        end
+    elseif b.nb == 2
+        if n >= 1
+            write(b.io, b64(b.b0, b.b1, x[1])...)
+            s = 2
+        else
+            return
+        end
+    end
+    # write all groups of three bytes:
+    while s + 2 <= n
+        write(b.io, b64(x[s], x[s+1], x[s+2])...)
+        s += 3
+    end
+    # cache any leftover bytes:
+    if s + 1 == n
+        b.b0 = x[s]
+        b.b1 = x[s+1]
+        b.nb = 2
+    elseif s == n
+        b.b0 = x[s]
+        b.nb = 1
+    else
+        b.nb = 0
+    end
+end
 
 function write(b::Base64Pipe, x::Uint8)
     if b.nb == 0
@@ -90,10 +130,11 @@ function base64(f::Function, args...)
     close(b)
     takebuf_string(s)
 end
+base64(x...) = base64(write, x...)
 
 #############################################################################
 
-# read(b::Base64Pipe, ::Type{Uint8}) = # TODO
+# read(b::Base64Pipe, ::Type{Uint8}) = # TODO: decode base64
 
 #############################################################################
 

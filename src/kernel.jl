@@ -1,10 +1,10 @@
 include("base64.jl")
-include("mimedisplay.jl")
+include("multimedia.jl")
 include("IJulia.jl")
 include("inline.jl")
 include("wrappers.jl")
 
-using MIMEDisplay
+using Multimedia
 using IPythonDisplay
 push_display(InlineDisplay())
 
