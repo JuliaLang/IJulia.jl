@@ -17,4 +17,4 @@ for sock in (IJulia.requests, IJulia.control)
     IJulia.eventloop(sock)
 end
 
-wait()
+IJulia.waitloop()

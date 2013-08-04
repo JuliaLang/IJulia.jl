@@ -70,25 +70,53 @@ send_status("starting")
 end
 
 function eventloop(socket)
-    @async begin
-        while true
-            msg = recv_ipython(socket)
-            try
-                handlers[msg.header["msg_type"]](socket, msg)
-            catch e
-                # FIXME: IPython doesn't seem to do anything with crash msg
-                send_ipython(publish, 
-                             Msg([ "crash" ],
-                                 [ "msg_id" => uuid4(),
-                                  "username" => "jlkernel",
-                                  "session" => uuid4(),
-                                  "msg_type" => "crash" ],
-                                 [ "info" => sprint(Base.error_show, e, 
-                                                    catch_backtrace())]))
-                # rethrow(e) # FIXME: seems to hang?
-                Base.error_show(STDERR, e, catch_backtrace())
-                exit(1)
+    try
+        @async begin
+            while true
+                msg = recv_ipython(socket)
+                try
+                    handlers[msg.header["msg_type"]](socket, msg)
+                catch e
+                    # Try to keep going if we get an exception, but
+                    # send the exception traceback to the front-ends.
+                    # (Ignore SIGINT since this may just be a user-requested
+                    #  kernel interruption to interrupt long calculations.)
+                    if !isa(e, InterruptException)
+                        println(STDERR, "KERNEL EXCEPTION")
+                        Base.error_show(STDERR, e, catch_backtrace())
+                        println(STDERR)
+                        send_ipython(publish, 
+                                     Msg([ "pyerr" ],
+                                         [ "msg_id" => uuid4(),
+                                           "username" => "jlkernel",
+                                           "session" => uuid4(),
+                                           "msg_type" => "pyerr" ],
+                                         pyerr_content(e)))
+                    end
+                end
             end
+        end
+    catch e
+        # the IPython manager may send us a SIGINT if the user
+        # chooses to interrupt the kernel; don't crash on this
+        if isa(e, InterruptException)
+            eventloop(socket)
+        else
+            rethrow()
+        end
+    end
+end
+
+function waitloop()
+    try
+        wait()
+    catch e
+        # the IPython manager may send us a SIGINT if the user
+        # chooses to interrupt the kernel; don't crash on this
+        if isa(e, InterruptException)
+            waitloop()
+        else
+            rethrow()
         end
     end
 end

@@ -38,6 +38,21 @@ end
 # queue of objects to display at end of cell execution
 const displayqueue = Any[]
 
+# return the content of a pyerr message for exception e
+function pyerr_content(e)
+    tb = split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
+                      catch_backtrace(), 1:typemax(Int)), "\n", false)
+    if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])
+        pop!(tb) # don't include include_string in backtrace
+    end
+    ename = string(typeof(e))
+    evalue = sprint(Base.error_show, e)
+    unshift!(tb, evalue) # fperez says this needs to be in traceback too
+    ["execution_count" => _n,
+     "ename" => ename, "evalue" => evalue,
+     "traceback" => tb]
+end
+
 # global variable so that display can be done in the correct Msg context
 execute_msg = nothing
 
@@ -111,20 +126,7 @@ function execute_request_0x535c5df2(socket, msg)
                                 "user_expressions" => user_expressions]))
     catch e
         empty!(displayqueue) # discard pending display requests on an error
-
-        tb = split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
-                          catch_backtrace(), 1:typemax(Int)), "\n", false)
-        if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])
-            pop!(tb) # don't include include_string in backtrace
-        end
-        ename = string(typeof(e))
-        evalue = sprint(Base.error_show, e)
-        unshift!(tb, evalue) # fperez says this needs to be in traceback too
-        send_ipython(publish,
-                     msg_pub(msg, "pyerr",
-                               ["execution_count" => _n,
-                               "ename" => ename, "evalue" => evalue,
-                               "traceback" => tb]))
+        send_ipython(publish, msg_pub(msg, "pyerr", pyerr_content(e)))
         send_ipython(requests,
                      msg_reply(msg, "execute_reply",
                                ["status" => "error", "execution_count" => _n,
