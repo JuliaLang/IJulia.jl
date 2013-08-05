@@ -1,10 +1,16 @@
-using Multimedia
+# Handers for execute_request and related messages, which are
+# the core of the IPython protocol: execution of Julia code and
+# returning results.
 
+#######################################################################
 # History: global In/Out and other history variables exported to Main
 const In = Dict{Integer,UTF8String}()
 const Out = Dict{Integer,Any}()
 _ = __ = __ = ans = nothing
 export In, Out, _, __, ___, ans
+
+#######################################################################
+using Multimedia
 
 const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")
@@ -46,6 +52,8 @@ function undisplay(x)
     end
 end
 
+#######################################################################
+
 # return the content of a pyerr message for exception e
 function pyerr_content(e)
     tb = split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
@@ -60,6 +68,20 @@ function pyerr_content(e)
      "ename" => ename, "evalue" => evalue,
      "traceback" => tb]
 end
+
+#######################################################################
+# Similar to the ipython kernel, we provide a mechanism by
+# which modules can register thunk functions to be called after
+# executing an input cell, e.g. to "close" the current plot in Pylab.
+# Modules should only use these if isdefined(Main, IJulia) is true.
+
+const postexecute_hooks = Function[]
+
+push_postexecute_hook(f::Function) = push!(postexecute_hooks, f)
+pop_postexecute_hook(f::Function) = splice!(postexecute_hooks, findfirst(postexecute_hooks, f))
+
+
+#######################################################################
 
 # global variable so that display can be done in the correct Msg context
 execute_msg = nothing
@@ -116,6 +138,10 @@ function execute_request_0x535c5df2(socket, msg)
             user_expressions[v] = eval(Main,parse(ex))
         end
 
+        for hook in postexecute_hooks
+            hook()
+        end
+
         if result != nothing
             send_ipython(publish, 
                          msg_pub(msg, "pyout",
@@ -146,3 +172,5 @@ function execute_request_0x535c5df2(socket, msg)
     execute_msg = nothing
     send_status("idle")
 end
+
+#######################################################################
