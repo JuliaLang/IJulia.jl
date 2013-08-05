@@ -1,13 +1,13 @@
 module Multimedia
 
-export Display, display, push_display, pop_display, displayable, redisplay,
-   MIME, @MIME, mm_write, mm_repr, mm_string_repr, istext,
-   mm_writable, TextDisplay, reinit_displays
+export Display, display, pushdisplay, popdisplay, displayable, redisplay,
+   MIME, @MIME, writemime, reprmime, stringmime, istext,
+   mimewritable, TextDisplay, reinit_displays
 
 ###########################################################################
 # We define a singleton type MIME{mime symbol} for each MIME type, so
 # that Julia's dispatch and overloading mechanisms can be used to
-# dispatch mm_write and to add conversions for new types.
+# dispatch writemime and to add conversions for new types.
 
 immutable MIME{mime} end
 
@@ -24,29 +24,29 @@ macro MIME(s)
 end
 
 ###########################################################################
-# For any type T one can define mm_write(io, ::@MIME(mime), x::T) = ...
+# For any type T one can define writemime(io, ::@MIME(mime), x::T) = ...
 # in order to provide a way to export T as a given mime type.
 
 # We provide a fallback text/plain representation of any type:
-mm_write(io, ::@MIME("text/plain"), x) = repl_show(io, x)
+writemime(io, ::@MIME("text/plain"), x) = repl_show(io, x)
 
-mm_writable{mime}(::MIME{mime}, T::Type) =
-  method_exists(mm_write, (IO, MIME{mime}, T))
+mimewritable{mime}(::MIME{mime}, T::Type) =
+  method_exists(writemime, (IO, MIME{mime}, T))
 
 # it is convenient to accept strings instead of ::MIME
-mm_write(io, m::String, x) = mm_write(io, MIME(m), x)
-mm_writable(m::String, T::Type) = mm_writable(MIME(m), T)
+writemime(io, m::String, x) = writemime(io, MIME(m), x)
+mimewritable(m::String, T::Type) = mimewritable(MIME(m), T)
 
 ###########################################################################
 # MIME types are assumed to be binary data except for a set of types known
 # to be text data (possibly Unicode).  istext(m) returns whether
-# m::MIME is text data, and mm_repr(m, x) returns x written to either
+# m::MIME is text data, and reprmime(m, x) returns x written to either
 # a string (for text m::MIME) or a Vector{Uint8} (for binary m::MIME),
-# assuming the corresponding write_mime method exists.  mm_string_repr
-# is like mm_repr except that it always returns a string, which in the
+# assuming the corresponding write_mime method exists.  stringmime
+# is like reprmime except that it always returns a string, which in the
 # case of binary data is Base64-encoded.
 #
-# Also, if mm_repr is passed a String for a text type or Vector{Uint8} for
+# Also, if reprmime is passed a String for a text type or Vector{Uint8} for
 # a binary type, the argument is assumed to already be in the corresponding
 # format and is returned unmodified.  This is useful so that raw data can be
 # passed to display(m::MIME, x).
@@ -54,37 +54,37 @@ mm_writable(m::String, T::Type) = mm_writable(MIME(m), T)
 for mime in ["text/cmd", "text/css", "text/csv", "text/html", "text/javascript", "text/plain", "text/vcard", "text/xml", "application/atom+xml", "application/ecmascript", "application/json", "application/rdf+xml", "application/rss+xml", "application/xml-dtd", "application/postscript", "image/svg+xml", "application/x-latex", "application/xhtml+xml", "application/javascript", "application/xml", "model/x3d+xml", "model/x3d+vrml", "model/vrml"]
     @eval begin
         istext(::@MIME($mime)) = true
-        mm_repr(m::@MIME($mime), x::String) = x
-        mm_repr(m::@MIME($mime), x) = sprint(mm_write, m, x)
-        mm_string_repr(m::@MIME($mime), x) = mm_repr(m, x)
+        reprmime(m::@MIME($mime), x::String) = x
+        reprmime(m::@MIME($mime), x) = sprint(writemime, m, x)
+        stringmime(m::@MIME($mime), x) = reprmime(m, x)
         # avoid method ambiguities with definitions below:
         # (Q: should we treat Vector{Uint8} as a bytestring?)
-        mm_repr(m::@MIME($mime), x::Vector{Uint8}) = sprint(mm_write, m, x)
-        mm_string_repr(m::@MIME($mime), x::Vector{Uint8}) = mm_repr(m, x)
+        reprmime(m::@MIME($mime), x::Vector{Uint8}) = sprint(writemime, m, x)
+        stringmime(m::@MIME($mime), x::Vector{Uint8}) = reprmime(m, x)
     end
 end
 
 istext(::MIME) = false
-function mm_repr(m::MIME, x)
+function reprmime(m::MIME, x)
     s = IOBuffer()
-    mm_write(s, m, x)
+    writemime(s, m, x)
     takebuf_array(s)
 end
-mm_repr(m::MIME, x::Vector{Uint8}) = x
+reprmime(m::MIME, x::Vector{Uint8}) = x
 using Base64
-mm_string_repr(m::MIME, x) = base64(mm_write, m, x)
-mm_string_repr(m::MIME, x::Vector{Uint8}) = base64(write, x)
+stringmime(m::MIME, x) = base64(writemime, m, x)
+stringmime(m::MIME, x::Vector{Uint8}) = base64(write, x)
 
 # it is convenient to accept strings instead of ::MIME
 istext(m::String) = istext(MIME(m))
-mm_repr(m::String, x) = mm_repr(MIME(m), x)
-mm_string_repr(m::String, x) = mm_string_repr(MIME(m), x)
+reprmime(m::String, x) = reprmime(MIME(m), x)
+stringmime(m::String, x) = stringmime(MIME(m), x)
 
 ###########################################################################
 # We have an abstract Display class that can be subclassed in order to
 # define new rich-display output devices.  A typical subclass should
 # overload display(d::Display, m::MIME, x) for supported MIME types m,
-# (typically using mm_repr or mm_string_repr to get the MIME
+# (typically using reprmime or stringmime to get the MIME
 # representation of x) and should also overload display(d::Display, x)
 # to display x in whatever MIME type is preferred by the Display and
 # is writable by x.  display(..., x) should throw a MethodError if x
@@ -104,7 +104,7 @@ immutable TextDisplay <: Display
     io::IO
 end
 display(d::TextDisplay, ::@MIME("text/plain"), x) =
-    mm_write(d.io, MIME("text/plain"), x)
+    writemime(d.io, MIME("text/plain"), x)
 display(d::TextDisplay, x) = display(d, MIME("text/plain"), x)
 
 import Base: close, flush
@@ -116,12 +116,12 @@ close(d::TextDisplay) = close(d.io)
 # Display that is capable of displaying x (doesn't throw an error)
 
 const displays = Display[]
-function push_display(d::Display)
+function pushdisplay(d::Display)
     global displays
     push!(displays, d)
 end
-pop_display() = pop!(displays)
-function pop_display(d::Display)
+popdisplay() = pop!(displays)
+function popdisplay(d::Display)
     for i = length(displays):-1:1
         if d == displays[i]
             return splice!(displays, i)
@@ -131,7 +131,7 @@ function pop_display(d::Display)
 end
 function reinit_displays()
     empty!(displays)
-    push_display(TextDisplay(STDOUT))
+    pushdisplay(TextDisplay(STDOUT))
 end
 
 function display(x)

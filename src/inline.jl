@@ -1,11 +1,11 @@
 module IPythonDisplay
 
 using IJulia
-import IJulia: send_ipython, publish, msg_pub, execute_msg, display_dict, displayqueue
+import IJulia: send_ipython, publish, msg_pub, execute_msg, display_dict, displayqueue, undisplay
 
 using Multimedia
 import Multimedia: display, redisplay
-export display, redisplay, InlineDisplay
+export display, redisplay, InlineDisplay, undisplay
 
 immutable InlineDisplay <: Display end
 
@@ -28,6 +28,7 @@ end
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
+    undisplay(x) # dequeue previous redisplay(x)
     send_ipython(publish, 
                  msg_pub(execute_msg, "display_data",
                          ["source" => "julia", # optional
@@ -43,18 +44,14 @@ function redisplay(d::InlineDisplay, x)
     if !contains(displayqueue, x)
         push!(displayqueue, x)
     end
-    nothing
 end
 
 function display()
-    try
-        for x in displayqueue
-            display(x)
-        end
-    finally
-        empty!(displayqueue)
+    q = copy(displayqueue)
+    empty!(displayqueue) # so that undisplay in display(x) is no-op
+    for x in q
+        display(x)
     end
-    nothing
 end
 
 end # module

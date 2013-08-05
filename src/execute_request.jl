@@ -16,27 +16,35 @@ const text_latex = MIME("application/x-latex")
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
-    data = [ "text/plain" => mm_string_repr(text_plain, x) ]
+    data = [ "text/plain" => stringmime(text_plain, x) ]
     T = typeof(x)
-    if mm_writable(image_svg, T)
-        data[string(image_svg)] = mm_string_repr(image_svg, x)
+    if mimewritable(image_svg, T)
+        data[string(image_svg)] = stringmime(image_svg, x)
     end
-    if mm_writable(image_png, T)
-        data[string(image_png)] = mm_string_repr(image_png, x)
-    elseif mm_writable(image_jpeg, T) # don't send jpeg if we have png
-        data[string(image_jpeg)] = mm_string_repr(image_jpeg, x)
+    if mimewritable(image_png, T)
+        data[string(image_png)] = stringmime(image_png, x)
+    elseif mimewritable(image_jpeg, T) # don't send jpeg if we have png
+        data[string(image_jpeg)] = stringmime(image_jpeg, x)
     end
-    if mm_writable(text_html, T)
-        data[string(text_html)] = mm_string_repr(text_html, x)
+    if mimewritable(text_html, T)
+        data[string(text_html)] = stringmime(text_html, x)
     end
-    if mm_writable(text_latex, T)
-        data[string(text_latex)] = mm_string_repr(text_latex, x)
+    if mimewritable(text_latex, T)
+        data[string(text_latex)] = stringmime(text_latex, x)
     end
     return data
 end
 
 # queue of objects to display at end of cell execution
 const displayqueue = Any[]
+
+# remove x from the display queue
+function undisplay(x)
+    i = findfirst(displayqueue, x)
+    if i > 0
+        splice!(displayqueue, i)
+    end
+end
 
 # return the content of a pyerr message for exception e
 function pyerr_content(e)
@@ -114,6 +122,7 @@ function execute_request_0x535c5df2(socket, msg)
                                  ["execution_count" => _n,
                                  "metadata" => Dict(), # qtconsole needs this
                                  "data" => display_dict(result) ]))
+            undisplay(result) # in case display was queued
         end
         
         display() # flush pending display requests

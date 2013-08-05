@@ -6,7 +6,7 @@ include("wrappers.jl")
 
 using Multimedia
 using IPythonDisplay
-push_display(InlineDisplay())
+pushdisplay(InlineDisplay())
 
 using IJulia
 
