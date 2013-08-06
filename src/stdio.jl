@@ -10,7 +10,7 @@ vprint(x...) = verbose::Bool && print(orig_STDOUT, x...)
 vprintln(x...) = verbose::Bool && println(orig_STDOUT, x...)
 verror_show(e, bt) = verbose::Bool && Base.error_show(orig_STDERR, e, bt)
 
-function watch_stream(s::IO, name::String)
+function watch_stream(rd::IO, name::String)
     try
         while true
             s = readavailable(rd) # blocks until something available
