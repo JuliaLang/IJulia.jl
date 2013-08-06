@@ -75,9 +75,7 @@ function object_info_request(socket, msg)
         end
         send_ipython(requests, msg_reply(msg, "object_info_reply", content))
     catch e
-        if verbose
-            Base.error_show(STDOUT, e, catch_backtrace())
-        end
+        verror_show(e, catch_backtrace())
         send_ipython(requests,
                      msg_reply(msg, "object_info_reply",
                                ["oname" => msg.content["oname"],

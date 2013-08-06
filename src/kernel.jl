@@ -12,7 +12,8 @@ using IJulia
 
 ccall(:jl_install_sigint_handler, Void, ())
 
-println("Starting kernel event loops.")
+println(IJulia.orig_STDOUT, "Starting kernel event loops.")
+IJulia.watch_stdio()
 for sock in (IJulia.requests, IJulia.control)
     IJulia.eventloop(sock)
 end

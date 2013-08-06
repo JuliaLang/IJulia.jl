@@ -13,8 +13,9 @@ using REPL
 
 include("msg.jl")
 include("handlers.jl")
+include("stdio.jl")
 
-uuid4() = repr(Random.uuid4())
+uuid4() = repr(Base.Random.uuid4())
 
 if length(ARGS) > 0
     global const profile = open(JSON.parse,ARGS[1])
@@ -32,9 +33,7 @@ else
             "key" => uuid4()
         ]
         fname = "profile-$(getpid()).json"
-        if verbose
-            println("connect ipython with --existing $(pwd())/$fname")
-        end
+        vprintln("connect ipython with --existing $(pwd())/$fname")
         open(fname, "w") do f
             JSON.print(f, profile)
         end
@@ -82,9 +81,9 @@ function eventloop(socket)
                     # (Ignore SIGINT since this may just be a user-requested
                     #  kernel interruption to interrupt long calculations.)
                     if !isa(e, InterruptException)
-                        println(STDERR, "KERNEL EXCEPTION")
-                        Base.error_show(STDERR, e, catch_backtrace())
-                        println(STDERR)
+                        println(orig_STDERR, "KERNEL EXCEPTION")
+                        Base.error_show(orig_STDERR, e, catch_backtrace())
+                        println(orig_STDERR)
                         send_ipython(publish, 
                                      Msg([ "pyerr" ],
                                          [ "msg_id" => uuid4(),
