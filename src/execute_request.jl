@@ -158,12 +158,10 @@ function execute_request_0x535c5df2(socket, msg)
                                 "user_expressions" => user_expressions]))
     catch e
         empty!(displayqueue) # discard pending display requests on an error
-        send_ipython(publish, msg_pub(msg, "pyerr", pyerr_content(e)))
-        send_ipython(requests,
-                     msg_reply(msg, "execute_reply",
-                               ["status" => "error", "execution_count" => _n,
-                               "ename" => ename, "evalue" => evalue,
-                               "traceback" => tb]))
+        content = pyerr_content(e)
+        send_ipython(publish, msg_pub(msg, "pyerr", content))
+        content["status"] = "error"
+        send_ipython(requests, msg_reply(msg, "execute_reply", content))
     end
 
     send_status("idle")

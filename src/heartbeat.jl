@@ -17,9 +17,9 @@ function start_heartbeat(sock)
         ccall(:_beginthread, Int, (Ptr{Void}, Cuint, Ptr{Void}),
               heartbeat_c, 0, sock.data)
     else
-        thread = int64(0) # FIXME? sizeof(pthread_t) is <= 8 on Linux & OSX
+        threadid = Array(Int, 128) # sizeof(pthread_t) is <= 8 on Linux & OSX
         ccall((:pthread_create, :libpthread), Cint,
-          (Ptr{Void}, Ptr{Void}, Ptr{Void}, Ptr{Void}),
-          &thread, C_NULL, heartbeat_c, sock.data)
+              (Ptr{Int}, Ptr{Void}, Ptr{Void}, Ptr{Void}),
+              threadid, C_NULL, heartbeat_c, sock.data)
     end
 end
