@@ -70,28 +70,26 @@ end
 
 function eventloop(socket)
     try
-        @async begin
-            while true
-                msg = recv_ipython(socket)
-                try
-                    handlers[msg.header["msg_type"]](socket, msg)
-                catch e
-                    # Try to keep going if we get an exception, but
-                    # send the exception traceback to the front-ends.
-                    # (Ignore SIGINT since this may just be a user-requested
-                    #  kernel interruption to interrupt long calculations.)
-                    if !isa(e, InterruptException)
-                        println(orig_STDERR, "KERNEL EXCEPTION")
-                        Base.error_show(orig_STDERR, e, catch_backtrace())
-                        println(orig_STDERR)
-                        send_ipython(publish, 
-                                     Msg([ "pyerr" ],
-                                         [ "msg_id" => uuid4(),
-                                           "username" => "jlkernel",
-                                           "session" => uuid4(),
-                                           "msg_type" => "pyerr" ],
-                                         pyerr_content(e)))
-                    end
+        while true
+            msg = recv_ipython(socket)
+            try
+                handlers[msg.header["msg_type"]](socket, msg)
+            catch e
+                # Try to keep going if we get an exception, but
+                # send the exception traceback to the front-ends.
+                # (Ignore SIGINT since this may just be a user-requested
+                #  kernel interruption to interrupt long calculations.)
+                if !isa(e, InterruptException)
+                    println(orig_STDERR, "KERNEL EXCEPTION")
+                    Base.error_show(orig_STDERR, e, catch_backtrace())
+                    println(orig_STDERR)
+                    send_ipython(publish, 
+                                 Msg([ "pyerr" ],
+                    [ "msg_id" => uuid4(),
+                    "username" => "jlkernel",
+                    "session" => uuid4(),
+                     "msg_type" => "pyerr" ],
+                                     pyerr_content(e)))
                 end
             end
         end
