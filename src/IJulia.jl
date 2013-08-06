@@ -14,6 +14,7 @@ using REPL
 include("msg.jl")
 include("handlers.jl")
 include("stdio.jl")
+include("heartbeat.jl")
 
 uuid4() = repr(Base.Random.uuid4())
 
@@ -58,15 +59,8 @@ bind(heartbeat, "$(profile["transport"])://$(profile["ip"]):$(profile["hb_port"]
 # execution counter
 _n = 0
 
+start_heartbeat(heartbeat)
 send_status("starting")
-
-# heartbeat (should eventually be forked in a separate thread & use zmq_device)
-@async begin
-    while true
-        msg = recv(heartbeat)
-        send(heartbeat, msg)
-    end
-end
 
 function eventloop(socket)
     try
