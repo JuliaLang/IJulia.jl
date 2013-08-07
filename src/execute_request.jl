@@ -3,13 +3,6 @@
 # returning results.
 
 #######################################################################
-# History: global In/Out and other history variables exported to Main
-const In = Dict{Integer,UTF8String}()
-const Out = Dict{Integer,Any}()
-_ = __ = __ = ans = nothing
-export In, Out, _, __, ___, ans
-
-#######################################################################
 using Multimedia
 
 const text_plain = MIME("text/plain")
@@ -121,8 +114,10 @@ function execute_request_0x535c5df2(socket, msg)
             __ = _ # 2nd result from last
             _ = result
             if store_history
-                Out[_n] = result == Out ? nothing : result # Julia #3066
-                eval(Main, :($(symbol(string("_",_n))) = Out[$_n]))
+                if result != Out # workaround for Julia #3066
+                    Out[_n] = result 
+                end
+                eval(Main, :($(symbol(string("_",_n))) = $result))
             end
         end
 
