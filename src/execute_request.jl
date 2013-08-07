@@ -149,6 +149,7 @@ function execute_request_0x535c5df2(socket, msg)
         end
         
         display() # flush pending display requests
+        flush_cstdio() # flush writes to stdout/stderr by external C code
 
         send_ipython(requests,
                      msg_reply(msg, "execute_reply",

@@ -20,7 +20,7 @@ for mime in ipy_mime
                          msg_pub(execute_msg, "display_data",
                                  ["source" => "julia", # optional
                                   "metadata" => Dict(), # optional
-                                  "data" => [$mime => mime_string_repr(MIME($mime), x)] ]))
+                                  "data" => [$mime => stringmime(MIME($mime), x)] ]))
         end
     end
 end
