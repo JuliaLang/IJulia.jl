@@ -67,7 +67,24 @@ class Julia(object):
             if status != 0:
                 raise JuliaMagicError('error starting up the Julia process')
 
-            jpath = os.path.abspath('%s/../lib/libjulia-release.so' % JULIA_HOME)
+            # *.so extension on Linux
+            jpath_so = os.path.abspath('%s/../lib/libjulia-release.so'
+                                       % JULIA_HOME)
+            # *.dylib extension on OSX
+            jpath_dylib = os.path.abspath('%s/../lib/libjulia-release.dylib'
+                                          % JULIA_HOME)
+
+            # choose the correct library.  If it doesn
+            if os.path.exists(jpath_so):
+                jpath = jpath_so
+            elif os.path.exists(jpath_dylib):
+                jpath = jpath_dylib
+            else:
+                # this can happen if your Julia version is not up-to-date
+                raise ValueError("Julia release library not found\n"
+                                 "  searched %s\n   and %s"
+                                 % (jpath_so, jpath_dylib))
+
             j = ctypes.PyDLL(jpath, ctypes.RTLD_GLOBAL)
             # print 'Initializing Julia...'  # dbg
             j.jl_init('%s/../lib' % JULIA_HOME)
