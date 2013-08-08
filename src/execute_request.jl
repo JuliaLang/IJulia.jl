@@ -14,7 +14,7 @@ const text_latex2 = MIME("application/x-latex") # but this is more standard?
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
-    data = (ASCIIString=>ByteString)[ "text/plain" => stringmime(text_plain, x) ]
+    data = (ASCIIString=>ByteString)[ "text/plain" => sprint(repl_show, x) ]
     T = typeof(x)
     if mimewritable(image_svg, T)
         data[string(image_svg)] = stringmime(image_svg, x)
