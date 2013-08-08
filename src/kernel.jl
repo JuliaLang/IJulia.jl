@@ -1,6 +1,5 @@
 include("IJulia.jl")
 include("inline.jl")
-include("wrappers.jl")
 
 using IPythonDisplay
 pushdisplay(InlineDisplay())
