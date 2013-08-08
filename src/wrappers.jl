@@ -1,14 +1,12 @@
 # Module-import wrappers that add our display hooks to types with graphical
 # representation.  These should eventually be moved into the modules
-# themselves, especially once Multimedia is merged into Base.
+# themselves.
 
 module PyPlot
 
 using PyCall
 import PyCall: PyObject
-import Base: convert, isequal, hash
-using Multimedia
-import Multimedia: writemime
+import Base: convert, isequal, hash, writemime
 export PyPlotFigure, plt
 
 pyimport("matplotlib")[:use]("Agg") # make sure no GUI windows pop up

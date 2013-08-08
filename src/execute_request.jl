@@ -3,8 +3,6 @@
 # returning results.
 
 #######################################################################
-using Multimedia
-
 const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")
 const image_png = MIME("image/png")

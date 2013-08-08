@@ -4,7 +4,6 @@ include("IJulia.jl")
 include("inline.jl")
 include("wrappers.jl")
 
-using Multimedia
 using IPythonDisplay
 pushdisplay(InlineDisplay())
 

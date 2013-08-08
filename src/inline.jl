@@ -3,8 +3,7 @@ module IPythonDisplay
 using IJulia
 import IJulia: send_ipython, publish, msg_pub, execute_msg, display_dict, displayqueue, undisplay
 
-using Multimedia
-import Multimedia: display, redisplay
+import Base: display, redisplay
 export display, redisplay, InlineDisplay, undisplay
 
 immutable InlineDisplay <: Display end
