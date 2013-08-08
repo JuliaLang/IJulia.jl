@@ -1,4 +1,3 @@
-include("base64.jl")
 include("multimedia.jl")
 include("IJulia.jl")
 include("inline.jl")
