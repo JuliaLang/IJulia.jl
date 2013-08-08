@@ -9,7 +9,7 @@ end
 
 using ZMQ
 using JSON
-using REPL
+using REPLCompletions
 
 include("msg.jl")
 include("history.jl")

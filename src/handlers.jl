@@ -17,14 +17,14 @@ function complete_request(socket, msg)
     line = msg.content["line"]
     cursorpos = msg.content["cursor_pos"]
 
-    completions, positions, matched_text = REPL.completions(line,cursorpos)
+    comps, positions = completions(line,cursorpos)
     if sizeof(text) > length(positions)
-        completions = [line[(cursorpos-sizeof(text)+1):(cursorpos-length(positions))]*s for s in completions]
+        comps = [line[(cursorpos-sizeof(text)+1):(cursorpos-length(positions))]*s for s in comps]
     end
     send_ipython(requests, msg_reply(msg, "complete_reply", [
         "status" => "ok",
-        "matches" => completions,
-        "matched_text" => matched_text,
+        "matches" => comps,
+        "matched_text" => line[positions],
     ]))
 end
 
