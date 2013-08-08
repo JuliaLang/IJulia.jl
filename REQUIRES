@@ -1,0 +1,5 @@
+julia 0.2-
+GnuTLS
+JSON 0.2-
+ZMQ 0.1-
+JuliaCompletion # to be split off from REPL.jl
