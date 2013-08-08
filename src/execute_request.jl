@@ -8,7 +8,8 @@ const image_svg = MIME("image/svg+xml")
 const image_png = MIME("image/png")
 const image_jpeg = MIME("image/jpeg")
 const text_html = MIME("text/html")
-const text_latex = MIME("application/x-latex")
+const text_latex = MIME("text/latex") # IPython expects this
+const text_latex2 = MIME("application/x-latex") # but this is more standard?
 
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
@@ -28,6 +29,8 @@ function display_dict(x)
     end
     if mimewritable(text_latex, T)
         data[string(text_latex)] = stringmime(text_latex, x)
+    elseif mimewritable(text_latex2, T)
+        data[string(text_latex)] = stringmime(text_latex2, x)
     end
     return data
 end

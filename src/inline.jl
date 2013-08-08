@@ -24,6 +24,9 @@ for mime in ipy_mime
     end
 end
 
+# deal with annoying application/x-latex == text/latex synonyms
+display(d::InlineDisplay, m::@MIME("application/x-latex"), x) = display(d, MIME("text/latex"), stringmime(m, x))
+
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
