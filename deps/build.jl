@@ -29,7 +29,7 @@ if !ismatch(r"^\s*c\.KernelManager\.kernel_cmd\s*="m, readall(juliaconf))
     open(juliaconf, "a") do f
         print(f, """
 
-c.KernelManager.kernel_cmd = ["$(joinpath(JULIA_HOME,"julia"))", "$(joinpath(Pkg2.dir("IJulia"),"src","kernel.jl"))", "{connection_file}"]
+c.KernelManager.kernel_cmd = ["$(joinpath(JULIA_HOME,"julia-release-basic"))", "$(joinpath(Pkg2.dir("IJulia"),"src","kernel.jl"))", "{connection_file}"]
 """)
     end
 else
