@@ -1,5 +1,8 @@
 # TODO: Build IPython 1.0 dependency? (wait for release?)
 
+# print to stderr, since that is where Pkg prints its messages
+eprintln(x...) = println(STDERR, x...)
+
 ipyvers = try
     v = split(chomp(readall(`ipython --version`)),r"[\.-]")
     if length(v) == 4
@@ -14,18 +17,18 @@ end
 if ipyvers < v"1.0.0-dev"
     error("IPython 1.0 or later is required for IJulia, got $ipyvers instead")
 else
-    println("Found IPython version $ipyvers ... ok.")
+    eprintln("Found IPython version $ipyvers ... ok.")
 end
 
 # create julia profile (no-op if we already have one)
-println("Creating julia profile in IPython...")
+eprintln("Creating julia profile in IPython...")
 run(`ipython profile create julia`)
 
 # add Julia kernel manager if we don't have one yet
 juliaprof = chomp(readall(`ipython locate profile julia`))
 juliaconf = joinpath(juliaprof, "ipython_config.py")
 if !ismatch(r"^\s*c\.KernelManager\.kernel_cmd\s*="m, readall(juliaconf))
-    println("Adding KernelManager.kernel_cmd to Julia IPython configuration")
+    eprintln("Adding KernelManager.kernel_cmd to Julia IPython configuration")
     open(juliaconf, "a") do f
         print(f, """
 
@@ -33,7 +36,7 @@ c.KernelManager.kernel_cmd = ["$(joinpath(JULIA_HOME,"julia-release-basic"))", "
 """)
     end
 else
-    println("(Existing KernelManager.kernel_cmd setting is untouched.)")
+    eprintln("(Existing KernelManager.kernel_cmd setting is untouched.)")
 end
 
 # make qtconsole require shift-enter to complete input
@@ -41,7 +44,7 @@ qtconf = joinpath(juliaprof, "ipython_qtconsole_config.py")
 if isfile(qtconf)
     if !ismatch(r"^\s*c\.IPythonWidget\.execute_on_complete_input\s*="m,
                 readall(qtconf))
-        println("Adding execute_on_complete_input = False to qtconsole config")
+        eprintln("Adding execute_on_complete_input = False to qtconsole config")
         open(qtconf, "a") do f
             print(f, """
 
@@ -49,10 +52,10 @@ c.IPythonWidget.execute_on_complete_input = False
 """)
         end
     else
-        println("(Existing execute_on_complete_input qtconsole setting untouched.)")
+        eprintln("(Existing execute_on_complete_input qtconsole setting untouched.)")
     end
 else
-    println("Creating qtconsole config with execute_on_complete_input = False")
+    eprintln("Creating qtconsole config with execute_on_complete_input = False")
     open(qtconf, "w") do f
         print(f, """
 c = get_config()
@@ -66,13 +69,13 @@ mkpath(joinpath(juliaprof, "static", "base", "images"))
 for T in ("png", "svg")
     ipynblogo = joinpath(juliaprof, "static", "base", "images", "ipynblogo.$T")
     if !isfile(ipynblogo)
-        println("Copying IJulia $T logo to Julia IPython profile.")
+        eprintln("Copying IJulia $T logo to Julia IPython profile.")
         open(ipynblogo, "w") do f
             write(f, open(readbytes, joinpath(Pkg2.dir("IJulia"), "deps",
                                               "ijulialogo.$T")))
         end
     else
-        println("(Existing Julia IPython $T logo file untouched.)")
+        eprintln("(Existing Julia IPython $T logo file untouched.)")
     end
 end
 
@@ -84,13 +87,13 @@ end
 mkpath(joinpath(juliaprof, "static", "notebook", "js"))
 tooltipjs = joinpath(juliaprof, "static", "notebook", "js", "tooltip.js")
 if !isfile(tooltipjs)
-    println("Copying tooltip.js to Julia IPython profile.")
+    eprintln("Copying tooltip.js to Julia IPython profile.")
     open(tooltipjs, "w") do f
         write(f, open(readbytes, joinpath(Pkg2.dir("IJulia"), "deps",
                                           "tooltip.js")))
     end
 else
-    println("(Existing tooltip.js file untouched.)")
+    eprintln("(Existing tooltip.js file untouched.)")
 end
 
 
@@ -100,11 +103,11 @@ end
 mkpath(joinpath(juliaprof, "static", "custom"))
 customjs = joinpath(juliaprof, "static", "custom", "custom.js")
 if !isfile(customjs)
-    println("Copying custom.js to Julia IPython profile.")
+    eprintln("Copying custom.js to Julia IPython profile.")
     open(customjs, "w") do f
         write(f, open(readbytes, joinpath(Pkg2.dir("IJulia"), "deps",
                                           "custom.js")))
     end
 else
-    println("(Existing custom.js file untouched.)")
+    eprintln("(Existing custom.js file untouched.)")
 end
