@@ -24,8 +24,8 @@ the next few months.
 
 * To use the [IPython notebook](http://ipython.org/notebook.html) interface, which runs in your web
   browser and provides a rich multimedia environment, you will need
-  to install the [Jinja2](http://jinja.pocoo.org/docs/) Python package.
-  (Given the [pip](http://www.pip-installer.org/en/latest/) installer, `pip install jinja2` should be sufficient.)
+  to install the [Jinja2](http://jinja.pocoo.org/docs/) and [Tornado](http://www.tornadoweb.org/en/stable/) Python packages.
+  (Given the [pip](http://www.pip-installer.org/en/latest/) installer, `pip install jinja2 tornado` should be sufficient.)
 
 * To use the [IPython qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html) interface, you will need to install [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download) or [PySide](http://qt-project.org/wiki/Category:LanguageBindings::PySide).
 
