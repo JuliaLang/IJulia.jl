@@ -1,5 +1,7 @@
 # TODO: Build IPython 1.0 dependency? (wait for release?)
 
+#######################################################################
+
 # print to stderr, since that is where Pkg prints its messages
 eprintln(x...) = println(STDERR, x...)
 
@@ -15,49 +17,56 @@ else
     eprintln("Found IPython version $ipyvers ... ok.")
 end
 
+#######################################################################
+# Create Julia profile for IPython and fix the config options.
+
 # create julia profile (no-op if we already have one)
 eprintln("Creating julia profile in IPython...")
 run(`ipython profile create julia`)
 
-# add Julia kernel manager if we don't have one yet
 juliaprof = chomp(readall(`ipython locate profile julia`))
-juliaconf = joinpath(juliaprof, "ipython_config.py")
-if !ismatch(r"^\s*c\.KernelManager\.kernel_cmd\s*="m, readall(juliaconf))
-    eprintln("Adding KernelManager.kernel_cmd to Julia IPython configuration")
-    open(juliaconf, "a") do f
-        print(f, """
 
-c.KernelManager.kernel_cmd = ["$(joinpath(JULIA_HOME,"julia-release-basic"))", "$(joinpath(Pkg2.dir("IJulia"),"src","kernel.jl"))", "{connection_file}"]
+# set c.$s in prof file to val, or nothing if it is already set
+function add_config(prof::String, s::String, val)
+    p = joinpath(juliaprof, prof)
+    r = Regex(string("^\\s*c\\.", replace(s, r"\.", "\\."), "\\s*="), "m")
+    if isfile(p)
+        if ismatch(r, readall(p))
+            eprintln("(Existing $s setting in $prof is untouched.)")
+        else
+            eprintln("Adding $s = $val to $prof...")
+            open(p, "a") do f
+                print(f, """
+        
+c.$s = $val
 """)
-    end
-else
-    eprintln("(Existing KernelManager.kernel_cmd setting is untouched.)")
-end
-
-# make qtconsole require shift-enter to complete input
-qtconf = joinpath(juliaprof, "ipython_qtconsole_config.py")
-if isfile(qtconf)
-    if !ismatch(r"^\s*c\.IPythonWidget\.execute_on_complete_input\s*="m,
-                readall(qtconf))
-        eprintln("Adding execute_on_complete_input = False to qtconsole config")
-        open(qtconf, "a") do f
-            print(f, """
-
-c.IPythonWidget.execute_on_complete_input = False
-""")
+            end
         end
     else
-        eprintln("(Existing execute_on_complete_input qtconsole setting untouched.)")
-    end
-else
-    eprintln("Creating qtconsole config with execute_on_complete_input = False")
-    open(qtconf, "w") do f
-        print(f, """
+        eprintln("Creating $prof with $s = $val...")
+        open(p, "w") do f
+            print(f, """
 c = get_config()
-c.IPythonWidget.execute_on_complete_input = False
+c.$s = $val
 """)
+        end
     end
 end
+
+# add Julia kernel manager if we don't have one yet
+add_config("ipython_config.py", "KernelManager.kernel_cmd",
+           """["$(joinpath(JULIA_HOME,"julia-release-basic"))", "$(joinpath(Pkg2.dir("IJulia"),"src","kernel.jl"))", "{connection_file}"]""")
+
+# make qtconsole require shift-enter to complete input
+add_config("ipython_qtconsole_config.py",
+           "IPythonWidget.execute_on_complete_input", "False")
+
+# set Julia notebook to use a different port than IPython's 8888 by default
+add_config("ipython_notebook_config.py", "NotebookApp.port", 8998)
+
+#######################################################################
+# Copying files into the correct paths in the profile lets us override
+# the files of the same name in IPython.
 
 # copy IJulia icon to profile so that IPython will use it
 mkpath(joinpath(juliaprof, "static", "base", "images"))
@@ -73,7 +82,6 @@ for T in ("png", "svg")
         eprintln("(Existing Julia IPython $T logo file untouched.)")
     end
 end
-
 
 # Use our own version of tooltip to handle identifiers ending with !
 # (except for line 211, tooltip.js is identical to the IPython version)
@@ -91,7 +99,6 @@ else
     eprintln("(Existing tooltip.js file untouched.)")
 end
 
-
 # custom.js can contain custom js login that will be loaded
 # with the notebook to add info and/or monkey-patch some javascript
 # -- e.g. we use it to add .ipynb metadata that this is a Julia notebook
@@ -106,3 +113,5 @@ if !isfile(customjs)
 else
     eprintln("(Existing custom.js file untouched.)")
 end
+
+#######################################################################
