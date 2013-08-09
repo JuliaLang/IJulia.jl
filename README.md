@@ -1,3 +1,4 @@
+![IJulia logo](deps/ijulialogo.png)
 # IJulia
 
 **IJulia** is a [Julia-language](http://julialang.org/) backend combined
