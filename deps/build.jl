@@ -4,12 +4,7 @@
 eprintln(x...) = println(STDERR, x...)
 
 ipyvers = try
-    v = split(chomp(readall(`ipython --version`)),r"[\.-]")
-    if length(v) == 4
-        VersionNumber(int(v[1]), int(v[2]), int(v[3]), (v[4],), ())
-    else
-        VersionNumber(map(int, v)...)
-    end
+    convert(VersionNumber, chomp(readall(`ipython --version`)))
 catch e
     error("IPython is required for IJulia, got error $e")
 end
