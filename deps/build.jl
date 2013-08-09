@@ -73,3 +73,37 @@ if !isfile(ipynblogo)
 else
     println("(Existing Julia IPython logo file untouched.)")
 end
+
+
+# Use our own version of tooltip for object that ends with a bang !
+# (strict copy of IPython version but bang added on line 211)
+# IPython might make his configurable later, and the logic
+# should be moved in custom.js or config
+
+mkpath(joinpath(juliaprof, "static", "notebook", "js"))
+tooltipjs = joinpath(juliaprof, "static", "notebook", "js", "tooltip.js")
+if !isfile(tooltipjs)
+    println("Copying tooltip.js to Julia IPython profile.")
+    open(tooltipjs, "w") do f
+        write(f, open(readbytes, joinpath(Pkg2.dir("IJulia"), "deps",
+                                          "tooltip.js")))
+    end
+else
+    println("(Existing tooltip.js file untouched)")
+end
+
+
+# custom.js can contain custom js loginc that will be loaded
+# with the notebook to add info and/or monkey-patch some javascript
+
+mkpath(joinpath(juliaprof, "static", "custom"))
+customjs = joinpath(juliaprof, "static", "custom", "custom.js")
+if !isfile(customjs)
+    println("Copying custom.js to Julia IPython profile.")
+    open(customjs, "w") do f
+        write(f, open(readbytes, joinpath(Pkg2.dir("IJulia"), "deps",
+                                          "custom.js")))
+    end
+else
+    println("(Existing custom.js file untouched)")
+end
