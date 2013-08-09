@@ -75,11 +75,10 @@ else
 end
 
 
-# Use our own version of tooltip for object that ends with a bang !
-# (strict copy of IPython version but bang added on line 211)
-# IPython might make his configurable later, and the logic
-# should be moved in custom.js or config
-
+# Use our own version of tooltip to handle identifiers ending with !
+# (except for line 211, tooltip.js is identical to the IPython version)
+# IPython might make his configurable later, at which point the logic
+# should be moved to custom.js or a config file.
 mkpath(joinpath(juliaprof, "static", "notebook", "js"))
 tooltipjs = joinpath(juliaprof, "static", "notebook", "js", "tooltip.js")
 if !isfile(tooltipjs)
@@ -89,13 +88,13 @@ if !isfile(tooltipjs)
                                           "tooltip.js")))
     end
 else
-    println("(Existing tooltip.js file untouched)")
+    println("(Existing tooltip.js file untouched.)")
 end
 
 
-# custom.js can contain custom js loginc that will be loaded
+# custom.js can contain custom js login that will be loaded
 # with the notebook to add info and/or monkey-patch some javascript
-
+# -- e.g. we use it to add .ipynb metadata that this is a Julia notebook
 mkpath(joinpath(juliaprof, "static", "custom"))
 customjs = joinpath(juliaprof, "static", "custom", "custom.js")
 if !isfile(customjs)
@@ -105,5 +104,5 @@ if !isfile(customjs)
                                           "custom.js")))
     end
 else
-    println("(Existing custom.js file untouched)")
+    println("(Existing custom.js file untouched.)")
 end

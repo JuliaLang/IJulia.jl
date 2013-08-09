@@ -50,8 +50,8 @@
 
 
 $([IPython.events]).on('notebook_loaded.Notebook', function(){
-    // add here logic that shoudl be run once per **notebook load** ( != page load)
-    // like restaurig a checkpoint
+    // add here logic that should be run once per **notebook load**
+    // (!= page load), like restarting a checkpoint
 
     var md = IPython.notebook.metadata 
     if(md.language){
@@ -65,7 +65,7 @@ $([IPython.events]).on('notebook_loaded.Notebook', function(){
 
 $([IPython.events]).on('app_initialized.NotebookApp', function(){
     // add here logic that shoudl be run once per **page load**
-    // like adding specific UI for Julia, or change default value
-    // of codecell highlight to julia one availlable.
+    // like adding specific UI for Julia, or changing the default value
+    // of codecell highlight to a julia one if availlable.
 });
 
