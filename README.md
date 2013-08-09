@@ -1,40 +1,64 @@
-Prototype native Julia kernel for IPython, which allows you to use the IPython
-front-end interface for the Julia back-end (instead of the native Julia REPL).
+# IJulia
 
-Requires:
-* Packages: `ZMQ.jl`, `JSON.jl`, `REPLCompletions.jl`, and `GnuTLS.jl` packages.
-* Latest (recent git `master`) Julia.
-* 1.0dev version of IPython
+**IJulia** is a [Julia-language](http://julialang.org/) backend combined
+with the [IPython](http://ipython.org/) interactive environment.  This
+combination allows you to interact with the Julia language using
+IPython's powerful [graphical
+notebook](http://ipython.org/notebook.html), which combines code,
+formatted text, math, and multimedia in a single document
 
-Basic usage: First, run `julia kernel.jl` to start the Julia kernel.  This will print something like `connect ipython with --existing /path/to/profile-XXXXX.json`.   Copy this string and run IPython with `ipython console --existing /path/to/profile-XXXXX.json`.
+(This package also includes a prototype Python module to call Julia
+from Python, including
+["magics"](http://ipython.org/ipython-doc/dev/interactive/tutorial.html)
+to call Julia code from within a Python session in IPython.)
 
-Even better, create a `julia` IPython profile:
+## Installation
+
+First, you will need to install a few prerequisites:
+
+* You need **version 1.0** or later of IPython.  Note that IPython 1.0
+was released in August 2013, so the version pre-packaged with your
+Python or operating-system distribution is likely to be too old for
+the next few months.
+
+* To use the [IPython notebook](http://ipython.org/notebook.html) interface, which runs in your web
+  browser and provides a rich multimedia environment, you will need
+  to install the [Jinja2](http://jinja.pocoo.org/docs/) Python package.
+  (Given the [pip](http://www.pip-installer.org/en/latest/) installer, `pip install jinja2` should be sufficient.)
+
+* To use the [IPython qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html) interface, you will need to install [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download) or [PySide](http://qt-project.org/wiki/Category:LanguageBindings::PySide).
+
+* You need Julia version 0.2 (or rather, a recent git `master` snapshot, since 0.2 is not yet released).
+
+Once IPython 1.0+ and Julia 0.2 is installed, you can install IJulia with:
 ```
-$ ipython profile create julia
-[ProfileCreate] WARNING | Generating default config file: u'~/.ipython/profile_julia/ipython_config.py'
-[ProfileCreate] WARNING | Generating default config file: u'~/.ipython/profile_julia/ipython_qtconsole_config.py'
-[ProfileCreate] WARNING | Generating default config file: u'~/.ipython/profile_julia/ipython_notebook_config.py'
+Pkg2.add("IJulia")
 ```
+This will download IJulia and a few other prerequisites, and will set up a
+Julia profile for IPython.
 
-then edit `$(ipython locate profile julia)/ipython_config.py` with the contents:
-```python
-c = get_config() # should already be at top of the file
+## Running IJulia
 
-c.KernelManager.kernel_cmd = ["julia", "/...PATH.../IJulia/src/kernel.jl", "{connection_file}"]
-```
-(replacing `...PATH...` with the path to your `IJulia` directory).
-This tells IPython how to launch the kernel itself, allowing you to simply run `ipython notebook --profile julia` or `ipython qtconsole --profile julia` in order to launch IPython's browser-notebook or Qt interface with Julia.
+Given the above, you have three choices:
 
-If you want to use the IPython QtConsole with Julia, edit `$(ipython locate profile julia)/ipython_qtconsole_config.py` with the contents:
-```python
-c.IPythonWidget.execute_on_complete_input = False
-```
+* The richest interface is the [IPython notebook](http://ipython.org/notebook.html), which you can invoke for Julia by: `ipython notebook --profile julia` (a window will open in your web browser).
 
-which prevents IPython from attempting to execute when it thinks there is complete Python input.
-Shift-Enter is required to submit each execution.
+* A lightweight terminal-like interface that nevertheless supports
+  inline graphics and multiline editing is the [IPython qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html), which you can invoke for Julia by: `ipython qtconsole --profile julia`
 
-Please refer to [IPython documentation](http://ipython.org/documentation.html) for other config options of IPython frontend themselves.
-We, for example, strongly recommend to run Notebook [over https][1] with [password][2] when on a public port, or even localhost if your machine have several users.
+* A basic text terminal interface (no graphics) can be invoked for Julia by `ipython console --profile julia`
 
-[1]: http://ipython.org/ipython-doc/stable/interactive/htmlnotebook.html#quick-howto-running-a-public-notebook-server]
-[2]: http://ipython.org/ipython-doc/stable/interactive/htmlnotebook.html#security
+Please refer to [IPython documentation](http://ipython.org/documentation.html) for other configuration options.  For example, if you plan to run connect the notebook front-end to a Julia kernel running on a different machine (yes, this is possible!), we strongly recommend that you run notebook [over https](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html) with a [password](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html).
+
+## Usage
+
+Once you have launched IJulia via a notebook or console interface,
+usage is straightforward and is similar to IPython.   You can enter
+multiline input cells and execute them with shift-ENTER, and the menu
+items are mostly self-explanatory.  Refer to the IPython documentation
+for more information.
+
+(One difference from IPython is that the IJulia kernel currently does
+not support "magics", which are special commands prefixed with `%` or `%%`
+to execute code in a different language.  This and other features are
+under consideration in the [IJulia issues](https://github.com/JuliaLang/IJulia.jl/issues) list.)
