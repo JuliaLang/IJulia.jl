@@ -63,15 +63,17 @@ end
 
 # copy IJulia icon to profile so that IPython will use it
 mkpath(joinpath(juliaprof, "static", "base", "images"))
-ipynblogo = joinpath(juliaprof, "static", "base", "images", "ipynblogo.png")
-if !isfile(ipynblogo)
-    println("Copying IJulia logo to Julia IPython profile.")
-    open(ipynblogo, "w") do f
-        write(f, open(readbytes, joinpath(Pkg2.dir("IJulia"), "deps",
-                                          "ijulialogo.png")))
+for T in ("png", "svg")
+    ipynblogo = joinpath(juliaprof, "static", "base", "images", "ipynblogo.$T")
+    if !isfile(ipynblogo)
+        println("Copying IJulia $T logo to Julia IPython profile.")
+        open(ipynblogo, "w") do f
+            write(f, open(readbytes, joinpath(Pkg2.dir("IJulia"), "deps",
+                                              "ijulialogo.$T")))
+        end
+    else
+        println("(Existing Julia IPython $T logo file untouched.)")
     end
-else
-    println("(Existing Julia IPython logo file untouched.)")
 end
 
 
