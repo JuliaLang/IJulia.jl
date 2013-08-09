@@ -73,16 +73,16 @@ function eventloop(socket)
                 # (Ignore SIGINT since this may just be a user-requested
                 #  kernel interruption to interrupt long calculations.)
                 if !isa(e, InterruptException)
-                    println(orig_STDERR, "KERNEL EXCEPTION")
-                    Base.error_show(orig_STDERR, e, catch_backtrace())
-                    println(orig_STDERR)
+                    content = pyerr_content(e, "KERNEL EXCEPTION")
+                    map(s -> println(orig_STDERR, s), content["traceback"])
                     send_ipython(publish, 
+                                 execute_msg == nothing ?
                                  Msg([ "pyerr" ],
-                    [ "msg_id" => uuid4(),
-                    "username" => "jlkernel",
-                    "session" => uuid4(),
-                     "msg_type" => "pyerr" ],
-                                     pyerr_content(e)))
+                                     [ "msg_id" => uuid4(),
+                                     "username" => "jlkernel",
+                                     "session" => uuid4(),
+                                      "msg_type" => "pyerr" ], content) :
+                                 msg_pub(execute_msg, "pyerr", content)) 
                 end
             end
         end

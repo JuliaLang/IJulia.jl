@@ -49,7 +49,7 @@ end
 #######################################################################
 
 # return the content of a pyerr message for exception e
-function pyerr_content(e)
+function pyerr_content(e, msg::String="")
     tb = split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
                       catch_backtrace(), 1:typemax(Int)), "\n", false)
     if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])
@@ -58,6 +58,9 @@ function pyerr_content(e)
     ename = string(typeof(e))
     evalue = sprint(Base.error_show, e)
     unshift!(tb, evalue) # fperez says this needs to be in traceback too
+    if !isempty(msg)
+        unshift!(tb, msg)
+    end
     ["execution_count" => _n,
      "ename" => ename, "evalue" => evalue,
      "traceback" => tb]
