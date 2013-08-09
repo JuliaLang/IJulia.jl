@@ -89,7 +89,7 @@ if !isfile(tooltipjs)
                                           "tooltip.js")))
     end
 else
-    println("(Existing tooltip.js file untouched, please considere paching it by hand)")
+    println("(Existing tooltip.js file untouched)")
 end
 
 
@@ -105,5 +105,5 @@ if !isfile(customjs)
                                           "custom.js")))
     end
 else
-    println("(Existing custom.js file untouched, please considere patching it by hand)")
+    println("(Existing custom.js file untouched)")
 end
