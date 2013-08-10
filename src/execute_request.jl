@@ -111,8 +111,9 @@ function execute_request_0x535c5df2(socket, msg)
     send_status("busy")
 
     # "; ..." lines are interpreted as shell commands for run
-    code = replace(code, r"^\s*;(.*)$"m, 
-                   m -> string(replace(m, r"^\s*;", "run(`"), "`)"), 0)
+    code = replace(code, r"^\s*;.*$"m, 
+                   m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"), 
+                               "`)"), 0)
 
     try 
         ans = result = include_string(code, "In[$_n]")
