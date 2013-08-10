@@ -20,12 +20,11 @@ First, you will need to install a few prerequisites:
 * You need **version 1.0** or later of IPython.  Note that IPython 1.0
 was released in August 2013, so the version pre-packaged with your
 Python or operating-system distribution is likely to be too old for
-the next few months.
+the next few weeks or months.  Until then, you will have to [install IPython manually](http://ipython.org/ipython-doc/stable/install/install.html).
 
 * To use the [IPython notebook](http://ipython.org/notebook.html) interface, which runs in your web
   browser and provides a rich multimedia environment, you will need
-  to install the [Jinja2](http://jinja.pocoo.org/docs/) and [Tornado](http://www.tornadoweb.org/en/stable/) Python packages.
-  (Given the [pip](http://www.pip-installer.org/en/latest/) installer, `pip install jinja2 tornado` should be sufficient.)
+  to install the [Jinja2](http://jinja.pocoo.org/docs/), [Tornado](http://www.tornadoweb.org/en/stable/), and [pyzmq](https://github.com/zeromq/pyzmq) Python packages. (Given the [pip](http://www.pip-installer.org/en/latest/) installer, `pip install jinja2 tornado pyzmq` should be sufficient.)  These can be automatically installed if you installed IPython itself [via `easy_install` or `pip`](http://ipython.org/ipython-doc/stable/install/install.html#quickstart).
 
 * To use the [IPython qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html) interface, you will need to install [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download) or [PySide](http://qt-project.org/wiki/Category:LanguageBindings::PySide).
 
