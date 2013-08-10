@@ -10,14 +10,20 @@ vprint(x...) = verbose::Bool && print(orig_STDOUT, x...)
 vprintln(x...) = verbose::Bool && println(orig_STDOUT, x...)
 verror_show(e, bt) = verbose::Bool && Base.error_show(orig_STDERR, e, bt)
 
+function send_stream(s::String, name::String)
+    if !isempty(s)
+        vprintln("STDIO($name) = $s")
+        send_ipython(publish,
+                     msg_pub(execute_msg, "stream",
+                             ["name" => name, "data" => s]))
+    end
+end
+
 function watch_stream(rd::IO, name::String)
     try
         while true
             s = readavailable(rd) # blocks until something available
-            vprintln("STDIO($name) = $s")
-            send_ipython(publish,
-                         msg_pub(execute_msg, "stream",
-                                 ["name" => name, "data" => s]))
+	    send_stream(s, name)
             sleep(0.1) # a little delay to accumulate output
         end
     catch e
@@ -31,9 +37,10 @@ function watch_stream(rd::IO, name::String)
     end
 end
 
+const read_stdout, write_stdout = redirect_stdout()
+const read_stderr, write_stderr = redirect_stderr()
+
 function watch_stdio()
-    read_stdout, write_stdout = redirect_stdout()
-    read_stderr, write_stderr = redirect_stderr()
     @async watch_stream(read_stdout, "stdout")
     @async watch_stream(read_stderr, "stderr")
 end

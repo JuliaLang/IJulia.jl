@@ -140,18 +140,22 @@ function execute_request_0x535c5df2(socket, msg)
             hook()
         end
 
+	# flush pending stdio
+        flush_cstdio() # flush writes to stdout/stderr by external C code
+	send_stream(takebuf_string(read_stdout.buffer), "stdout")
+	send_stream(takebuf_string(read_stderr.buffer), "stderr")
+
+        undisplay(result) # dequeue if needed, since we display result in pyout
+        display() # flush pending display requests
+
         if result != nothing
             send_ipython(publish, 
                          msg_pub(msg, "pyout",
                                  ["execution_count" => _n,
                                  "metadata" => Dict(), # qtconsole needs this
                                  "data" => display_dict(result) ]))
-            undisplay(result) # in case display was queued
         end
         
-        display() # flush pending display requests
-        flush_cstdio() # flush writes to stdout/stderr by external C code
-
         send_ipython(requests,
                      msg_reply(msg, "execute_reply",
                                ["status" => "ok", "execution_count" => _n,
