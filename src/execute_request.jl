@@ -120,8 +120,10 @@ function execute_request_0x535c5df2(socket, msg)
             if store_history
                 if result != Out # workaround for Julia #3066
                     Out[_n] = result 
+                    # note: don't use result in eval, since things
+                    # get confused if result is a symbol:
+                    eval(Main, :($(symbol(string("_",_n))) = Out[$_n]))
                 end
-                eval(Main, :($(symbol(string("_",_n))) = $result))
             end
         end
 
