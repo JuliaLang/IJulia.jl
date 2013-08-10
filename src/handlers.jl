@@ -59,7 +59,7 @@ docstring(o::Union(Function,DataType)) = sprint(show, methods(o))
 
 function object_info_request(socket, msg)
     try
-        s = symbol(msg.content["oname"])
+        s = parse(msg.content["oname"])
         o = eval(Main, s)
         content = ["oname" => msg.content["oname"],
                    "found" => true,
