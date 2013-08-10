@@ -12,7 +12,6 @@ verror_show(e, bt) = verbose::Bool && Base.error_show(orig_STDERR, e, bt)
 
 function send_stream(s::String, name::String)
     if !isempty(s)
-        vprintln("STDIO($name) = $s")
         send_ipython(publish,
                      msg_pub(execute_msg, "stream",
                              ["name" => name, "data" => s]))
