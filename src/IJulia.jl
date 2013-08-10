@@ -11,10 +11,10 @@ using ZMQ
 using JSON
 using REPLCompletions
 
+include("stdio.jl")
 include("msg.jl")
 include("history.jl")
 include("handlers.jl")
-include("stdio.jl")
 
 uuid4() = repr(Base.Random.uuid4())
 
@@ -34,7 +34,7 @@ else
             "key" => uuid4()
         ]
         fname = "profile-$(getpid()).json"
-        vprintln("connect ipython with --existing $(pwd())/$fname")
+        @vprintln("connect ipython with --existing $(pwd())/$fname")
         open(fname, "w") do f
             JSON.print(f, profile)
         end

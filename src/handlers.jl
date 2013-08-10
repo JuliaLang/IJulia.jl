@@ -75,7 +75,7 @@ function object_info_request(socket, msg)
         end
         send_ipython(requests, msg_reply(msg, "object_info_reply", content))
     catch e
-        verror_show(e, catch_backtrace())
+        @verror_show e catch_backtrace()
         send_ipython(requests,
                      msg_reply(msg, "object_info_reply",
                                ["oname" => msg.content["oname"],

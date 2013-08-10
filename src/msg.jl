@@ -41,7 +41,7 @@ function show(io::IO, msg::Msg)
 end
 
 function send_ipython(socket, m::Msg)
-    vprintln("SENDING $m")
+    @vprintln("SENDING $m")
     for i in m.idents
         send(socket, i, SNDMORE)
     end
@@ -61,12 +61,12 @@ function recv_ipython(socket)
     msg = recv(socket)
     idents = String[]
     s = bytestring(msg)
-    vprintln("got msg part $s")
+    @vprintln("got msg part $s")
     while s != "<IDS|MSG>"
         push!(idents, s)
         msg = recv(socket)
         s = bytestring(msg)
-        vprintln("got msg part $s")
+        @vprintln("got msg part $s")
     end
     signature = bytestring(recv(socket))
     request = Dict{String,Any}()
@@ -78,7 +78,7 @@ function recv_ipython(socket)
         error("Invalid HMAC signature") # What should we do here?
     end
     m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
-    vprintln("RECEIVED $m")
+    @vprintln("RECEIVED $m")
     return m
 end
 

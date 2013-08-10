@@ -5,10 +5,22 @@
 const orig_STDOUT = STDOUT
 const orig_STDERR = STDERR
 
-# logging in verbose mode goes to original stdio streams:
-vprint(x...) = verbose::Bool && print(orig_STDOUT, x...)
-vprintln(x...) = verbose::Bool && println(orig_STDOUT, x...)
-verror_show(e, bt) = verbose::Bool && Base.error_show(orig_STDERR, e, bt)
+# logging in verbose mode goes to original stdio streams.  Use macros
+# so that we do not even evaluate the arguments in no-verbose modes
+macro vprintln(x...)
+    quote
+        if verbose::Bool
+            println(orig_STDOUT, $(x...))
+        end
+    end
+end
+macro verror_show(e, bt)
+    quote
+        if verbose::Bool
+            Base.error_show(orig_STDERR, $e, $bt)
+        end
+    end
+end
 
 function send_stream(s::String, name::String)
     if !isempty(s)

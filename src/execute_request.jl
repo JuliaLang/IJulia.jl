@@ -86,7 +86,7 @@ execute_msg = nothing
 # note: 0x535c5df2 is a random integer to make name collisions in
 # backtrace analysis less likely.
 function execute_request_0x535c5df2(socket, msg)
-    vprintln("EXECUTING ", msg.content["code"])
+    @vprintln("EXECUTING ", msg.content["code"])
     global execute_msg = msg
     global _n, In, Out, _, __, ___, ans
     silent = msg.content["silent"] || ismatch(r";\s*$", msg.content["code"])
@@ -104,7 +104,7 @@ function execute_request_0x535c5df2(socket, msg)
                              ["execution_count" => _n,
                               "code" => msg.content["code"]]))
     else
-        vprintln("SILENT")
+        @vprintln("SILENT")
     end
 
     send_status("busy")
