@@ -115,6 +115,9 @@ function execute_request_0x535c5df2(socket, msg)
                    m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"), 
                                "`)"), 0)
 
+    # a cell beginning with "? ..." is interpreted as a help request
+    code = replace(code, r"^\s*\?", "Base.@help ")
+
     try 
         ans = result = include_string(code, "In[$_n]")
         if silent
