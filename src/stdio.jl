@@ -41,7 +41,7 @@ function watch_stream(rd::IO, name::String)
         # the IPython manager may send us a SIGINT if the user
         # chooses to interrupt the kernel; don't crash on this
         if isa(e, InterruptException)
-            watch_stream(s, name)
+            watch_stream(rd, name)
         else
             rethrow()
         end
