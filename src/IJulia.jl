@@ -11,11 +11,6 @@ using ZMQ
 using JSON
 using REPLCompletions
 
-include("stdio.jl")
-include("msg.jl")
-include("history.jl")
-include("handlers.jl")
-
 uuid4() = repr(Base.Random.uuid4())
 
 if length(ARGS) > 0
@@ -34,7 +29,7 @@ else
             "key" => uuid4()
         ]
         fname = "profile-$(getpid()).json"
-        @vprintln("connect ipython with --existing $(pwd())/$fname")
+        println("connect ipython with --existing $(pwd())/$fname")
         open(fname, "w") do f
             JSON.print(f, profile)
         end
@@ -42,6 +37,10 @@ else
 end
 
 include("hmac.jl") # must go after profile is initialized
+include("stdio.jl")
+include("msg.jl")
+include("history.jl")
+include("handlers.jl")
 
 const ctx = Context()
 const publish = Socket(ctx, PUB)

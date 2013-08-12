@@ -18,4 +18,8 @@ else
         update(hmacstate, s4)
         hexdigest!(hmacstate)
     end
+
+    if hmac("a","b","c","d") != hmac("a","b","c","d")
+        error("GnuTLS HMAC is not working, probably because you have an older version of GnuTLS linked with Libgcrypt rather than Nettle.") # see GnuTLS.jl issue #5
+    end
 end
