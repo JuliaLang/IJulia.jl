@@ -73,10 +73,13 @@ end
 # Modules should only use these if isdefined(Main, IJulia) is true.
 
 const postexecute_hooks = Function[]
-
 push_postexecute_hook(f::Function) = push!(postexecute_hooks, f)
 pop_postexecute_hook(f::Function) = splice!(postexecute_hooks, findfirst(postexecute_hooks, f))
 
+# similar, but called after an error (e.g. to reset plotting state)
+const posterror_hooks = Function[]
+push_posterror_hook(f::Function) = push!(posterror_hooks, f)
+pop_posterror_hook(f::Function) = splice!(posterror_hooks, findfirst(posterror_hooks, f))
 
 #######################################################################
 
@@ -173,6 +176,16 @@ function execute_request_0x535c5df2(socket, msg)
                                 "user_expressions" => user_expressions]))
     catch e
         empty!(displayqueue) # discard pending display requests on an error
+        try
+            # flush pending stdio
+            flush_cstdio() # flush writes to stdout/stderr by external C code
+            send_stream(takebuf_string(read_stdout.buffer), "stdout")
+            send_stream(takebuf_string(read_stderr.buffer), "stderr")
+            for hook in posterror_hooks
+                hook()
+            end
+        catch
+        end
         content = pyerr_content(e)
         send_ipython(publish, msg_pub(msg, "pyerr", content))
         content["status"] = "error"
