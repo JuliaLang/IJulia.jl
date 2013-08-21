@@ -1,4 +1,5 @@
-![IJulia logo](deps/ijulialogo.png)
+<div align="center"><img src="deps/ijulialogo.png" alt="IJulia logo" width="150"/></div>
+
 # IJulia
 
 **IJulia** is a [Julia-language](http://julialang.org/) backend combined
