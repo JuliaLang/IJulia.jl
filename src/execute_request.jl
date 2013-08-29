@@ -84,7 +84,7 @@ pop_posterror_hook(f::Function) = splice!(posterror_hooks, findfirst(posterror_h
 #######################################################################
 
 # global variable so that display can be done in the correct Msg context
-execute_msg = nothing
+execute_msg = Msg(["julia"], ["username"=>"julia", "session"=>"????"], Dict())
 
 # note: 0x535c5df2 is a random integer to make name collisions in
 # backtrace analysis less likely.
