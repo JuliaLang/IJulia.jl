@@ -57,7 +57,7 @@ function pyerr_content(e, msg::String="")
         pop!(tb) # don't include include_string in backtrace
     end
     ename = string(typeof(e))
-    evalue = sprint(Base.error_show, e)
+    evalue = sprint(showerror, e)
     unshift!(tb, evalue) # fperez says this needs to be in traceback too
     if !isempty(msg)
         unshift!(tb, msg)
