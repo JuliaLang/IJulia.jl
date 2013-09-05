@@ -43,7 +43,7 @@ end
 # an input cell has finished executing.
 
 function redisplay(d::InlineDisplay, x)
-    if !contains(displayqueue, x)
+    if !in(x,displayqueue)
         push!(displayqueue, x)
     end
 end
