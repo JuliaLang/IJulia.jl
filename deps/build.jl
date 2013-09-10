@@ -5,8 +5,11 @@
 # print to stderr, since that is where Pkg prints its messages
 eprintln(x...) = println(STDERR, x...)
 
+# on OSX, make sure PATH changes in profile are used in detecting ipython
+ipython = @osx ? chomp(readall(`bash -lc "which ipython"`)) : "ipython"
+
 ipyvers = try
-    convert(VersionNumber, chomp(readall(`ipython --version`)))
+    convert(VersionNumber, chomp(readall(`$ipython --version`)))
 catch e
     error("IPython is required for IJulia, got error $e")
 end
@@ -22,9 +25,9 @@ end
 
 # create julia profile (no-op if we already have one)
 eprintln("Creating julia profile in IPython...")
-run(`ipython profile create julia`)
+run(`$ipython profile create julia`)
 
-juliaprof = chomp(readall(`ipython locate profile julia`))
+juliaprof = chomp(readall(`$ipython locate profile julia`))
 
 # set c.$s in prof file to val, or nothing if it is already set
 function add_config(prof::String, s::String, val)
