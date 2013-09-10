@@ -20,7 +20,7 @@ First, you will need to install a few prerequisites:
 
 * You need **version 1.0** or later of IPython.  Note that IPython 1.0
 was released in August 2013, so the version pre-packaged with your
-Python or operating system distribution is likely to be too old for
+Python or operating-system distribution is likely to be too old for
 the next few weeks or months.  Until then, you will have to
 [install IPython manually](http://ipython.org/ipython-doc/stable/install/install.html).
 
@@ -57,7 +57,7 @@ Given the above, you have three choices:
 
 * A basic text terminal interface (no graphics) can be invoked for Julia by `ipython console --profile julia`
 
-Please refer to [the IPython documentation](http://ipython.org/documentation.html) for other configuration options.  For example, if you plan to run connect the notebook front-end to a Julia kernel running on a different machine (yes, this is possible!), we strongly recommend that you run notebook [over https](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html) with a [password](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html).
+Please refer to [the IPython documentation](http://ipython.org/documentation.html) for other configuration options.  For example, if you plan to connect the notebook front-end to a Julia kernel running on a different machine (yes, this is possible!), we strongly recommend that you run notebook [over https](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html) with a [password](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html).
 
 ## Usage
 
