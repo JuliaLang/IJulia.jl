@@ -14,7 +14,8 @@ const text_latex2 = MIME("application/x-latex") # but this is more standard?
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
-    data = (ASCIIString=>ByteString)[ "text/plain" => sprint(repl_show, x) ]
+    data = (ASCIIString=>ByteString)[ "text/plain" => 
+                                          stringmime("text/plain", x) ]
     T = typeof(x)
     if mimewritable(image_svg, T)
         data[string(image_svg)] = stringmime(image_svg, x)
@@ -56,7 +57,7 @@ function pyerr_content(e, msg::String="")
         pop!(tb) # don't include include_string in backtrace
     end
     ename = string(typeof(e))
-    evalue = sprint(Base.error_show, e)
+    evalue = sprint(showerror, e)
     unshift!(tb, evalue) # fperez says this needs to be in traceback too
     if !isempty(msg)
         unshift!(tb, msg)
@@ -73,15 +74,18 @@ end
 # Modules should only use these if isdefined(Main, IJulia) is true.
 
 const postexecute_hooks = Function[]
-
 push_postexecute_hook(f::Function) = push!(postexecute_hooks, f)
 pop_postexecute_hook(f::Function) = splice!(postexecute_hooks, findfirst(postexecute_hooks, f))
 
+# similar, but called after an error (e.g. to reset plotting state)
+const posterror_hooks = Function[]
+push_posterror_hook(f::Function) = push!(posterror_hooks, f)
+pop_posterror_hook(f::Function) = splice!(posterror_hooks, findfirst(posterror_hooks, f))
 
 #######################################################################
 
 # global variable so that display can be done in the correct Msg context
-execute_msg = nothing
+execute_msg = Msg(["julia"], ["username"=>"julia", "session"=>"????"], Dict())
 
 # note: 0x535c5df2 is a random integer to make name collisions in
 # backtrace analysis less likely.
@@ -173,6 +177,16 @@ function execute_request_0x535c5df2(socket, msg)
                                 "user_expressions" => user_expressions]))
     catch e
         empty!(displayqueue) # discard pending display requests on an error
+        try
+            # flush pending stdio
+            flush_cstdio() # flush writes to stdout/stderr by external C code
+            send_stream(takebuf_string(read_stdout.buffer), "stdout")
+            send_stream(takebuf_string(read_stderr.buffer), "stderr")
+            for hook in posterror_hooks
+                hook()
+            end
+        catch
+        end
         content = pyerr_content(e)
         send_ipython(publish, msg_pub(msg, "pyerr", content))
         content["status"] = "error"

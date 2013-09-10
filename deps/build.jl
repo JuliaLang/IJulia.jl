@@ -58,7 +58,7 @@ end
 
 # add Julia kernel manager if we don't have one yet
 add_config("ipython_config.py", "KernelManager.kernel_cmd",
-           """["$(joinpath(JULIA_HOME,"julia-release-basic"))", "$(joinpath(Pkg2.dir("IJulia"),"src","kernel.jl"))", "{connection_file}"]""")
+           """["$(joinpath(JULIA_HOME,"julia-basic"))", "$(joinpath(Pkg2.dir("IJulia"),"src","kernel.jl"))", "{connection_file}"]""")
 
 # make qtconsole require shift-enter to complete input
 add_config("ipython_qtconsole_config.py",

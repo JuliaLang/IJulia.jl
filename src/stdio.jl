@@ -17,7 +17,7 @@ end
 macro verror_show(e, bt)
     quote
         if verbose::Bool
-            Base.error_show(orig_STDERR, $e, $bt)
+            showerror(orig_STDERR, $e, $bt)
         end
     end
 end
