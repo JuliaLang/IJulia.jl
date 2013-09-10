@@ -1,3 +1,6 @@
+# workaround #60:
+@osx_only ENV["PATH"] = JULIA_HOME*":"*ENV["PATH"]
+
 include("IJulia.jl")
 include("inline.jl")
 
