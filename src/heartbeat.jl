@@ -13,10 +13,10 @@ end
 
 function start_heartbeat(sock)
     heartbeat_c = cfunction(heartbeat_thread, Void, (Ptr{Void},))
-    if OS_NAME===:Windows
+    @windows? begin
         ccall(:_beginthread, Int, (Ptr{Void}, Cuint, Ptr{Void}),
               heartbeat_c, 0, sock.data)
-    else
+    end : begin
         threadid = Array(Int, 128) # sizeof(pthread_t) is <= 8 on Linux & OSX
         ccall((:pthread_create, :libpthread), Cint,
               (Ptr{Int}, Ptr{Void}, Ptr{Void}, Ptr{Void}),
