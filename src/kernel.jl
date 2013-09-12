@@ -18,6 +18,10 @@ ENV["COLUMNS"] = 80
 
 println(IJulia.orig_STDOUT, "Starting kernel event loops.")
 IJulia.watch_stdio()
+
+# workaround JuliaLang/julia#4259
+delete!(task_local_storage(),:SOURCE_PATH)
+
 for sock in (IJulia.requests, IJulia.control)
     @async IJulia.eventloop(sock)
 end
