@@ -57,7 +57,7 @@ Given the above, you have three choices:
 
 * A basic text terminal interface (no graphics) can be invoked for Julia by `ipython console --profile julia`
 
-Please refer to [the IPython documentation](http://ipython.org/documentation.html) for other configuration options.  For example, if you plan to connect the notebook front-end to a Julia kernel running on a different machine (yes, this is possible!), we strongly recommend that you run notebook [over https with password](http://ipython.org/ipython-doc/dev/interactive/public_server.html#notebook-security).  These configuration settings can go in the file: `~/.ipython/profile_julia/ipython_notebook_config.py`.
+Please refer to [the IPython documentation](http://ipython.org/documentation.html) for other configuration options.  For example, if you plan to connect the notebook front-end to a Julia kernel running on a different machine (yes, this is possible!), we strongly recommend that you run notebook [over https with a password](http://ipython.org/ipython-doc/stable/interactive/public_server.html#notebook-security).  These configuration settings can go in the file: `~/.ipython/profile_julia/ipython_notebook_config.py`.
 
 ## Usage
 
