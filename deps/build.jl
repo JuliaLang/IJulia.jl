@@ -30,12 +30,25 @@ run(`$ipython profile create julia`)
 juliaprof = chomp(readall(`$ipython locate profile julia`))
 
 # set c.$s in prof file to val, or nothing if it is already set
-function add_config(prof::String, s::String, val)
+# unless overwrite is true
+function add_config(prof::String, s::String, val, overwrite=false)
     p = joinpath(juliaprof, prof)
-    r = Regex(string("^\\s*c\\.", replace(s, r"\.", "\\."), "\\s*="), "m")
+    r = Regex(string("^[ \\t]*c\\.", replace(s, r"\.", "\\."), "\\s*=.*\$"), "m")
     if isfile(p)
-        if ismatch(r, readall(p))
-            eprintln("(Existing $s setting in $prof is untouched.)")
+        c = readall(p)
+        if ismatch(r, c)
+            m = match(r, c).match
+            if !overwrite || m[search(m,'c'):end] == "c.$s = $val"
+                eprintln("(Existing $s setting in $prof is untouched.)")
+            else
+                eprintln("Changing $s to $val in $prof...")
+                open(p, "w") do f
+                    print(f, replace(c, r, old -> "# $old"))
+                    print(f, """
+c.$s = $val
+""")
+                end
+            end
         else
             eprintln("Adding $s = $val to $prof...")
             open(p, "a") do f
@@ -58,7 +71,8 @@ end
 
 # add Julia kernel manager if we don't have one yet
 add_config("ipython_config.py", "KernelManager.kernel_cmd",
-           """["$(escape_string(joinpath(JULIA_HOME,(@windows?"julia.bat":"julia-basic"))))", "$(escape_string(joinpath(Pkg2.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""")
+           """["$(escape_string(joinpath(JULIA_HOME,(@windows?"julia.bat":"julia-basic"))))", "$(escape_string(joinpath(Pkg2.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""",
+           true)
 
 # make qtconsole require shift-enter to complete input
 add_config("ipython_qtconsole_config.py",
