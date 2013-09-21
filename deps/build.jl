@@ -71,7 +71,7 @@ end
 
 # add Julia kernel manager if we don't have one yet
 add_config("ipython_config.py", "KernelManager.kernel_cmd",
-           """["$(escape_string(joinpath(JULIA_HOME,(@windows?"julia.bat":"julia-basic"))))", "$(escape_string(joinpath(Pkg2.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""",
+           """["$(escape_string(joinpath(JULIA_HOME,(@windows?"julia.bat":"julia-basic"))))", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""",
            true)
 
 # make qtconsole require shift-enter to complete input
@@ -92,7 +92,7 @@ for T in ("png", "svg")
     if !isfile(ipynblogo)
         eprintln("Copying IJulia $T logo to Julia IPython profile.")
         open(ipynblogo, "w") do f
-            write(f, open(readbytes, joinpath(Pkg2.dir("IJulia"), "deps",
+            write(f, open(readbytes, joinpath(Pkg.dir("IJulia"), "deps",
                                               "ijulialogo.$T")))
         end
     else
@@ -109,7 +109,7 @@ tooltipjs = joinpath(juliaprof, "static", "notebook", "js", "tooltip.js")
 if !isfile(tooltipjs)
     eprintln("Copying tooltip.js to Julia IPython profile.")
     open(tooltipjs, "w") do f
-        write(f, open(readbytes, joinpath(Pkg2.dir("IJulia"), "deps",
+        write(f, open(readbytes, joinpath(Pkg.dir("IJulia"), "deps",
                                           "tooltip.js")))
     end
 else
@@ -124,7 +124,7 @@ customjs = joinpath(juliaprof, "static", "custom", "custom.js")
 if !isfile(customjs)
     eprintln("Copying custom.js to Julia IPython profile.")
     open(customjs, "w") do f
-        write(f, open(readbytes, joinpath(Pkg2.dir("IJulia"), "deps",
+        write(f, open(readbytes, joinpath(Pkg.dir("IJulia"), "deps",
                                           "custom.js")))
     end
 else
