@@ -37,7 +37,7 @@ function add_config(prof::String, s::String, val, overwrite=false)
     if isfile(p)
         c = readall(p)
         if ismatch(r, c)
-            m = match(r, c).match
+            m = replace(match(r, c).match, r"\s*$", "")
             if !overwrite || m[search(m,'c'):end] == "c.$s = $val"
                 eprintln("(Existing $s setting in $prof is untouched.)")
             else
