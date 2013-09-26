@@ -14,15 +14,20 @@ from Python, including
 ["magics"](http://ipython.org/ipython-doc/dev/interactive/tutorial.html)
 to call Julia code from within a Python session in IPython.)
 
-## Installation
+## Tutorial
+
+High-level installation instructions using precompiled binaries, as well as a basic usage tutorial, can be found in these tutorial notes:
+
+* [Julia at MIT](https://github.com/stevengj/julia-mit/blob/master/README.md)
+
+### Low-level installation info
 
 First, you will need to install a few prerequisites:
 
 * You need **version 1.0** or later of IPython.  Note that IPython 1.0
-was released in August 2013, so the version pre-packaged with your
-Python or operating-system distribution is likely to be too old for
-the next few weeks or months.  Until then, you will have to
-[install IPython manually](http://ipython.org/ipython-doc/stable/install/install.html).
+was released in August 2013, so the version pre-packaged with operating-system distribution is likely to be too old for
+the next few weeks or months.  Until then, you may have to
+[install IPython manually](http://ipython.org/ipython-doc/stable/install/install.html).  On Mac and Windows systems, it is currently easiest to use the [Anaconda Python](http://continuum.io/downloads) installer.
 
 * To use the [IPython notebook](http://ipython.org/notebook.html) interface, which runs in your web
   browser and provides a rich multimedia environment, you will need
@@ -40,7 +45,7 @@ the next few weeks or months.  Until then, you will have to
 
 Once IPython 1.0+ and Julia 0.2 is installed, you can install IJulia with:
 ```
-Pkg2.add("IJulia")
+Pkg.add("IJulia")
 ```
 This will download IJulia and a few other prerequisites, and will set up a
 Julia profile for IPython.
