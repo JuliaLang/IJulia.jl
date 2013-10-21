@@ -67,5 +67,16 @@ $([IPython.events]).on('app_initialized.NotebookApp', function(){
     // add here logic that shoudl be run once per **page load**
     // like adding specific UI for Julia, or changing the default value
     // of codecell highlight to a julia one if availlable.
+
+    // this will not work for 1.0, unless julia profile
+    // manually ships julia.js in
+    // <profile dir>/static/components/codemirror/mode/julia/julia.js
+    // hopefully it will be directly included in codemirror itself
+    // for future releases.
+    // CodeMirror.requireMode('julia', function(){
+    //     console.log('Julia mode should now be availlable in codemirror.');
+    // })
+    //
+    // IPython.CodeCell.options_default['cm_config']['mode'] = 'julia';
 });
 
