@@ -89,6 +89,8 @@ rb(filename::String) = open(readbytes, filename)
 eqb(a::Vector{Uint8}, b::Vector{Uint8}) = 
     length(a) == length(b) && all(a .== b)
 
+# copy IJulia/deps/src to destpath/destname if it doesn't
+# already exist at the destination, or if it has changed (if overwrite=true).
 function copy_config(src::String, destpath::String,
                      destname::String=src, overwrite=true)
     dest = joinpath(destpath, destname)
@@ -99,7 +101,7 @@ function copy_config(src::String, destpath::String,
             write(f, srcbytes)
         end
     else
-        eprintln("(Existing $src file untouched.)")
+        eprintln("(Existing $destname file untouched.)")
     end
 end
 
