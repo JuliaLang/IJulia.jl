@@ -85,19 +85,30 @@ add_config("ipython_notebook_config.py", "NotebookApp.port", 8998)
 # Copying files into the correct paths in the profile lets us override
 # the files of the same name in IPython.
 
+rb(filename::String) = open(readbytes, filename)
+eqb(a::Vector{Uint8}, b::Vector{Uint8}) = 
+    length(a) == length(b) && all(a .== b)
+
+function copy_config(src::String, destpath::String,
+                     destname::String=src, overwrite=true)
+    dest = joinpath(destpath, destname)
+    srcbytes = rb(joinpath(Pkg.dir("IJulia"), "deps", src))
+    if !isfile(dest) || (overwrite && !eqb(srcbytes, rb(dest)))
+        eprintln("Copying $src to Julia IPython profile.")
+        open(dest, "w") do f
+            write(f, srcbytes)
+        end
+    else
+        eprintln("(Existing $src file untouched.)")
+    end
+end
+
 # copy IJulia icon to profile so that IPython will use it
 mkpath(joinpath(juliaprof, "static", "base", "images"))
 for T in ("png", "svg")
-    ipynblogo = joinpath(juliaprof, "static", "base", "images", "ipynblogo.$T")
-    if !isfile(ipynblogo)
-        eprintln("Copying IJulia $T logo to Julia IPython profile.")
-        open(ipynblogo, "w") do f
-            write(f, open(readbytes, joinpath(Pkg.dir("IJulia"), "deps",
-                                              "ijulialogo.$T")))
-        end
-    else
-        eprintln("(Existing Julia IPython $T logo file untouched.)")
-    end
+    copy_config("ijulialogo.$T",
+                joinpath(juliaprof, "static", "base", "images"),
+                "ipynblogo.$T")
 end
 
 # Use our own version of tooltip to handle identifiers ending with !
@@ -105,30 +116,12 @@ end
 # IPython might make his configurable later, at which point the logic
 # should be moved to custom.js or a config file.
 mkpath(joinpath(juliaprof, "static", "notebook", "js"))
-tooltipjs = joinpath(juliaprof, "static", "notebook", "js", "tooltip.js")
-if !isfile(tooltipjs)
-    eprintln("Copying tooltip.js to Julia IPython profile.")
-    open(tooltipjs, "w") do f
-        write(f, open(readbytes, joinpath(Pkg.dir("IJulia"), "deps",
-                                          "tooltip.js")))
-    end
-else
-    eprintln("(Existing tooltip.js file untouched.)")
-end
+copy_config("tooltip.js", joinpath(juliaprof, "static", "notebook", "js"))
 
 # custom.js can contain custom js login that will be loaded
 # with the notebook to add info and/or monkey-patch some javascript
 # -- e.g. we use it to add .ipynb metadata that this is a Julia notebook
 mkpath(joinpath(juliaprof, "static", "custom"))
-customjs = joinpath(juliaprof, "static", "custom", "custom.js")
-if !isfile(customjs)
-    eprintln("Copying custom.js to Julia IPython profile.")
-    open(customjs, "w") do f
-        write(f, open(readbytes, joinpath(Pkg.dir("IJulia"), "deps",
-                                          "custom.js")))
-    end
-else
-    eprintln("(Existing custom.js file untouched.)")
-end
+copy_config("custom.js", joinpath(juliaprof, "static", "custom"))
 
 #######################################################################
