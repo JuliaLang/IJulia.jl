@@ -126,4 +126,10 @@ copy_config("tooltip.js", joinpath(juliaprof, "static", "notebook", "js"))
 mkpath(joinpath(juliaprof, "static", "custom"))
 copy_config("custom.js", joinpath(juliaprof, "static", "custom"))
 
+# julia.js implements a CodeMirror mode for Julia syntax highlighting in the notebook.
+# Eventually this will ship with CodeMirror and hence IPython, but for now we manually bundle it.
+
+mkpath(joinpath(juliaprof, "static", "components", "codemirror", "mode", "julia"))
+copy_config("julia.js", joinpath(juliaprof, "static", "components", "codemirror", "mode", "julia"))
+
 #######################################################################
