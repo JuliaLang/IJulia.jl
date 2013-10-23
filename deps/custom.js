@@ -75,6 +75,13 @@ $([IPython.events]).on('app_initialized.NotebookApp', function(){
     // for future releases.
     // CodeMirror.requireMode('julia', function(){
     //     console.log('Julia mode should now be availlable in codemirror.');
+    //     cells = IPython.notebook.get_cells();
+    //     for(var i in cells){
+    //         c = cells[i];
+    //         if (c.cell_type === 'code'){
+    //             c.auto_highlight()
+    //         }
+    //     }
     // })
     //
     // IPython.CodeCell.options_default['cm_config']['mode'] = 'julia';
