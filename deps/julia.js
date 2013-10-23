@@ -44,6 +44,9 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
   function tokenBase(stream, state) {
     // Handle scope changes
     var leaving_expr = state.leaving_expr;
+    if(stream.sol()) {
+      leaving_expr = false;
+    }
     state.leaving_expr = false;
     if(leaving_expr) {
       if(stream.match(/^'+/)) {
@@ -145,6 +148,11 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       }
     }
 
+    // Handle operators and Delimiters
+    if (stream.match(operators)) {
+      return 'operator';
+    }
+
     // Handle Strings
     if (stream.match(stringPrefixes)) {
       state.tokenize = tokenStringFactory(stream.current());
@@ -154,12 +162,10 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     if (stream.match(macro)) {
       return 'meta';
     }
-    // Handle operators and Delimiters
-    if (stream.match(operators)) {
-      return 'operator';
-    }
+
 
     if (stream.match(delimiters)) {
+      state.leaving_expr=true;
       return null;
     }
 
