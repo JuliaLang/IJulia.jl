@@ -93,6 +93,7 @@ eqb(a::Vector{Uint8}, b::Vector{Uint8}) =
 # already exist at the destination, or if it has changed (if overwrite=true).
 function copy_config(src::String, destpath::String,
                      destname::String=src, overwrite=true)
+    mkpath(joinpath(juliaprof, destpath))
     dest = joinpath(destpath, destname)
     srcbytes = rb(joinpath(Pkg.dir("IJulia"), "deps", src))
     if !isfile(dest) || (overwrite && !eqb(srcbytes, rb(dest)))
@@ -117,19 +118,16 @@ end
 # (except for line 211, tooltip.js is identical to the IPython version)
 # IPython might make his configurable later, at which point the logic
 # should be moved to custom.js or a config file.
-mkpath(joinpath(juliaprof, "static", "notebook", "js"))
 copy_config("tooltip.js", joinpath(juliaprof, "static", "notebook", "js"))
 
 # custom.js can contain custom js login that will be loaded
 # with the notebook to add info and/or monkey-patch some javascript
 # -- e.g. we use it to add .ipynb metadata that this is a Julia notebook
-mkpath(joinpath(juliaprof, "static", "custom"))
 copy_config("custom.js", joinpath(juliaprof, "static", "custom"))
 
 # julia.js implements a CodeMirror mode for Julia syntax highlighting in the notebook.
 # Eventually this will ship with CodeMirror and hence IPython, but for now we manually bundle it.
 
-mkpath(joinpath(juliaprof, "static", "components", "codemirror", "mode", "julia"))
 copy_config("julia.js", joinpath(juliaprof, "static", "components", "codemirror", "mode", "julia"))
 
 #######################################################################

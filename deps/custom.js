@@ -74,7 +74,6 @@ $([IPython.events]).on('app_initialized.NotebookApp', function(){
     // hopefully it will be directly included in codemirror itself
     // for future releases.
     CodeMirror.requireMode('julia', function(){
-        console.log('Julia mode should now be availlable in codemirror.');
         cells = IPython.notebook.get_cells();
         for(var i in cells){
             c = cells[i];
