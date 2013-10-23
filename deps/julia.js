@@ -19,7 +19,8 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
   var builtins = wordRegexp(builtinList);
   var openers = wordRegexp(blockOpeners);
   var closers = wordRegexp(blockClosers);
-  var macro = /@[_A-Za-z][_A-Za-z0-9]*!*/
+  var macro = /^@[_A-Za-z][_A-Za-z0-9]*/;
+  var symbol = /^:[_A-Za-z][_A-Za-z0-9]*/;
   var indentInfo = null;
 
   function in_array(state) {
@@ -48,7 +49,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       if(stream.match(/^'+/)) {
         return 'operator';
       }
-      if(stream.match("...")) {
+      if(stream.match(/^\.{3}/)) {
         return 'operator';
       }
     }
@@ -93,14 +94,20 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     }
 
     if(in_array(state)) {
-      if(stream.match("end")) {
+      if(stream.match(/^end/)) {
         return 'number';
       }
 
     }
-    if(stream.match("=>")) {
+    
+    if(stream.match(/^=>/)) {
       return 'operator';
     }
+
+    if(!leaving_expr && stream.match(symbol)) {
+      return 'string';
+    }
+
     // Handle Number Literals
     if (stream.match(/^[0-9\.]/, false)) {
       var imMatcher = RegExp(/^im\b/);
@@ -144,6 +151,9 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       return state.tokenize(stream, state);
     }
 
+    if (stream.match(macro)) {
+      return 'meta';
+    }
     // Handle operators and Delimiters
     if (stream.match(operators)) {
       return 'operator';
@@ -161,9 +171,6 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       return 'builtin';
     }
 
-    if (stream.match(macro)) {
-      return 'meta';
-    }
 
     if (stream.match(identifiers)) {
       state.leaving_expr=true;
