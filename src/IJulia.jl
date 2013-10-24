@@ -97,15 +97,18 @@ function eventloop(socket)
 end
 
 function waitloop()
-    try
-        wait()
-    catch e
-        # the IPython manager may send us a SIGINT if the user
-        # chooses to interrupt the kernel; don't crash on this
-        if isa(e, InterruptException)
-            waitloop()
-        else
-            rethrow()
+    @async eventloop(control)
+    requests_task = @async eventloop(requests)
+    while true
+        try
+            wait()
+        catch e
+            # send interrupts (user SIGINT) to the code-execution task
+            if isa(e, InterruptException)
+                @async Base.throwto(requests_task, e)
+            else
+                rethrow()
+            end
         end
     end
 end
