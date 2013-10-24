@@ -124,6 +124,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       if (floatLiteral) {
           // Float literals may be "imaginary"
           stream.match(imMatcher);
+          state.leaving_expr = true;
           return 'number';
       }
       // Integers
@@ -146,6 +147,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       if (intLiteral) {
           // Integer literals may be "long"
           stream.match(imMatcher);
+          state.leaving_expr = true;
           return 'number';
       }
     }
