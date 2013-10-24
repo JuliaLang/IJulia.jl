@@ -93,7 +93,7 @@ eqb(a::Vector{Uint8}, b::Vector{Uint8}) =
 # already exist at the destination, or if it has changed (if overwrite=true).
 function copy_config(src::String, destpath::String,
                      destname::String=src, overwrite=true)
-    mkpath(joinpath(juliaprof, destpath))
+    mkpath(destpath)
     dest = joinpath(destpath, destname)
     srcbytes = rb(joinpath(Pkg.dir("IJulia"), "deps", src))
     if !isfile(dest) || (overwrite && !eqb(srcbytes, rb(dest)))
@@ -107,7 +107,6 @@ function copy_config(src::String, destpath::String,
 end
 
 # copy IJulia icon to profile so that IPython will use it
-mkpath(joinpath(juliaprof, "static", "base", "images"))
 for T in ("png", "svg")
     copy_config("ijulialogo.$T",
                 joinpath(juliaprof, "static", "base", "images"),
