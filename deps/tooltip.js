@@ -209,10 +209,20 @@ var IPython = (function (IPython) {
         func = func.replace(endBracket, "");
 
         var re = /[a-z_][0-9a-z._!]+$/gi; // casse insensitive
+        var that = this
+        var callbacks_v2 = function(data){
+            $.proxy(that._show(data.content), that)
+        }
         var callbacks = {
             'object_info_reply': $.proxy(this._show, this)
         }
-        var msg_id = cell.kernel.object_info_request(re.exec(func), callbacks);
+        if(cell.kernel.object_info_request){
+            // we are on IPython 1.x and early 2.0 (before bidirectionnal js comm)
+            var msg_id = cell.kernel.object_info_request(re.exec(func), callbacks);
+        } else {
+            // we are after that, 2.0-dev late october and after
+            var msg_id = cell.kernel.object_info(re.exec(func), callbacks_v2);
+        }
     }
 
     // make an imediate completion request
