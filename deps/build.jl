@@ -5,8 +5,7 @@
 # print to stderr, since that is where Pkg prints its messages
 eprintln(x...) = println(STDERR, x...)
 
-# on OSX, make sure PATH changes in profile are used in detecting ipython
-const ipython = @osx ? chomp(readall(`bash -lc "which ipython"`)) : "ipython"
+const ipython = "ipython"
 
 ipyvers = try
     convert(VersionNumber, chomp(readall(`$ipython --version`)))
