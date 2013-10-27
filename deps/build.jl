@@ -5,12 +5,14 @@
 # print to stderr, since that is where Pkg prints its messages
 eprintln(x...) = println(STDERR, x...)
 
-const ipython = "ipython"
-
-ipyvers = try
-    convert(VersionNumber, chomp(readall(`$ipython --version`)))
-catch e
-    error("IPython is required for IJulia, got error $e")
+const ipython, ipyvers = try
+    "ipython",convert(VersionNumber, chomp(readall(`ipython --version`)))
+catch e1
+    try
+        "ipython3",convert(VersionNumber, chomp(readall(`ipython3 --version`)))
+    catch e2
+        error("IPython is required for IJulia, got errors\n   $e1\n   $e2")
+    end
 end
 
 if ipyvers < v"1.0.0-dev"
