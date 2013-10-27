@@ -93,7 +93,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     }
 
     var match;
-    if(match=stream.match(openers, false)) {
+    if(!in_array(state) && (match=stream.match(openers, false))) {
       state.scopes.push(match);
     }
 
