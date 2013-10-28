@@ -5,7 +5,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
     return new RegExp("^((" + words.join(")|(") + "))\\b");
   }
 
-  var operators = parserConf.operators || /^\.?[|&^\\%*+\-<>!=\/]=?|\?|~|:|\$|\.[<>]|<<=?|>>>?=?|\.[<>=]=|->?|\/\/|\bin\b|\.{3}/;
+  var operators = parserConf.operators || /^\.?[|&^\\%*+\-<>!=\/]=?|\?|~|:|\$|\.[<>]|<<=?|>>>?=?|\.[<>=]=|->?|\/\/|\bin\b/;
   var delimiters = parserConf.delimiters || /^[;,()[\]{}]/;
   var open_delimiters= /^[(\[{]/;
   var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*!*/;
@@ -53,9 +53,11 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       if(stream.match(/^'+/)) {
         return 'operator';
       }
-      if(stream.match(/^\.{3}/)) {
-        return 'operator';
-      }
+
+    }
+
+    if(stream.match(/^\.{2,3}/)) {
+      return 'operator';
     }
 
     if (stream.eatSpace()) {
@@ -118,8 +120,8 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       var imMatcher = RegExp(/^im\b/);
       var floatLiteral = false;
       // Floats
-      if (stream.match(/^\d*\.\d+([ef][\+\-]?\d+)?/i)) { floatLiteral = true; }
-      if (stream.match(/^\d+\.\d*/)) { floatLiteral = true; }
+      if (stream.match(/^\d*\.(?!\.)\d+([ef][\+\-]?\d+)?/i)) { floatLiteral = true; }
+      if (stream.match(/^\d+\.(?!\.)\d*/)) { floatLiteral = true; }
       if (stream.match(/^\.\d+/)) { floatLiteral = true; }
       if (floatLiteral) {
           // Float literals may be "imaginary"
@@ -137,9 +139,6 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       if (stream.match(/^0o[0-7]+/i)) { intLiteral = true; }
       // Decimal
       if (stream.match(/^[1-9]\d*(e[\+\-]?\d+)?/)) {
-          // Decimal literals may be "imaginary"
-          stream.eat(/J/i);
-          // TODO - Can you have imaginary longs?
           intLiteral = true;
       }
       // Zero by itself with no other piece of number.
