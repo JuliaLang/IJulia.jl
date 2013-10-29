@@ -15,7 +15,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
   var builtinList = ['true', 'false', 'enumerate', 'open', 'close', 'nothing', 'NaN', 'Inf', 'print', 'println', 'Int', 'Int8', 'Uint8', 'Int16', 'Uint16', 'Int32', 'Uint32', 'Int64', 'Uint64', 'Int128', 'Uint128', 'Bool', 'Char', 'Float16', 'Float32', 'Float64', 'Array', 'Vector', 'Matrix', 'String', 'UTF8String', 'ASCIIString', 'error', 'warn', 'info', '@printf'];
 
   //var stringPrefixes = new RegExp("^[br]?('|\")")
-  var stringPrefixes = /^[br]?('|"{3}|")/;
+  var stringPrefixes = /^(`|'|"{3}|([br]?"))/;
   var keywords = wordRegexp(keywordList);
   var builtins = wordRegexp(builtinList);
   var openers = wordRegexp(blockOpeners);
