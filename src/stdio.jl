@@ -2,6 +2,7 @@
 # we redirect STDOUT and STDERR into "stream" messages sent to the IPython
 # front-end.
 
+const orig_STDIN = STDIN
 const orig_STDOUT = STDOUT
 const orig_STDERR = STDERR
 
@@ -48,8 +49,35 @@ function watch_stream(rd::IO, name::String)
     end
 end
 
+const read_stdin, write_stdin = redirect_stdin()
 const read_stdout, write_stdout = redirect_stdout()
 const read_stderr, write_stderr = redirect_stderr()
+
+# IJulia issue #42: there doesn't seem to be a good way to make a task
+# that blocks until there is a read request from STDIN ... this makes
+# it very hard to properly redirect all reads from STDIN to pyin messages.
+# In the meantime, however, we can just hack it so that readline works:
+import Base.readline
+function readline(io::Base.Pipe)
+    if io == STDIN
+        if !execute_msg.content["allow_stdin"]
+            error("IJulia: this front-end does not implement stdin")
+        end
+        send_ipython(raw_input,
+                     msg_reply(execute_msg, "input_request",
+                               ["prompt" => "STDIN> "]))
+        while true
+            msg = recv_ipython(raw_input)
+            if msg.header["msg_type"] == "input_reply"
+                return msg.content["value"]
+            else
+                error("IJulia error: unknown stdin reply")
+            end
+        end
+    else
+        invoke(readline, (AsyncStream,), io)
+    end
+end
 
 function watch_stdio()
     @async watch_stream(read_stdout, "stdout")
