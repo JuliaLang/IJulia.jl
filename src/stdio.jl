@@ -80,7 +80,6 @@ function readline(io::Base.Pipe)
 end
 
 function watch_stdio()
-    close(STDIN) # make reads (other than readline) fail rather than freeze
     @async watch_stream(read_stdout, "stdout")
     @async watch_stream(read_stderr, "stderr")
 end
