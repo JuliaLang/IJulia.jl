@@ -50,6 +50,9 @@ Pkg.add("IJulia")
 This will download IJulia and a few other prerequisites, and will set up a
 Julia profile for IPython.
 
+If the command above returns an error, you may need to run `Pkg.update()`, then
+retry it.
+
 ## Running IJulia
 
 Given the above, you have three choices:
