@@ -75,7 +75,7 @@ function readline(io::Base.Pipe)
             end
         end
     else
-        invoke(readline, (AsyncStream,), io)
+        invoke(readline, (Base.AsyncStream,), io)
     end
 end
 
