@@ -83,6 +83,10 @@ const postexecute_hooks = Function[]
 push_postexecute_hook(f::Function) = push!(postexecute_hooks, f)
 pop_postexecute_hook(f::Function) = splice!(postexecute_hooks, findfirst(postexecute_hooks, f))
 
+const preexecute_hooks = Function[]
+push_preexecute_hook(f::Function) = push!(preexecute_hooks, f)
+pop_preexecute_hook(f::Function) = splice!(preexecute_hooks, findfirst(pretexecute_hooks, f))
+
 # similar, but called after an error (e.g. to reset plotting state)
 const posterror_hooks = Function[]
 push_posterror_hook(f::Function) = push!(posterror_hooks, f)
@@ -129,6 +133,9 @@ function execute_request_0x535c5df2(socket, msg)
     code = replace(code, r"^\s*\?", "Base.@help ")
 
     try 
+        for hook in preexecute_hooks
+            hook()
+        end
         ans = result = include_string(code, "In[$_n]")
         if silent
             result = nothing
