@@ -9,9 +9,14 @@ const ipython, ipyvers = try
     "ipython",convert(VersionNumber, chomp(readall(`ipython --version`)))
 catch e1
     try
-        "ipython3",convert(VersionNumber, chomp(readall(`ipython3 --version`)))
+        "ipython2",convert(VersionNumber, chomp(readall(`ipython2 --version`)))
     catch e2
-        error("IPython is required for IJulia, got errors\n   $e1\n   $e2")
+        try
+            "ipython3",convert(VersionNumber, chomp(readall(`ipython3 --version`)))
+        catch e3
+            error("IPython is required for IJulia, got errors\n",
+                  "   $e1\n   $e2\n   $e3")
+        end
     end
 end
 
