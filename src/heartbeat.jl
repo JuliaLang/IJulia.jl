@@ -10,7 +10,7 @@ function heartbeat_thread(sock::Ptr{Void})
           2, sock, sock)
     nothing # not correct on Windows, but irrelevant since we never return
 end
-heartbeat_c = cfunction(heartbeat_thread, Void, (Ptr{Void},))
+const heartbeat_c = cfunction(heartbeat_thread, Void, (Ptr{Void},))
 
 if @windows? false : true
     const threadid = Array(Int, 128) # sizeof(pthread_t) is <= 8 on Linux & OSX
