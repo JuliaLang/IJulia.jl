@@ -10,13 +10,13 @@ function heartbeat_thread(sock::Ptr{Void})
           2, sock, sock)
     nothing # not correct on Windows, but irrelevant since we never return
 end
+heartbeat_c = cfunction(heartbeat_thread, Void, (Ptr{Void},))
 
 if @windows? false : true
     const threadid = Array(Int, 128) # sizeof(pthread_t) is <= 8 on Linux & OSX
 end
 
 function start_heartbeat(sock)
-    heartbeat_c = cfunction(heartbeat_thread, Void, (Ptr{Void},))
     @windows? begin
         ccall(:_beginthread, Int, (Ptr{Void}, Cuint, Ptr{Void}),
               heartbeat_c, 0, sock.data)
