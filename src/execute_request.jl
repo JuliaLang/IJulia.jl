@@ -57,8 +57,8 @@ end
 
 # return the content of a pyerr message for exception e
 function pyerr_content(e, msg::String="")
-    tb = split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
-                      catch_backtrace(), 1:typemax(Int)), "\n", false)
+    tb = map(utf8, split(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
+                      catch_backtrace(), 1:typemax(Int)), "\n", false))
     if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])
         pop!(tb) # don't include include_string in backtrace
     end
