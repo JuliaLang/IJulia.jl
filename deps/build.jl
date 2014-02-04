@@ -84,6 +84,9 @@ add_config("ipython_config.py", "KernelManager.kernel_cmd",
 add_config("ipython_qtconsole_config.py",
            "IPythonWidget.execute_on_complete_input", "False")
 
+add_config("ipython_qtconsole_config.py",
+           "FrontendWidget.lexer_class", "'pygments.lexers.JuliaLexer'")
+
 # set Julia notebook to use a different port than IPython's 8888 by default
 add_config("ipython_notebook_config.py", "NotebookApp.port", 8998)
 
