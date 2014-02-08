@@ -240,3 +240,15 @@ function execute_request_0x535c5df2(socket, msg)
 end
 
 #######################################################################
+
+# The user can call IJulia.clear_output() to clear visible output from the
+# front end, useful for simple animations.  Using wait=true clears the
+# output only when new output is available, for minimal flickering.
+function clear_output(wait=false)
+    # flush pending stdio
+    flush_cstdio() # flush writes to stdout/stderr by external C code   
+    send_stream(read_stdout, "stdout")
+    send_stream(read_stderr, "stderr")
+    send_ipython(publish, msg_reply(execute_msg::Msg, "clear_output",
+                                    @compat Dict("wait" => wait)))
+end
