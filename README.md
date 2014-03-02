@@ -41,7 +41,7 @@ the next few weeks or months.  Until then, you may have to
   you will need to install [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download) or 
   [PySide](http://qt-project.org/wiki/Category:LanguageBindings::PySide).
 
-* You need Julia version 0.2 (or rather, a recent git `master` snapshot, since 0.2 is not yet released).
+* You need Julia version 0.2 (or rather, a recent git `master` snapshot).
 
 Once IPython 1.0+ and Julia 0.2 is installed, you can install IJulia with:
 ```
