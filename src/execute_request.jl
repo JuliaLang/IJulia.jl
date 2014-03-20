@@ -53,6 +53,11 @@ function undisplay(x)
     end
 end
 
+# strip comments from code
+function remove_comments(code)
+    replace(code, r"#.*", "")
+end
+
 #######################################################################
 
 # return the content of a pyerr message for exception e
@@ -104,7 +109,7 @@ function execute_request_0x535c5df2(socket, msg)
     @vprintln("EXECUTING ", code)
     global execute_msg = msg
     global _n, In, Out, _, __, ___, ans
-    silent = msg.content["silent"] || ismatch(r";\s*$", code)
+    silent = msg.content["silent"] || ismatch(r";\s*$", remove_comments(code))
 
     # present in spec but missing from notebook's messages:
     store_history = get(msg.content, "store_history", !silent)
