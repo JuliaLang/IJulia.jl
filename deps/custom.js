@@ -84,5 +84,8 @@ $([IPython.events]).on('app_initialized.NotebookApp', function(){
     })
 
     IPython.CodeCell.options_default['cm_config']['mode'] = 'julia';
+
+    // handle identifiers ending with !
+    IPython.Tooltip.last_token_re = /[a-z_][0-9a-z._!]*$/gi;
 });
 
