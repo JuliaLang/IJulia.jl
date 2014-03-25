@@ -127,12 +127,6 @@ copy_config("ijuliafavicon.ico",
             joinpath(juliaprof, "static", "base", "images"),
             "favicon.ico")
 
-# Use our own version of tooltip to handle identifiers ending with !
-# (except for line 211, tooltip.js is identical to the IPython version)
-# IPython might make his configurable later, at which point the logic
-# should be moved to custom.js or a config file.
-copy_config("tooltip.js", joinpath(juliaprof, "static", "notebook", "js"))
-
 # custom.js can contain custom js login that will be loaded
 # with the notebook to add info and/or monkey-patch some javascript
 # -- e.g. we use it to add .ipynb metadata that this is a Julia notebook
