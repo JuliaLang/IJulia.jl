@@ -14,8 +14,12 @@ catch e1
         try
             "ipython3",convert(VersionNumber, chomp(readall(`ipython3 --version`)))
         catch e3
-            error("IPython is required for IJulia, got errors\n",
-                  "   $e1\n   $e2\n   $e3")
+            try
+                "ipython.bat",convert(VersionNumber, chomp(readall(`ipython.bat --version`)))
+            catch e4
+                error("IPython is required for IJulia, got errors\n",
+                      "   $e1\n   $e2\n   $e3" + @windows ? "$e4\n" : "")
+            end
         end
     end
 end
