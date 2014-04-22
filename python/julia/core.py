@@ -68,10 +68,10 @@ class Julia(object):
                 raise JuliaMagicError('error starting up the Julia process')
 
             # *.so extension on Linux
-            jpath_so = os.path.abspath('%s/../lib/libjulia-release.so'
+            jpath_so = os.path.abspath('%s/../lib/libjulia.so'
                                        % JULIA_HOME)
             # *.dylib extension on OSX
-            jpath_dylib = os.path.abspath('%s/../lib/libjulia-release.dylib'
+            jpath_dylib = os.path.abspath('%s/../lib/libjulia.dylib'
                                           % JULIA_HOME)
 
             # choose the correct library.  If it doesn
@@ -143,9 +143,9 @@ class Julia(object):
         if src is None:
             return None
 
-        #print 'Running src:', src  # dbg
+        print 'Running src:', src  # dbg
         ans = self.jcall(src)
-        #print 'Ans:', ans  # dbg
+        print 'Ans:', ans  # dbg
         # local shorthands for clarity
         j = self.j
         void_p = ctypes.c_void_p
@@ -157,5 +157,5 @@ class Julia(object):
         # make sure we incref it before returning it, since this is a borrowed
         # ref
         ctypes.pythonapi.Py_IncRef(ctypes.py_object(pyans))
-        #print 'Pyans (s, r):', str(pyans), '|||', repr(pyans)  # dbg
+        print 'Pyans (s, r):', str(pyans), '|||', repr(pyans)  # dbg
         return pyans
