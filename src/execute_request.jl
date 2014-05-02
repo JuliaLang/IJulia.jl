@@ -109,18 +109,14 @@ function execute_request_0x535c5df2(socket, msg)
     # present in spec but missing from notebook's messages:
     store_history = get(msg.content, "store_history", !silent)
 
-    if !silent
-        _n += 1
-        if store_history
-            In[_n] = code
-        end
-        send_ipython(publish, 
-                     msg_pub(msg, "pyin",
-                             ["execution_count" => _n,
-                              "code" => code]))
-    else
-        @vprintln("SILENT")
+    _n += 1
+    if store_history
+        In[_n] = code
     end
+    send_ipython(publish, 
+                 msg_pub(msg, "pyin",
+                         ["execution_count" => _n,
+                          "code" => code]))
 
     send_status("busy")
 
