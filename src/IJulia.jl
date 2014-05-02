@@ -9,7 +9,12 @@ end
 
 using ZMQ
 using JSON
-using REPLCompletions
+
+if isdefined(Base, :REPLCompletions)
+    using Base.REPLCompletions
+else
+    using REPLCompletions
+end
 
 uuid4() = repr(Base.Random.uuid4())
 
