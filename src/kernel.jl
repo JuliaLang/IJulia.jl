@@ -22,4 +22,7 @@ IJulia.watch_stdio()
 # workaround JuliaLang/julia#4259
 delete!(task_local_storage(),:SOURCE_PATH)
 
+# workaround JuliaLang/julia#6765
+eval(Base, :(is_interactive = true))
+
 IJulia.waitloop()
