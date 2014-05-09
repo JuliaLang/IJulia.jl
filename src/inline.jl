@@ -42,8 +42,17 @@ end
 # with the actual display occuring when display() is called or when
 # an input cell has finished executing.
 
+function in_repr(x, queue)
+    for item in queue
+        if x.o[:__repr__]() == item.o[:__repr__]()
+            return true
+        end
+    end
+    return false
+end
+
 function redisplay(d::InlineDisplay, x)
-    if !in(x,displayqueue)
+    if !in_repr(x,displayqueue)
         push!(displayqueue, x)
     end
 end
