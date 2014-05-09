@@ -43,12 +43,16 @@ end
 # an input cell has finished executing.
 
 function in_repr(x, queue)
-    for item in queue
-        if x.o[:__repr__]() == item.o[:__repr__]()
-            return true
+    try
+        for item in queue
+            if x.o[:__repr__]() == item.o[:__repr__]()
+                return true
+            end
         end
+        return false
+    catch
+        return (x in queue)
     end
-    return false
 end
 
 function redisplay(d::InlineDisplay, x)
