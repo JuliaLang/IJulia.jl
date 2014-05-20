@@ -8,21 +8,13 @@
 function heartbeat_thread(sock::Ptr{Void})
     ccall((:zmq_device,ZMQ.zmq), Cint, (Cint, Ptr{Void}, Ptr{Void}),
           2, sock, sock)
-    nothing # not correct on Windows, but irrelevant since we never return
+    nothing
 end
 const heartbeat_c = cfunction(heartbeat_thread, Void, (Ptr{Void},))
 
-if @windows? false : true
-    const threadid = Array(Int, 128) # sizeof(pthread_t) is <= 8 on Linux & OSX
-end
+const threadid = Array(Int, 128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
 
 function start_heartbeat(sock)
-    @windows? begin
-        ccall(:_beginthread, Int, (Ptr{Void}, Cuint, Ptr{Void}),
-              heartbeat_c, 0, sock.data)
-    end : begin
-        ccall((:pthread_create, :libpthread), Cint,
-              (Ptr{Int}, Ptr{Void}, Ptr{Void}, Ptr{Void}),
-              threadid, C_NULL, heartbeat_c, sock.data)
-    end
+    ccall(:uv_thread_create, Cint, (Ptr{Int}, Ptr{Void}, Ptr{Void}),
+          threadid, heartbeat_c, sock.data)
 end
