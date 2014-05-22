@@ -15,7 +15,7 @@ include("execute_request.jl")
 function complete_request(socket, msg)
     text = msg.content["text"]
     line = msg.content["line"]
-    cursorpos = msg.content["cursor_pos"]
+    cursorpos = chr2ind(line, msg.content["cursor_pos"])
 
     comps, positions = completions(line,cursorpos)
     if sizeof(text) > length(positions)

@@ -20,6 +20,7 @@ uuid4() = repr(Base.Random.uuid4())
 
 if length(ARGS) > 0
     global const profile = open(JSON.parse,ARGS[1])
+    verbose && println("PROFILE = $profile")
 else
     # generate profile and save
     let port0 = 5678
