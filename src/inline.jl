@@ -18,7 +18,7 @@ for mime in ipy_mime
             send_ipython(publish, 
                          msg_pub(execute_msg, "display_data",
                                  ["source" => "julia", # optional
-                                  "metadata" => Dict(), # optional
+                                  "metadata" => metadata(x), # optional
                                   "data" => [$mime => stringmime(MIME($mime), x)] ]))
         end
     end
@@ -34,7 +34,7 @@ function display(d::InlineDisplay, x)
     send_ipython(publish, 
                  msg_pub(execute_msg, "display_data",
                          ["source" => "julia", # optional
-                          "metadata" => Dict(), # optional
+                          "metadata" => metadata(x), # optional
                           "data" => display_dict(x) ]))
 end
 

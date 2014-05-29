@@ -18,6 +18,10 @@ else
     mimewritable_(mime, x) = mimewritable(mime, typeof(x))
 end
 
+# return a String=>Any dictionary to attach as metadata
+# in IPython display_data and pyout messages
+metadata(x) = Dict()
+
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
@@ -174,7 +178,7 @@ function execute_request_0x535c5df2(socket, msg)
             send_ipython(publish, 
                          msg_pub(msg, "pyout",
                                  ["execution_count" => _n,
-                                 "metadata" => Dict(), # qtconsole needs this
+                                 "metadata" => metadata(result), # qtconsole needs this
                                  "data" => display_dict(result) ]))
         end
         
