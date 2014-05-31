@@ -40,7 +40,7 @@ function show(io::IO, msg::Msg)
     print(io, " ] {\n  header = $(msg.header),\n  metadata = $(msg.metadata),\n  content = $(msg.content)\n}")
 end
 
-function send_ipython(socket, m::Msg)
+function send_ipython(socket, m::Msg,s::Session=SESSION)
     @vprintln("SENDING $m")
     for i in m.idents
         send(socket, i, SNDMORE)
@@ -50,14 +50,14 @@ function send_ipython(socket, m::Msg)
     parent_header = json(m.parent_header)
     metadata = json(m.metadata)
     content = json(m.content)
-    send(socket, hmac(header, parent_header, metadata, content), SNDMORE)
+    send(socket, s.usehmac ? hmac(s.hmacstate, header, parent_header, metadata, content) : "", SNDMORE)
     send(socket, header, SNDMORE)
     send(socket, parent_header, SNDMORE)
     send(socket, metadata, SNDMORE)
     send(socket, content)
 end
 
-function recv_ipython(socket)
+function recv_ipython(socket,s::Session=SESSION)
     msg = recv(socket)
     idents = String[]
     s = bytestring(msg)
@@ -74,7 +74,7 @@ function recv_ipython(socket)
     parent_header = bytestring(recv(socket))
     metadata = bytestring(recv(socket))
     content = bytestring(recv(socket))
-    if signature != hmac(header, parent_header, metadata, content)
+    if signature != (s.usehmac ? hmac(s.hmacstate, header, parent_header, metadata, content) : "")
         error("Invalid HMAC signature") # What should we do here?
     end
     m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
