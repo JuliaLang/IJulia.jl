@@ -1,4 +1,4 @@
-function send_status(state::String)
+function send_status(state::String,s::Session=SESSION)
     msg = Msg(
         [ "status" ],
         [ "msg_id" => uuid4(),
@@ -7,12 +7,12 @@ function send_status(state::String)
           "msg_type" => "status" ],
         [ "execution_state" => state ]
     )
-    send_ipython(publish, msg)
+    send_ipython(s.publish, msg)
 end
 
 include("execute_request.jl")
 
-function complete_request(socket, msg)
+function complete_request(socket, msg,s::Session=SESSION)
     text = msg.content["text"]
     line = msg.content["line"]
     cursorpos = chr2ind(line, msg.content["cursor_pos"])
@@ -21,15 +21,15 @@ function complete_request(socket, msg)
     if sizeof(text) > length(positions)
         comps = [line[(cursorpos-sizeof(text)+1):(cursorpos-length(positions))]*s for s in comps]
     end
-    send_ipython(requests, msg_reply(msg, "complete_reply", [
+    send_ipython(s.requests, msg_reply(msg, "complete_reply", [
         "status" => "ok",
         "matches" => comps,
         "matched_text" => line[positions],
     ]))
 end
 
-function kernel_info_request(socket, msg)
-    send_ipython(requests,
+function kernel_info_request(socket, msg,s::Session=SESSION)
+    send_ipython(s.requests,
                  msg_reply(msg, "kernel_info_reply",
                            ["protocol_version" => [4, 0],
                             "language_version" => [VERSION.major,
@@ -38,17 +38,17 @@ function kernel_info_request(socket, msg)
                             "language" => "julia" ]))
 end
 
-function connect_request(socket, msg)
-    send_ipython(requests,
+function connect_request(socket, msg,s::Session=SESSION)
+    send_ipython(s.requests,
                  msg_reply(msg, "connect_reply",
-                           ["shell_port" => profile["shell_port"],
-                            "iopub_port" => profile["iopub_port"],
-                            "stdin_port" => profile["stdin_port"],
-                            "hb_port" => profile["hb_port"]]))
+                           ["shell_port" => s.profile["shell_port"],
+                            "iopub_port" => s.profile["iopub_port"],
+                            "stdin_port" => s.profile["stdin_port"],
+                            "hb_port" => s.profile["hb_port"]]))
 end
 
-function shutdown_request(socket, msg)
-    send_ipython(requests, msg_reply(msg, "shutdown_reply",
+function shutdown_request(socket, msg,s::Session=SESSION)
+    send_ipython(s.requests, msg_reply(msg, "shutdown_reply",
                                      msg.content))
     exit()
 end
@@ -57,7 +57,7 @@ end
 docstring(o) = ""
 docstring(o::Union(Function,DataType)) = sprint(show, methods(o))
 
-function object_info_request(socket, msg)
+function object_info_request(socket, msg,s::Session=SESSION)
     try
         s = parse(msg.content["oname"])
         o = eval(Main, s)
@@ -73,20 +73,20 @@ function object_info_request(socket, msg)
         if method_exists(length, (typeof(o),))
             content["length"] = length(o)
         end
-        send_ipython(requests, msg_reply(msg, "object_info_reply", content))
+        send_ipython(s.requests, msg_reply(msg, "object_info_reply", content))
     catch e
         @verror_show e catch_backtrace()
-        send_ipython(requests,
+        send_ipython(s.requests,
                      msg_reply(msg, "object_info_reply",
                                ["oname" => msg.content["oname"],
                                 "found" => false ]))
     end
 end
 
-function history_request(socket, msg)
+function history_request(socket, msg,s::Session=SESSION)
     # we will just send back empty history for now, pending clarification
     # as requested in ipython/ipython#3806
-    send_ipython(requests,
+    send_ipython(s.requests,
                  msg_reply(msg, "history_reply",
                            ["history" => []]))
                              

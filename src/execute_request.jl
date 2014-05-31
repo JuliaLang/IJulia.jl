@@ -103,7 +103,7 @@ execute_msg = Msg(["julia"], ["username"=>"julia", "session"=>"????"], Dict())
 
 # note: 0x535c5df2 is a random integer to make name collisions in
 # backtrace analysis less likely.
-function execute_request_0x535c5df2(socket, msg)
+function execute_request_0x535c5df2(socket, msg,s::Session=SESSION)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
     global execute_msg = msg
@@ -117,7 +117,7 @@ function execute_request_0x535c5df2(socket, msg)
     if store_history
         In[_n] = code
     end
-    send_ipython(publish, 
+    send_ipython(s.publish, 
                  msg_pub(msg, "pyin",
                          ["execution_count" => _n,
                           "code" => code]))
@@ -168,21 +168,21 @@ function execute_request_0x535c5df2(socket, msg)
 
 	# flush pending stdio
         flush_cstdio() # flush writes to stdout/stderr by external C code
-	send_stream(takebuf_string(read_stdout.buffer), "stdout")
-	send_stream(takebuf_string(read_stderr.buffer), "stderr")
+	send_stream(takebuf_string(s.read_stdout.buffer), "stdout")
+	send_stream(takebuf_string(s.read_stderr.buffer), "stderr")
 
         undisplay(result) # dequeue if needed, since we display result in pyout
         display() # flush pending display requests
 
         if result != nothing
-            send_ipython(publish, 
+            send_ipython(s.publish, 
                          msg_pub(msg, "pyout",
                                  ["execution_count" => _n,
                                  "metadata" => metadata(result), # qtconsole needs this
                                  "data" => display_dict(result) ]))
         end
         
-        send_ipython(requests,
+        send_ipython(s.requests,
                      msg_reply(msg, "execute_reply",
                                ["status" => "ok", "execution_count" => _n,
                                "payload" => [],
@@ -193,17 +193,17 @@ function execute_request_0x535c5df2(socket, msg)
         try
             # flush pending stdio
             flush_cstdio() # flush writes to stdout/stderr by external C code
-            send_stream(takebuf_string(read_stdout.buffer), "stdout")
-            send_stream(takebuf_string(read_stderr.buffer), "stderr")
+            send_stream(takebuf_string(s.read_stdout.buffer), "stdout")
+            send_stream(takebuf_string(s.read_stderr.buffer), "stderr")
             for hook in posterror_hooks
                 hook()
             end
         catch
         end
         content = pyerr_content(e)
-        send_ipython(publish, msg_pub(msg, "pyerr", content))
+        send_ipython(s.publish, msg_pub(msg, "pyerr", content))
         content["status"] = "error"
-        send_ipython(requests, msg_reply(msg, "execute_reply", content))
+        send_ipython(s.requests, msg_reply(msg, "execute_reply", content))
     end
 
     send_status("idle")

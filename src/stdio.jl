@@ -23,11 +23,11 @@ macro verror_show(e, bt)
     end
 end
 
-function send_stream(s::String, name::String)
-    if !isempty(s)
-        send_ipython(publish,
+function send_stream(str::String, name::String,s::Session=SESSION)
+    if !isempty(str)
+        send_ipython(s.publish,
                      msg_pub(execute_msg, "stream",
-                             ["name" => name, "data" => s]))
+                             ["name" => name, "data" => str]))
     end
 end
 
@@ -49,25 +49,21 @@ function watch_stream(rd::IO, name::String)
     end
 end
 
-const read_stdin, write_stdin = redirect_stdin()
-const read_stdout, write_stdout = redirect_stdout()
-const read_stderr, write_stderr = redirect_stderr()
-
 # IJulia issue #42: there doesn't seem to be a good way to make a task
 # that blocks until there is a read request from STDIN ... this makes
 # it very hard to properly redirect all reads from STDIN to pyin messages.
 # In the meantime, however, we can just hack it so that readline works:
 import Base.readline
-function readline(io::Base.Pipe)
+function readline(io::Base.Pipe,s::Session=SESSION)
     if io == STDIN
         if !execute_msg.content["allow_stdin"]
             error("IJulia: this front-end does not implement stdin")
         end
-        send_ipython(raw_input,
+        send_ipython(s.raw_input,
                      msg_reply(execute_msg, "input_request",
                                ["prompt" => "STDIN> "]))
         while true
-            msg = recv_ipython(raw_input)
+            msg = recv_ipython(s.raw_input)
             if msg.header["msg_type"] == "input_reply"
                 return msg.content["value"]
             else
@@ -79,19 +75,19 @@ function readline(io::Base.Pipe)
     end
 end
 
-function watch_stdio()
-    @async watch_stream(read_stdout, "stdout")
-    @async watch_stream(read_stderr, "stderr")
+function watch_stdio(s::Session=SESSION)
+    @async watch_stream(s.read_stdout, "stdout")
+    @async watch_stream(s.read_stderr, "stderr")
 end
 
 import Base.flush
-function flush(io::Base.Pipe)
+function flush(io::Base.Pipe,s::Session=SESSION)
     invoke(flush, (super(Base.Pipe),), io)
     # send any available bytes to IPython (don't use readavailable,
     # since we don't want to block).
     if io == STDOUT
-        send_stream(takebuf_string(read_stdout.buffer), "stdout")
+        send_stream(takebuf_string(s.read_stdout.buffer), "stdout")
     elseif io == STDERR
-        send_stream(takebuf_string(read_stderr.buffer), "stderr")
+        send_stream(takebuf_string(s.read_stderr.buffer), "stderr")
     end
 end

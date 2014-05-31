@@ -2,12 +2,16 @@
 @osx_only ENV["PATH"] = JULIA_HOME*":"*ENV["PATH"]
 
 include("IJulia.jl")
-include("inline.jl")
 
+using IJulia
+
+IJulia.init(ARGS)
+
+include("inline.jl")
 using IPythonDisplay
 pushdisplay(InlineDisplay())
 
-using IJulia
+IJulia.send_status("starting")
 
 ccall(:jl_install_sigint_handler, Void, ())
 
