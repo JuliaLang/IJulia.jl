@@ -1,7 +1,8 @@
 module IPythonDisplay
 
 using IJulia
-import IJulia: send_ipython, publish, msg_pub, execute_msg, display_dict, displayqueue, undisplay
+import IJulia: send_ipython, publish, msg_pub, execute_msg,
+               metadata, display_dict, displayqueue, undisplay
 
 import Base: display, redisplay
 export display, redisplay, InlineDisplay, undisplay
