@@ -124,8 +124,8 @@ function execute_request_0x535c5df2(socket, msg)
 
     send_status("busy")
 
-    # "; ..." lines are interpreted as shell commands for run
-    code = replace(code, r"^\s*;.*$"m, 
+    # "; ..." cells are interpreted as shell commands for run
+    code = replace(code, r"^\s*;.*$", 
                    m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"), 
                                "`)"), 0)
 
