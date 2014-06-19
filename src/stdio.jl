@@ -49,9 +49,9 @@ function watch_stream(rd::IO, name::String)
     end
 end
 
-const read_stdin, write_stdin = redirect_stdin()
-const read_stdout, write_stdout = redirect_stdout()
-const read_stderr, write_stderr = redirect_stderr()
+const (read_stdin, write_stdin) = redirect_stdin()
+const (read_stdout, write_stdout) = redirect_stdout()
+const (read_stderr, write_stderr) = redirect_stderr()
 
 # IJulia issue #42: there doesn't seem to be a good way to make a task
 # that blocks until there is a read request from STDIN ... this makes
