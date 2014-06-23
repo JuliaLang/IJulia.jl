@@ -73,6 +73,8 @@ $([IPython.events]).on('app_initialized.NotebookApp', function(){
     // <profile dir>/static/components/codemirror/mode/julia/julia.js
     // hopefully it will be directly included in codemirror itself
     // for future releases.
+    IPython.CodeCell.options_default['cm_config']['mode'] = 'julia';
+
     CodeMirror.requireMode('julia', function(){
         cells = IPython.notebook.get_cells();
         for(var i in cells){
@@ -82,8 +84,6 @@ $([IPython.events]).on('app_initialized.NotebookApp', function(){
             }
         }
     })
-
-    IPython.CodeCell.options_default['cm_config']['mode'] = 'julia';
 
     // handle identifiers ending with ! (this works in ipython 2.x)
     IPython.Tooltip.last_token_re = /[a-z_][0-9a-z._!]*$/gi;
