@@ -122,8 +122,6 @@ function execute_request_0x535c5df2(socket, msg)
                          ["execution_count" => _n,
                           "code" => code]))
 
-    send_status("busy")
-
     # "; ..." cells are interpreted as shell commands for run
     code = replace(code, r"^\s*;.*$", 
                    m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"), 
@@ -205,8 +203,6 @@ function execute_request_0x535c5df2(socket, msg)
         content["status"] = "error"
         send_ipython(requests, msg_reply(msg, "execute_reply", content))
     end
-
-    send_status("idle")
 end
 
 #######################################################################

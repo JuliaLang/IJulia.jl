@@ -71,6 +71,7 @@ function eventloop(socket)
         while true
             msg = recv_ipython(socket)
             try
+                send_status("busy")
                 handlers[msg.header["msg_type"]](socket, msg)
             catch e
                 # Try to keep going if we get an exception, but
@@ -89,6 +90,8 @@ function eventloop(socket)
                                       "msg_type" => "pyerr" ], content) :
                                  msg_pub(execute_msg, "pyerr", content)) 
                 end
+            finally
+                send_status("idle")
             end
         end
     catch e
