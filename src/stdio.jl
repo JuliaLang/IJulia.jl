@@ -2,10 +2,6 @@
 # we redirect STDOUT and STDERR into "stream" messages sent to the IPython
 # front-end.
 
-const orig_STDIN = STDIN
-const orig_STDOUT = STDOUT
-const orig_STDERR = STDERR
-
 # logging in verbose mode goes to original stdio streams.  Use macros
 # so that we do not even evaluate the arguments in no-verbose modes
 macro vprintln(x...)
@@ -48,10 +44,6 @@ function watch_stream(rd::IO, name::String)
         end
     end
 end
-
-const (read_stdin, write_stdin) = redirect_stdin()
-const (read_stdout, write_stdout) = redirect_stdout()
-const (read_stderr, write_stderr) = redirect_stderr()
 
 # IJulia issue #42: there doesn't seem to be a good way to make a task
 # that blocks until there is a read request from STDIN ... this makes

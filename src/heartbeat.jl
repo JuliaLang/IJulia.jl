@@ -10,9 +10,6 @@ function heartbeat_thread(sock::Ptr{Void})
           2, sock, sock)
     nothing
 end
-const heartbeat_c = cfunction(heartbeat_thread, Void, (Ptr{Void},))
-
-const threadid = Array(Int, 128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
 
 function start_heartbeat(sock)
     ccall(:uv_thread_create, Cint, (Ptr{Int}, Ptr{Void}, Ptr{Void}),
