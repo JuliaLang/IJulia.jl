@@ -29,8 +29,14 @@ end
 
 function watch_stream(rd::IO, name::String)
     try
-        while true
-            s = readavailable(rd) # blocks until something available
+        while !eof(rd) # blocks until something is available
+            d = readbytes(rd, nb_available(rd))
+            s = try
+                bytestring(d)
+            catch
+                # FIXME: what should we do here?
+                string("<ERROR: invalid UTF8 data ", d, ">")
+            end
 	    send_stream(s, name)
             sleep(0.1) # a little delay to accumulate output
         end
