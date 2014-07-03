@@ -1,9 +1,12 @@
 #######################################################################
-# History: global In/Out and other history variables exported to Main
+# History: global In/Out and other exported history variables
 const In = Dict{Integer,UTF8String}()
 const Out = Dict{Integer,Any}()
 _ = __ = __ = ans = nothing
-export In, Out, _, __, ___, ans
+
+export In, Out, _, __, ___
+# (don't export ans to avoid conflicts from "using IJulia" in ordinary REPL;
+#  ans is imported into Main by kernel.jl)
 
 # execution counter
 _n = 0

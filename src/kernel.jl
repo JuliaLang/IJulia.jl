@@ -5,6 +5,9 @@ include("IJulia.jl")
 using IJulia
 IJulia.init(ARGS)
 
+# import things that we want visible in IJulia but not in REPL's using IJulia
+import IJulia.ans
+
 include("inline.jl")
 using IPythonDisplay
 pushdisplay(InlineDisplay())

@@ -9,6 +9,7 @@ end
 using ZMQ
 using JSON
 using Nettle
+include("../deps/ipython.jl")
 
 if isdefined(Base, :REPLCompletions)
     using Base.REPLCompletions
@@ -157,6 +158,11 @@ function waitloop()
             end
         end
     end
+end
+
+export notebook
+function notebook(ipython=find_ipython()[1])
+    run(`$ipython notebook --profile julia`)
 end
 
 end # IJulia

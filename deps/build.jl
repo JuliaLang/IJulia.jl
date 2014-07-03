@@ -5,24 +5,8 @@
 # print to stderr, since that is where Pkg prints its messages
 eprintln(x...) = println(STDERR, x...)
 
-const ipython, ipyvers = try
-    "ipython",convert(VersionNumber, chomp(readall(`ipython --version`)))
-catch e1
-    try
-        "ipython2",convert(VersionNumber, chomp(readall(`ipython2 --version`)))
-    catch e2
-        try
-            "ipython3",convert(VersionNumber, chomp(readall(`ipython3 --version`)))
-        catch e3
-            try
-                "ipython.bat",convert(VersionNumber, chomp(readall(`ipython.bat --version`)))
-            catch e4
-                error("IPython is required for IJulia, got errors\n",
-                      "   $e1\n   $e2\n   $e3" * (@windows ? "\n$e4\n" : "") )
-            end
-        end
-    end
-end
+include("ipython.jl")
+const ipython, ipyvers = find_ipython()
 
 if ipyvers < v"1.0.0-dev"
     error("IPython 1.0 or later is required for IJulia, got $ipyvers instead")
