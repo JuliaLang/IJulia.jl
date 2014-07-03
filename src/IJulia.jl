@@ -19,6 +19,8 @@ end
 
 uuid4() = repr(Base.Random.uuid4())
 
+inited = false
+
 function init(args)
     if length(args) > 0
         global const profile = open(JSON.parse,args[1])
@@ -95,7 +97,7 @@ function init(args)
     read_stderr, write_stderr = redirect_stderr()
 
     send_status("starting")
-
+    global inited = true
 end
 
 include("stdio.jl")
@@ -162,6 +164,7 @@ end
 
 export notebook
 function notebook(ipython=find_ipython()[1])
+    inited && error("IJulia is already running")
     run(`$ipython notebook --profile julia`)
 end
 
