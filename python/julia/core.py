@@ -135,7 +135,7 @@ class Julia(object):
         else:
             return ans
 
-    def run(self, src):
+    def eval(self, src):
         """
         Execute code in Julia, and pull some of the results back into the
         Python namespace.
