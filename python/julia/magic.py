@@ -56,7 +56,7 @@ class JuliaMagics(Magics):
         Python namespace.
         """
         src = str(line if cell is None else cell)
-        return self.julia.run(src)
+        return self.julia.eval(src)
 
 
 # Add to the global docstring the class information.
