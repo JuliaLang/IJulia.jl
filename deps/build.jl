@@ -1,6 +1,7 @@
 # TODO: Build IPython 1.0 dependency? (wait for release?)
 
 #######################################################################
+import JSON
 
 # print to stderr, since that is where Pkg prints its messages
 eprintln(x...) = println(STDERR, x...)
@@ -69,10 +70,15 @@ if VERSION >= v"0.3-"
 else
     binary_name = "julia-basic"
 end
+
+kernelcmd_array = VERSION >= v"0.3"?
+            ["$(escape_string(joinpath(JULIA_HOME,(@windows? "julia.exe":"$binary_name"))))", "-i", "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]:
+            ["$(escape_string(joinpath(JULIA_HOME,(@windows? "julia.bat":"$binary_name"))))", "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]
+
+kernelcmd = JSON.json(kernelcmd_array)
+
 add_config("ipython_config.py", "KernelManager.kernel_cmd",
-           VERSION >= v"0.3"?
-            """["$(escape_string(joinpath(JULIA_HOME,(@windows? "julia.exe":"$binary_name"))))", "-i", "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""":
-            """["$(escape_string(joinpath(JULIA_HOME,(@windows? "julia.bat":"$binary_name"))))", "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""",
+           kernelcmd,
            true)
 
 # make qtconsole require shift-enter to complete input
@@ -130,6 +136,36 @@ copy_config("custom.js", joinpath(juliaprof, "static", "custom"))
 # julia.js implements a CodeMirror mode for Julia syntax highlighting in the notebook.
 # Eventually this will ship with CodeMirror and hence IPython, but for now we manually bundle it.
 
-copy_config("julia.js", joinpath(juliaprof, "static", "components", "codemirror", "mode", "julia"))
+if ipyvers <= v"3.0-"
+    copy_config("julia.js", joinpath(juliaprof, "static", "components", "codemirror", "mode", "julia"))
+end
 
 #######################################################################
+#       Part specific to Jupyter/IPython 3.0 and above
+#######################################################################
+
+
+if ipyvers >= v"3.0-"
+    eprintln("Found IPython version $ipyvers ... installing kernelspec.")
+
+    juliakspec = joinpath(chomp(readall(`$ipython locate`)),"kernels","julia")
+    ks = [
+        "argv" => kernelcmd_array,
+        "display_name" => "Julia "*string(VERSION),
+    ]
+
+    destname = "kernel.json"
+    mkpath(juliakspec)
+    dest = joinpath(juliakspec, destname)
+
+
+    eprintln("Writing IJulia kernelspec to $dest ...")
+
+    open(dest, "w") do f
+        write(f, JSON.json(ks))
+    end
+    copy_config("logo-32x32.png", juliakspec)
+    copy_config("logo-64x64.png", juliakspec)
+else
+    eprintln("Found IPython version $ipyvers ... skipping kernelspec.")
+end
