@@ -26,12 +26,12 @@ end
 const comms = Dict{String, Comm}()
 
 noop_callback(msg) = nothing
-function Comm(target::Symbol,
+function Comm(target,
               id=uuid4(),
               primary=true,
               on_msg=noop_callback,
               on_close=noop_callback)
-    comm = Comm{target}(id, primary, on_msg, on_close)
+    comm = Comm{symbol(target)}(id, primary, on_msg, on_close)
     if primary
         # Request a secondary object be created at the front end
         send_ipython(IJulia.publish,
