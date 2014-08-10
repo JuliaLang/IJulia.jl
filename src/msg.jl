@@ -84,15 +84,26 @@ function recv_ipython(socket)
     return m
 end
 
-function send_status(state::String, parent_header=execute_msg.header)
-    msg = Msg(
-        [ "status" ],
-        [ "msg_id" => uuid4(),
-          "username" => "jlkernel",
-          "session" => execute_msg.header["session"],
-          "msg_type" => "status" ],
-        [ "execution_state" => state ],
-        parent_header
-    )
+function send_status(state::String, parent_header=nothing)
+    if parent_header == nothing
+        msg = Msg(
+            [ "status" ],
+            [ "msg_id" => uuid4(),
+             "username" => "jlkernel",
+             "session" => execute_msg.header["session"],
+             "msg_type" => "status" ],
+            [ "execution_state" => state ]
+        )
+    else
+        msg = Msg(
+            [ "status" ],
+            [ "msg_id" => uuid4(),
+             "username" => "jlkernel",
+             "session" => execute_msg.header["session"],
+             "msg_type" => "status" ],
+            [ "execution_state" => state ],
+            parent_header
+        )
+    end
     send_ipython(publish, msg)
 end

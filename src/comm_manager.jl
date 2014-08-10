@@ -2,7 +2,7 @@ module CommManager
 
 using IJulia
 
-import IJulia: Msg, uuid4, send_ipython, send_status, msg_pub
+import IJulia: Msg, uuid4, send_ipython, msg_pub
 
 export Comm, comm_target, msg_comm, send_comm, close_comm,
        register_comm, comm_msg, comm_open, comm_close
@@ -82,7 +82,6 @@ end
 
 function comm_open(sock, msg)
     if haskey(msg.content, "comm_id")
-        send_status("busy", msg.header)
         comm_id = msg.content["comm_id"]
         if haskey(msg.content, "target_name")
             target = msg.content["target_name"]
@@ -99,14 +98,12 @@ function comm_open(sock, msg)
                          msg_comm(Comm(:notarget, comm_id),
                                   msg, "comm_close"))
         end
-        send_status("idle", msg.header)
     end
 end
 
 
 function comm_msg(sock, msg)
     if haskey(msg.content, "comm_id")
-        send_status("busy", msg.header)
         comm_id = msg.content["comm_id"]
         if haskey(comms, comm_id)
             comm = comms[comm_id]
@@ -119,7 +116,6 @@ function comm_msg(sock, msg)
             msg.content["data"] = Dict()
         end
         comm.on_msg(msg)
-        send_status("idle", msg.header)
     end
 end
 
@@ -128,7 +124,6 @@ function comm_close(sock, msg)
     if haskey(msg.content, "comm_id")
         comm_id = msg.content["comm_id"]
         comm = comms[comm_id]
-        send_status("busy", msg.header)
 
         if !haskey(msg.content, "data")
             msg.content["data"] = {}
@@ -136,7 +131,6 @@ function comm_close(sock, msg)
         comm.on_close(msg)
 
         delete!(comms, comm.id)
-        send_status("idle", msg.header)
     end
 end
 
