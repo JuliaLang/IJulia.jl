@@ -111,7 +111,7 @@ function eventloop(socket)
         while true
             msg = recv_ipython(socket)
             try
-                send_status("busy")
+                send_status("busy", msg.header)
                 handlers[msg.header["msg_type"]](socket, msg)
             catch e
                 # Try to keep going if we get an exception, but
@@ -131,7 +131,7 @@ function eventloop(socket)
                                  msg_pub(execute_msg, "pyerr", content)) 
                 end
             finally
-                send_status("idle")
+                send_status("idle", msg.header)
             end
         end
     catch e

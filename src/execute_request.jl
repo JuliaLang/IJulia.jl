@@ -173,10 +173,15 @@ function execute_request_0x535c5df2(socket, msg)
         display() # flush pending display requests
 
         if result != nothing
-            send_ipython(publish, 
+
+            # Work around for Julia issue #265 (see # #7884 for context)
+            # We have to explicitly invoke the correct metadata method.
+            result_metadata = invoke(metadata, (typeof(result),), result)
+
+            send_ipython(publish,
                          msg_pub(msg, "pyout",
                                  ["execution_count" => _n,
-                                 "metadata" => metadata(result), # qtconsole needs this
+                                 "metadata" => result_metadata,
                                  "data" => display_dict(result) ]))
         end
         

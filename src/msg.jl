@@ -1,5 +1,7 @@
 import Base.show
 
+export Msg, msg_pub, msg_reply, send_status, send_ipython
+
 # IPython message structure
 type Msg
     idents::Vector{String}
@@ -82,3 +84,26 @@ function recv_ipython(socket)
     return m
 end
 
+function send_status(state::String, parent_header=nothing)
+    if parent_header == nothing
+        msg = Msg(
+            [ "status" ],
+            [ "msg_id" => uuid4(),
+             "username" => "jlkernel",
+             "session" => execute_msg.header["session"],
+             "msg_type" => "status" ],
+            [ "execution_state" => state ]
+        )
+    else
+        msg = Msg(
+            [ "status" ],
+            [ "msg_id" => uuid4(),
+             "username" => "jlkernel",
+             "session" => execute_msg.header["session"],
+             "msg_type" => "status" ],
+            [ "execution_state" => state ],
+            parent_header
+        )
+    end
+    send_ipython(publish, msg)
+end
