@@ -2,20 +2,95 @@
 
 # IJulia
 
-**IJulia** is a [Julia-language](http://julialang.org/) backend combined
-with the [IPython](http://ipython.org/) interactive environment.  This
+**IJulia** is a [Julia-language](http://julialang.org/) backend
+combined with the [IPython](http://ipython.org/) interactive
+environment (soon to be called [Jupyter](http://jupyter.org/)).  This
 combination allows you to interact with the Julia language using
-IPython's powerful [graphical
+Jupyter/IPython's powerful [graphical
 notebook](http://ipython.org/notebook.html), which combines code,
 formatted text, math, and multimedia in a single document
 
-## Tutorial
+## Installation
 
-High-level installation instructions using precompiled binaries, as well as a basic usage tutorial, can be found in these tutorial notes:
+First, [install IPython](http://ipython.org/install.html); you may
+also want some scientific-Python packages (SciPy and Matplotlib).
+The simplest way to do this on Mac and Windows is by [downloading the
+Anaconda package](http://continuum.io/downloads) and running its
+installer.  (Do *not* use Enthought Canopy/EPD.)
 
-* [Julia at MIT](https://github.com/stevengj/julia-mit/blob/master/README.md)
+* **Important**: on Windows, the Anaconda installer window gives options *Add Anaconda to the System Path* and also *Register Anaconda as default Python version of the system*.  Be sure to **check these boxes**.
 
-### Low-level installation info
+Second, [download Julia](http://julialang.org/downloads/) *version 0.2
+or later* and run the installer.  Then run the Julia application
+(double-click on it); a window with a `julia>` prompt will appear.  At
+the prompt, type:
+```
+Pkg.add("IJulia")
+```
+to install IJulia.
+
+### Troubleshooting:
+
+* If you ran into a problem with the above steps, after fixing the 
+problem you can type `Pkg.build()` to try to rerun the install scripts.
+* If you tried it a while ago, try running `Pkg.update()` and try again:
+  this will fetch the latest versions of the Julia packages in case
+  the problem you saw was fixed.  Run `Pkg.build("IJulia")` if your Julia version may have changed.  If this doesn't work, try just deleting the whole `.julia` directory in your home directory (on Windows, it is called `AppData\Roaming\julia\packages` in your home directory) and re-adding the packages.
+* On MacOS, you currently need MacOS 10.7 or later; [MacOS 10.6 doesn't work](https://github.com/JuliaLang/julia/issues/4215) (unless you compile Julia yourself, from source code).
+* If the browser opens the notebook and `1+1` works but basic functions like `sin(3)` don't work, then probably you are running Python and not Julia.  Look in the upper-left corner of the notebook window: if it says **IP[y]: Notebook** then you are running Python.  Probably this was because your `Pkg.add("IJulia")` failed and you ignored the error.
+* Internet Explorer 8 (the default in Windows 7) or 9 don't work with the notebook; use Firefox (6 or later) or Chrome (13 or later).  Internet Explorer 10 in Windows 8 works (albeit with a few rendering glitches), but Chrome or Firefox is better.
+* If the notebook opens up, but doesn't respond (the input label is `In[*]` indefinitely), try running `ipython notebook` (without Julia) to see if `1+1` works in Python.  If it is the same problem, then probably you have a [firewall running](https://github.com/ipython/ipython/issues/2499) on your machine (this is common on Windows) and you need to disable the firewall or at least to allow the IP address 127.0.0.1.  (For the [Sophos](https://en.wikipedia.org/wiki/Sophos) endpoint security software, go to "Configure Anti-Virus and HIPS", select "Authorization" and then "Websites", and add 127.0.0.1 to "Authorized websites"; finally, restart your computer.)
+
+## Running the IJulia Notebook
+
+In Julia, at the `julia>` prompt, you can type
+```
+using IJulia
+notebook()
+```
+to launch the IJulia notebook in your browser.  Alternatively, you can run
+```
+ipython notebook --profile julia
+```
+from the command line (the
+[Terminal](https://en.wikipedia.org/wiki/Terminal_%28OS_X%29) program
+in MacOS or the [Command
+Prompt](https://en.wikipedia.org/wiki/Command_Prompt) in Windows).
+
+A "dashboard" window like this should open in your web browser.  Click
+on the *New Notebook* button to start a new "notebook".  A notebook
+will combine code, computed results, formatted text, and images, just
+as in IPython.  You can enter multiline input cells and execute them
+with *shift-ENTER*, and the menu items are mostly self-explanatory.
+Refer to the [the IPython
+documentation](http://ipython.org/documentation.html) for more
+information.
+
+### Updating Julia and IJulia
+
+Julia is improving rapidly, so it won't be long before you want to
+update to a more recent version.  To update the packages only, keeping
+Julia itself the same, just run:
+```
+Pkg.update()
+```
+at the Julia prompt (or in IJulia).
+
+If you download and install a new version of Julia from the Julia web
+site, you will also probably want to update the packages with
+`Pkg.update()` (in case newer versions of the packages are required
+for the most recent Julia).  In any case, if you install a new Julia
+binary (or do anything that changes the location of Julia on your
+computer), you *must* update the IJulia installation (to tell IPython
+where to find the new Julia) by running
+```
+Pkg.build("IJulia")
+```
+at the Julia command line (not in IJulia).
+
+## Low-level Information
+
+### Manual installation of IPython
 
 First, you will need to install a few prerequisites:
 
@@ -48,7 +123,7 @@ Julia profile for IPython.
 If the command above returns an error, you may need to run `Pkg.update()`, then
 retry it.
 
-## Running IJulia
+### Other IPython interfaces
 
 Given the above, you have three choices:
 
@@ -62,15 +137,10 @@ Given the above, you have three choices:
 
 Please refer to [the IPython documentation](http://ipython.org/documentation.html) for other configuration options.  For example, if you plan to connect the notebook front-end to a Julia kernel running on a different machine (yes, this is possible!), we strongly recommend that you run notebook [over https with a password](http://ipython.org/ipython-doc/stable/interactive/public_server.html#notebook-security).  These configuration settings can go in the file: `~/.ipython/profile_julia/ipython_notebook_config.py`.
 
-## Usage
+### Differences from IPython
 
-Once you have launched IJulia via a notebook or console interface,
-usage is straightforward and is similar to IPython. You can enter
-multiline input cells and execute them with shift-ENTER, and the menu
-items are mostly self-explanatory.  Refer to the IPython documentation
-for more information.
-
-(One difference from IPython is that the IJulia kernel currently does
-not support "magics", which are special commands prefixed with `%` or `%%`
-to execute code in a different language.  This and other features are
-under consideration in the [IJulia issues](https://github.com/JuliaLang/IJulia.jl/issues) list.)
+One difference from IPython is that the IJulia kernel currently does
+not support "magics", which are special commands prefixed with `%` or
+`%%` to execute code in a different language.  This and other features
+are under consideration in the [IJulia
+issues](https://github.com/JuliaLang/IJulia.jl/issues) list.
