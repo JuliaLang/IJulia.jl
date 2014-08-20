@@ -9,11 +9,6 @@ IPython's powerful [graphical
 notebook](http://ipython.org/notebook.html), which combines code,
 formatted text, math, and multimedia in a single document
 
-(This package also includes a prototype Python module to call Julia
-from Python, including
-["magics"](http://ipython.org/ipython-doc/dev/interactive/tutorial.html)
-to call Julia code from within a Python session in IPython.)
-
 ## Tutorial
 
 High-level installation instructions using precompiled binaries, as well as a basic usage tutorial, can be found in these tutorial notes:
