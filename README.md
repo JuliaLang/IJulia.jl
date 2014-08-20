@@ -41,6 +41,28 @@ problem you can type `Pkg.build()` to try to rerun the install scripts.
 * Internet Explorer 8 (the default in Windows 7) or 9 don't work with the notebook; use Firefox (6 or later) or Chrome (13 or later).  Internet Explorer 10 in Windows 8 works (albeit with a few rendering glitches), but Chrome or Firefox is better.
 * If the notebook opens up, but doesn't respond (the input label is `In[*]` indefinitely), try running `ipython notebook` (without Julia) to see if `1+1` works in Python.  If it is the same problem, then probably you have a [firewall running](https://github.com/ipython/ipython/issues/2499) on your machine (this is common on Windows) and you need to disable the firewall or at least to allow the IP address 127.0.0.1.  (For the [Sophos](https://en.wikipedia.org/wiki/Sophos) endpoint security software, go to "Configure Anti-Virus and HIPS", select "Authorization" and then "Websites", and add 127.0.0.1 to "Authorized websites"; finally, restart your computer.)
 
+## Updating Julia and IJulia
+
+Julia is improving rapidly, so it won't be long before you want to
+update to a more recent version.  To update the packages only, keeping
+Julia itself the same, just run:
+```
+Pkg.update()
+```
+at the Julia prompt (or in IJulia).
+
+If you download and install a new version of Julia from the Julia web
+site, you will also probably want to update the packages with
+`Pkg.update()` (in case newer versions of the packages are required
+for the most recent Julia).  In any case, if you install a new Julia
+binary (or do anything that changes the location of Julia on your
+computer), you *must* update the IJulia installation (to tell IPython
+where to find the new Julia) by running
+```
+Pkg.build("IJulia")
+```
+at the Julia command line (not in IJulia).
+
 ## Running the IJulia Notebook
 
 In Julia, at the `julia>` prompt, you can type
@@ -65,28 +87,6 @@ with *shift-ENTER*, and the menu items are mostly self-explanatory.
 Refer to the [the IPython
 documentation](http://ipython.org/documentation.html) for more
 information.
-
-### Updating Julia and IJulia
-
-Julia is improving rapidly, so it won't be long before you want to
-update to a more recent version.  To update the packages only, keeping
-Julia itself the same, just run:
-```
-Pkg.update()
-```
-at the Julia prompt (or in IJulia).
-
-If you download and install a new version of Julia from the Julia web
-site, you will also probably want to update the packages with
-`Pkg.update()` (in case newer versions of the packages are required
-for the most recent Julia).  In any case, if you install a new Julia
-binary (or do anything that changes the location of Julia on your
-computer), you *must* update the IJulia installation (to tell IPython
-where to find the new Julia) by running
-```
-Pkg.build("IJulia")
-```
-at the Julia command line (not in IJulia).
 
 ## Low-level Information
 
