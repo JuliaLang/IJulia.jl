@@ -55,6 +55,7 @@ function undisplay(x)
     if i > 0
         splice!(displayqueue, i)
     end
+    return x
 end
 
 #######################################################################
