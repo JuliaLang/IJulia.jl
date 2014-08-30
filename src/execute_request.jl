@@ -161,7 +161,7 @@ function execute_request_0x535c5df2(socket, msg)
 
         user_variables = Dict()
         user_expressions = Dict()
-        for v in msg.content["user_variables"]
+        for v in get(msg.content, "user_variables", String[]) # gone in IPy3
             user_variables[v] = eval(Main,parse(v))
         end
         for (v,ex) in msg.content["user_expressions"]
