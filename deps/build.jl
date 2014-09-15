@@ -70,7 +70,7 @@ else
     binary_name = "julia-basic"
 end
 add_config("ipython_config.py", "KernelManager.kernel_cmd",
-           """["$(escape_string(joinpath(JULIA_HOME,(@windows? (VERSION >= v"0.3-"?"julia.exe":"julia.bat"):"$binary_name"))))", "-i", "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""",
+           """["$(escape_string(joinpath(JULIA_HOME,(@windows? (VERSION >= v"0.3-"?"julia.exe":"julia.bat"):"$binary_name"))))", $(VERSION < v"0.3" ? " " : "-i"), "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""",
            true)
 
 # make qtconsole require shift-enter to complete input
