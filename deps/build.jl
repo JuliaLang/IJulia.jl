@@ -47,7 +47,7 @@ c.$s = $val
             eprintln("Adding $s = $val to $prof...")
             open(p, "a") do f
                 print(f, """
-        
+
 c.$s = $val
 """)
             end
@@ -70,7 +70,9 @@ else
     binary_name = "julia-basic"
 end
 add_config("ipython_config.py", "KernelManager.kernel_cmd",
-           """["$(escape_string(joinpath(JULIA_HOME,(@windows? (VERSION >= v"0.3-"?"julia.exe":"julia.bat"):"$binary_name"))))", "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""",
+           VERSION >= v"0.3"?
+            """["$(escape_string(joinpath(JULIA_HOME,(@windows? "julia.exe":"$binary_name"))))", "-i", "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""":
+            """["$(escape_string(joinpath(JULIA_HOME,(@windows? "julia.bat":"$binary_name"))))", "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]""",
            true)
 
 # make qtconsole require shift-enter to complete input
@@ -88,7 +90,7 @@ add_config("ipython_notebook_config.py", "NotebookApp.port", 8998)
 # the files of the same name in IPython.
 
 rb(filename::String) = open(readbytes, filename)
-eqb(a::Vector{Uint8}, b::Vector{Uint8}) = 
+eqb(a::Vector{Uint8}, b::Vector{Uint8}) =
     length(a) == length(b) && all(a .== b)
 
 # copy IJulia/deps/src to destpath/destname if it doesn't
