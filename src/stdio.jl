@@ -23,7 +23,7 @@ function send_stream(s::String, name::String)
     if !isempty(s)
         send_ipython(publish,
                      msg_pub(execute_msg, "stream",
-                             ["name" => name, "data" => s]))
+                             @Compat.Dict("name" => name, "data" => s)))
     end
 end
 
@@ -63,7 +63,7 @@ function readline(io::Base.Pipe)
         end
         send_ipython(raw_input,
                      msg_reply(execute_msg, "input_request",
-                               ["prompt" => "STDIN> "]))
+                               @Compat.Dict("prompt" => "STDIN> ")))
         while true
             msg = recv_ipython(raw_input)
             if msg.header["msg_type"] == "input_reply"

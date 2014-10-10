@@ -12,30 +12,30 @@ function complete_request(socket, msg)
     if sizeof(text) > length(positions)
         comps = [line[(cursorpos-sizeof(text)+1):(cursorpos-length(positions))]*s for s in comps]
     end
-    send_ipython(requests, msg_reply(msg, "complete_reply", [
+    send_ipython(requests, msg_reply(msg, "complete_reply", @Compat.Dict(
         "status" => "ok",
         "matches" => comps,
-        "matched_text" => line[positions],
-    ]))
+        "matched_text" => line[positions]
+    )))
 end
 
 function kernel_info_request(socket, msg)
     send_ipython(requests,
                  msg_reply(msg, "kernel_info_reply",
-                           ["protocol_version" => [4, 0],
+                           @Compat.Dict("protocol_version" => [4, 0],
                             "language_version" => [VERSION.major,
                                                    VERSION.minor,
                                                    VERSION.patch],
-                            "language" => "julia" ]))
+                            "language" => "julia")))
 end
 
 function connect_request(socket, msg)
     send_ipython(requests,
                  msg_reply(msg, "connect_reply",
-                           ["shell_port" => profile["shell_port"],
+                           @Compat.Dict("shell_port" => profile["shell_port"],
                             "iopub_port" => profile["iopub_port"],
                             "stdin_port" => profile["stdin_port"],
-                            "hb_port" => profile["hb_port"]]))
+                            "hb_port" => profile["hb_port"])))
 end
 
 function shutdown_request(socket, msg)
@@ -52,7 +52,7 @@ function object_info_request(socket, msg)
     try
         s = parse(msg.content["oname"])
         o = eval(Main, s)
-        content = ["oname" => msg.content["oname"],
+        content = @Compat.Dict("oname" => msg.content["oname"],
                    "found" => true,
                    "ismagic" => false,
                    "isalias" => false,
@@ -60,7 +60,7 @@ function object_info_request(socket, msg)
                    "type_name" => string(typeof(o)),
                    "base_class" => string(typeof(o).super),
                    "string_form" => get(msg.content,"detail_level",0) == 0 ? 
-                   sprint(16384, show, o) : repr(o) ]
+                   sprint(16384, show, o) : repr(o) )
         if method_exists(length, (typeof(o),))
             content["length"] = length(o)
         end
@@ -69,8 +69,8 @@ function object_info_request(socket, msg)
         @verror_show e catch_backtrace()
         send_ipython(requests,
                      msg_reply(msg, "object_info_reply",
-                               ["oname" => msg.content["oname"],
-                                "found" => false ]))
+                               @Compat.Dict("oname" => msg.content["oname"],
+                                "found" => false)))
     end
 end
 
@@ -79,11 +79,11 @@ function history_request(socket, msg)
     # as requested in ipython/ipython#3806
     send_ipython(requests,
                  msg_reply(msg, "history_reply",
-                           ["history" => []]))
+                           @Compat.Dict("history" => [])))
                              
 end
 
-const handlers = (String=>Function)[
+const handlers = Dict{String,Function}([
     "execute_request" => execute_request_0x535c5df2,
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,
@@ -94,4 +94,4 @@ const handlers = (String=>Function)[
     "comm_open" => comm_open,
     "comm_msg" => comm_msg,
     "comm_close" => comm_close
-]
+])

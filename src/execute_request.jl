@@ -25,8 +25,8 @@ metadata(x) = Dict()
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
-    data = (ASCIIString=>ByteString)[ "text/plain" => 
-                                          sprint(writemime, "text/plain", x) ]
+    data = Dict{ASCIIString,ByteString}([ "text/plain" =>
+                                          sprint(writemime, "text/plain", x) ])
     if mimewritable_(image_svg, x)
         data[string(image_svg)] = stringmime(image_svg, x)
     end
@@ -80,9 +80,9 @@ function pyerr_content(e, msg::String="")
     if !isempty(msg)
         unshift!(tb, msg)
     end
-    ["execution_count" => _n,
+    @Compat.Dict("execution_count" => _n,
      "ename" => ename, "evalue" => evalue,
-     "traceback" => tb]
+     "traceback" => tb)
 end
 
 #######################################################################
@@ -107,7 +107,7 @@ pop_posterror_hook(f::Function) = splice!(posterror_hooks, findfirst(posterror_h
 #######################################################################
 
 # global variable so that display can be done in the correct Msg context
-execute_msg = Msg(["julia"], ["username"=>"julia", "session"=>"????"], Dict())
+execute_msg = Msg(["julia"], @Compat.Dict("username"=>"julia", "session"=>"????"), Dict())
 
 # note: 0x535c5df2 is a random integer to make name collisions in
 # backtrace analysis less likely.
@@ -127,8 +127,8 @@ function execute_request_0x535c5df2(socket, msg)
     end
     send_ipython(publish, 
                  msg_pub(msg, "pyin",
-                         ["execution_count" => _n,
-                          "code" => code]))
+                         @Compat.Dict("execution_count" => _n,
+                                      "code" => code)))
 
     # "; ..." cells are interpreted as shell commands for run
     code = replace(code, r"^\s*;.*$", 
@@ -188,17 +188,18 @@ function execute_request_0x535c5df2(socket, msg)
 
             send_ipython(publish,
                          msg_pub(msg, "pyout",
-                                 ["execution_count" => _n,
+                                 @Compat.Dict("execution_count" => _n,
                                  "metadata" => result_metadata,
-                                 "data" => display_dict(result) ]))
+                                 "data" => display_dict(result))))
         end
         
         send_ipython(requests,
                      msg_reply(msg, "execute_reply",
-                               ["status" => "ok", "execution_count" => _n,
+                               @Compat.Dict(
+                               "status" => "ok", "execution_count" => _n,
                                "payload" => [],
                                "user_variables" => user_variables,
-                                "user_expressions" => user_expressions]))
+                               "user_expressions" => user_expressions)))
     catch e
         try
             # flush pending stdio
