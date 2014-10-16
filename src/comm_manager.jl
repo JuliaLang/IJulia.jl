@@ -1,6 +1,7 @@
 module CommManager
 
 using IJulia
+using Compat
 
 import IJulia: Msg, uuid4, send_ipython, msg_pub
 
@@ -46,8 +47,7 @@ comm_target{target}(comm :: Comm{target}) = target
 function msg_comm(comm::Comm, m::IJulia.Msg, msg_type,
                   data=Dict{String,Any}(),
                   metadata=Dict{String, Any}(); kwargs...)
-    content = ["comm_id"=>comm.id,
-               "data"=>data]
+    content = @compat Dict("comm_id"=>comm.id, "data"=>data)
 
     for (k, v) in kwargs
         content[string(k)] = v
@@ -126,7 +126,7 @@ function comm_close(sock, msg)
         comm = comms[comm_id]
 
         if !haskey(msg.content, "data")
-            msg.content["data"] = {}
+            msg.content["data"] = Dict()
         end
         comm.on_close(msg)
 

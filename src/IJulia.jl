@@ -1,4 +1,5 @@
 module IJulia
+using Compat
 
 # in the IPython front-end, enable verbose output via IJulia.set_verbose()
 verbose = false
@@ -28,7 +29,7 @@ function init(args)
     else
         # generate profile and save
         let port0 = 5678
-            global const profile = (String=>Any)[
+            global const profile = @compat Dict{String=>Any}(
                 "ip" => "127.0.0.1",
                 "transport" => "tcp",
                 "stdin_port" => port0,
@@ -37,7 +38,7 @@ function init(args)
                 "shell_port" => port0+3,
                 "iopub_port" => port0+4,
                 "key" => uuid4()
-            ]
+            )
             fname = "profile-$(getpid()).json"
             println("connect ipython with --existing $(pwd())/$fname")
             open(fname, "w") do f
@@ -124,10 +125,11 @@ function eventloop(socket)
                     send_ipython(publish, 
                                  execute_msg == nothing ?
                                  Msg([ "pyerr" ],
-                                     [ "msg_id" => uuid4(),
-                                     "username" => "jlkernel",
-                                     "session" => uuid4(),
-                                      "msg_type" => "pyerr" ], content) :
+                                     @compat Dict("msg_id" => uuid4(),
+                                                  "username" => "jlkernel",
+                                                  "session" => uuid4(),
+                                                  "msg_type" => "pyerr"),
+                                     content) :
                                  msg_pub(execute_msg, "pyerr", content)) 
                 end
             finally

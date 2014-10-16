@@ -18,9 +18,9 @@ for mime in ipy_mime
         function display(d::InlineDisplay, ::MIME{symbol($mime)}, x)
             send_ipython(publish, 
                          msg_pub(execute_msg, "display_data",
-                                 ["source" => "julia", # optional
+                                 @compat Dict("source" => "julia", # optional
                                   "metadata" => metadata(x), # optional
-                                  "data" => [$mime => stringmime(MIME($mime), x)] ]))
+                                  "data" => [$mime => stringmime(MIME($mime), x)] )))
         end
     end
 end
@@ -34,9 +34,9 @@ function display(d::InlineDisplay, x)
     undisplay(x) # dequeue previous redisplay(x)
     send_ipython(publish, 
                  msg_pub(execute_msg, "display_data",
-                         ["source" => "julia", # optional
-                          "metadata" => metadata(x), # optional
-                          "data" => display_dict(x) ]))
+                         @compat Dict("source" => "julia", # optional
+                                      "metadata" => metadata(x), # optional
+                                      "data" => display_dict(x))))
 end
 
 # we overload redisplay(d, x) to add x to a queue of objects to display,
