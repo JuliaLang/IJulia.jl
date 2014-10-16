@@ -60,17 +60,12 @@ end
 
 #######################################################################
 
-# avoid deprecation warning for change in split API
-if VERSION >= v"0.4-"
-    splitkeep(str, splitter) = split(str, splitter, keep=true)
-else
-    splitkeep(str, splitter) = split(str, splitter, true)
-end
-
 # return the content of a pyerr message for exception e
 function pyerr_content(e, msg::String="")
-    tb = map(utf8, splitkeep(sprint(Base.show_backtrace, :execute_request_0x535c5df2, 
-                                    catch_backtrace(), 1:typemax(Int)), "\n"))
+    tb = map(utf8, @compat(split(sprint(Base.show_backtrace, 
+                                        :execute_request_0x535c5df2, 
+                                        catch_backtrace(), 1:typemax(Int)),
+                                 "\n", keep=true)))
     if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])
         pop!(tb) # don't include include_string in backtrace
     end
