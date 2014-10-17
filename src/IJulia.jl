@@ -95,6 +95,8 @@ function init(args)
     read_stdin, write_stdin = redirect_stdin()
     read_stdout, write_stdout = redirect_stdout()
     read_stderr, write_stderr = redirect_stderr()
+    start_reading(read_stdout)
+    start_reading(read_stderr)
 
     send_status("starting")
     global inited = true
