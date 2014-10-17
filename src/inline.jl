@@ -1,6 +1,6 @@
 module IPythonDisplay
 
-using IJulia
+using IJulia, Compat
 import IJulia: send_ipython, publish, msg_pub, execute_msg,
                metadata, display_dict, displayqueue, undisplay
 

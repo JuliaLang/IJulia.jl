@@ -22,18 +22,18 @@ end
 # subscribers currently subscribe to all topics".]
 msg_pub(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
   Msg([ msg_type == "stream" ? content["name"] : msg_type ], 
-      @compat Dict("msg_id" => uuid4(),
+      @compat(Dict("msg_id" => uuid4(),
                    "username" => m.header["username"],
                    "session" => m.header["session"],
-                   "msg_type" => msg_type),
+                   "msg_type" => msg_type)),
       content, m.header, metadata)
 
 msg_reply(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
   Msg(m.idents, 
-      @compat Dict("msg_id" => uuid4(),
+      @compat(Dict("msg_id" => uuid4(),
                    "username" => m.header["username"],
                    "session" => m.header["session"],
-                   "msg_type" => msg_type),
+                   "msg_type" => msg_type)),
       content, m.header, metadata)
 
 function show(io::IO, msg::Msg)

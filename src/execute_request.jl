@@ -25,7 +25,7 @@ metadata(x) = Dict()
 # return a String=>String dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
-    data = @compat Dict{ASCIIString=>ByteString}("text/plain" => 
+    data = @compat Dict{ASCIIString,ByteString}("text/plain" => 
                                         sprint(writemime, "text/plain", x))
     if mimewritable_(image_svg, x)
         data[string(image_svg)] = stringmime(image_svg, x)
@@ -169,8 +169,8 @@ function execute_request_0x535c5df2(socket, msg)
 
 	# flush pending stdio
         flush_cstdio() # flush writes to stdout/stderr by external C code
-	send_stream(takebuf_string(read_stdout.buffer), "stdout")
-	send_stream(takebuf_string(read_stderr.buffer), "stderr")
+        send_stream(read_stdout, "stdout")
+        send_stream(read_stderr, "stderr")
 
         undisplay(result) # dequeue if needed, since we display result in pyout
         display() # flush pending display requests
@@ -199,8 +199,8 @@ function execute_request_0x535c5df2(socket, msg)
         try
             # flush pending stdio
             flush_cstdio() # flush writes to stdout/stderr by external C code
-            send_stream(takebuf_string(read_stdout.buffer), "stdout")
-            send_stream(takebuf_string(read_stderr.buffer), "stderr")
+            send_stream(read_stdout, "stdout")
+            send_stream(read_stderr, "stderr")
             for hook in posterror_hooks
                 hook()
             end

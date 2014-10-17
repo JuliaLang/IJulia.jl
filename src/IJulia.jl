@@ -7,6 +7,9 @@ function set_verbose(v=true)
     global verbose::Bool = v
 end
 
+# set this to false for debugging, to disable stderr redirection
+const capture_stderr = true
+
 using ZMQ
 using JSON
 using Nettle
@@ -29,7 +32,7 @@ function init(args)
     else
         # generate profile and save
         let port0 = 5678
-            global const profile = @compat Dict{String=>Any}(
+            global const profile = @compat Dict{String,Any}(
                 "ip" => "127.0.0.1",
                 "transport" => "tcp",
                 "stdin_port" => port0,
@@ -95,7 +98,11 @@ function init(args)
     global write_stderr
     read_stdin, write_stdin = redirect_stdin()
     read_stdout, write_stdout = redirect_stdout()
-    read_stderr, write_stderr = redirect_stderr()
+    if capture_stderr
+        read_stderr, write_stderr = redirect_stderr()
+    else
+        read_stderr, write_stderr = IOBuffer(), IOBuffer()
+    end
 
     send_status("starting")
     global inited = true
@@ -125,10 +132,10 @@ function eventloop(socket)
                     send_ipython(publish, 
                                  execute_msg == nothing ?
                                  Msg([ "pyerr" ],
-                                     @compat Dict("msg_id" => uuid4(),
+                                     @compat(Dict("msg_id" => uuid4(),
                                                   "username" => "jlkernel",
                                                   "session" => uuid4(),
-                                                  "msg_type" => "pyerr"),
+                                                  "msg_type" => "pyerr")),
                                      content) :
                                  msg_pub(execute_msg, "pyerr", content)) 
                 end
