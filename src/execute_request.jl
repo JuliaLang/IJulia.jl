@@ -208,8 +208,13 @@ function execute_request_0x535c5df2(socket, msg)
         try
             # flush pending stdio
             flush_cstdio() # flush writes to stdout/stderr by external C code
-            send_stream(takebuf_string(read_stdout.buffer), "stdout")
-            send_stream(takebuf_string(read_stderr.buffer), "stderr")
+            sleep(0.05)
+            if nb_available(read_stdout)>0
+                send_stream(readavailable(read_stdout), "stdout")
+            end
+            if nb_available(read_stderr)>0
+                send_stream(readavailable(read_stderr), "stderr")
+            end
             for hook in posterror_hooks
                 hook()
             end
