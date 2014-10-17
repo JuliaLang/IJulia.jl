@@ -196,6 +196,16 @@ function execute_request_0x535c5df2(socket, msg)
                                  ["execution_count" => _n,
                                  "metadata" => result_metadata,
                                  "data" => display_dict(result) ]))
+
+            flush_cstdio() # flush writes to stdout/stderr by external C code
+            sleep(0.05)
+            if nb_available(read_stdout)>0
+                send_stream(readavailable(read_stdout), "stdout")
+            end
+            if nb_available(read_stderr)>0
+                send_stream(readavailable(read_stderr), "stderr")
+            end
+
         end
         
         send_ipython(requests,
