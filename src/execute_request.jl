@@ -169,6 +169,7 @@ function execute_request_0x535c5df2(socket, msg)
 
 	# flush pending stdio
         flush_cstdio() # flush writes to stdout/stderr by external C code
+        yield()
         send_stream(read_stdout, "stdout")
         send_stream(read_stderr, "stderr")
 
@@ -186,6 +187,11 @@ function execute_request_0x535c5df2(socket, msg)
                                  @compat Dict("execution_count" => _n,
                                               "metadata" => result_metadata,
                                               "data" => display_dict(result))))
+            
+            flush_cstdio() # flush writes to stdout/stderr by external C code
+            yield()
+            send_stream(read_stdout, "stdout")
+            send_stream(read_stderr, "stderr")
         end
         
         send_ipython(requests,
@@ -199,6 +205,7 @@ function execute_request_0x535c5df2(socket, msg)
         try
             # flush pending stdio
             flush_cstdio() # flush writes to stdout/stderr by external C code
+            yield()
             send_stream(read_stdout, "stdout")
             send_stream(read_stderr, "stderr")
             for hook in posterror_hooks
