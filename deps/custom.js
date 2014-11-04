@@ -49,7 +49,9 @@
 // end of IPython unmodified version 
 
 
-$([IPython.events]).on('notebook_loaded.Notebook', function(){
+// loadmode param needed for requireMode later
+var do_config = function(events, IPython, CodeMirror, loadmode){
+events.on('notebook_loaded.Notebook', function(){
     // add here logic that should be run once per **notebook load**
     // (!= page load), like restarting a checkpoint
 
@@ -63,7 +65,7 @@ $([IPython.events]).on('notebook_loaded.Notebook', function(){
 });
 
 
-$([IPython.events]).on('app_initialized.NotebookApp', function(){
+events.on('app_initialized.NotebookApp', function(){
     // add here logic that shoudl be run once per **page load**
     // like adding specific UI for Julia, or changing the default value
     // of codecell highlight to a julia one if availlable.
@@ -74,11 +76,15 @@ $([IPython.events]).on('app_initialized.NotebookApp', function(){
     // hopefully it will be directly included in codemirror itself
     // for future releases.
     IPython.CodeCell.options_default['cm_config']['mode'] = 'julia';
+    console.log('settin defualt mode', IPython.CodeCell.options_default['cm_config'])
 
     CodeMirror.requireMode('julia', function(){
-        cells = IPython.notebook.get_cells();
+        var cells = IPython.notebook.get_cells();
+        console.log('got cells', cells)
         for(var i in cells){
             c = cells[i];
+            console.log('looping cells')
+            c.code_mirror.setOption('mode','julia')
             if (c.cell_type === 'code'){
                 c.auto_highlight()
             }
@@ -89,7 +95,23 @@ $([IPython.events]).on('app_initialized.NotebookApp', function(){
     IPython.Tooltip.last_token_re = /[a-z_][0-9a-z._!]*$/gi;
 });
 
+}
 
+if(typeof(IPython) !== 'undefined' || typeof(CodeMirror) !== 'undefined' ){
+    console.log('using modern require call');
+    require(['base/js/events',
+            'base/js/namespace',
+            'codemirror/lib/codemirror',
+            'codemirror/addon/mode/loadmode',
+            'codemirror/mode/julia/julia'], do_config)
+} else {
+    console.log('using old sync call');
+    do_config($(IPython.events), IPython, CodeMirror)
+}
+
+
+// IPython might not be yet defined in 3.0 and above.
+var IPython = IPython || {};
 // This is a copy of tooltip.js from 1.x of ipython. It will conflict with later
 // ipython versions but is included here to support ! in identifier names for tooltips
 if (parseInt(IPython.version[0]) <= 1) { 
