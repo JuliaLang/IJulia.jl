@@ -10,7 +10,7 @@ export Comm, comm_target, msg_comm, send_comm, close_comm,
 
 
 type Comm{target}
-    id::String
+    id::AbstractString
     primary::Bool
     on_msg::Function
     on_close::Function
@@ -24,7 +24,7 @@ end
 # This dict holds a map from CommID to Comm so that we can
 # pick out the right Comm object when messages arrive
 # from the front-end.
-const comms = Dict{String, Comm}()
+const comms = Dict{AbstractString, Comm}()
 
 noop_callback(msg) = nothing
 function Comm(target,
@@ -46,8 +46,8 @@ end
 comm_target{target}(comm :: Comm{target}) = target
 
 function msg_comm(comm::Comm, m::IJulia.Msg, msg_type,
-                  data=Dict{String,Any}(),
-                  metadata=Dict{String, Any}(); kwargs...)
+                  data=Dict{AbstractString,Any}(),
+                  metadata=Dict{AbstractString, Any}(); kwargs...)
     content = @compat Dict("comm_id"=>comm.id, "data"=>data)
 
     for (k, v) in kwargs

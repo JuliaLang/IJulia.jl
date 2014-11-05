@@ -32,7 +32,7 @@ function init(args)
     else
         # generate profile and save
         let port0 = 5678
-            global const profile = @compat Dict{String,Any}(
+            global const profile = @compat Dict{AbstractString,Any}(
                 "ip" => "127.0.0.1",
                 "transport" => "tcp",
                 "stdin_port" => port0,

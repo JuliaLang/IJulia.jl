@@ -84,7 +84,7 @@ function history_request(socket, msg)
                              
 end
 
-const handlers = @compat(Dict{String,Function}(
+const handlers = @compat(Dict{AbstractString,Function}(
     "execute_request" => execute_request_0x535c5df2,
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,

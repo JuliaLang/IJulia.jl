@@ -19,7 +19,7 @@ macro verror_show(e, bt)
     end
 end
 
-function send_stream(rd::IO, name::String)
+function send_stream(rd::IO, name::AbstractString)
     nb = nb_available(rd)
     if nb > 0
         d = readbytes(rd, nb)
@@ -35,7 +35,7 @@ function send_stream(rd::IO, name::String)
     end
 end
 
-function watch_stream(rd::IO, name::String)
+function watch_stream(rd::IO, name::AbstractString)
     try
         while !eof(rd) # blocks until something is available
             send_stream(rd, name)

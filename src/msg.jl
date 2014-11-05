@@ -4,13 +4,13 @@ export Msg, msg_pub, msg_reply, send_status, send_ipython
 
 # IPython message structure
 type Msg
-    idents::Vector{String}
+    idents::Vector{AbstractString}
     header::Dict
     content::Dict
     parent_header::Dict
     metadata::Dict
     function Msg(idents, header::Dict, content::Dict,
-                 parent_header=Dict{String,Any}(), metadata=Dict{String,Any}())
+                 parent_header=Dict{AbstractString,Any}(), metadata=Dict{AbstractString,Any}())
         new(idents,header,content,parent_header,metadata)
     end
 end
@@ -20,7 +20,7 @@ end
 # [According to minrk, "this isn't well defined, or even really part
 # of the spec yet" and is in practice currently ignored since "all
 # subscribers currently subscribe to all topics".]
-msg_pub(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
+msg_pub(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
   Msg([ msg_type == "stream" ? content["name"] : msg_type ], 
       @compat(Dict("msg_id" => uuid4(),
                    "username" => m.header["username"],
@@ -28,7 +28,7 @@ msg_pub(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
                    "msg_type" => msg_type)),
       content, m.header, metadata)
 
-msg_reply(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
+msg_reply(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
   Msg(m.idents, 
       @compat(Dict("msg_id" => uuid4(),
                    "username" => m.header["username"],
@@ -61,7 +61,7 @@ end
 
 function recv_ipython(socket)
     msg = recv(socket)
-    idents = String[]
+    idents = AbstractString[]
     s = bytestring(msg)
     @vprintln("got msg part $s")
     while s != "<IDS|MSG>"
@@ -71,7 +71,7 @@ function recv_ipython(socket)
         @vprintln("got msg part $s")
     end
     signature = bytestring(recv(socket))
-    request = Dict{String,Any}()
+    request = Dict{AbstractString,Any}()
     header = bytestring(recv(socket))
     parent_header = bytestring(recv(socket))
     metadata = bytestring(recv(socket))
@@ -84,7 +84,7 @@ function recv_ipython(socket)
     return m
 end
 
-function send_status(state::String, parent_header=nothing)
+function send_status(state::AbstractString, parent_header=nothing)
     if parent_header == nothing
         msg = Msg(
                   [ "status" ],

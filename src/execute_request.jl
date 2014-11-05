@@ -12,17 +12,17 @@ const text_latex = MIME("text/latex") # IPython expects this
 const text_latex2 = MIME("application/x-latex") # but this is more standard?
 
 # backwards compatibility with old mimewritable API
-if method_exists(mimewritable, (String,Any))
+if method_exists(mimewritable, (AbstractString,Any))
     mimewritable_(mime, x) = mimewritable(mime, x)
 else
     mimewritable_(mime, x) = mimewritable(mime, typeof(x))
 end
 
-# return a String=>Any dictionary to attach as metadata
+# return a AbstractString=>Any dictionary to attach as metadata
 # in IPython display_data and pyout messages
 metadata(x) = Dict()
 
-# return a String=>String dictionary of mimetype=>data for passing to
+# return a AbstractString=>AbstractString dictionary of mimetype=>data for passing to
 # IPython display_data and pyout messages.
 function display_dict(x)
     data = @compat Dict{ASCIIString,ByteString}("text/plain" => 
@@ -61,7 +61,7 @@ end
 #######################################################################
 
 # return the content of a pyerr message for exception e
-function pyerr_content(e, msg::String="")
+function pyerr_content(e, msg::AbstractString="")
     tb = map(utf8, @compat(split(sprint(Base.show_backtrace, 
                                         :execute_request_0x535c5df2, 
                                         catch_backtrace(), 1:typemax(Int)),
@@ -156,7 +156,7 @@ function execute_request_0x535c5df2(socket, msg)
 
         user_variables = Dict()
         user_expressions = Dict()
-        for v in get(msg.content, "user_variables", String[]) # gone in IPy3
+        for v in get(msg.content, "user_variables", AbstractString[]) # gone in IPy3
             user_variables[v] = eval(Main,parse(v))
         end
         for (v,ex) in msg.content["user_expressions"]
