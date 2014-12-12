@@ -70,7 +70,11 @@ function pyerr_content(e, msg::AbstractString="")
         pop!(tb) # don't include include_string in backtrace
     end
     ename = string(typeof(e))
-    evalue = sprint(showerror, e)
+    evalue = try
+        sprint(showerror, e)
+    catch
+        "SYSTEM: show(lasterr) caused an error"
+    end
     unshift!(tb, evalue) # fperez says this needs to be in traceback too
     if !isempty(msg)
         unshift!(tb, msg)
