@@ -78,7 +78,7 @@ if VERSION >= v"0.3"
     push!(kernelcmd_array,"-i")
 end
 
-push!(kernelcmd_array, ["-F", escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")), "{connection_file}"]...)
+append!(kernelcmd_array, ["-F", escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")), "{connection_file}"])
 
 
 
@@ -171,8 +171,8 @@ if ipyvers >= v"3.0-"
     open(dest, "w") do f
         write(f, JSON.json(ks))
     end
-    copy_config("logo-32x32.png", juliakspec; overwrite=true)
-    copy_config("logo-64x64.png", juliakspec; overwrite=true)
+    copy_config("logo-32x32.png", juliakspec)
+    copy_config("logo-64x64.png", juliakspec)
 else
     eprintln("Found IPython version $ipyvers ... skipping kernelspec.")
 end
