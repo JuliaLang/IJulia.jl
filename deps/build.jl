@@ -27,7 +27,7 @@ juliaprof = chomp(readall(`$ipython locate profile julia`))
 
 # set c.$s in prof file to val, or nothing if it is already set
 # unless overwrite is true
-function add_config(prof::String, s::String, val, overwrite=false)
+function add_config(prof::String, s::String, val; overwrite::Bool=false)
     p = joinpath(juliaprof, prof)
     r = Regex(string("^[ \\t]*c\\.", replace(s, r"\.", "\\."), "\\s*=.*\$"), "m")
     if isfile(p)
@@ -109,7 +109,7 @@ eqb(a::Vector{Uint8}, b::Vector{Uint8}) =
 # copy IJulia/deps/src to destpath/destname if it doesn't
 # already exist at the destination, or if it has changed (if overwrite=true).
 function copy_config(src::String, destpath::String,
-                     destname::String=src; overwrite=true)
+                     destname::String=src; overwrite::Bool=true)
     mkpath(destpath)
     dest = joinpath(destpath, destname)
     srcbytes = rb(joinpath(Pkg.dir("IJulia"), "deps", src))
