@@ -2,6 +2,7 @@
 
 #######################################################################
 import JSON
+using Compat
 
 # print to stderr, since that is where Pkg prints its messages
 eprintln(x...) = println(STDERR, x...)
@@ -66,14 +67,20 @@ end
 
 # add Julia kernel manager if we don't have one yet
 if VERSION >= v"0.3-"
-    binary_name = "julia"
+    binary_name = @windows? "julia.exe":"julia"
 else
-    binary_name = "julia-basic"
+    binary_name = @windows? "julia.bat":"julia-basic"
 end
 
-kernelcmd_array = VERSION >= v"0.3"?
-            ["$(escape_string(joinpath(JULIA_HOME,(@windows? "julia.exe":"$binary_name"))))", "-i", "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]:
-            ["$(escape_string(joinpath(JULIA_HOME,(@windows? "julia.bat":"$binary_name"))))", "-F", "$(escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")))", "{connection_file}"]
+kernelcmd_array = [escape_string(joinpath(JULIA_HOME,("$binary_name")))]
+
+if VERSION >= v"0.3"
+    push!(kernelcmd_array,"-i")
+end
+
+push!(kernelcmd_array, ["-F", escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")), "{connection_file}"]...)
+
+
 
 kernelcmd = JSON.json(kernelcmd_array)
 
@@ -102,7 +109,7 @@ eqb(a::Vector{Uint8}, b::Vector{Uint8}) =
 # copy IJulia/deps/src to destpath/destname if it doesn't
 # already exist at the destination, or if it has changed (if overwrite=true).
 function copy_config(src::String, destpath::String,
-                     destname::String=src, overwrite=true)
+                     destname::String=src; overwrite=true)
     mkpath(destpath)
     dest = joinpath(destpath, destname)
     srcbytes = rb(joinpath(Pkg.dir("IJulia"), "deps", src))
@@ -149,10 +156,10 @@ if ipyvers >= v"3.0-"
     eprintln("Found IPython version $ipyvers ... installing kernelspec.")
 
     juliakspec = joinpath(chomp(readall(`$ipython locate`)),"kernels","julia")
-    ks = [
+    ks = @compat Dict(
         "argv" => kernelcmd_array,
         "display_name" => "Julia "*string(VERSION),
-    ]
+    )
 
     destname = "kernel.json"
     mkpath(juliakspec)
@@ -164,8 +171,8 @@ if ipyvers >= v"3.0-"
     open(dest, "w") do f
         write(f, JSON.json(ks))
     end
-    copy_config("logo-32x32.png", juliakspec)
-    copy_config("logo-64x64.png", juliakspec)
+    copy_config("logo-32x32.png", juliakspec; overwrite=true)
+    copy_config("logo-64x64.png", juliakspec; overwrite=true)
 else
     eprintln("Found IPython version $ipyvers ... skipping kernelspec.")
 end
