@@ -18,7 +18,7 @@ export clear_history # user-visible in IJulia
 
 function clear_history(indices)
     for n in indices
-        delete!(In, n, nothing)
+        delete!(In, n)
         if haskey(Out, n)
             delete!(Out, n)
             # no way to undefine _{n} variable, but we can set it to nothing
