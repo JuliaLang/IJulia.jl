@@ -108,6 +108,12 @@ pop_posterror_hook(f::Function) = splice!(posterror_hooks, findfirst(posterror_h
 # global variable so that display can be done in the correct Msg context
 execute_msg = Msg(["julia"], @compat(Dict("username"=>"julia", "session"=>"????")), Dict())
 
+if VERSION >= v"0.4.0-dev+1853"
+    # in Julia commit edbfd4053ccd2970789931ad56dc336c8dd7f029,
+    # repl_cmd(cmd) was replaced by repl_cmd(cmd, out); just add the old method
+    Base.repl_cmd(cmd) = Base.repl_cmd(cmd, STDOUT)
+end
+
 # note: 0x535c5df2 is a random integer to make name collisions in
 # backtrace analysis less likely.
 function execute_request_0x535c5df2(socket, msg)
