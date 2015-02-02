@@ -120,7 +120,7 @@ function execute_request_0x535c5df2(socket, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
     global execute_msg = msg
-    global _n, In, Out, _, __, ___, ans
+    global _n, In, Out, ans
     silent = msg.content["silent"] || ismatch(r";\s*$", code)
 
     # present in spec but missing from notebook's messages:
@@ -151,15 +151,9 @@ function execute_request_0x535c5df2(socket, msg)
         if silent
             result = nothing
         elseif result != nothing
-            ___ = __ # 3rd result from last
-            __ = _ # 2nd result from last
-            _ = result
             if store_history
                 if result != Out # workaround for Julia #3066
                     Out[_n] = result 
-                    # note: don't use result in eval, since things
-                    # get confused if result is a symbol:
-                    eval(Main, :($(symbol(string("_",_n))) = Out[$_n]))
                 end
             end
         end

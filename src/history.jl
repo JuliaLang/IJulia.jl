@@ -1,10 +1,10 @@
 #######################################################################
 # History: global In/Out and other exported history variables
-const In = Dict{Integer,UTF8String}()
-const Out = Dict{Integer,Any}()
-_ = __ = __ = ans = nothing
+const In = Dict{Int,UTF8String}()
+const Out = Dict{Int,Any}()
+ans = nothing
 
-export In, Out, _, __, ___
+export In, Out
 # (don't export ans to avoid conflicts from "using IJulia" in ordinary REPL;
 #  ans is imported into Main by kernel.jl)
 
@@ -21,8 +21,6 @@ function clear_history(indices)
         delete!(In, n)
         if haskey(Out, n)
             delete!(Out, n)
-            # no way to undefine _{n} variable, but we can set it to nothing
-            eval(Main, :($(symbol(string("_",n))) = nothing))
         end
     end
 end
@@ -32,9 +30,9 @@ clear_history{T<:Integer}(r::Ranges{T}) =
     invoke(clear_history, (Any,), intersect(r, 1:_n))
 
 function clear_history()
-    clear_history(1:_n)
-    global _, __, ___, ans
-    ans = _ = __ = ___ = nothing
+    empty!(In)
+    empty!(Out)
+    global ans = nothing
 end
 
 #######################################################################
