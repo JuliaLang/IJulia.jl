@@ -76,7 +76,7 @@ events.on('app_initialized.NotebookApp', function(){
     // hopefully it will be directly included in codemirror itself
     // for future releases.
     IPython.CodeCell.options_default['cm_config']['mode'] = 'julia';
-    console.log('settin defualt mode', IPython.CodeCell.options_default['cm_config'])
+    console.log('setting default mode', IPython.CodeCell.options_default['cm_config'])
 
     CodeMirror.requireMode('julia', function(){
         var cells = IPython.notebook.get_cells();
