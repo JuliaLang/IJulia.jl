@@ -1,3 +1,16 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+"use strict";
+
 CodeMirror.defineMode("julia", function(_conf, parserConf) {
   var ERRORCLASS = 'error';
 
@@ -7,8 +20,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
 
   var operators = parserConf.operators || /^\.?[|&^\\%*+\-<>!=\/]=?|\?|~|:|\$|\.[<>]|<<=?|>>>?=?|\.[<>=]=|->?|\/\/|\bin\b/;
   var delimiters = parserConf.delimiters || /^[;,()[\]{}]/;
-  var open_delimiters= /^[(\[{]/;
-  var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*!*/;
+  var identifiers = parserConf.identifiers|| /^[_A-Za-z][_A-Za-z0-9]*!*/;
   var blockOpeners = ["begin", "function", "type", "immutable", "let", "macro", "for", "while", "quote", "if", "else", "elseif", "try", "finally", "catch", "do"];
   var blockClosers = ["end", "else", "elseif", "catch", "finally"];
   var keywordList = ['if', 'else', 'elseif', 'while', 'for', 'begin', 'let', 'end', 'do', 'try', 'catch', 'finally', 'return', 'break', 'continue', 'global', 'local', 'const', 'export', 'import', 'importall', 'using', 'function', 'macro', 'module', 'baremodule', 'type', 'immutable', 'quote', 'typealias', 'abstract', 'bitstype', 'ccall'];
@@ -109,7 +121,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       }
 
     }
-    
+
     if(stream.match(/^=>/)) {
       return 'operator';
     }
@@ -285,3 +297,5 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
 
 
 CodeMirror.defineMIME("text/x-julia", "julia");
+
+});
