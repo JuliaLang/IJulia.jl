@@ -138,7 +138,17 @@ copy_config("ijuliafavicon.ico",
 # custom.js can contain custom js login that will be loaded
 # with the notebook to add info and/or monkey-patch some javascript
 # -- e.g. we use it to add .ipynb metadata that this is a Julia notebook
-copy_config("custom.js", joinpath(juliaprof, "static", "custom"))
+if ipyvers <= v"3.0-"
+  copy_config("custom.js", joinpath(juliaprof, "static", "custom"))
+else
+  # TODO
+  ## upgrade custom.js because old version can prevent notebook
+  ## from loading.
+  ## todo: maybe do not copy if don't exist.
+  ## todo: maybe remove if user custom.js is identical to the one
+  ## shiped with IJulia ?
+  copy_config("custom.js", joinpath(juliaprof, "static", "custom"))
+end
 
 # julia.js implements a CodeMirror mode for Julia syntax highlighting in the notebook.
 # Eventually this will ship with CodeMirror and hence IPython, but for now we manually bundle it.
@@ -155,10 +165,13 @@ end
 if ipyvers >= v"3.0-"
     eprintln("Found IPython version $ipyvers ... installing kernelspec.")
 
+    # can (should?) install to `/usr/local/share/jupyter/kernels/julia`
+    # or make tmpdir and shell out to `ipython kernelspec install <tempdir>`
     juliakspec = joinpath(chomp(readall(`$ipython locate`)),"kernels","julia")
     ks = @compat Dict(
         "argv" => kernelcmd_array,
         "display_name" => "Julia "*string(VERSION),
+        "language" => "julia",
     )
 
     destname = "kernel.json"
@@ -169,7 +182,8 @@ if ipyvers >= v"3.0-"
     eprintln("Writing IJulia kernelspec to $dest ...")
 
     open(dest, "w") do f
-        write(f, JSON.json(ks))
+        # indent by 2 for readability of file
+        write(f, JSON.json(ks, 2))
     end
     copy_config("logo-32x32.png", juliakspec)
     copy_config("logo-64x64.png", juliakspec)
