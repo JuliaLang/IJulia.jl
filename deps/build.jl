@@ -1,4 +1,4 @@
-# TODO: Build IPython 1.0 dependency? (wait for release?)
+# TODO: Buld IPython 1.0 dependency? (wait for release?)
 
 #######################################################################
 import JSON
@@ -86,7 +86,7 @@ kernelcmd = JSON.json(kernelcmd_array)
 
 add_config("ipython_config.py", "KernelManager.kernel_cmd",
            kernelcmd,
-           true)
+           overwrite=true)
 
 # make qtconsole require shift-enter to complete input
 add_config("ipython_qtconsole_config.py",
