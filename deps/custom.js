@@ -46,53 +46,69 @@
  * @static
  */
 
-// end of IPython unmodified version 
+// end of IPython unmodified version
+
+/************************************/
+/** IPython 2 and earlier versions **/
+/************************************/
+// Note that custom.js shoudl not be needed anymore on IPython 3 and above
+// we still get logics just to run nothing and avoid IPython not loading in the
+// eventual presence of custom.js
+
+if (parseInt(IPython.version[0]) < 3) {
 
 
-$([IPython.events]).on('notebook_loaded.Notebook', function(){
-    // add here logic that should be run once per **notebook load**
-    // (!= page load), like restarting a checkpoint
+    $([IPython.events]).on('notebook_loaded.Notebook', function(){
+        "use strict";
+        // add here logic that should be run once per **notebook load**
+        // (!= page load), like restarting a checkpoint
 
-    var md = IPython.notebook.metadata 
-    if(md.language){
-        console.log('language already defined and is :', md.language);
-    } else {
-        md.language = 'Julia' ;
-        console.log('add metadata hint that language is julia...');
-    }
-});
-
-
-$([IPython.events]).on('app_initialized.NotebookApp', function(){
-    // add here logic that shoudl be run once per **page load**
-    // like adding specific UI for Julia, or changing the default value
-    // of codecell highlight to a julia one if availlable.
-
-    // this will not work for 1.0, unless julia profile
-    // manually ships julia.js in
-    // <profile dir>/static/components/codemirror/mode/julia/julia.js
-    // hopefully it will be directly included in codemirror itself
-    // for future releases.
-    IPython.CodeCell.options_default['cm_config']['mode'] = 'julia';
-
-    CodeMirror.requireMode('julia', function(){
-        cells = IPython.notebook.get_cells();
-        for(var i in cells){
-            c = cells[i];
-            if (c.cell_type === 'code'){
-                c.auto_highlight()
-            }
+        var md = IPython.notebook.metadata;
+        if(md.language){
+            console.log('language already defined and is :', md.language);
+        } else {
+            md.language = 'Julia' ;
+            console.log('add metadata hint that language is julia...');
         }
-    })
-
-    // handle identifiers ending with ! (this works in ipython 2.x)
-    IPython.Tooltip.last_token_re = /[a-z_][0-9a-z._!]*$/gi;
-});
+    });
 
 
+    $([IPython.events]).on('app_initialized.NotebookApp', function(){
+        "use strict";
+        // add here logic that should be run once per **page load**
+        // like adding specific UI for Julia, or changing the default value
+        // of codecell highlight to a julia one if availlable.
+
+        // this will not work for 1.0, unless julia profile
+        // manually ships julia.js in
+        // <profile dir>/static/components/codemirror/mode/julia/julia.js
+        // hopefully it will be directly included in codemirror itself
+        // for future releases.
+        IPython.CodeCell.options_default['cm_config']['mode'] = 'julia';
+
+        CodeMirror.requireMode('julia', function(){
+            var cells = IPython.notebook.get_cells();
+            for(var i in cells){
+                var c = cells[i];
+                if (c.cell_type === 'code'){
+                    c.auto_highlight();
+                }
+            }
+        });
+
+        // handle identifiers ending with ! (this works in ipython 2.x)
+        IPython.Tooltip.last_token_re = /[a-z_][0-9a-z._!]*$/gi;
+    });
+
+}
+
+
+/************************************/
+/** IPython 1 and earlier versions **/
+/************************************/
 // This is a copy of tooltip.js from 1.x of ipython. It will conflict with later
 // ipython versions but is included here to support ! in identifier names for tooltips
-if (parseInt(IPython.version[0]) <= 1) { 
+if (parseInt(IPython.version[0]) <= 1) {
 
     var IPython = (function (IPython) {
         "use strict";
@@ -453,5 +469,3 @@ if (parseInt(IPython.version[0]) <= 1) {
 
     }(IPython));
 }
-
-
