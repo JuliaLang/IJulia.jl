@@ -141,7 +141,17 @@ function execute_request_0x535c5df2(socket, msg)
                                "`)"), 0)
 
     # a cell beginning with "? ..." is interpreted as a help request
-    code = replace(code, r"^\s*\?", "Base.@help ")
+    helpcode = replace(code, r"^\s*\?", "")
+    if helpcode != code
+        if VERSION < v"0.4.0-dev+2891" # old Base.@help macro
+            code = "Base.@help " * helpcode
+        else # new Base.Docs.@repl macro from julia@08663d4bb05c5b8805a57f46f4feacb07c7f2564
+            code = strip(helpcode)
+            # as in base/REPL.jl, special-case keywords so that they parse
+            code = "Base.Docs.@repl " * (haskey(Docs.keywords, symbol(code)) ?
+                                         ":"*code : code)
+        end
+    end
 
     try 
         for hook in preexecute_hooks
