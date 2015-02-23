@@ -144,7 +144,7 @@ copy_config("ijuliafavicon.ico",
 # notebook from loading.
 # todo: maybe do not copy if don't exist.
 # todo: maybe remove if user custom.js is identical to the one
-# shiped with IJulia ?
+# shipped with IJulia ?
 copy_config("custom.js", joinpath(juliaprof, "static", "custom"))
 
 # julia.js implements a CodeMirror mode for Julia syntax highlighting in the notebook.
@@ -156,11 +156,15 @@ copy_config("julia.js", joinpath(juliaprof, "static", "components", "codemirror"
 #       Part specific to Jupyter/IPython 3.0 and above
 #######################################################################
 
+#Is IJulia being built from a debug build? If so, add "debug" to the description
+debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? " debug" : ""
 
-juliakspec = joinpath(chomp(readall(`$ipython locate`)),"kernels","julia")
+juliakspec = joinpath(chomp(readall(`$ipython locate`)), "kernels", "julia $(VERSION.major).$(VERSION.minor)"*debugdesc)
+
+
 ks = @compat Dict(
     "argv" => kernelcmd_array,
-    "display_name" => "Julia "*string(VERSION),
+    "display_name" => "Julia " * Base.VERSION_STRING * debugdesc,
     "language" => "julia",
 )
 
