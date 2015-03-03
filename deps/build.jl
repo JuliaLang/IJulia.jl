@@ -9,6 +9,58 @@ eprintln(x...) = println(STDERR, x...)
 
 juliaprofiles = Array(String,0)
 
+@windows_only begin
+    ipython_version_to_install = "2.4.1"
+
+    existing_install_tag_filename = normpath(pwd(),"usr","python342-exists")
+    downloadsdir = normpath(pwd(), "downloads")
+    pythonzipfilename = normpath(pwd(), "downloads", "python-3.4.2.zip")
+    pyinstalldir = normpath(pwd(),"usr","python34")
+    pythonexepath = normpath(pwd(),"usr","python34","python.exe")
+    ijuliaprofiledir = normpath(pwd(), "usr", ".ijulia")
+
+    upgrade_private_python = ispath(existing_install_tag_filename)
+
+    if upgrade_private_python
+        rm(existing_install_tag_filename)
+
+        run(`$pythonexepath -m pip install -U pip`)
+        run(`$pythonexepath -m pip install -U ipython[notebook]==$ipython_version_to_install`)
+    else
+        using BinDeps
+
+        if ispath(downloadsdir)
+            rm(downloadsdir, recursive=true)
+        end
+
+        if ispath(normpath(pwd(),"usr"))
+            rm(normpath(pwd(),"usr"), recursive=true)
+        end
+
+        mkdir(downloadsdir)
+
+        run(download_cmd("https://sourceforge.net/projects/minimalportablepython/files/python-3.4.2.zip", "$pythonzipfilename"))
+
+        run(`7z x $pythonzipfilename -y -o$pyinstalldir`)
+
+        run(`$pythonexepath -m ensurepip`)
+        run(`$pythonexepath -m pip install -U pip`)
+
+        run(`$pythonexepath -m pip install ipython[notebook]==$ipython_version_to_install`)
+    end
+
+    if ispath(ijuliaprofiledir)
+        rm(ijuliaprofiledir, recursive=true)
+    end
+
+    run(`$pythonexepath -m IPython profile create --ipython-dir="$ijuliaprofiledir"`)
+
+    internaljuliaprof = chomp(readall(`$pythonexepath -m IPython locate profile --ipython-dir="$ijuliaprofiledir"`))
+    push!(juliaprofiles, internaljuliaprof)
+
+    touch(existing_install_tag_filename)
+end
+
 include("ipython.jl")
 const ipython, ipyvers = find_ipython()
 
