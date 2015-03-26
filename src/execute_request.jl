@@ -2,6 +2,10 @@
 # the core of the IPython protocol: execution of Julia code and
 # returning results.
 
+if VERSION >= v"0.4.0-dev+3844"
+    import Base.Libc: flush_cstdio
+end
+
 #######################################################################
 const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")
