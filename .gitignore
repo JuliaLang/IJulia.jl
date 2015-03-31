@@ -1,3 +1,5 @@
 *.pyc
 *.un~
 /build/
+/deps/downloads
+/deps/usr
