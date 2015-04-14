@@ -7,6 +7,9 @@ using Compat
 # print to stderr, since that is where Pkg prints its messages
 eprintln(x...) = println(STDERR, x...)
 
+# Make sure Python uses UTF-8 output for Unicode paths
+ENV["PYTHONIOENCODING"] = "UTF-8"
+
 include("ipython.jl")
 const ipython, ipyvers = find_ipython()
 
