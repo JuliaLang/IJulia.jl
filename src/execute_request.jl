@@ -15,13 +15,6 @@ const text_html = MIME("text/html")
 const text_latex = MIME("text/latex") # IPython expects this
 const text_latex2 = MIME("application/x-latex") # but this is more standard?
 
-# backwards compatibility with old mimewritable API
-if method_exists(mimewritable, (AbstractString,Any))
-    mimewritable_(mime, x) = mimewritable(mime, x)
-else
-    mimewritable_(mime, x) = mimewritable(mime, typeof(x))
-end
-
 # return a AbstractString=>Any dictionary to attach as metadata
 # in IPython display_data and pyout messages
 metadata(x) = Dict()
@@ -31,20 +24,20 @@ metadata(x) = Dict()
 function display_dict(x)
     data = @compat Dict{ASCIIString,ByteString}("text/plain" => 
                                         sprint(writemime, "text/plain", x))
-    if mimewritable_(image_svg, x)
+    if mimewritable(image_svg, x)
         data[string(image_svg)] = stringmime(image_svg, x)
     end
-    if mimewritable_(image_png, x)
+    if mimewritable(image_png, x)
         data[string(image_png)] = stringmime(image_png, x)
-    elseif mimewritable_(image_jpeg, x) # don't send jpeg if we have png
+    elseif mimewritable(image_jpeg, x) # don't send jpeg if we have png
         data[string(image_jpeg)] = stringmime(image_jpeg, x)
     end
-    if mimewritable_(text_html, x)
+    if mimewritable(text_html, x)
         data[string(text_html)] = stringmime(text_html, x)
     end
-    if mimewritable_(text_latex, x)
+    if mimewritable(text_latex, x)
         data[string(text_latex)] = stringmime(text_latex, x)
-    elseif mimewritable_(text_latex2, x)
+    elseif mimewritable(text_latex2, x)
         data[string(text_latex)] = stringmime(text_latex2, x)
     end
     return data

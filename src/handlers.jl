@@ -62,7 +62,7 @@ function object_info_request(socket, msg)
                                "string_form" => 
                                    get(msg.content,"detail_level",0) == 0 ? 
                                        sprint(16384, show, o) : repr(o))
-        if method_exists(length, (typeof(o),))
+        if method_exists(length, @compat Tuple{typeof(o)})
             content["length"] = length(o)
         end
         send_ipython(requests, msg_reply(msg, "object_info_reply", content))
