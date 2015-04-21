@@ -3,7 +3,7 @@ using Compat
 
 # in the IPython front-end, enable verbose output via IJulia.set_verbose()
 verbose = false
-function set_verbose(v=true)
+function set_verbose(v::Bool=true)
     global verbose::Bool = v
 end
 
