@@ -79,7 +79,9 @@ if VERSION >= v"0.3"
     push!(kernelcmd_array,"-i")
 end
 
-append!(kernelcmd_array, ["-F", escape_string(joinpath(Pkg.dir("IJulia"),"src","kernel.jl")), "{connection_file}"])
+# Can be used by packaging script to set correct system-wise install path
+ijulia_dir = get(ENV, "IJULIA_DIR", Pkg.dir("IJulia"))
+append!(kernelcmd_array, ["-F", escape_string(joinpath(ijulia_dir,"src","kernel.jl")), "{connection_file}"])
 
 
 
