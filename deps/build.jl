@@ -1,5 +1,3 @@
-# TODO: Buld IPython 1.0 dependency? (wait for release?)
-
 #######################################################################
 import JSON
 using Compat
@@ -162,7 +160,7 @@ copy_config("julia.js", joinpath(juliaprof, "static", "components", "codemirror"
 #Is IJulia being built from a debug build? If so, add "debug" to the description
 debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? " debug" : ""
 
-juliakspec = joinpath(chomp(readall(`$ipython locate`)), "kernels", "julia $(VERSION.major).$(VERSION.minor)"*debugdesc)
+juliakspec = joinpath(chomp(readall(`$ipython locate`)), "kernels", "julia-$(VERSION.major).$(VERSION.minor)"*debugdesc)
 
 
 ks = @compat Dict(
