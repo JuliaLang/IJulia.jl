@@ -26,7 +26,7 @@ function clear_history(indices)
 end
 
 # since a range could be huge, intersect it with 1:_n first
-clear_history{T<:Integer}(r::Ranges{T}) =
+clear_history{T<:Integer}(r::Range{T}) =
     invoke(clear_history, (Any,), intersect(r, 1:_n))
 
 function clear_history()
