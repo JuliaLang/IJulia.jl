@@ -21,6 +21,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
   var openers = wordRegexp(blockOpeners);
   var closers = wordRegexp(blockClosers);
   var macro = /^@[_A-Za-z][_A-Za-z0-9]*/;
+  var codepointName = /^:[_A-Za-z][_A-Za-z0-9]*:/;
   var symbol = /^:[_A-Za-z][_A-Za-z0-9]*/;
   var indentInfo = null;
 
@@ -109,7 +110,7 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
       }
 
     }
-    
+
     if(stream.match(/^=>/)) {
       return 'operator';
     }
@@ -153,6 +154,10 @@ CodeMirror.defineMode("julia", function(_conf, parserConf) {
 
     if(stream.match(/^(::)|(<:)/)) {
       return 'operator';
+    }
+
+    if(stream.match(codepointName)) {
+      return null;
     }
 
     // Handle symbols
