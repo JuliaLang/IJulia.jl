@@ -48,17 +48,23 @@ end
 docstring(o) = ""
 docstring(o::Union(Function,DataType)) = sprint(show, methods(o))
 
+function docstring(s::AbstractString, o)
+    d = sprint(help, s)
+    println(orig_STDOUT, s, " => ", d)
+    return startswith(d, "Symbol not found.") ? docstring(o) : d
+end
+
 function object_info_request(socket, msg)
     try
-        s = parse(msg.content["oname"])
-        o = eval(Main, s)
+        s = msg.content["oname"]
+        o = eval(Main, parse(s))
         content = @compat Dict("oname" => msg.content["oname"],
                                "found" => true,
                                "ismagic" => false,
                                "isalias" => false,
-                               "docstring" => docstring(o),
+                               "docstring" => docstring(s, o),
                                "type_name" => string(typeof(o)),
-                               "base_class" => string(typeof(o).super),
+                               "base_class" => string(super(typeof(o))),
                                "string_form" => 
                                    get(msg.content,"detail_level",0) == 0 ? 
                                        sprint(16384, show, o) : repr(o))
