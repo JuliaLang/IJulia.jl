@@ -7,7 +7,7 @@
 # entry point for new thread
 function heartbeat_thread(sock::Ptr{Void})
     ccall((:zmq_device,ZMQ.zmq), Cint, (Cint, Ptr{Void}, Ptr{Void}),
-          2, sock, sock)
+          ZMQ.QUEUE, sock, sock)
     nothing
 end
 
