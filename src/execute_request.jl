@@ -59,16 +59,18 @@ end
 
 # return the content of a pyerr message for exception e
 function pyerr_content(e, msg::AbstractString="")
+    bt = catch_backtrace()
     tb = map(utf8, @compat(split(sprint(Base.show_backtrace, 
                                         :execute_request_0x535c5df2, 
-                                        catch_backtrace(), 1:typemax(Int)),
+                                        bt, 1:typemax(Int)),
                                  "\n", keep=true)))
     if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])
         pop!(tb) # don't include include_string in backtrace
     end
     ename = string(typeof(e))
     evalue = try
-        sprint(showerror, e)
+        sprint(VERSION < v"0.4.0-dev+5252" ? (io, e, bt) -> showerror(io, e) :
+               (io, e, bt) -> showerror(io, e, bt, backtrace=false), e, bt)
     catch
         "SYSTEM: show(lasterr) caused an error"
     end
