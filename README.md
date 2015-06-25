@@ -20,7 +20,7 @@ installer.  (Do *not* use Enthought Canopy/EPD.)
 
 * **Important**: on Windows, the Anaconda installer window gives options *Add Anaconda to the System Path* and also *Register Anaconda as default Python version of the system*.  Be sure to **check these boxes**.
 
-Second, [download Julia](http://julialang.org/downloads/) *version 0.2
+Second, [download Julia](http://julialang.org/downloads/) *version 0.3
 or later* and run the installer.  Then run the Julia application
 (double-click on it); a window with a `julia>` prompt will appear.  At
 the prompt, type:
@@ -120,9 +120,9 @@ the next few weeks or months.  Until then, you may have to
   you will need to install [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download) or 
   [PySide](http://qt-project.org/wiki/Category:LanguageBindings::PySide).
 
-* You need Julia version 0.2 or later.
+* You need Julia version 0.3 or later.
 
-Once IPython 1.0+ and Julia 0.2+ are installed, you can install IJulia from a Julia console by typing:
+Once IPython 1.0+ and Julia 0.3+ are installed, you can install IJulia from a Julia console by typing:
 ```
 Pkg.add("IJulia")
 ```

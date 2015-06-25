@@ -67,17 +67,11 @@ c.$s = $val
 end
 
 # add Julia kernel manager if we don't have one yet
-if VERSION >= v"0.3-"
-    binary_name = @windows? "julia.exe":"julia"
-else
-    binary_name = @windows? "julia.bat":"julia-basic"
-end
+binary_name = @windows? "julia.exe":"julia"
 
 kernelcmd_array = [escape_string(joinpath(JULIA_HOME,("$binary_name")))]
 
-if VERSION >= v"0.3"
-    push!(kernelcmd_array,"-i")
-end
+push!(kernelcmd_array,"-i")
 
 # Can be used by packaging script to set correct system-wise install path
 ijulia_dir = get(ENV, "IJULIA_DIR", Pkg.dir("IJulia"))
