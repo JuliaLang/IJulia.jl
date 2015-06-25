@@ -15,12 +15,6 @@ using JSON
 using Nettle
 include("../deps/ipython.jl")
 
-if isdefined(Base, :REPLCompletions)
-    using Base.REPLCompletions
-else
-    using REPLCompletions
-end
-
 uuid4() = repr(Base.Random.uuid4())
 
 inited = false
@@ -127,17 +121,18 @@ function eventloop(socket)
                 # (Ignore SIGINT since this may just be a user-requested
                 #  kernel interruption to interrupt long calculations.)
                 if !isa(e, InterruptException)
-                    content = pyerr_content(e, "KERNEL EXCEPTION")
+                    content = error_content(e, msg="KERNEL EXCEPTION")
                     map(s -> println(orig_STDERR, s), content["traceback"])
                     send_ipython(publish, 
                                  execute_msg == nothing ?
-                                 Msg([ "pyerr" ],
+                                 Msg([ "error" ],
                                      @compat(Dict("msg_id" => uuid4(),
                                                   "username" => "jlkernel",
                                                   "session" => uuid4(),
-                                                  "msg_type" => "pyerr")),
+                                                  "msg_type" => "error",
+                                                  "version" => "5.0")),
                                      content) :
-                                 msg_pub(execute_msg, "pyerr", content)) 
+                                 msg_pub(execute_msg, "error", content)) 
                 end
             finally
                 send_status("idle", msg.header)
@@ -174,8 +169,7 @@ end
 export notebook
 function notebook(ipython=find_ipython()[1])
     inited && error("IJulia is already running")
-    run(`$ipython notebook --profile julia`)
+    run(`$ipython notebook`)
 end
 
 end # IJulia
-

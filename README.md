@@ -3,8 +3,8 @@
 # IJulia
 
 **IJulia** is a [Julia-language](http://julialang.org/) backend
-combined with the [IPython](http://ipython.org/) interactive
-environment (soon to be called [Jupyter](http://jupyter.org/)).  This
+combined with the [Jupyter](http://jupyter.org/) interactive
+environment (also used by [IPython](http://ipython.org/)).  This
 combination allows you to interact with the Julia language using
 Jupyter/IPython's powerful [graphical
 notebook](http://ipython.org/notebook.html), which combines code,
@@ -40,6 +40,7 @@ problem you can type `Pkg.build()` to try to rerun the install scripts.
 * If the browser opens the notebook and `1+1` works but basic functions like `sin(3)` don't work, then probably you are running Python and not Julia.  Look in the upper-left corner of the notebook window: if it says **IP[y]: Notebook** then you are running Python.  Probably this was because your `Pkg.add("IJulia")` failed and you ignored the error.
 * Internet Explorer 8 (the default in Windows 7) or 9 don't work with the notebook; use Firefox (6 or later) or Chrome (13 or later).  Internet Explorer 10 in Windows 8 works (albeit with a few rendering glitches), but Chrome or Firefox is better.
 * If the notebook opens up, but doesn't respond (the input label is `In[*]` indefinitely), try running `ipython notebook` (without Julia) to see if `1+1` works in Python.  If it is the same problem, then probably you have a [firewall running](https://github.com/ipython/ipython/issues/2499) on your machine (this is common on Windows) and you need to disable the firewall or at least to allow the IP address 127.0.0.1.  (For the [Sophos](https://en.wikipedia.org/wiki/Sophos) endpoint security software, go to "Configure Anti-Virus and HIPS", select "Authorization" and then "Websites", and add 127.0.0.1 to "Authorized websites"; finally, restart your computer.)
+* Try running `ipython --version` and make sure that it prints `3.0.0` or larger; earlier versions of IPython are no longer supported by IJulia.
 
 ### Updating Julia and IJulia
 
@@ -72,7 +73,7 @@ notebook()
 ```
 to launch the IJulia notebook in your browser.  Alternatively, you can run
 ```
-ipython notebook --profile julia
+ipython notebook
 ```
 from the command line (the
 [Terminal](https://en.wikipedia.org/wiki/Terminal_%28OS_X%29) program
@@ -80,11 +81,11 @@ in MacOS or the [Command
 Prompt](https://en.wikipedia.org/wiki/Command_Prompt) in Windows).
 
 A "dashboard" window like this should open in your web browser.  Click
-on the *New Notebook* button to start a new "notebook".  A notebook
-will combine code, computed results, formatted text, and images, just
-as in IPython.  You can enter multiline input cells and execute them
-with *shift-ENTER*, and the menu items are mostly self-explanatory.
-Refer to the [the IPython
+on the *New* button and choose the *Julia* option to start a new
+"notebook".  A notebook will combine code, computed results, formatted
+text, and images, just as in IPython.  You can enter multiline input
+cells and execute them with *shift-ENTER*, and the menu items are
+mostly self-explanatory.  Refer to the [the IPython
 documentation](http://ipython.org/documentation.html) for more
 information.
 
@@ -103,8 +104,8 @@ which can also be changed within IJulia via `ENV` (e.g. `ENV["LINES"] = 60`).
 
 First, you will need to install a few prerequisites:
 
-* You need **version 1.0** or later of IPython.  Note that IPython 1.0
-was released in August 2013, so the version pre-packaged with operating-system distribution is likely to be too old for
+* You need **version 3.0** or later of IPython.  Note that IPython 3.0
+was released in February 2015, so the version pre-packaged with operating-system distribution is likely to be too old for
 the next few weeks or months.  Until then, you may have to
 [install IPython manually](http://ipython.org/ipython-doc/stable/install/install.html).  On Mac and Windows systems, it is currently easiest to use the [Anaconda Python](http://continuum.io/downloads) installer.
 
@@ -122,29 +123,24 @@ the next few weeks or months.  Until then, you may have to
 
 * You need Julia version 0.3 or later.
 
-Once IPython 1.0+ and Julia 0.3+ are installed, you can install IJulia from a Julia console by typing:
+Once IPython 3.0+ and Julia 0.3+ are installed, you can install IJulia from a Julia console by typing:
 ```
 Pkg.add("IJulia")
 ```
 This will download IJulia and a few other prerequisites, and will set up a
-Julia profile for IPython.
+Julia kernel for IPython.
 
 If the command above returns an error, you may need to run `Pkg.update()`, then
-retry it.
+retry it, or possibly run `Pkg.build("IJulia")` to force a rebuild.
 
-### Other IPython interfaces
+### Other IPython interface
 
-Given the above, you have three choices:
-
-* The richest interface is the [IPython notebook](http://ipython.org/notebook.html), which you can
-  invoke for Julia by: `ipython notebook --profile julia` (a window will open in your web browser).
-
-* A lightweight terminal-like interface that nevertheless supports
-  inline graphics and multiline editing is the [IPython qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html), which you can invoke for Julia by: `ipython qtconsole --profile julia`
-
-* A basic text terminal interface (no graphics) can be invoked for Julia by `ipython console --profile julia`
-
-Please refer to [the IPython documentation](http://ipython.org/documentation.html) for other configuration options.  For example, if you plan to connect the notebook front-end to a Julia kernel running on a different machine (yes, this is possible!), we strongly recommend that you run notebook [over https with a password](http://ipython.org/ipython-doc/stable/interactive/public_server.html#notebook-security).  These configuration settings can go in the file: `~/.ipython/profile_julia/ipython_notebook_config.py`.
+Most people will use the notebook (browser-based) interface, but you
+can also use the IPython
+[qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html)
+or IPython terminal interfaces by running `ipython qtconsole --kernel
+julia-0.3` or `ipython console --kernel julia-0.3`, respectively.
+(Replace `0.3` with whatever major Julia version you are using.)
 
 ### Differences from IPython
 
@@ -161,6 +157,5 @@ died" message), you can modify it to print more descriptive error
 messages to the terminal: edit your `IJulia/src/IJulia.jl` file (in
 your `.julia` package directory) to change the line `verbose = false`
 at the top to `verbose = true` and `const capture_stderr = true` to
-`const capture_stderr = false`.  Then re-run `ipython notebook
---profile julia` from your terminal and look for the error message
-when IJulia dies.
+`const capture_stderr = false`.  Then restart the kernel or open a new
+notebook and look for the error message when IJulia dies

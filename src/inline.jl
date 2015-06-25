@@ -11,7 +11,7 @@ immutable InlineDisplay <: Display end
 
 # supported MIME types for inline display in IPython, in descending order
 # of preference (descending "richness")
-const ipy_mime = [ "text/html", "text/latex", "image/svg+xml", "image/png", "image/jpeg", "text/plain" ]
+const ipy_mime = [ "text/html", "text/latex", "image/svg+xml", "image/png", "image/jpeg", "text/plain", "text/markdown" ]
 
 for mime in ipy_mime
     @eval begin
