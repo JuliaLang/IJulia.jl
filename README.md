@@ -91,6 +91,18 @@ information.
 
 ## Low-level Information
 
+### Using older IPython versions
+
+While we strongly recommend using IPython version 3 or later (note that this
+has nothing to do with whether you use Python version 2 or 3), we recognize
+that in the short term some users may need to continue using IPython 2.x.  You
+can do this by checkout out the `ipython2` branch of the IJulia package:
+
+```
+Pkg.checkout("IJulia", "ipython2")
+Pkg.build("IJulia")
+```
+
 ### Default display size
 
 When Julia displays a large data structure such as a matrix, by default
