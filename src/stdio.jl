@@ -31,7 +31,7 @@ function send_stream(rd::IO, name::AbstractString)
         end
         send_ipython(publish,
                      msg_pub(execute_msg, "stream",
-                             @compat Dict("name" => name, "data" => s)))
+                             @compat Dict("name" => name, "text" => s)))
     end
 end
 
@@ -64,7 +64,7 @@ function readline(io::Base.Pipe)
         end
         send_ipython(raw_input,
                      msg_reply(execute_msg, "input_request",
-                               @compat Dict("prompt" => "STDIN> ")))
+                               @compat Dict("prompt"=>"STDIN> ", "password"=>false)))
         while true
             msg = recv_ipython(raw_input)
             if msg.header["msg_type"] == "input_reply"

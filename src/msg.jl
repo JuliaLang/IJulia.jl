@@ -25,7 +25,8 @@ msg_pub(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
       @compat(Dict("msg_id" => uuid4(),
                    "username" => m.header["username"],
                    "session" => m.header["session"],
-                   "msg_type" => msg_type)),
+                   "msg_type" => msg_type,
+                   "version" => "5.0")),
       content, m.header, metadata)
 
 msg_reply(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
@@ -33,7 +34,8 @@ msg_reply(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
       @compat(Dict("msg_id" => uuid4(),
                    "username" => m.header["username"],
                    "session" => m.header["session"],
-                   "msg_type" => msg_type)),
+                   "msg_type" => msg_type,
+                   "version" => "5.0")),
       content, m.header, metadata)
 
 function show(io::IO, msg::Msg)
@@ -91,7 +93,8 @@ function send_status(state::AbstractString, parent_header=nothing)
                   @compat(Dict("msg_id" => uuid4(),
                                "username" => "jlkernel",
                                "session" => execute_msg.header["session"],
-                               "msg_type" => "status")),
+                               "msg_type" => "status",
+                               "version" => "5.0")),
                   @compat(Dict("execution_state" => state))
         )
     else
@@ -100,7 +103,8 @@ function send_status(state::AbstractString, parent_header=nothing)
                   @compat(Dict("msg_id" => uuid4(),
                                "username" => "jlkernel",
                                "session" => execute_msg.header["session"],
-                               "msg_type" => "status")),
+                               "msg_type" => "status",
+                               "version" => "5.0")),
                   @compat(Dict("execution_state" => state)),
                   parent_header
         )

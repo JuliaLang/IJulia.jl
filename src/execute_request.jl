@@ -11,6 +11,7 @@ const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")
 const image_png = MIME("image/png")
 const image_jpeg = MIME("image/jpeg")
+const text_markdown = MIME("text/markdown")
 const text_html = MIME("text/html")
 const text_latex = MIME("text/latex") # IPython expects this
 const text_latex2 = MIME("application/x-latex") # but this is more standard?
@@ -35,6 +36,9 @@ function display_dict(x)
     if mimewritable(text_html, x)
         data[string(text_html)] = stringmime(text_html, x)
     end
+    if mimewritable(text_markdown, x)
+        data[string(text_markdown)] = stringmime(text_markdown, x)
+    end
     if mimewritable(text_latex, x)
         data[string(text_latex)] = stringmime(text_latex, x)
     elseif mimewritable(text_latex2, x)
@@ -58,10 +62,10 @@ end
 #######################################################################
 
 # return the content of a pyerr message for exception e
-function pyerr_content(e, msg::AbstractString="")
+function error_content(e; backtrace_top::Symbol=:execute_request_0x535c5df2, msg::AbstractString="")
     bt = catch_backtrace()
     tb = map(utf8, @compat(split(sprint(Base.show_backtrace, 
-                                        :execute_request_0x535c5df2, 
+                                        backtrace_top, 
                                         bt, 1:typemax(Int)),
                                  "\n", keep=true)))
     if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])
@@ -78,8 +82,7 @@ function pyerr_content(e, msg::AbstractString="")
     if !isempty(msg)
         unshift!(tb, msg)
     end
-    @compat Dict("execution_count" => _n,
-                 "ename" => ename, "evalue" => evalue,
+    @compat Dict("ename" => ename, "evalue" => evalue,
                  "traceback" => tb)
 end
 
@@ -113,6 +116,17 @@ if VERSION >= v"0.4.0-dev+1853"
     Base.repl_cmd(cmd) = Base.repl_cmd(cmd, STDOUT)
 end
 
+function helpcode(code::AbstractString)
+    if VERSION < v"0.4.0-dev+2891" # old Base.@help macro
+        return "Base.@help " * code
+    else # new Base.Docs.@repl macro from julia@08663d4bb05c5b8805a57f46f4feacb07c7f2564
+        code_ = strip(code)
+        # as in base/REPL.jl, special-case keywords so that they parse
+        return "Base.Docs.@repl " * (haskey(Docs.keywords, symbol(code_)) ?
+                                     ":"*code_ : code_)
+    end
+end
+
 # note: 0x535c5df2 is a random integer to make name collisions in
 # backtrace analysis less likely.
 function execute_request_0x535c5df2(socket, msg)
@@ -120,19 +134,21 @@ function execute_request_0x535c5df2(socket, msg)
     @vprintln("EXECUTING ", code)
     global execute_msg = msg
     global _n, In, Out, ans
-    silent = msg.content["silent"] || ismatch(r";\s*$", code)
-
-    # present in spec but missing from notebook's messages:
+    silent = msg.content["silent"]
     store_history = get(msg.content, "store_history", !silent)
 
-    _n += 1
+    if !silent
+        _n += 1
+        send_ipython(publish, 
+                     msg_pub(msg, "execute_input",
+                             @compat Dict("execution_count" => _n,
+                                          "code" => code)))
+    end
+    
+    silent = silent || ismatch(r";\s*$", code)
     if store_history
         In[_n] = code
     end
-    send_ipython(publish, 
-                 msg_pub(msg, "pyin",
-                         @compat Dict("execution_count" => _n,
-                                      "code" => code)))
 
     # "; ..." cells are interpreted as shell commands for run
     code = replace(code, r"^\s*;.*$", 
@@ -140,16 +156,9 @@ function execute_request_0x535c5df2(socket, msg)
                                "`)"), 0)
 
     # a cell beginning with "? ..." is interpreted as a help request
-    helpcode = replace(code, r"^\s*\?", "")
-    if helpcode != code
-        if VERSION < v"0.4.0-dev+2891" # old Base.@help macro
-            code = "Base.@help " * helpcode
-        else # new Base.Docs.@repl macro from julia@08663d4bb05c5b8805a57f46f4feacb07c7f2564
-            code = strip(helpcode)
-            # as in base/REPL.jl, special-case keywords so that they parse
-            code = "Base.Docs.@repl " * (haskey(Docs.keywords, symbol(code)) ?
-                                         ":"*code : code)
-        end
+    hcode = replace(code, r"^\s*\?", "")
+    if hcode != code
+        code = helpcode(hcode)
     end
 
     try 
@@ -167,11 +176,7 @@ function execute_request_0x535c5df2(socket, msg)
             end
         end
 
-        user_variables = Dict()
         user_expressions = Dict()
-        for v in get(msg.content, "user_variables", AbstractString[]) # gone in IPy3
-            user_variables[v] = eval(Main,parse(v))
-        end
         for (v,ex) in msg.content["user_expressions"]
             user_expressions[v] = eval(Main,parse(ex))
         end
@@ -196,7 +201,7 @@ function execute_request_0x535c5df2(socket, msg)
             result_metadata = invoke(metadata, (typeof(result),), result)
 
             send_ipython(publish,
-                         msg_pub(msg, "pyout",
+                         msg_pub(msg, "execute_result",
                                  @compat Dict("execution_count" => _n,
                                               "metadata" => result_metadata,
                                               "data" => display_dict(result))))
@@ -210,9 +215,8 @@ function execute_request_0x535c5df2(socket, msg)
         send_ipython(requests,
                      msg_reply(msg, "execute_reply",
                                @compat Dict("status" => "ok",
+                                            "payload" => "", # TODO: remove (see #325)
                                             "execution_count" => _n,
-                                            "payload" => [],
-                                            "user_variables" => user_variables,
                                             "user_expressions" => user_expressions)))
     catch e
         try
@@ -227,9 +231,10 @@ function execute_request_0x535c5df2(socket, msg)
         catch
         end
         empty!(displayqueue) # discard pending display requests on an error
-        content = pyerr_content(e)
-        send_ipython(publish, msg_pub(msg, "pyerr", content))
+        content = error_content(e)
+        send_ipython(publish, msg_pub(msg, "error", content))
         content["status"] = "error"
+        content["execution_count"] = _n
         send_ipython(requests, msg_reply(msg, "execute_reply", content))
     end
 end
