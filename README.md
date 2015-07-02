@@ -103,6 +103,21 @@ Pkg.checkout("IJulia", "ipython2")
 Pkg.build("IJulia")
 ```
 
+### Clearing output
+
+Analogous to the [IPython.display.clear_output()](http://ipython.org/ipython-doc/dev/api/generated/IPython.display.html#IPython.display.clear_output) function in IPython, IJulia provides a function:
+
+```
+IJulia.clear_output(wait=false)
+```
+
+to clear the output from the current input cell.  If the optional
+`wait` argument is `true`, then the front-end waits to clear the
+output until new output is available to replace it (to minimize
+flickering).  This is useful to make simple animations, via repeated
+calls to `IJulia.clear_output(true)` followed by calls to
+`display(...)` to display a new animation frame.
+
 ### Default display size
 
 When Julia displays a large data structure such as a matrix, by default
