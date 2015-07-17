@@ -33,11 +33,10 @@ function display_dict(x)
     elseif mimewritable(image_jpeg, x) # don't send jpeg if we have png
         data[string(image_jpeg)] = stringmime(image_jpeg, x)
     end
-    if mimewritable(text_html, x)
-        data[string(text_html)] = stringmime(text_html, x)
-    end
     if mimewritable(text_markdown, x)
         data[string(text_markdown)] = stringmime(text_markdown, x)
+    elseif mimewritable(text_html, x)
+        data[string(text_html)] = stringmime(text_html, x)
     end
     if mimewritable(text_latex, x)
         data[string(text_latex)] = stringmime(text_latex, x)
