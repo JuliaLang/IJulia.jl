@@ -60,10 +60,20 @@ end
 
 #######################################################################
 
+if VERSION < v"0.4.0-dev+6438" # julia PR #12250
+    show_bt(io::IO, top_func::Symbol, t, set) =
+        Base.show_backtrace(io, top_func, t, set)
+else
+    function show_bt(io::IO, top_func::Symbol, t, set)
+        process_entry(lastname, lastfile, lastline, n) = Base.show_trace_entry(io, lastname, lastfile, lastline, n)
+        Base.process_backtrace(process_entry, top_func, t, set)
+    end
+end
+
 # return the content of a pyerr message for exception e
 function error_content(e; backtrace_top::Symbol=:execute_request_0x535c5df2, msg::AbstractString="")
     bt = catch_backtrace()
-    tb = map(utf8, @compat(split(sprint(Base.show_backtrace, 
+    tb = map(utf8, @compat(split(sprint(show_bt,
                                         backtrace_top, 
                                         bt, 1:typemax(Int)),
                                  "\n", keep=true)))
