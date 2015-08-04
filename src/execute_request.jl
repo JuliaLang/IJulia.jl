@@ -60,14 +60,14 @@ end
 
 #######################################################################
 
-if VERSION < v"0.4.0-dev+6438" # julia PR #12250
-    show_bt(io::IO, top_func::Symbol, t, set) =
-        Base.show_backtrace(io, top_func, t, set)
-else
+if v"0.4.0-dev+6438" <= VERSION < v"0.4.0-dev+6492" # julia PR #12250
     function show_bt(io::IO, top_func::Symbol, t, set)
         process_entry(lastname, lastfile, lastline, n) = Base.show_trace_entry(io, lastname, lastfile, lastline, n)
         Base.process_backtrace(process_entry, top_func, t, set)
     end
+else
+    show_bt(io::IO, top_func::Symbol, t, set) =
+        Base.show_backtrace(io, top_func, t, set)
 end
 
 # return the content of a pyerr message for exception e
