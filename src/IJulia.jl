@@ -15,7 +15,20 @@ using JSON
 using Nettle
 include("../deps/ipython.jl")
 
-uuid4() = repr(Base.Random.uuid4())
+# use our own random seed for msg_id so that we
+# don't alter the user-visible random state (issue #336)
+const IJulia_RNG = MersenneTwister()
+function uuid4()
+    # TODO: merge into Julia Base `uuid4` function
+    u = rand(IJulia_RNG, UInt128)
+    u &= 0xffffffffffff0fff3fffffffffffffff
+    u |= 0x00000000000040008000000000000000
+    return repr(Base.Random.UUID(u))
+end
+
+function __init__()
+    srand(IJulia_RNG)
+end
 
 inited = false
 
