@@ -23,7 +23,7 @@ try
     juliaprof = chomp(readall(pipe(`$ipython locate profile julia`,
                                    stderr=DevNull)))
     warn("""You should now run IJulia just via `ipython notebook`, without
-            without the `--profile julia` flag.  IJulia no longer maintains the profile.
+            the `--profile julia` flag.  IJulia no longer maintains the profile.
             Consider deleting $juliaprof""")
 end
 
