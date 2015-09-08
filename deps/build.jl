@@ -9,12 +9,16 @@ eprintln(x...) = println(STDERR, x...)
 ENV["PYTHONIOENCODING"] = "UTF-8"
 
 include("ipython.jl")
-const ipython, ipyvers = find_ipython()
+const command, cmdvers = find_kernelspec_cmd()
 
-if ipyvers < v"3.0"
-    error("IPython 3.0 or later is required for IJulia, got $ipyvers instead")
+if command == "jupyter"
+    eprintln("Found jupyter kernelspec version $cmdvers ... ok.")
 else
-    eprintln("Found IPython version $ipyvers ... ok.")
+    if cmdvers < v"3.0"
+        error("Jupyter or IPython 3.0 or later is required for IJulia, got IPython $cmdvers instead")
+    else
+        eprintln("Found IPython version $cmdvers ... ok.")
+    end
 end
 
 #######################################################################
@@ -22,7 +26,7 @@ end
 try
     juliaprof = chomp(readall(pipe(`$ipython locate profile julia`,
                                    stderr=DevNull)))
-    warn("""You should now run IJulia just via `ipython notebook`, without
+    warn("""You should now run IJulia just via `$command notebook`, without
             the `--profile julia` flag.  IJulia no longer maintains the profile.
             Consider deleting $juliaprof""")
 end
@@ -40,7 +44,7 @@ function copy_config(src::String, destpath::String,
     dest = joinpath(destpath, destname)
     srcbytes = rb(joinpath(Pkg.dir("IJulia"), "deps", src))
     if !isfile(dest) || (overwrite && !eqb(srcbytes, rb(dest)))
-        eprintln("Copying $src to Julia IPython profile.")
+        eprintln("Copying $src to Julia kernelspec.")
         open(dest, "w") do f
             write(f, srcbytes)
         end
@@ -50,12 +54,14 @@ function copy_config(src::String, destpath::String,
 end
 
 #######################################################################
-# Install IPython 3 kernel-spec file.
+# Install Jupyter kernel-spec file.
 
 # Is IJulia being built from a debug build? If so, add "debug" to the description.
 debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
 
-juliakspec = joinpath(chomp(readall(`$ipython locate`)), "kernels", "julia-$(VERSION.major).$(VERSION.minor)"*debugdesc)
+spec_name = "julia-$(VERSION.major).$(VERSION.minor)"*debugdesc
+working_dir = mktempdir()
+juliakspec = joinpath(working_dir, spec_name)
 
 binary_name = @windows? "julia.exe":"julia"
 kernelcmd_array = [escape_string(joinpath(JULIA_HOME,("$binary_name"))), "-i"]
@@ -80,3 +86,7 @@ open(dest, "w") do f
 end
 copy_config("logo-32x32.png", juliakspec)
 copy_config("logo-64x64.png", juliakspec)
+
+eprintln("Installing julia kernelspec $spec_name")
+run(`$command kernelspec install --replace --user $juliakspec`)
+rm(working_dir, recursive=true)
