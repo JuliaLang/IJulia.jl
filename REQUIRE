@@ -2,4 +2,4 @@ julia 0.3
 Nettle
 JSON 0.2
 ZMQ 0.1
-Compat 0.6
+Compat 0.7

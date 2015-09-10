@@ -24,8 +24,8 @@ end
 #######################################################################
 # Warn people upgrading from older IJulia versions:
 try
-    juliaprof = chomp(readall(pipe(`$ipython locate profile julia`,
-                                   stderr=DevNull)))
+    juliaprof = chomp(readall(pipeline(`$ipython locate profile julia`,
+                                       stderr=DevNull)))
     warn("""You should now run IJulia just via `$command notebook`, without
             the `--profile julia` flag.  IJulia no longer maintains the profile.
             Consider deleting $juliaprof""")
