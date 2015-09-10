@@ -8,16 +8,16 @@ eprintln(x...) = println(STDERR, x...)
 # Make sure Python uses UTF-8 output for Unicode paths
 ENV["PYTHONIOENCODING"] = "UTF-8"
 
-include("ipython.jl")
-const command, cmdvers = find_kernelspec_cmd()
+include("jupyter.jl")
+const jupyter, jupyter_vers = find_jupyter()
 
-if command == "jupyter"
-    eprintln("Found jupyter kernelspec version $cmdvers ... ok.")
+if basename(jupyter) == "jupyter"
+    eprintln("Found jupyter kernelspec version $jupyter_vers ... ok.")
 else
-    if cmdvers < v"3.0"
-        error("Jupyter or IPython 3.0 or later is required for IJulia, got IPython $cmdvers instead")
+    if jupyter_vers < v"3.0"
+        error("Jupyter or IPython 3.0 or later is required for IJulia, got IPython $jupyter_vers instead")
     else
-        eprintln("Found IPython version $cmdvers ... ok.")
+        eprintln("Found IPython version $jupyter_vers ... ok.")
     end
 end
 
@@ -26,7 +26,7 @@ end
 try
     juliaprof = chomp(readall(pipeline(`$ipython locate profile julia`,
                                        stderr=DevNull)))
-    warn("""You should now run IJulia just via `$command notebook`, without
+    warn("""You should now run IJulia just via `$jupyter notebook`, without
             the `--profile julia` flag.  IJulia no longer maintains the profile.
             Consider deleting $juliaprof""")
 end
@@ -88,5 +88,5 @@ copy_config("logo-32x32.png", juliakspec)
 copy_config("logo-64x64.png", juliakspec)
 
 eprintln("Installing julia kernelspec $spec_name")
-run(`$command kernelspec install --replace --user $juliakspec`)
+run(`$jupyter kernelspec install --replace --user $juliakspec`)
 rm(working_dir, recursive=true)

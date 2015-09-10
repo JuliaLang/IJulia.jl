@@ -1,7 +1,7 @@
 module IJulia
 using Compat
 
-# in the IPython front-end, enable verbose output via IJulia.set_verbose()
+# in the Jupyter front-end, enable verbose output via IJulia.set_verbose()
 verbose = false
 function set_verbose(v::Bool=true)
     global verbose::Bool = v
@@ -13,7 +13,7 @@ const capture_stderr = true
 using ZMQ
 using JSON
 using Nettle
-include("../deps/ipython.jl")
+include(joinpath("..","deps","jupyter.jl"))
 
 # use our own random seed for msg_id so that we
 # don't alter the user-visible random state (issue #336)
@@ -152,7 +152,7 @@ function eventloop(socket)
             end
         end
     catch e
-        # the IPython manager may send us a SIGINT if the user
+        # the Jupyter manager may send us a SIGINT if the user
         # chooses to interrupt the kernel; don't crash on this
         if isa(e, InterruptException)
             eventloop(socket)
@@ -180,9 +180,9 @@ function waitloop()
 end
 
 export notebook
-function notebook(ipython=find_ipython()[1])
+function notebook(jupyter=find_jupyter()[1])
     inited && error("IJulia is already running")
-    run(`$ipython notebook`)
+    run(`$jupyter notebook`)
 end
 
 end # IJulia

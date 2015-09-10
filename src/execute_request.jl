@@ -1,5 +1,5 @@
 # Handers for execute_request and related messages, which are
-# the core of the IPython protocol: execution of Julia code and
+# the core of the Jupyter protocol: execution of Julia code and
 # returning results.
 
 if VERSION >= v"0.4.0-dev+3844"
@@ -13,15 +13,15 @@ const image_png = MIME("image/png")
 const image_jpeg = MIME("image/jpeg")
 const text_markdown = MIME("text/markdown")
 const text_html = MIME("text/html")
-const text_latex = MIME("text/latex") # IPython expects this
+const text_latex = MIME("text/latex") # Jupyter expects this
 const text_latex2 = MIME("application/x-latex") # but this is more standard?
 
 # return a AbstractString=>Any dictionary to attach as metadata
-# in IPython display_data and pyout messages
+# in Jupyter display_data and pyout messages
 metadata(x) = Dict()
 
-# return a AbstractString=>AbstractString dictionary of mimetype=>data for passing to
-# IPython display_data and pyout messages.
+# return a AbstractString=>AbstractString dictionary of mimetype=>data
+# for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
     data = @compat Dict{ASCIIString,ByteString}("text/plain" => 
                                         sprint(writemime, "text/plain", x))
