@@ -32,39 +32,16 @@ try
 end
 
 #######################################################################
-rb(filename::String) = open(readbytes, filename)
-eqb(a::Vector{Uint8}, b::Vector{Uint8}) =
-    length(a) == length(b) && all(a .== b)
-
-# copy IJulia/deps/src to destpath/destname if it doesn't
-# already exist at the destination, or if it has changed (if overwrite=true).
-function copy_config(src::String, destpath::String,
-                     destname::String=src; overwrite::Bool=true)
-    mkpath(destpath)
-    dest = joinpath(destpath, destname)
-    srcbytes = rb(joinpath(Pkg.dir("IJulia"), "deps", src))
-    if !isfile(dest) || (overwrite && !eqb(srcbytes, rb(dest)))
-        eprintln("Copying $src to Julia kernelspec.")
-        open(dest, "w") do f
-            write(f, srcbytes)
-        end
-    else
-        eprintln("(Existing $destname file untouched.)")
-    end
-end
-
-#######################################################################
 # Install Jupyter kernel-spec file.
 
 # Is IJulia being built from a debug build? If so, add "debug" to the description.
 debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
 
 spec_name = "julia-$(VERSION.major).$(VERSION.minor)"*debugdesc
-working_dir = mktempdir()
-juliakspec = joinpath(working_dir, spec_name)
+juliakspec = spec_name
 
 binary_name = @windows? "julia.exe":"julia"
-kernelcmd_array = [escape_string(joinpath(JULIA_HOME,("$binary_name"))), "-i"]
+kernelcmd_array = [joinpath(JULIA_HOME,("$binary_name")), "-i"]
 ijulia_dir = get(ENV, "IJULIA_DIR", Pkg.dir("IJulia")) # support non-Pkg IJulia installs
 append!(kernelcmd_array, ["-F", escape_string(joinpath(ijulia_dir,"src","kernel.jl")), "{connection_file}"])
 
@@ -84,9 +61,10 @@ open(dest, "w") do f
     # indent by 2 for readability of file
     write(f, JSON.json(ks, 2))
 end
+
+copy_config(src, dest) = cp(src, joinpath(dest, src), remove_destination=true)
 copy_config("logo-32x32.png", juliakspec)
 copy_config("logo-64x64.png", juliakspec)
 
 eprintln("Installing julia kernelspec $spec_name")
 run(`$command kernelspec install --replace --user $juliakspec`)
-rm(working_dir, recursive=true)
