@@ -43,7 +43,7 @@ juliakspec = spec_name
 binary_name = @windows? "julia.exe":"julia"
 kernelcmd_array = [joinpath(JULIA_HOME,("$binary_name")), "-i"]
 ijulia_dir = get(ENV, "IJULIA_DIR", Pkg.dir("IJulia")) # support non-Pkg IJulia installs
-append!(kernelcmd_array, ["-F", escape_string(joinpath(ijulia_dir,"src","kernel.jl")), "{connection_file}"])
+append!(kernelcmd_array, ["-F", joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
 
 ks = @compat Dict(
     "argv" => kernelcmd_array,
