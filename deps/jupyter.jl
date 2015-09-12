@@ -1,6 +1,6 @@
-# return (ipython, version) tuple, where ipython is the string of the
-# IPython executable, and version is the VersionNumber.
-function find_kernelspec_cmd()
+# return (jupyter, version) tuple, where jupyter is the string of the
+# Jupyter or IPython executable, and version is the VersionNumber.
+function find_jupyter()
     try
         "jupyter",convert(VersionNumber, chomp(readall(`jupyter kernelspec --version`)))
     catch e1
