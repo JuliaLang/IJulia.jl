@@ -62,7 +62,18 @@ open(dest, "w") do f
     write(f, JSON.json(ks, 2))
 end
 
-copy_config(src, dest) = cp(src, joinpath(dest, src), remove_destination=true)
+if VERSION < v"0.4-"
+    function copy_config(src, destdir)
+        dest = joinpath(destdir, src)
+        if ispath(dest)
+            rm(dest)
+        end
+        cp(src, dest)
+    end
+else
+    copy_config(src, dest) = cp(src, joinpath(dest, src), remove_destination=true)
+end
+
 copy_config("logo-32x32.png", juliakspec)
 copy_config("logo-64x64.png", juliakspec)
 
