@@ -1,6 +1,9 @@
 #######################################################################
-import JSON
+import JSON, Conda
 using Compat
+
+# remove deps.jl if it exists, in case build.jl fails
+isfile("deps.jl") && rm("deps.jl")
 
 # print to stderr, since that is where Pkg prints its messages
 eprintln(x...) = println(STDERR, x...)
@@ -8,18 +11,33 @@ eprintln(x...) = println(STDERR, x...)
 # Make sure Python uses UTF-8 output for Unicode paths
 ENV["PYTHONIOENCODING"] = "UTF-8"
 
-include("jupyter.jl")
-const jupyter, jupyter_vers = find_jupyter()
 
-if basename(jupyter) == "jupyter"
-    eprintln("Found jupyter kernelspec version $jupyter_vers ... ok.")
-else
-    if jupyter_vers < v"3.0"
-        error("Jupyter or IPython 3.0 or later is required for IJulia, got IPython $jupyter_vers instead")
-    else
-        eprintln("Found IPython version $jupyter_vers ... ok.")
+function prog_version(prog)
+    try
+       return convert(VersionNumber, chomp(readall(`$prog --version`)))
+    catch
+       return v"0.0"
     end
 end
+
+jupyter = ""
+jupyter_vers = v"0.0"
+for p in ("jupyter", "ipython", "ipython2", "ipython3", "ipython.bat")
+    v = prog_version(p)
+    if v >= v"3.0"
+       jupyter = p
+       jupyter_vers = v
+       break
+    end
+end
+if jupyter_vers < v"3.0"
+    info("Could not find IPython or Jupyter 3.0 or later; installing via the Conda package.")
+    Conda.add("jupyter")
+    jupyter = joinpath(Conda.SCRIPTDIR,"jupyter")
+    jupyter_vers = prog_version(jupyter)
+    jupyter_vers < v"3.0" && error("failed to find $jupyter 3.0 or later")
+end
+info("Found Jupyter version $jupyter_vers: $jupyter")
 
 #######################################################################
 # Warn people upgrading from older IJulia versions:
@@ -79,3 +97,11 @@ copy_config("logo-64x64.png", juliakspec)
 
 eprintln("Installing julia kernelspec $spec_name")
 run(`$jupyter kernelspec install --replace --user $juliakspec`)
+
+open("deps.jl", "w") do f
+    print(f, """
+          const jupyter = "$(escape_string(jupyter))"
+          const jupyter_vers = $(repr(jupyter_vers))
+          """)
+end
+
