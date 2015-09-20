@@ -59,7 +59,7 @@ end
 
 # TODO: better Julia help integration (issue #13)
 docdict(o) = @compat Dict()
-docdict(o::Union(Function,DataType)) = display_dict(methods(o))
+@compat docdict(o::Union{Function,DataType}) = display_dict(methods(o))
 function docdict(s::AbstractString, o)
     d = sprint(help, s)
     return startswith(d, "Symbol not found.") ? docdict(o) : @compat Dict("text/plain" => d)
