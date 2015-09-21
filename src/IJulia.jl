@@ -12,7 +12,26 @@ const capture_stderr = true
 
 using ZMQ
 using JSON
+
 using Nettle
+# backward compatibility for staticfloat/Nettle.jl#52:
+if !isdefined(Nettle, :Hasher)
+    Nettle.HMACState(name::AbstractString, key) =
+        HMACState(eval(Nettle, symbol(uppercase(name))), key)
+end
+const hmacstate = HMACState[]
+function hmac(s1,s2,s3,s4)
+    if isempty(hmacstate)
+        return ""
+    else
+        update!(hmacstate[1], s1)
+        update!(hmacstate[1], s2)
+        update!(hmacstate[1], s3)
+        update!(hmacstate[1], s4)
+        return hexdigest!(hmacstate[1])
+    end
+end
+
 include(joinpath("..","deps","jupyter.jl"))
 
 # use our own random seed for msg_id so that we
@@ -31,6 +50,7 @@ function __init__()
 end
 
 inited = false
+const threadid = Array(Int, 128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
 
 function init(args)
     if length(args) > 0
@@ -56,25 +76,15 @@ function init(args)
             end
         end
     end
-    global hmac
-    if isempty(profile["key"])
-        hmac(s1,s2,s3,s4) = ""
-    else
+
+    if !isempty(profile["key"])
         signature_scheme = get(profile, "signature_scheme", "hmac-sha256")
         isempty(signature_scheme) && (signature_scheme = "hmac-sha256")
         signature_scheme = split(signature_scheme, "-")
         if signature_scheme[1] != "hmac" || length(signature_scheme) != 2
-            error("unrecognized signature_scheme")
+            error("unrecognized signature_scheme $signature_scheme")
         end
-        global const hmacstate = HMACState(eval(symbol(uppercase(signature_scheme[2]))),
-                                    profile["key"])
-        function hmac(s1,s2,s3,s4)
-            update!(hmacstate, s1)
-            update!(hmacstate, s2)
-            update!(hmacstate, s3)
-            update!(hmacstate, s4)
-            hexdigest!(hmacstate)
-        end
+        push!(hmacstate, HMACState(signature_scheme[2], profile["key"]))
     end
 
     global const ctx = Context()
@@ -90,7 +100,6 @@ function init(args)
     bind(heartbeat, "$(profile["transport"])://$(profile["ip"]):$(profile["hb_port"])")
 
     global const heartbeat_c = cfunction(heartbeat_thread, Void, (Ptr{Void},))
-    global const threadid = Array(Int, 128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
     start_heartbeat(heartbeat)
 
     global const orig_STDIN = STDIN
