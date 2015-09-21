@@ -96,8 +96,12 @@ copy_config("logo-32x32.png", juliakspec)
 copy_config("logo-64x64.png", juliakspec)
 
 eprintln("Installing julia kernelspec $spec_name")
-run(`$jupyter kernelspec install --replace --user $juliakspec`)
-
+if basename(jupyter) == "jupyter"
+    # Remove the commit that added this when https://github.com/jupyter/notebook/issues/448 is closed
+    run(`$jupyter-kernelspec install --replace --user $juliakspec`)
+else
+    run(`$jupyter kernelspec install --replace --user $juliakspec`)
+end
 open("deps.jl", "w") do f
     print(f, """
           const jupyter = "$(escape_string(jupyter))"
