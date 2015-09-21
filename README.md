@@ -14,9 +14,14 @@ formatted text, math, and multimedia in a single document
 
 First, [install IPython](http://ipython.org/install.html); you may
 also want some scientific-Python packages (SciPy and Matplotlib).
-The simplest way to do this on Mac and Windows is by [downloading the
-Anaconda package](http://continuum.io/downloads) and running its
-installer.  (Do *not* use Enthought Canopy/EPD.)
+The simplest way to do this on Mac and Windows is by using the
+Conda.jl package that installs the [Miniconda](http://conda.pydata.org/miniconda.html) Python distribution. Alternativly [Anaconda](http://continuum.io/downloads) can be installed. (Do *not* use Enthought Canopy/EPD.) To install Miniconda do:
+```
+Pkg.add("Conda")
+using Conda
+# Installing the notebook interface
+Conda.add("ipython-notebook") # important restart the julia terminal before running Pkg.add("IJulia")
+```
 
 * **Important**: on Windows, the Anaconda installer window gives options *Add Anaconda to the System Path* and also *Register Anaconda as default Python version of the system*.  Be sure to **check these boxes**.
 
