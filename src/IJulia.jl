@@ -45,7 +45,7 @@ if VERSION < v"0.4.0-dev+6531"
         return repr(Base.Random.UUID(u))
     end
 else
-    uuid4() = Base.Random.uuid4(IJulia_RNG)
+    uuid4() = repr(Base.Random.uuid4(IJulia_RNG))
 end
 
 function __init__()
