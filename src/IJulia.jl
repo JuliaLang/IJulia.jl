@@ -37,12 +37,15 @@ include(joinpath("..","deps","jupyter.jl"))
 # use our own random seed for msg_id so that we
 # don't alter the user-visible random state (issue #336)
 const IJulia_RNG = MersenneTwister()
-function uuid4()
-    # TODO: merge into Julia Base `uuid4` function
-    u = rand(IJulia_RNG, UInt128)
-    u &= 0xffffffffffff0fff3fffffffffffffff
-    u |= 0x00000000000040008000000000000000
-    return repr(Base.Random.UUID(u))
+if VERSION < v"0.4.0-dev+6531"
+    function uuid4()
+        u = rand(IJulia_RNG, UInt128)
+        u &= 0xffffffffffff0fff3fffffffffffffff
+        u |= 0x00000000000040008000000000000000
+        return repr(Base.Random.UUID(u))
+    end
+else
+    uuid4() = Base.Random.uuid4(IJulia_RNG)
 end
 
 function __init__()
