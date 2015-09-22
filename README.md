@@ -48,7 +48,7 @@ to some nonexistent program name, e.g. set `ENV["JUPYTER"] =
 "julia-jupyter"` in Julia.   You can run `Pkg.build("IJulia")` to
 re-run the installation process if needed.
 
-## Running the IJulia Notebook
+### Running the IJulia Notebook
 
 In Julia, at the `julia>` prompt, you can type
 ```
