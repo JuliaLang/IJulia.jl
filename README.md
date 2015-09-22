@@ -40,6 +40,14 @@ Anaconda installer window gives options *Add Anaconda to the System
 Path* and also *Register Anaconda as default Python version of the
 system*.  Be sure to **check these boxes**.
 
+If you want `Pkg.add` to use a specific path for `jupyter` on your
+system (not the defaults above), you can do so by setting the
+`JUPYTER` environment variable before running `Pkg.add("IJulia")`.  To
+force IJulia to use its own Miniconda installation, just set `JUPYTER`
+to some nonexistent program name, e.g. set `ENV["JUPYTER"] =
+"julia-jupyter"` in Julia.   You can run `Pkg.build("IJulia")` to
+re-run the installation process if needed.
+
 ## Running the IJulia Notebook
 
 In Julia, at the `julia>` prompt, you can type
