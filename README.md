@@ -12,7 +12,7 @@ formatted text, math, and multimedia in a single document
 
 ## Installation
 
-Second, [download Julia](http://julialang.org/downloads/) *version 0.3
+First, [download Julia](http://julialang.org/downloads/) *version 0.3
 or later* and run the installer.  Then run the Julia application
 (double-click on it); a window with a `julia>` prompt will appear.  At
 the prompt, type:
