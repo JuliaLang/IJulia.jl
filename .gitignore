@@ -2,3 +2,4 @@
 *.un~
 /build/
 /deps/deps.jl
+/deps/julia-*
