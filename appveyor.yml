@@ -29,7 +29,7 @@ install:
 # Run installer silently, output to C:\projects\julia
   - C:\projects\julia-binary.exe /S /D=C:\projects\julia
 
-test_script:
+build_script:
   - C:\projects\julia\bin\julia -e "versioninfo();
       Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
 #  - C:\projects\julia\bin\julia -e "Pkg.test(\"IJulia\")"
