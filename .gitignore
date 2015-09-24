@@ -2,4 +2,5 @@
 *.un~
 /build/
 /deps/deps.jl
+/deps/JUPYTER
 /deps/julia-*

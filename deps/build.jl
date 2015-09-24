@@ -22,7 +22,7 @@ end
 
 jupyter = ""
 jupyter_vers = v"0.0"
-for p in get(ENV, "JUPYTER", ("jupyter", "ipython", "ipython2", "ipython3", "ipython.bat"))
+for p in get(ENV, "JUPYTER", (isfile("JUPYTER") ? readchomp("JUPYTER") : "jupyter", "jupyter", "ipython", "ipython2", "ipython3", "ipython.bat"))
     v = prog_version(p)
     if v >= v"3.0"
        jupyter = p
@@ -30,10 +30,10 @@ for p in get(ENV, "JUPYTER", ("jupyter", "ipython", "ipython2", "ipython3", "ipy
        break
     end
 end
-if jupyter_vers < v"3.0"
-    info("Could not find IPython or Jupyter 3.0 or later; installing via the Conda package.")
+if jupyter_vers < v"3.0" || dirname(jupyter) == abspath(Conda.SCRIPTDIR)
+    info("Installing Jupyter via the Conda package.")
     Conda.add("jupyter")
-    jupyter = joinpath(Conda.SCRIPTDIR,"jupyter")
+    jupyter = abspath(Conda.SCRIPTDIR,"jupyter")
     jupyter_vers = prog_version(jupyter)
     jupyter_vers < v"3.0" && error("failed to find $jupyter 3.0 or later")
 end
@@ -108,4 +108,6 @@ open("deps.jl", "w") do f
           const jupyter_vers = $(repr(jupyter_vers))
           """)
 end
-
+open("JUPYTER", "w") do f
+    println(f, jupyter)
+end

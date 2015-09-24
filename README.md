@@ -47,9 +47,14 @@ If you want `Pkg.add` to use a specific path for `jupyter` on your
 system (not the defaults above), you can do so by setting the
 `JUPYTER` environment variable before running `Pkg.add("IJulia")`.  To
 force IJulia to use its own Miniconda installation, just set `JUPYTER`
-to some nonexistent program name, e.g. set `ENV["JUPYTER"] =
-"julia-jupyter"` in Julia.   You can run `Pkg.build("IJulia")` to
-re-run the installation process if needed.
+to the empty string, e.g. set `ENV["JUPYTER"] = ""` in Julia.  You can
+run `Pkg.build("IJulia")` to re-run the installation process if
+needed.
+
+On subsequent builds (e.g. when IJulia is updated via `Pkg.update`),
+it will use the same `jupyter` program by default, unless you
+override it by setting the `JUPYTER` environment variable, or
+delete the file `joinpath(Pkg.dir("IJulia"), "deps", "JUPYTER")`.
 
 ### Running the IJulia Notebook
 
