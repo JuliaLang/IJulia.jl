@@ -96,7 +96,7 @@ copy_config("logo-32x32.png", juliakspec)
 copy_config("logo-64x64.png", juliakspec)
 
 eprintln("Installing julia kernelspec $spec_name")
-if basename(jupyter) == "jupyter"
+if basename(jupyter) == "jupyter" && dirname(jupyter) == abspath(Conda.SCRIPTDIR)
     # Remove the commit that added this when https://github.com/jupyter/notebook/issues/448 is closed
     run(`$jupyter-kernelspec install --replace --user $juliakspec`)
 else
