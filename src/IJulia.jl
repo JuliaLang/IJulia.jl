@@ -196,7 +196,7 @@ end
 export notebook
 function notebook(jupyter=jupyter)
     inited && error("IJulia is already running")
-    if basename(jupyter) == "jupyter"
+    if basename(jupyter) == "jupyter" && dirname(jupyter) == abspath(Conda.SCRIPTDIR)
         # Remove the commit that added this when https://github.com/jupyter/notebook/issues/448 is closed
         run(`$jupyter-notebook`)
     else
