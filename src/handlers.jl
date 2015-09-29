@@ -6,13 +6,18 @@ using IJulia.CommManager
 function complete_request(socket, msg)
     code = msg.content["code"]
     cursorpos = chr2ind(code, msg.content["cursor_pos"])
-
     comps, positions = Base.REPLCompletions.completions(code, cursorpos)
+    if isempty(positions) # true if comps to be inserted without replacement
+        cursor_start = (cursor_end = ind2chr(code, last(positions)))
+    else
+        cursor_start = ind2chr(code, first(positions)) - 1
+        cursor_end = ind2chr(code, last(positions))
+    end
     send_ipython(requests, msg_reply(msg, "complete_reply", 
                                      @compat Dict("status" => "ok",
                                                   "matches" => comps,
-                                                  "cursor_start" => ind2chr(code,first(positions))-1,
-                                                  "cursor_end" => ind2chr(code,last(positions)),
+                                                  "cursor_start" => cursor_start,
+                                                  "cursor_end" => cursor_end,
                                                   "status"=>"ok")))
 end
 
