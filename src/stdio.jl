@@ -52,12 +52,20 @@ function watch_stream(rd::IO, name::AbstractString)
     end
 end
 
+# this is hacky: we overload some of the I/O functions on pipe endpoints
+# in order to fix some interactions with stdio.
+if VERSION < v"0.4.0-dev+6987" # JuliaLang/julia#12739
+    const StdioPipe = Base.Pipe
+else
+    const StdioPipe = Base.PipeEndpoint
+end
+
 # IJulia issue #42: there doesn't seem to be a good way to make a task
 # that blocks until there is a read request from STDIN ... this makes
 # it very hard to properly redirect all reads from STDIN to pyin messages.
 # In the meantime, however, we can just hack it so that readline works:
 import Base.readline
-function readline(io::Base.Pipe)
+function readline(io::StdioPipe)
     if io == STDIN
         if !execute_msg.content["allow_stdin"]
             error("IJulia: this front-end does not implement stdin")
@@ -74,7 +82,7 @@ function readline(io::Base.Pipe)
             end
         end
     else
-        invoke(readline, (Base.AsyncStream,), io)
+        invoke(readline, (super(StdioPipe),), io)
     end
 end
 
@@ -86,8 +94,8 @@ function watch_stdio()
 end
 
 import Base.flush
-function flush(io::Base.Pipe)
-    invoke(flush, (super(Base.Pipe),), io)
+function flush(io::StdioPipe)
+    invoke(flush, (super(StdioPipe),), io)
     # send any available bytes to IPython (don't use readavailable,
     # since we don't want to block).
     if io == STDOUT
