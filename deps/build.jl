@@ -96,11 +96,27 @@ copy_config("logo-32x32.png", juliakspec)
 copy_config("logo-64x64.png", juliakspec)
 
 eprintln("Installing julia kernelspec $spec_name")
-if basename(jupyter) == "jupyter"
-    # Remove the commit that added this when https://github.com/jupyter/notebook/issues/448 is closed
-    run(`$jupyter-kernelspec install --replace --user $juliakspec`)
-else
+
+# remove these hacks when
+# https://github.com/jupyter/notebook/issues/448 is closed and the fix
+# is widely available -- just run `$jupyter kernelspec ...` then.
+try
     run(`$jupyter kernelspec install --replace --user $juliakspec`)
+catch
+    @unix_only run(`$jupyter-kernelspec install --replace --user $juliakspec`)
+
+    # issue #363:
+    @windows_only begin
+        if dirname(jupyter) == abspath(Conda.SCRIPTDIR)
+            jk_path = "$jupyter-kernelspec"
+            python = abspath(Conda.PYTHONDIR, "python.exe")
+        else
+            jk_path = readchomp(`where.exe $jupyter-kernelspec`)
+            # jupyter-kernelspec should start with "#!/path/to/python":
+            python = chomp(open(readline, jk_path, "r"))[3:end]
+        end
+        run(`$python $jk_path install --replace --user $juliakspec`)
+    end
 end
 open("deps.jl", "w") do f
     print(f, """
