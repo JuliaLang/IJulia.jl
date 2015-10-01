@@ -22,7 +22,7 @@ end
 
 jupyter = ""
 jupyter_vers = v"0.0"
-for p in get(ENV, "JUPYTER", (isfile("JUPYTER") ? readchomp("JUPYTER") : "jupyter", "jupyter", "ipython", "ipython2", "ipython3", "ipython.bat"))
+for p in (haskey(ENV, "JUPYTER") ? (ENV["JUPYTER"],) : (isfile("JUPYTER") ? readchomp("JUPYTER") : "jupyter", "jupyter", "ipython", "ipython2", "ipython3", "ipython.bat"))
     v = prog_version(p)
     if v >= v"3.0"
        jupyter = p
