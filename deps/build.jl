@@ -109,6 +109,9 @@ catch
     @windows_only begin
         if dirname(jupyter) == abspath(Conda.SCRIPTDIR)
             jk_path = "$jupyter-kernelspec"
+            if isfile(jk_path * "-script.py")
+                jk_path *= "-script.py"
+            end
             python = abspath(Conda.PYTHONDIR, "python.exe")
         else
             jk_path = readchomp(`where.exe $jupyter-kernelspec`)
