@@ -63,7 +63,11 @@ In Julia, at the `julia>` prompt, you can type
 using IJulia
 notebook()
 ```
-to launch the IJulia notebook in your browser.  Alternatively, you can run
+to launch the IJulia notebook in your browser.  You can
+use `notebook(detached=true)` to launch a notebook server
+in the background that will persist even when you quit Julia.
+
+Alternatively, you can run
 ```
 jupyter notebook
 ```
