@@ -100,10 +100,15 @@ eprintln("Installing julia kernelspec $spec_name")
 # remove these hacks when
 # https://github.com/jupyter/notebook/issues/448 is closed and the fix
 # is widely available -- just run `$jupyter kernelspec ...` then.
+notebook = UTF8String[]
 try
     run(`$jupyter kernelspec install --replace --user $juliakspec`)
+    push!(notebook, jupyter, "notebook")
 catch
-    @unix_only run(`$jupyter-kernelspec install --replace --user $juliakspec`)
+    @unix_only begin
+        run(`$jupyter-kernelspec install --replace --user $juliakspec`)
+        push!(notebook, jupyter * "-notebook")
+    end
 
     # issue #363:
     @windows_only begin
@@ -112,18 +117,25 @@ catch
             if isfile(jk_path * "-script.py")
                 jk_path *= "-script.py"
             end
+            jn_path = "$jupyter-notebook"
+            if isfile(jn_path * "-script.py")
+                jn_path *= "-script.py"
+            end
             python = abspath(Conda.PYTHONDIR, "python.exe")
         else
             jk_path = readchomp(`where.exe $jupyter-kernelspec`)
+            jn_path = readchomp(`where.exe $jupyter-notebook`)
             # jupyter-kernelspec should start with "#!/path/to/python":
             python = chomp(open(readline, jk_path, "r"))[3:end]
         end
         run(`$python $jk_path install --replace --user $juliakspec`)
+        push!(notebook, python, jn_path)
     end
 end
 open("deps.jl", "w") do f
     print(f, """
           const jupyter = "$(escape_string(jupyter))"
+          const notebook_cmd = ["$(join(map(escape_string, notebook), "\", \""))"]
           const jupyter_vers = $(repr(jupyter_vers))
           """)
 end

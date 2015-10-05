@@ -194,14 +194,22 @@ function waitloop()
 end
 
 export notebook
-function notebook(jupyter=jupyter)
+function notebook(; detached=false)
     inited && error("IJulia is already running")
-    if basename(jupyter) == "jupyter"
-        # Remove the commit that added this when https://github.com/jupyter/notebook/issues/448 is closed
-        run(`$jupyter-notebook`)
-    else
-        run(`$jupyter notebook`)
+    p = spawn(detach(`$notebook_cmd`))
+    if !detached
+        try
+            wait(p)
+        catch e
+            if isa(e, InterruptException)
+                kill(p, 2) # SIGINT
+            else
+                kill(p) # SIGTERM
+                rethrow()
+            end
+        end
     end
+    return p
 end
 
 end # IJulia
