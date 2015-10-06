@@ -1,3 +1,5 @@
+VERSION >= v"0.4.0-dev+6521" && __precompile__()
+
 module IJulia
 using Compat
 
@@ -14,11 +16,6 @@ using ZMQ
 using JSON
 
 using Nettle
-# backward compatibility for staticfloat/Nettle.jl#52:
-if !isdefined(Nettle, :Hasher)
-    Nettle.HMACState(name::AbstractString, key) =
-        HMACState(eval(Nettle, symbol(uppercase(name))), key)
-end
 const hmacstate = HMACState[]
 function hmac(s1,s2,s3,s4)
     if isempty(hmacstate)
