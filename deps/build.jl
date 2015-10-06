@@ -126,7 +126,7 @@ catch
             jk_path = readchomp(`where.exe $jupyter-kernelspec`)
             jn_path = readchomp(`where.exe $jupyter-notebook`)
             # jupyter-kernelspec should start with "#!/path/to/python":
-            python = chomp(open(readline, jk_path, "r"))[3:end]
+            python = strip(chomp(open(readline, jk_path, "r"))[3:end])
             # strip quotes, if any
             if python[1] == python[end] == '"'
                 python = python[2:end-1]
