@@ -127,9 +127,17 @@ catch
             jn_path = readchomp(`where.exe $jupyter-notebook`)
             # jupyter-kernelspec should start with "#!/path/to/python":
             python = chomp(open(readline, jk_path, "r"))[3:end]
+            # strip quotes, if any
+            if python[1] == python[end] == '"'
+                python = python[2:end-1]
+            end
         end
         run(`$python $jk_path install --replace --user $juliakspec`)
-        push!(notebook, python, jn_path)
+        if endswith(jn_path, ".exe")
+            push!(notebook, jn_path)
+        else
+            push!(notebook, python, jn_path)
+        end
     end
 end
 open("deps.jl", "w") do f
