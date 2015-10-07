@@ -59,7 +59,7 @@ spec_name = "julia-$(VERSION.major).$(VERSION.minor)"*debugdesc
 juliakspec = spec_name
 
 binary_name = @windows? "julia.exe":"julia"
-kernelcmd_array = [joinpath(JULIA_HOME,("$binary_name")), "-i"]
+kernelcmd_array = UTF8String[joinpath(JULIA_HOME,("$binary_name")), "-i"]
 ijulia_dir = get(ENV, "IJULIA_DIR", Pkg.dir("IJulia")) # support non-Pkg IJulia installs
 append!(kernelcmd_array, ["-F", joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
 
