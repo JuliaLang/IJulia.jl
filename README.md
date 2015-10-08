@@ -220,7 +220,7 @@ issues](https://github.com/JuliaLang/IJulia.jl/issues) list.
 
 If IJulia is crashing (e.g. it gives you a "kernel appears to have
 died" message), you can modify it to print more descriptive error
-messages to the terminal: edit your `IJulia/src/IJulia.jl` file (in
+messages to the terminal: edit your [`IJulia/src/IJulia.jl`](src/IJulia.jl) file (in
 your `.julia` package directory) to change the line `verbose = false`
 at the top to `verbose = true` and `const capture_stderr = true` to
 `const capture_stderr = false`.  Then restart the kernel or open a new
