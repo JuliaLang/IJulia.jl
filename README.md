@@ -116,16 +116,16 @@ at the Julia command line (**important**: not in IJulia).
 
 ### Troubleshooting:
 
-* If you ran into a problem with the above steps, after fixing the 
+* If you ran into a problem with the above steps, after fixing the
 problem you can type `Pkg.build()` to try to rerun the install scripts.
 * If you tried it a while ago, try running `Pkg.update()` and try again:
   this will fetch the latest versions of the Julia packages in case
-  the problem you saw was fixed.  Run `Pkg.build("IJulia")` if your Julia version may have changed.  If this doesn't work, try just deleting the whole `.julia` directory in your home directory (on Windows, it is called `AppData\Roaming\julia\packages` in your home directory) and re-adding the packages.
+  the problem you saw was fixed.  Run `Pkg.build("IJulia")` if your Julia version may have changed.  If this doesn't work, you could try just deleting the whole `.julia` directory in your home directory (on Windows, it is called `AppData\Roaming\julia\packages` in your home directory) via `rm(Pkg.dir(),recursive=true)` in Julia and re-adding the packages.
 * On MacOS, you currently need MacOS 10.7 or later; [MacOS 10.6 doesn't work](https://github.com/JuliaLang/julia/issues/4215) (unless you compile Julia yourself, from source code).
-* If the browser opens the notebook and `1+1` works but basic functions like `sin(3)` don't work, then probably you are running Python and not Julia.  Look in the upper-left corner of the notebook window: if it says **IP[y]: Notebook** then you are running Python.  Probably this was because your `Pkg.add("IJulia")` failed and you ignored the error.
 * Internet Explorer 8 (the default in Windows 7) or 9 don't work with the notebook; use Firefox (6 or later) or Chrome (13 or later).  Internet Explorer 10 in Windows 8 works (albeit with a few rendering glitches), but Chrome or Firefox is better.
-* If the notebook opens up, but doesn't respond (the input label is `In[*]` indefinitely), try running `ipython notebook` (without Julia) to see if `1+1` works in Python.  If it is the same problem, then probably you have a [firewall running](https://github.com/ipython/ipython/issues/2499) on your machine (this is common on Windows) and you need to disable the firewall or at least to allow the IP address 127.0.0.1.  (For the [Sophos](https://en.wikipedia.org/wiki/Sophos) endpoint security software, go to "Configure Anti-Virus and HIPS", select "Authorization" and then "Websites", and add 127.0.0.1 to "Authorized websites"; finally, restart your computer.)
+* If the notebook opens up, but doesn't respond (the input label is `In[*]` indefinitely), try creating a new Python notebook (not Julia) from the `New` button in the Jupyter dashboard, to see if `1+1` works in Python.  If it is the same problem, then probably you have a [firewall running](https://github.com/ipython/ipython/issues/2499) on your machine (this is common on Windows) and you need to disable the firewall or at least to allow the IP address 127.0.0.1.  (For the [Sophos](https://en.wikipedia.org/wiki/Sophos) endpoint security software, go to "Configure Anti-Virus and HIPS", select "Authorization" and then "Websites", and add 127.0.0.1 to "Authorized websites"; finally, restart your computer.)
 * Try running `ipython --version` and make sure that it prints `3.0.0` or larger; earlier versions of IPython are no longer supported by IJulia.
+* You can try setting `ENV["JUPYTER"]=""; Pkg.build("IJulia")` to force IJulia to use its own Conda-based Jupyter version.
 
 ## Low-level Information
 
@@ -187,7 +187,7 @@ On Mac and Windows systems, it is currently easiest to use the
   [via `easy_install` or `pip`](http://ipython.org/ipython-doc/stable/install/install.html#quickstart).
 
 * To use the [IPython qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html) interface,
-  you will need to install [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download) or 
+  you will need to install [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download) or
   [PySide](http://qt-project.org/wiki/Category:LanguageBindings::PySide).
 
 * You need Julia version 0.3 or later.
@@ -223,7 +223,7 @@ issues](https://github.com/JuliaLang/IJulia.jl/issues) list.
 
 If IJulia is crashing (e.g. it gives you a "kernel appears to have
 died" message), you can modify it to print more descriptive error
-messages to the terminal: edit your `IJulia/src/IJulia.jl` file (in
+messages to the terminal: edit your [`IJulia/src/IJulia.jl`](src/IJulia.jl) file (in
 your `.julia` package directory) to change the line `verbose = false`
 at the top to `verbose = true` and `const capture_stderr = true` to
 `const capture_stderr = false`.  Then restart the kernel or open a new
