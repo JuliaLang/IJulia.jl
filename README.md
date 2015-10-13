@@ -11,7 +11,10 @@ environment (also used by [IPython](http://ipython.org/)).  This
 combination allows you to interact with the Julia language using
 Jupyter/IPython's powerful [graphical
 notebook](http://ipython.org/notebook.html), which combines code,
-formatted text, math, and multimedia in a single document
+formatted text, math, and multimedia in a single document.
+
+(IJulia notebooks can also be re-used in other Julia code via
+the [NBInclude](https://github.com/stevengj/NBInclude.jl) package.)
 
 ## Installation
 
