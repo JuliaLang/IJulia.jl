@@ -56,7 +56,7 @@ end
 debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
 
 spec_name = "julia-$(VERSION.major).$(VERSION.minor)"*debugdesc
-juliakspec = spec_name
+juliakspec = abspath(spec_name)
 
 binary_name = @windows? "julia.exe":"julia"
 kernelcmd_array = UTF8String[joinpath(JULIA_HOME,("$binary_name")), "-i"]
