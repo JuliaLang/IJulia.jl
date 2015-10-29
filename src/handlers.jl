@@ -3,17 +3,37 @@ include("execute_request.jl")
 
 using IJulia.CommManager
 
+# Don't send previous lines to the completions function,
+# due to issue #380.  Find the start of the first line
+# (if any) where the expression is parseable.  Replace
+# with find_parsestart(c,p) = start(c) once julia#9467 is merged.
+parseok(s) = !Meta.isexpr(parse(s, raise=false), :error)
+function find_parsestart(code, cursorpos)
+    s = start(code)
+    while s < cursorpos
+        parseok(code[s:cursorpos]) && return s
+        s = nextind(code, s)
+        while s < cursorpos && code[s] ∉ ('\n','\r')
+            s = nextind(code, s)
+        end
+    end
+    return start(code) # failed to find parseable lines
+end
+
 function complete_request(socket, msg)
     code = msg.content["code"]
     cursorpos = chr2ind(code, msg.content["cursor_pos"])
-    comps, positions = Base.REPLCompletions.completions(code, cursorpos)
+
+    codestart = find_parsestart(code, cursorpos)
+    comps, positions = Base.REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
+    positions += codestart-1
     if isempty(positions) # true if comps to be inserted without replacement
         cursor_start = (cursor_end = ind2chr(code, last(positions)))
     else
         cursor_start = ind2chr(code, first(positions)) - 1
         cursor_end = ind2chr(code, last(positions))
     end
-    send_ipython(requests, msg_reply(msg, "complete_reply", 
+    send_ipython(requests, msg_reply(msg, "complete_reply",
                                      @compat Dict("status" => "ok",
                                                   "matches" => comps,
                                                   "cursor_start" => cursor_start,
@@ -133,7 +153,6 @@ function history_request(socket, msg)
     send_ipython(requests,
                  msg_reply(msg, "history_reply",
                            @compat Dict("history" => [])))
-                             
 end
 
 function is_complete_request(socket, msg)
