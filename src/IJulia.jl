@@ -133,6 +133,7 @@ include("handlers.jl")
 include("heartbeat.jl")
 
 function eventloop(socket)
+    task_local_storage(:IJulia_task, "write task")
     try
         while true
             msg = recv_ipython(socket)
@@ -147,7 +148,7 @@ function eventloop(socket)
                 if !isa(e, InterruptException)
                     content = error_content(e, msg="KERNEL EXCEPTION")
                     map(s -> println(orig_STDERR, s), content["traceback"])
-                    send_ipython(publish, 
+                    send_ipython(publish,
                                  execute_msg == nothing ?
                                  Msg([ "error" ],
                                      @compat(Dict("msg_id" => uuid4(),
@@ -156,7 +157,7 @@ function eventloop(socket)
                                                   "msg_type" => "error",
                                                   "version" => "5.0")),
                                      content) :
-                                 msg_pub(execute_msg, "error", content)) 
+                                 msg_pub(execute_msg, "error", content))
                 end
             finally
                 send_status("idle", msg.header)

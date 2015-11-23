@@ -23,7 +23,7 @@ metadata(x) = Dict()
 # return a AbstractString=>AbstractString dictionary of mimetype=>data
 # for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
-    data = @compat Dict{ASCIIString,ByteString}("text/plain" => 
+    data = @compat Dict{ASCIIString,ByteString}("text/plain" =>
                                         sprint(writemime, "text/plain", x))
     if mimewritable(image_svg, x)
         data[string(image_svg)] = stringmime(image_svg, x)
@@ -74,7 +74,7 @@ end
 function error_content(e; backtrace_top::Symbol=:execute_request_0x535c5df2, msg::AbstractString="")
     bt = catch_backtrace()
     tb = map(utf8, @compat(split(sprint(show_bt,
-                                        backtrace_top, 
+                                        backtrace_top,
                                         bt, 1:typemax(Int)),
                                  "\n", keep=true)))
     if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])
@@ -131,8 +131,11 @@ function helpcode(code::AbstractString)
     else # new Base.Docs.@repl macro from julia@08663d4bb05c5b8805a57f46f4feacb07c7f2564
         code_ = strip(code)
         # as in base/REPL.jl, special-case keywords so that they parse
-        return "Base.Docs.@repl " * (haskey(Docs.keywords, symbol(code_)) ?
-                                     ":"*code_ : code_)
+        if(haskey(Docs.keywords, symbol(code_)))
+          return "eval(:(Base.Docs.@repl \$(symbol(\"$code_\"))))"
+        else
+          return "Base.Docs.@repl $code_"
+        end
     end
 end
 
@@ -148,20 +151,20 @@ function execute_request_0x535c5df2(socket, msg)
 
     if !silent
         _n += 1
-        send_ipython(publish, 
+        send_ipython(publish,
                      msg_pub(msg, "execute_input",
                              @compat Dict("execution_count" => _n,
                                           "code" => code)))
     end
-    
+
     silent = silent || ismatch(r";\s*$", code)
     if store_history
         In[_n] = code
     end
 
     # "; ..." cells are interpreted as shell commands for run
-    code = replace(code, r"^\s*;.*$", 
-                   m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"), 
+    code = replace(code, r"^\s*;.*$",
+                   m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"),
                                "`)"), 0)
 
     # a cell beginning with "? ..." is interpreted as a help request
@@ -170,17 +173,20 @@ function execute_request_0x535c5df2(socket, msg)
         code = helpcode(hcode)
     end
 
-    try 
+    try
         for hook in preexecute_hooks
             hook()
         end
+
+        #run the code!
         ans = result = include_string(code, "In[$_n]")
+
         if silent
             result = nothing
         elseif result != nothing
             if store_history
                 if result != Out # workaround for Julia #3066
-                    Out[_n] = result 
+                    Out[_n] = result
                 end
             end
         end
@@ -194,33 +200,23 @@ function execute_request_0x535c5df2(socket, msg)
             hook()
         end
 
-	# flush pending stdio
-        flush_cstdio() # flush writes to stdout/stderr by external C code
-        yield()
-        send_stream(read_stdout, "stdout")
-        send_stream(read_stderr, "stderr")
+        # flush pending stdio
+        flush_all()
 
         undisplay(result) # dequeue if needed, since we display result in pyout
         display() # flush pending display requests
 
         if result != nothing
-
             # Work around for Julia issue #265 (see # #7884 for context)
             # We have to explicitly invoke the correct metadata method.
             result_metadata = invoke(metadata, (typeof(result),), result)
-
             send_ipython(publish,
                          msg_pub(msg, "execute_result",
                                  @compat Dict("execution_count" => _n,
                                               "metadata" => result_metadata,
                                               "data" => display_dict(result))))
-            
-            flush_cstdio() # flush writes to stdout/stderr by external C code
-            yield()
-            send_stream(read_stdout, "stdout")
-            send_stream(read_stderr, "stderr")
+
         end
-        
         send_ipython(requests,
                      msg_reply(msg, "execute_reply",
                                @compat Dict("status" => "ok",
@@ -230,10 +226,7 @@ function execute_request_0x535c5df2(socket, msg)
     catch e
         try
             # flush pending stdio
-            flush_cstdio() # flush writes to stdout/stderr by external C code
-            yield()
-            send_stream(read_stdout, "stdout")
-            send_stream(read_stderr, "stderr")
+            flush_all()
             for hook in posterror_hooks
                 hook()
             end
@@ -255,9 +248,7 @@ end
 # output only when new output is available, for minimal flickering.
 function clear_output(wait=false)
     # flush pending stdio
-    flush_cstdio() # flush writes to stdout/stderr by external C code   
-    send_stream(read_stdout, "stdout")
-    send_stream(read_stderr, "stderr")
+    flush_all()
     send_ipython(publish, msg_reply(execute_msg::Msg, "clear_output",
                                     @compat Dict("wait" => wait)))
 end
