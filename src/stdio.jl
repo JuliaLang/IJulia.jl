@@ -4,13 +4,22 @@
 
 # logging in verbose mode goes to original stdio streams.  Use macros
 # so that we do not even evaluate the arguments in no-verbose modes
+
+function get_log_preface()
+    t = now()
+    taskname = get(task_local_storage(), :IJulia_task, "")
+    @sprintf("%02d:%02d:%02d(%s): ", Dates.hour(t),Dates.minute(t),Dates.second(t),taskname)
+end
+
+
 macro vprintln(x...)
     quote
         if verbose::Bool
-            println(orig_STDOUT, $(x...))
+            println(orig_STDOUT, get_log_preface(), $(x...))
         end
     end
 end
+
 macro verror_show(e, bt)
     quote
         if verbose::Bool
@@ -19,27 +28,31 @@ macro verror_show(e, bt)
     end
 end
 
-function send_stream(rd::IO, name::AbstractString)
-    nb = nb_available(rd)
-    if nb > 0
-        d = readbytes(rd, nb)
-        s = try
-            bytestring(d)
-        catch
-            # FIXME: what should we do here?
-            string("<ERROR: invalid UTF8 data ", d, ">")
-        end
-        send_ipython(publish,
-                     msg_pub(execute_msg, "stream",
-                             @compat Dict("name" => name, "text" => s)))
-    end
-end
+#name=>iobuffer for each stream ("stdout","stderr") so they can be sent in flush
+const bufs = Dict{ASCIIString,IOBuffer}()
+const stream_interval = 0.1
+const max_bytes = 10*1024
 
+"""Continually read from (size limited) Libuv/OS buffer into an (effectively unlimited) `IObuffer`
+to avoid problems when the Libuv/OS buffer gets full (https://github.com/JuliaLang/julia/issues/8789).
+Send data immediately when buffer contains more than `max_bytes` bytes. Otherwise, if data is available
+it will be sent every `stream_interval` seconds (see the Timers set up in watch_stdio)"""
 function watch_stream(rd::IO, name::AbstractString)
+    task_local_storage(:IJulia_task, "read $name task")
     try
+        buf = IOBuffer()
+        bufs[name] = buf
         while !eof(rd) # blocks until something is available
-            send_stream(rd, name)
-            sleep(0.1) # a little delay to accumulate output
+            nb = nb_available(rd)
+            if nb > 0
+                write(buf, readbytes(rd, nb))
+            end
+            if buf.size > 0
+                if buf.size >= max_bytes
+                    #send immediately
+                    send_stream(name)
+                end
+            end
         end
     catch e
         # the IPython manager may send us a SIGINT if the user
@@ -50,6 +63,62 @@ function watch_stream(rd::IO, name::AbstractString)
             rethrow()
         end
     end
+end
+
+function send_stdio(name)
+    if verbose::Bool && !haskey(task_local_storage(), :IJulia_task)
+        task_local_storage(:IJulia_task, "send $name task")
+    end
+    send_stream(name)
+end
+
+send_stdout(t::Timer) = send_stdio("stdout")
+send_stderr(t::Timer) = send_stdio("stderr")
+
+function send_stream(name::AbstractString)
+    buf = bufs[name]
+    if buf.size > 0
+        d = takebuf_array(buf)
+        n = num_utf8_trailing(d)
+        dextra = d[end-(n-1):end]
+        resize!(d, length(d) - n)
+        s = UTF8String(d)
+        if isvalid(s)
+            write(buf, dextra) # assume that the rest of the string will be written later
+            length(d) == 0 && return
+        else
+            # fallback: base64-encode non-UTF8 binary data
+            sbuf = IOBuffer()
+            print(sbuf, "base64 binary data: ")
+            b64 = Base64EncodePipe(sbuf)
+            write(b64, d)
+            write(b64, dextra)
+            close(b64)
+            print(sbuf, '\n')
+            s = takebuf_string(sbuf)
+        end
+        send_ipython(publish,
+             msg_pub(execute_msg, "stream",
+                     @compat Dict("name" => name, "text" => s)))
+    end
+end
+
+"""
+If `d` ends with an incomplete UTF8-encoded character, return the number of trailing incomplete bytes.
+Otherwise, return `0`.
+"""
+function num_utf8_trailing(d::Vector{UInt8})
+    i = length(d)
+    # find last non-continuation byte in d:
+    while i >= 1 && ((d[i] & 0xc0) == 0x80)
+        i -= 1
+    end
+    i < 1 && return 0
+    c = d[i]
+    # compute number of expected UTF-8 bytes starting at i:
+    n = c <= 0x7f ? 1 : c < 0xe0 ? 2 : c < 0xf0 ? 3 : 4
+    nend = length(d) + 1 - i # num bytes from i to end
+    return nend == n ? 0 : nend
 end
 
 # this is hacky: we overload some of the I/O functions on pipe endpoints
@@ -87,20 +156,40 @@ function readline(io::StdioPipe)
 end
 
 function watch_stdio()
-    @async watch_stream(read_stdout, "stdout")
+    task_local_storage(:IJulia_task, "init task")
+    read_task = @async watch_stream(read_stdout, "stdout")
+    #send STDOUT stream msgs every stream_interval secs (if there is output to send)
+    Timer(send_stdout, stream_interval, stream_interval)
     if capture_stderr
-        @async watch_stream(read_stderr, "stderr")
+        readerr_task = @async watch_stream(read_stderr, "stderr")
+        #send STDERR stream msgs every stream_interval secs (if there is output to send)
+        Timer(send_stderr, stream_interval, stream_interval)
     end
+end
+
+function flush_all()
+    flush_cstdio() # flush writes to stdout/stderr by external C code
+    flush(STDOUT)
+    flush(STDERR)
+end
+
+function oslibuv_flush()
+    #refs: https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144505862
+    #      https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144605024
+    @windows_only ccall(:SwitchToThread, stdcall, Void, ())
+    yield()
+    yield()
 end
 
 import Base.flush
 function flush(io::StdioPipe)
     invoke(flush, (super(StdioPipe),), io)
-    # send any available bytes to IPython (don't use readavailable,
-    # since we don't want to block).
     if io == STDOUT
-        send_stream(read_stdout, "stdout")
+        oslibuv_flush()
+        send_stream("stdout")
     elseif io == STDERR
-        send_stream(read_stderr, "stderr")
+        oslibuv_flush()
+        send_stream("stderr")
     end
 end
+

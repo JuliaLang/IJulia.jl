@@ -21,7 +21,7 @@ end
 # of the spec yet" and is in practice currently ignored since "all
 # subscribers currently subscribe to all topics".]
 msg_pub(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
-  Msg([ msg_type == "stream" ? content["name"] : msg_type ], 
+  Msg([ msg_type == "stream" ? content["name"] : msg_type ],
       @compat(Dict("msg_id" => uuid4(),
                    "username" => m.header["username"],
                    "session" => m.header["session"],
@@ -30,7 +30,7 @@ msg_pub(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
       content, m.header, metadata)
 
 msg_reply(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
-  Msg(m.idents, 
+  Msg(m.idents,
       @compat(Dict("msg_id" => uuid4(),
                    "username" => m.header["username"],
                    "session" => m.header["session"],
@@ -41,7 +41,7 @@ msg_reply(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
 function show(io::IO, msg::Msg)
     print(io, "IPython Msg [ idents ")
     print_joined(io, msg.idents, ", ")
-    print(io, " ] {\n  header = $(msg.header),\n  metadata = $(msg.metadata),\n  content = $(msg.content)\n}")
+    print(io, " ] {\n  parent_header = $(msg.parent_header),\n  header = $(msg.header),\n  metadata = $(msg.metadata),\n  content = $(msg.content)\n}")
 end
 
 function send_ipython(socket, m::Msg)
