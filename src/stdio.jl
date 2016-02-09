@@ -45,7 +45,7 @@ function watch_stream(rd::IO, name::AbstractString)
         while !eof(rd) # blocks until something is available
             nb = nb_available(rd)
             if nb > 0
-                write(buf, readbytes(rd, nb))
+                write(buf, read(rd, nb))
             end
             if buf.size > 0
                 if buf.size >= max_bytes
@@ -151,7 +151,7 @@ function readline(io::StdioPipe)
             end
         end
     else
-        invoke(readline, (super(StdioPipe),), io)
+        invoke(readline, (supertype(StdioPipe),), io)
     end
 end
 
@@ -183,7 +183,7 @@ end
 
 import Base.flush
 function flush(io::StdioPipe)
-    invoke(flush, (super(StdioPipe),), io)
+    invoke(flush, (supertype(StdioPipe),), io)
     if io == STDOUT
         oslibuv_flush()
         send_stream("stdout")
