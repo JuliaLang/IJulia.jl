@@ -22,7 +22,16 @@ end
 
 function complete_request(socket, msg)
     code = msg.content["code"]
-    cursorpos = chr2ind(code, msg.content["cursor_pos"])
+    cursor_chr = msg.content["cursor_pos"]
+    cursorpos = cursor_chr <= 0 ? 0 : chr2ind(code, cursor_chr)
+    if isspace(code[1:cursorpos])
+        send_ipython(requests, msg_reply(msg, "complete_reply",
+                                 @compat Dict("status" => "ok",
+                                              "matches" => ASCIIString[],
+                                              "cursor_start" => cursor_chr,
+                                              "cursor_end" => cursor_chr)))
+        return
+    end
 
     codestart = find_parsestart(code, cursorpos)
     comps, positions = Base.REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
@@ -37,8 +46,7 @@ function complete_request(socket, msg)
                                      @compat Dict("status" => "ok",
                                                   "matches" => comps,
                                                   "cursor_start" => cursor_start,
-                                                  "cursor_end" => cursor_end,
-                                                  "status"=>"ok")))
+                                                  "cursor_end" => cursor_end)))
 end
 
 function kernel_info_request(socket, msg)
