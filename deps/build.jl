@@ -14,7 +14,7 @@ ENV["PYTHONIOENCODING"] = "UTF-8"
 
 function prog_version(prog)
     try
-       return convert(VersionNumber, chomp(readall(`$prog --version`)))
+       return convert(VersionNumber, chomp(readstring(`$prog --version`)))
     catch
        return v"0.0"
     end
@@ -42,8 +42,8 @@ info("Found Jupyter version $jupyter_vers: $jupyter")
 #######################################################################
 # Warn people upgrading from older IJulia versions:
 try
-    juliaprof = chomp(readall(pipeline(`$ipython locate profile julia`,
-                                       stderr=DevNull)))
+    juliaprof = chomp(readstring(pipeline(`$ipython locate profile julia`,
+                                          stderr=DevNull)))
     warn("""You should now run IJulia just via `$jupyter notebook`, without
             the `--profile julia` flag.  IJulia no longer maintains the profile.
             Consider deleting $juliaprof""")
