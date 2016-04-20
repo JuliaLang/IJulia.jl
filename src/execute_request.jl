@@ -71,8 +71,7 @@ else
 end
 
 # return the content of a pyerr message for exception e
-function error_content(e; backtrace_top::Symbol=:execute_request_0x535c5df2, msg::AbstractString="")
-    bt = catch_backtrace()
+function error_content(e, bt; backtrace_top::Symbol=:execute_request_0x535c5df2, msg::AbstractString="")
     tb = map(utf8, @compat(split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
@@ -224,6 +223,7 @@ function execute_request_0x535c5df2(socket, msg)
                                             "execution_count" => _n,
                                             "user_expressions" => user_expressions)))
     catch e
+        bt = catch_backtrace()
         try
             # flush pending stdio
             flush_all()
@@ -233,7 +233,7 @@ function execute_request_0x535c5df2(socket, msg)
         catch
         end
         empty!(displayqueue) # discard pending display requests on an error
-        content = error_content(e)
+        content = error_content(e,bt)
         send_ipython(publish, msg_pub(msg, "error", content))
         content["status"] = "error"
         content["execution_count"] = _n
