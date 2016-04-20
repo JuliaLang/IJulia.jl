@@ -249,6 +249,7 @@ end
 function clear_output(wait=false)
     # flush pending stdio
     flush_all()
+    empty!(displayqueue) # discard pending display requests
     send_ipython(publish, msg_reply(execute_msg::Msg, "clear_output",
                                     @compat Dict("wait" => wait)))
 end
