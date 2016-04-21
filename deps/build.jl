@@ -123,16 +123,26 @@ catch
             end
             python = abspath(Conda.PYTHONDIR, "python.exe")
         else
-            jk_path = readchomp(`where.exe $jupyter-kernelspec`)
-            jn_path = readchomp(`where.exe $jupyter-notebook`)
-            # jupyter-kernelspec should start with "#!/path/to/python":
-            python = strip(chomp(open(readline, jk_path, "r"))[3:end])
-            # strip quotes, if any
-            if python[1] == python[end] == '"'
-                python = python[2:end-1]
+            jupyter_dir = splitdir(jupyter)[1]
+            jks_exe = joinpath(jupyter_dir, "jupyter-kernelspec.exe")
+            if !isfile(jks_exe)
+                jk_path = readchomp(`where.exe $jupyter-kernelspec`)
+                jn_path = readchomp(`where.exe $jupyter-notebook`)
+                # jupyter-kernelspec should start with "#!/path/to/python":
+                python = strip(chomp(open(readline, jk_path, "r"))[3:end])
+                # strip quotes, if any
+                if python[1] == python[end] == '"'
+                    python = python[2:end-1]
+                end
+            else
+                jn_path = joinpath(jupyter_dir, "jupyter-notebook.exe")
             end
         end
-        run(`$python $jk_path install --replace --user $juliakspec`)
+        if isfile(jks_exe)
+            run(`$jks_exe install --replace --user $juliakspec`)
+        else
+            run(`$python $jk_path install --replace --user $juliakspec`)
+        end
         if endswith(jn_path, ".exe")
             push!(notebook, jn_path)
         else
