@@ -134,8 +134,9 @@ catch
                 if python[1] == python[end] == '"'
                     python = python[2:end-1]
                 end
-            elseif isfile(jn_path) || error("$jn_path not found")
+            else 
                 jn_path = joinpath(jupyter_dir, "jupyter-notebook.exe")
+                isfile(jn_path) || error("$jn_path not found")
             end
         end
         if isfile(jks_exe)
