@@ -71,7 +71,7 @@ else
 end
 
 # return the content of a pyerr message for exception e
-function error_content(e, bt; backtrace_top::Symbol=:execute_request_0x535c5df2, msg::AbstractString="")
+function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:execute_request_0x535c5df2, msg::AbstractString="")
     tb = map(utf8, @compat(split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
