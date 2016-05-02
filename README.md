@@ -92,6 +92,9 @@ mostly self-explanatory.  Refer to the [the IPython
 documentation](http://ipython.org/documentation.html) for more
 information.
 
+Given an IJulia notebook file, you can execute its code within any
+other Julia file (including another notebook) via the [NBInclude](https://github.com/stevengj/NBInclude.jl) package.
+
 ### Updating Julia and IJulia
 
 Julia is improving rapidly, so it won't be long before you want to
