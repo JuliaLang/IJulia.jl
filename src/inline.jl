@@ -15,8 +15,8 @@ const ipy_mime = [ "text/html", "text/latex", "image/svg+xml", "image/png", "ima
 
 for mime in ipy_mime
     @eval begin
-        function display(d::InlineDisplay, ::MIME{symbol($mime)}, x)
-            send_ipython(publish, 
+        function display(d::InlineDisplay, ::MIME{@compat(Symbol($mime))}, x)
+            send_ipython(publish,
                          msg_pub(execute_msg, "display_data",
                                  @compat Dict("source" => "julia", # optional
                                   "metadata" => metadata(x), # optional
@@ -32,7 +32,7 @@ display(d::InlineDisplay, m::MIME"application/x-latex", x) = display(d, MIME("te
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
     undisplay(x) # dequeue previous redisplay(x)
-    send_ipython(publish, 
+    send_ipython(publish,
                  msg_pub(execute_msg, "display_data",
                          @compat Dict("source" => "julia", # optional
                                       "metadata" => metadata(x), # optional

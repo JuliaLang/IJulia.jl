@@ -1,6 +1,6 @@
 #######################################################################
 # History: global In/Out and other exported history variables
-const In = Dict{Int,UTF8String}()
+const In = Dict{Int,String}()
 const Out = Dict{Int,Any}()
 ans = nothing
 

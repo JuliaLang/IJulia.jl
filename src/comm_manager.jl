@@ -33,7 +33,7 @@ function Comm(target,
               on_msg=noop_callback,
               on_close=noop_callback;
               data=Dict())
-    comm = Comm{symbol(target)}(id, primary, on_msg, on_close)
+    @compat comm = Comm{Symbol(target)}(id, primary, on_msg, on_close)
     if primary
         # Request a secondary object be created at the front end
         send_ipython(IJulia.publish,

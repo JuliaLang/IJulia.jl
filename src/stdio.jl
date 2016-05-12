@@ -29,7 +29,7 @@ macro verror_show(e, bt)
 end
 
 #name=>iobuffer for each stream ("stdout","stderr") so they can be sent in flush
-const bufs = Dict{ASCIIString,IOBuffer}()
+const bufs = Dict{String,IOBuffer}()
 const stream_interval = 0.1
 const max_bytes = 10*1024
 
@@ -82,7 +82,7 @@ function send_stream(name::AbstractString)
         n = num_utf8_trailing(d)
         dextra = d[end-(n-1):end]
         resize!(d, length(d) - n)
-        s = UTF8String(d)
+        s = String(d)
         if isvalid(s)
             write(buf, dextra) # assume that the rest of the string will be written later
             length(d) == 0 && return

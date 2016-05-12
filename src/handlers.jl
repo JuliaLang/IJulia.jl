@@ -27,7 +27,7 @@ function complete_request(socket, msg)
     if isspace(code[1:cursorpos])
         send_ipython(requests, msg_reply(msg, "complete_reply",
                                  @compat Dict("status" => "ok",
-                                              "matches" => ASCIIString[],
+                                              "matches" => String[],
                                               "cursor_start" => cursor_chr,
                                               "cursor_end" => cursor_chr)))
         return

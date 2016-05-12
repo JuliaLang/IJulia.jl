@@ -1,6 +1,7 @@
 #######################################################################
 import JSON, Conda
 using Compat
+import Compat.String
 
 # remove deps.jl if it exists, in case build.jl fails
 isfile("deps.jl") && rm("deps.jl")
@@ -59,7 +60,7 @@ spec_name = "julia-$(VERSION.major).$(VERSION.minor)"*debugdesc
 juliakspec = abspath(spec_name)
 
 binary_name = @windows? "julia.exe":"julia"
-kernelcmd_array = UTF8String[joinpath(JULIA_HOME,("$binary_name")), "-i"]
+kernelcmd_array = String[joinpath(JULIA_HOME,("$binary_name")), "-i"]
 ijulia_dir = get(ENV, "IJULIA_DIR", Pkg.dir("IJulia")) # support non-Pkg IJulia installs
 append!(kernelcmd_array, ["-F", joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
 
@@ -100,7 +101,7 @@ eprintln("Installing julia kernelspec $spec_name")
 # remove these hacks when
 # https://github.com/jupyter/notebook/issues/448 is closed and the fix
 # is widely available -- just run `$jupyter kernelspec ...` then.
-notebook = UTF8String[]
+notebook = String[]
 try
     run(`$jupyter kernelspec install --replace --user $juliakspec`)
     push!(notebook, jupyter, "notebook")
@@ -134,7 +135,7 @@ catch
                 if python[1] == python[end] == '"'
                     python = python[2:end-1]
                 end
-            else 
+            else
                 jn_path = joinpath(jupyter_dir, "jupyter-notebook.exe")
                 isfile(jn_path) || error("$jn_path not found")
             end
