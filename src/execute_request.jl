@@ -23,7 +23,7 @@ metadata(x) = Dict()
 # return a AbstractString=>AbstractString dictionary of mimetype=>data
 # for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
-    data = @compat Dict{ASCIIString,ByteString}("text/plain" =>
+    data = @compat Dict{String,String}("text/plain" =>
                                         sprint(writemime, "text/plain", x))
     if mimewritable(image_svg, x)
         data[string(image_svg)] = stringmime(image_svg, x)
@@ -130,10 +130,12 @@ function helpcode(code::AbstractString)
     else # new Base.Docs.@repl macro from julia@08663d4bb05c5b8805a57f46f4feacb07c7f2564
         code_ = strip(code)
         # as in base/REPL.jl, special-case keywords so that they parse
-        if(haskey(Docs.keywords, symbol(code_)))
-          return "eval(:(Base.Docs.@repl \$(symbol(\"$code_\"))))"
+        @compat if !haskey(Docs.keywords, Symbol(code_))
+            return "Base.Docs.@repl $code_"
+        elseif VERSION < v"0.5.0-dev+3831"
+            return "eval(:(Base.Docs.@repl \$(symbol(\"$code_\"))))"
         else
-          return "Base.Docs.@repl $code_"
+            return "eval(:(Base.Docs.@repl \$(Symbol(\"$code_\"))))"
         end
     end
 end

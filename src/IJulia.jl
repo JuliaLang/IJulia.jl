@@ -2,6 +2,7 @@ VERSION >= v"0.4.0-dev+6521" && __precompile__()
 
 module IJulia
 using Compat
+import Compat.String
 
 # in the Jupyter front-end, enable verbose output via IJulia.set_verbose()
 verbose = false
