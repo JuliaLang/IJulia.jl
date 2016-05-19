@@ -82,7 +82,7 @@ function send_stream(name::AbstractString)
         n = num_utf8_trailing(d)
         dextra = d[end-(n-1):end]
         resize!(d, length(d) - n)
-        s = String(d)
+        s = Compat.UTF8String(d)
         if isvalid(s)
             write(buf, dextra) # assume that the rest of the string will be written later
             length(d) == 0 && return
