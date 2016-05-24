@@ -6,7 +6,7 @@ using Compat
 import IJulia: Msg, uuid4, send_ipython, msg_pub
 
 export Comm, comm_target, msg_comm, send_comm, close_comm,
-       register_comm, comm_msg, comm_open, comm_close
+       register_comm, comm_msg, comm_open, comm_close, comm_info_request
 
 
 type Comm{target}
@@ -44,6 +44,23 @@ function Comm(target,
 end
 
 comm_target{target}(comm :: Comm{target}) = target
+
+function comm_info_request(sock, msg)
+    reply = if haskey(msg.content, "target_name")
+        t = @compat Symbol(msg.content["target_name"])
+        filter((k, v) -> comm_target(v) == t, comms)
+    else
+        # reply with all comms.
+        comms
+    end
+
+    _comms = map(reply) do x
+        x[1] => @compat Dict(:target_name, comm_target(x[2]))
+    end
+    content = @compat Dict(:comms => _comms)
+    send_ipython(IJulia.publish,
+                 msg_reply(msg, "comm_info_reply", content))
+end
 
 function msg_comm(comm::Comm, m::IJulia.Msg, msg_type,
                   data=Dict{AbstractString,Any}(),

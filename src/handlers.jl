@@ -181,6 +181,7 @@ const handlers = @compat(Dict{AbstractString,Function}(
     "history_request" => history_request,
     "is_complete_request" => is_complete_request,
     "comm_open" => comm_open,
+    "comm_info_request" => comm_info_request,
     "comm_msg" => comm_msg,
     "comm_close" => comm_close
 ))
