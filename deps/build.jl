@@ -114,6 +114,7 @@ catch
     # issue #363:
     @windows_only begin
         jupyter_dir = dirname(jupyter)
+        jks_exe = ""
         if jupyter_dir == abspath(Conda.SCRIPTDIR)
             jk_path = "$jupyter-kernelspec"
             if isfile(jk_path * "-script.py")
