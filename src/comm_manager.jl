@@ -54,10 +54,12 @@ function comm_info_request(sock, msg)
         comms
     end
 
-    _comms = map(reply) do x
-        x[1] => @compat Dict(:target_name, comm_target(x[2]))
+    _comms = Dict{AbstractString, Dict{Symbol,Symbol}}()
+    for (comm_id,comm) in reply
+        _comms[comm_id] = @compat Dict(:target_name => comm_target(comm))
     end
     content = @compat Dict(:comms => _comms)
+
     send_ipython(IJulia.publish,
                  msg_reply(msg, "comm_info_reply", content))
 end

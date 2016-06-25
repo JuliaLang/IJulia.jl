@@ -1,5 +1,9 @@
+using Compat.is_apple
+
 # workaround #60:
-@osx_only ENV["PATH"] = JULIA_HOME*":"*ENV["PATH"]
+if is_apple()
+    ENV["PATH"] = JULIA_HOME*":"*ENV["PATH"]
+end
 
 include("IJulia.jl")
 using IJulia

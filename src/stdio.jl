@@ -176,7 +176,9 @@ end
 function oslibuv_flush()
     #refs: https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144505862
     #      https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144605024
-    @windows_only ccall(:SwitchToThread, stdcall, Void, ())
+    @compat @static if is_windows()
+        ccall(:SwitchToThread, stdcall, Void, ())
+    end
     yield()
     yield()
 end

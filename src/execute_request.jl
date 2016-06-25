@@ -6,7 +6,9 @@ if VERSION >= v"0.4.0-dev+3844"
     import Base.Libc: flush_cstdio
 end
 
-#######################################################################
+using Compat
+import Compat.String
+
 const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")
 const image_png = MIME("image/png")
@@ -23,8 +25,7 @@ metadata(x) = Dict()
 # return a AbstractString=>AbstractString dictionary of mimetype=>data
 # for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
-    data = @compat Dict{String,String}("text/plain" =>
-                                        sprint(writemime, "text/plain", x))
+    data = @compat Dict{String,String}("text/plain" => stringmime(text_plain, x))
     if mimewritable(image_svg, x)
         data[string(image_svg)] = stringmime(image_svg, x)
     end
@@ -58,21 +59,20 @@ function undisplay(x)
     return x
 end
 
-#######################################################################
-
-if v"0.4.0-dev+6438" <= VERSION < v"0.4.0-dev+6492" # julia PR #12250
-    function show_bt(io::IO, top_func::Symbol, t, set)
+function show_bt(io::IO, top_func::Symbol, t, set)
+    if VERSION >= v"0.5.0-pre+5636" # julia PR #17570
+        Base.show_backtrace(io, t)
+    elseif v"0.4.0-dev+6438" <= VERSION < v"0.4.0-dev+6492" # julia PR #12250
         process_entry(lastname, lastfile, lastline, n) = Base.show_trace_entry(io, lastname, lastfile, lastline, n)
         Base.process_backtrace(process_entry, top_func, t, set)
-    end
-else
-    show_bt(io::IO, top_func::Symbol, t, set) =
+    else
         Base.show_backtrace(io, top_func, t, set)
+    end
 end
 
 # return the content of a pyerr message for exception e
 function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:execute_request_0x535c5df2, msg::AbstractString="")
-    tb = map(utf8, @compat(split(sprint(show_bt,
+    tb = map(x->convert(Compat.UTF8String, x), @compat(split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
                                  "\n", keep=true)))

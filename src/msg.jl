@@ -40,7 +40,7 @@ msg_reply(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
 
 function show(io::IO, msg::Msg)
     print(io, "IPython Msg [ idents ")
-    print_joined(io, msg.idents, ", ")
+    print(io, join(msg.idents, ", "))
     print(io, " ] {\n  parent_header = $(msg.parent_header),\n  header = $(msg.header),\n  metadata = $(msg.metadata),\n  content = $(msg.content)\n}")
 end
 
@@ -64,6 +64,7 @@ end
 function recv_ipython(socket)
     msg = recv(socket)
     idents = AbstractString[]
+    # unsafe_string for ZMQ.jl has patched
     s = bytestring(msg)
     @vprintln("got msg part $s")
     while s != "<IDS|MSG>"
