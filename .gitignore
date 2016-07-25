@@ -4,3 +4,4 @@
 /deps/deps.jl
 /deps/JUPYTER
 /deps/julia-*
+*.jl.*.cov

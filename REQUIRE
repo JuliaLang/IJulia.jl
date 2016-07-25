@@ -1,6 +1,6 @@
 julia 0.3
 Nettle 0.2
 JSON 0.5
-ZMQ 0.3
-Compat 0.7.15
+ZMQ 0.3.1
+Compat 0.7.20
 Conda 0.1.5
