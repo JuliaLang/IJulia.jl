@@ -7,7 +7,7 @@ import Compat.String
 # in the Jupyter front-end, enable verbose output via IJulia.set_verbose()
 verbose = false
 function set_verbose(v::Bool=true)
-    global verbose::Bool = v
+    global verbose = v
 end
 
 # set this to false for debugging, to disable stderr redirection
