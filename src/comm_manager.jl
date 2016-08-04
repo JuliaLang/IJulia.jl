@@ -33,10 +33,10 @@ function Comm(target,
               on_msg=noop_callback,
               on_close=noop_callback;
               data=Dict())
-    @compat comm = Comm{Symbol(target)}(id, primary, on_msg, on_close)
+    comm = Comm{Symbol(target)}(id, primary, on_msg, on_close)
     if primary
         # Request a secondary object be created at the front end
-        send_ipython(IJulia.publish,
+        send_ipython(IJulia.publish[],
                      msg_comm(comm, IJulia.execute_msg, "comm_open",
                               data, target_name=string(target)))
     end
@@ -47,7 +47,7 @@ comm_target{target}(comm :: Comm{target}) = target
 
 function comm_info_request(sock, msg)
     reply = if haskey(msg.content, "target_name")
-        t = @compat Symbol(msg.content["target_name"])
+        t = Symbol(msg.content["target_name"])
         filter((k, v) -> comm_target(v) == t, comms)
     else
         # reply with all comms.
@@ -56,18 +56,18 @@ function comm_info_request(sock, msg)
 
     _comms = Dict{AbstractString, Dict{Symbol,Symbol}}()
     for (comm_id,comm) in reply
-        _comms[comm_id] = @compat Dict(:target_name => comm_target(comm))
+        _comms[comm_id] = Dict(:target_name => comm_target(comm))
     end
-    content = @compat Dict(:comms => _comms)
+    content = Dict(:comms => _comms)
 
-    send_ipython(IJulia.publish,
+    send_ipython(IJulia.publish[],
                  msg_reply(msg, "comm_info_reply", content))
 end
 
 function msg_comm(comm::Comm, m::IJulia.Msg, msg_type,
                   data=Dict{AbstractString,Any}(),
                   metadata=Dict{AbstractString, Any}(); kwargs...)
-    content = @compat Dict("comm_id"=>comm.id, "data"=>data)
+    content = Dict("comm_id"=>comm.id, "data"=>data)
 
     for (k, v) in kwargs
         content[string(k)] = v
@@ -81,7 +81,7 @@ function send_comm(comm::Comm, data::Dict,
                    metadata::Dict = Dict(); kwargs...)
     msg = msg_comm(comm, IJulia.execute_msg, "comm_msg", data,
                    metadata; kwargs...)
-    send_ipython(IJulia.publish, msg)
+    send_ipython(IJulia.publish[], msg)
 end
 
 
@@ -89,7 +89,7 @@ function close_comm(comm::Comm, data::Dict = Dict(),
                     metadata::Dict = Dict(); kwargs...)
     msg = msg_comm(comm, IJulia.execute_msg, "comm_msg", data,
                    metadata; kwargs...)
-    send_ipython(IJulia.publish, msg)
+    send_ipython(IJulia.publish[], msg)
 end
 
 function register_comm(comm::Comm, data)
@@ -114,7 +114,7 @@ function comm_open(sock, msg)
         else
             # Tear down comm to maintain consistency
             # if a target_name is not present
-            send_ipython(IJulia.publish,
+            send_ipython(IJulia.publish[],
                          msg_comm(Comm(:notarget, comm_id),
                                   msg, "comm_close"))
         end

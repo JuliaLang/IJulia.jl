@@ -22,20 +22,20 @@ end
 # subscribers currently subscribe to all topics".]
 msg_pub(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
   Msg([ msg_type == "stream" ? content["name"] : msg_type ],
-      @compat(Dict("msg_id" => uuid4(),
-                   "username" => m.header["username"],
-                   "session" => m.header["session"],
-                   "msg_type" => msg_type,
-                   "version" => "5.0")),
+      Dict("msg_id" => uuid4(),
+           "username" => m.header["username"],
+           "session" => m.header["session"],
+           "msg_type" => msg_type,
+               "version" => "5.0"),
       content, m.header, metadata)
 
 msg_reply(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
   Msg(m.idents,
-      @compat(Dict("msg_id" => uuid4(),
-                   "username" => m.header["username"],
-                   "session" => m.header["session"],
-                   "msg_type" => msg_type,
-                   "version" => "5.0")),
+      Dict("msg_id" => uuid4(),
+           "username" => m.header["username"],
+           "session" => m.header["session"],
+           "msg_type" => msg_type,
+           "version" => "5.0"),
       content, m.header, metadata)
 
 function show(io::IO, msg::Msg)
@@ -91,24 +91,24 @@ function send_status(state::AbstractString, parent_header=nothing)
     if parent_header == nothing
         msg = Msg(
                   [ "status" ],
-                  @compat(Dict("msg_id" => uuid4(),
-                               "username" => "jlkernel",
-                               "session" => execute_msg.header["session"],
-                               "msg_type" => "status",
-                               "version" => "5.0")),
-                  @compat(Dict("execution_state" => state))
+                  Dict("msg_id" => uuid4(),
+                       "username" => "jlkernel",
+                       "session" => execute_msg.header["session"],
+                       "msg_type" => "status",
+                       "version" => "5.0"),
+                  Dict("execution_state" => state)
         )
     else
         msg = Msg(
                   [ "status" ],
-                  @compat(Dict("msg_id" => uuid4(),
-                               "username" => "jlkernel",
-                               "session" => execute_msg.header["session"],
-                               "msg_type" => "status",
-                               "version" => "5.0")),
-                  @compat(Dict("execution_state" => state)),
+                  Dict("msg_id" => uuid4(),
+                       "username" => "jlkernel",
+                       "session" => execute_msg.header["session"],
+                       "msg_type" => "status",
+                       "version" => "5.0"),
+                  Dict("execution_state" => state),
                   parent_header
         )
     end
-    send_ipython(publish, msg)
+    send_ipython(publish[], msg)
 end

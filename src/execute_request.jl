@@ -2,9 +2,7 @@
 # the core of the Jupyter protocol: execution of Julia code and
 # returning results.
 
-if VERSION >= v"0.4.0-dev+3844"
-    import Base.Libc: flush_cstdio
-end
+import Base.Libc: flush_cstdio
 
 using Compat
 import Compat.String
@@ -25,7 +23,7 @@ metadata(x) = Dict()
 # return a AbstractString=>AbstractString dictionary of mimetype=>data
 # for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
-    data = @compat Dict{String,String}("text/plain" => stringmime(text_plain, x))
+    data = Dict{String,String}("text/plain" => stringmime(text_plain, x))
     if mimewritable(image_svg, x)
         data[string(image_svg)] = stringmime(image_svg, x)
     end
@@ -65,9 +63,6 @@ function show_bt(io::IO, top_func::Symbol, t, set)
         eval_ind = findlast(addr->Base.REPL.ip_matches_func(addr, top_func), t)
         eval_ind != 0 && (t = t[1:eval_ind-1])
         Base.show_backtrace(io, t)
-    elseif v"0.4.0-dev+6438" <= VERSION < v"0.4.0-dev+6492" # julia PR #12250
-        process_entry(lastname, lastfile, lastline, n) = Base.show_trace_entry(io, lastname, lastfile, lastline, n)
-        Base.process_backtrace(process_entry, top_func, t, set)
     else
         Base.show_backtrace(io, top_func, t, set)
     end
@@ -75,14 +70,13 @@ end
 
 # return the content of a pyerr message for exception e
 function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_string, msg::AbstractString="")
-    tb = map(x->convert(Compat.UTF8String, x), @compat(split(sprint(show_bt,
+    tb = map(x->convert(Compat.UTF8String, x), split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
-                                 "\n", keep=true)))
+                                 "\n", keep=true))
     ename = string(typeof(e))
     evalue = try
-        sprint(VERSION < v"0.4.0-dev+5252" ? (io, e, bt) -> showerror(io, e) :
-               (io, e, bt) -> showerror(io, e, bt, backtrace=false), e, bt)
+        sprint((io, e, bt) -> showerror(io, e, bt, backtrace=false), e, bt)
     catch
         "SYSTEM: show(lasterr) caused an error"
     end
@@ -90,7 +84,7 @@ function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_s
     if !isempty(msg)
         unshift!(tb, msg)
     end
-    @compat Dict("ename" => ename, "evalue" => evalue,
+    Dict("ename" => ename, "evalue" => evalue,
                  "traceback" => tb)
 end
 
@@ -116,27 +110,17 @@ pop_posterror_hook(f::Function) = splice!(posterror_hooks, findfirst(posterror_h
 #######################################################################
 
 # global variable so that display can be done in the correct Msg context
-execute_msg = Msg(["julia"], @compat(Dict("username"=>"julia", "session"=>"????")), Dict())
-
-if VERSION >= v"0.4.0-dev+1853"
-    # in Julia commit edbfd4053ccd2970789931ad56dc336c8dd7f029,
-    # repl_cmd(cmd) was replaced by repl_cmd(cmd, out); just add the old method
-    Base.repl_cmd(cmd) = Base.repl_cmd(cmd, STDOUT)
-end
+execute_msg = Msg(["julia"], Dict("username"=>"julia", "session"=>"????"), Dict())
 
 function helpcode(code::AbstractString)
-    if VERSION < v"0.4.0-dev+2891" # old Base.@help macro
-        return "Base.@help " * code
-    else # new Base.Docs.@repl macro from julia@08663d4bb05c5b8805a57f46f4feacb07c7f2564
-        code_ = strip(code)
-        # as in base/REPL.jl, special-case keywords so that they parse
-        @compat if !haskey(Docs.keywords, Symbol(code_))
-            return "Base.Docs.@repl $code_"
-        elseif VERSION < v"0.5.0-dev+3831"
-            return "eval(:(Base.Docs.@repl \$(symbol(\"$code_\"))))"
-        else
-            return "eval(:(Base.Docs.@repl \$(Symbol(\"$code_\"))))"
-        end
+    code_ = strip(code)
+    # as in base/REPL.jl, special-case keywords so that they parse
+    if !haskey(Docs.keywords, Symbol(code_))
+        return "Base.Docs.@repl $code_"
+    elseif VERSION < v"0.5.0-dev+3831"
+        return "eval(:(Base.Docs.@repl \$(symbol(\"$code_\"))))"
+    else
+        return "eval(:(Base.Docs.@repl \$(Symbol(\"$code_\"))))"
     end
 end
 
@@ -150,9 +134,9 @@ function execute_request(socket, msg)
 
     if !silent
         _n += 1
-        send_ipython(publish,
+        send_ipython(publish[],
                      msg_pub(msg, "execute_input",
-                             @compat Dict("execution_count" => _n,
+                             Dict("execution_count" => _n,
                                           "code" => code)))
     end
 
@@ -164,7 +148,7 @@ function execute_request(socket, msg)
     # "; ..." cells are interpreted as shell commands for run
     code = replace(code, r"^\s*;.*$",
                    m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"),
-                               "`)"), 0)
+                               "`, STDOUT)"), 0)
 
     # a cell beginning with "? ..." is interpreted as a help request
     hcode = replace(code, r"^\s*\?", "")
@@ -209,16 +193,16 @@ function execute_request(socket, msg)
             # Work around for Julia issue #265 (see # #7884 for context)
             # We have to explicitly invoke the correct metadata method.
             result_metadata = invoke(metadata, (typeof(result),), result)
-            send_ipython(publish,
+            send_ipython(publish[],
                          msg_pub(msg, "execute_result",
-                                 @compat Dict("execution_count" => _n,
+                                 Dict("execution_count" => _n,
                                               "metadata" => result_metadata,
                                               "data" => display_dict(result))))
 
         end
-        send_ipython(requests,
+        send_ipython(requests[],
                      msg_reply(msg, "execute_reply",
-                               @compat Dict("status" => "ok",
+                               Dict("status" => "ok",
                                             "payload" => "", # TODO: remove (see #325)
                                             "execution_count" => _n,
                                             "user_expressions" => user_expressions)))
@@ -234,10 +218,10 @@ function execute_request(socket, msg)
         end
         empty!(displayqueue) # discard pending display requests on an error
         content = error_content(e,bt)
-        send_ipython(publish, msg_pub(msg, "error", content))
+        send_ipython(publish[], msg_pub(msg, "error", content))
         content["status"] = "error"
         content["execution_count"] = _n
-        send_ipython(requests, msg_reply(msg, "execute_reply", content))
+        send_ipython(requests[], msg_reply(msg, "execute_reply", content))
     end
 end
 
@@ -250,6 +234,6 @@ function clear_output(wait=false)
     # flush pending stdio
     flush_all()
     empty!(displayqueue) # discard pending display requests
-    send_ipython(publish, msg_reply(execute_msg::Msg, "clear_output",
-                                    @compat Dict("wait" => wait)))
+    send_ipython(publish[], msg_reply(execute_msg::Msg, "clear_output",
+                                    Dict("wait" => wait)))
 end

@@ -12,6 +12,7 @@ function heartbeat_thread(sock::Ptr{Void})
 end
 
 function start_heartbeat(sock)
+    heartbeat_c = cfunction(heartbeat_thread, Void, (Ptr{Void},))
     ccall(:uv_thread_create, Cint, (Ptr{Int}, Ptr{Void}, Ptr{Void}),
           threadid, heartbeat_c, sock.data)
 end

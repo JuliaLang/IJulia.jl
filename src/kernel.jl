@@ -23,7 +23,7 @@ ccall(:jl_exit_on_sigint, Void, (Cint,), 0)
 ENV["LINES"] = get(ENV, "LINES", 30)
 ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
 
-println(IJulia.orig_STDOUT, "Starting kernel event loops.")
+println(IJulia.orig_STDOUT[], "Starting kernel event loops.")
 IJulia.watch_stdio()
 
 # workaround JuliaLang/julia#4259

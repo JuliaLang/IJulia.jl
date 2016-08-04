@@ -62,10 +62,9 @@ juliakspec = abspath(spec_name)
 binary_name = is_windows() ? "julia.exe" : "julia"
 kernelcmd_array = String[joinpath(JULIA_HOME,("$binary_name")), "-i"]
 ijulia_dir = get(ENV, "IJULIA_DIR", Pkg.dir("IJulia")) # support non-Pkg IJulia installs
-startupfile = VERSION >= v"0.4" ? "--startup-file=yes" : "-F"
-append!(kernelcmd_array, [startupfile, joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
+append!(kernelcmd_array, ["--startup-file=yes", joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
 
-ks = @compat Dict(
+ks = Dict(
     "argv" => kernelcmd_array,
     "display_name" => "Julia " * Base.VERSION_STRING * debugdesc,
     "language" => "julia",
@@ -82,17 +81,7 @@ open(dest, "w") do f
     write(f, JSON.json(ks, 2))
 end
 
-if VERSION < v"0.4-"
-    function copy_config(src, destdir)
-        dest = joinpath(destdir, src)
-        if ispath(dest)
-            rm(dest)
-        end
-        cp(src, dest)
-    end
-else
-    copy_config(src, dest) = cp(src, joinpath(dest, src), remove_destination=true)
-end
+copy_config(src, dest) = cp(src, joinpath(dest, src), remove_destination=true)
 
 copy_config("logo-32x32.png", juliakspec)
 copy_config("logo-64x64.png", juliakspec)
