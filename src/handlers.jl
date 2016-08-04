@@ -133,7 +133,7 @@ function get_token(code, pos)
     return code[startpos:endpos]
 end
 
-function inspect_request_0x535c5df2(socket, msg)
+function inspect_request(socket, msg)
     try
         code = msg.content["code"]
         s = get_token(code, chr2ind(code, msg.content["cursor_pos"]))
@@ -148,7 +148,7 @@ function inspect_request_0x535c5df2(socket, msg)
         end
         send_ipython(requests, msg_reply(msg, "inspect_reply", content))
     catch e
-        content = error_content(e, backtrace_top=:inspect_request_0x535c5df2);
+        content = error_content(e, backtrace_top=:inspect_request);
         content["status"] = "error"
         send_ipython(requests,
                      msg_reply(msg, "inspect_reply", content))
@@ -172,10 +172,10 @@ function is_complete_request(socket, msg)
 end
 
 const handlers = @compat(Dict{AbstractString,Function}(
-    "execute_request" => execute_request_0x535c5df2,
+    "execute_request" => execute_request,
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,
-    "inspect_request" => inspect_request_0x535c5df2,
+    "inspect_request" => inspect_request,
     "connect_request" => connect_request,
     "shutdown_request" => shutdown_request,
     "history_request" => history_request,

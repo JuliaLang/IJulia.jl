@@ -61,6 +61,9 @@ end
 
 function show_bt(io::IO, top_func::Symbol, t, set)
     if VERSION >= v"0.5.0-pre+5636" # julia PR #17570
+        # follow PR #17570 code in removing top_func from backtrace
+        eval_ind = findlast(addr->Base.REPL.ip_matches_func(addr, top_func), t)
+        eval_ind != 0 && (t = t[1:eval_ind-1])
         Base.show_backtrace(io, t)
     elseif v"0.4.0-dev+6438" <= VERSION < v"0.4.0-dev+6492" # julia PR #12250
         process_entry(lastname, lastfile, lastline, n) = Base.show_trace_entry(io, lastname, lastfile, lastline, n)
@@ -71,14 +74,11 @@ function show_bt(io::IO, top_func::Symbol, t, set)
 end
 
 # return the content of a pyerr message for exception e
-function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:execute_request_0x535c5df2, msg::AbstractString="")
+function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_string, msg::AbstractString="")
     tb = map(x->convert(Compat.UTF8String, x), @compat(split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
                                  "\n", keep=true)))
-    if !isempty(tb) && ismatch(r"^\s*in\s+include_string\s+", tb[end])
-        pop!(tb) # don't include include_string in backtrace
-    end
     ename = string(typeof(e))
     evalue = try
         sprint(VERSION < v"0.4.0-dev+5252" ? (io, e, bt) -> showerror(io, e) :
@@ -140,9 +140,7 @@ function helpcode(code::AbstractString)
     end
 end
 
-# note: 0x535c5df2 is a random integer to make name collisions in
-# backtrace analysis less likely.
-function execute_request_0x535c5df2(socket, msg)
+function execute_request(socket, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
     global execute_msg = msg
