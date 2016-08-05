@@ -65,12 +65,12 @@ const read_stderr = Ref{Base.PipeEndpoint}()
 function init(args)
     inited && error("IJulia is already running")
     if length(args) > 0
-        copy!(profile, open(JSON.parse,args[1]))
+        merge!(profile, open(JSON.parse,args[1]))
         verbose && println("PROFILE = $profile")
     else
         # generate profile and save
         let port0 = 5678
-            copy!(profile, Dict{String,Any}(
+            merge!(profile, Dict{String,Any}(
                 "ip" => "127.0.0.1",
                 "transport" => "tcp",
                 "stdin_port" => port0,
