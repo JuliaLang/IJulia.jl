@@ -171,7 +171,7 @@ function is_complete_request(socket, msg)
                            Dict("status"=>status, "indent"=>"")))
 end
 
-const handlers = Dict{AbstractString,Function}(
+const handlers = Dict{String,Function}(
     "execute_request" => execute_request,
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,

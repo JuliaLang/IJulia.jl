@@ -16,11 +16,11 @@ const text_html = MIME("text/html")
 const text_latex = MIME("text/latex") # Jupyter expects this
 const text_latex2 = MIME("application/x-latex") # but this is more standard?
 
-# return a AbstractString=>Any dictionary to attach as metadata
+# return a String=>Any dictionary to attach as metadata
 # in Jupyter display_data and pyout messages
 metadata(x) = Dict()
 
-# return a AbstractString=>AbstractString dictionary of mimetype=>data
+# return a String=>String dictionary of mimetype=>data
 # for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
     data = Dict{String,String}("text/plain" => stringmime(text_plain, x))

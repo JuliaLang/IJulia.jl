@@ -4,13 +4,13 @@ export Msg, msg_pub, msg_reply, send_status, send_ipython
 
 # IPython message structure
 type Msg
-    idents::Vector{AbstractString}
+    idents::Vector{String}
     header::Dict
     content::Dict
     parent_header::Dict
     metadata::Dict
     function Msg(idents, header::Dict, content::Dict,
-                 parent_header=Dict{AbstractString,Any}(), metadata=Dict{AbstractString,Any}())
+                 parent_header=Dict{String,Any}(), metadata=Dict{String,Any}())
         new(idents,header,content,parent_header,metadata)
     end
 end
@@ -20,7 +20,7 @@ end
 # [According to minrk, "this isn't well defined, or even really part
 # of the spec yet" and is in practice currently ignored since "all
 # subscribers currently subscribe to all topics".]
-msg_pub(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
+msg_pub(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
   Msg([ msg_type == "stream" ? content["name"] : msg_type ],
       Dict("msg_id" => uuid4(),
            "username" => m.header["username"],
@@ -29,7 +29,7 @@ msg_pub(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
                "version" => "5.0"),
       content, m.header, metadata)
 
-msg_reply(m::Msg, msg_type, content, metadata=Dict{AbstractString,Any}()) =
+msg_reply(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
   Msg(m.idents,
       Dict("msg_id" => uuid4(),
            "username" => m.header["username"],
@@ -63,7 +63,7 @@ end
 
 function recv_ipython(socket)
     msg = recv(socket)
-    idents = AbstractString[]
+    idents = String[]
     # unsafe_string for ZMQ.jl has patched
     s = bytestring(msg)
     @vprintln("got msg part $s")
@@ -74,7 +74,7 @@ function recv_ipython(socket)
         @vprintln("got msg part $s")
     end
     signature = bytestring(recv(socket))
-    request = Dict{AbstractString,Any}()
+    request = Dict{String,Any}()
     header = bytestring(recv(socket))
     parent_header = bytestring(recv(socket))
     metadata = bytestring(recv(socket))

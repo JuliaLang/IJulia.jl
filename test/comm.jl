@@ -11,7 +11,7 @@ comm = Comm(target, comm_id, false)
 
 
 # comm_info_request in comm_manager.jl
-const comms = Dict{AbstractString, Comm}(
+const comms = Dict{String, Comm}(
     "id" => Comm(Symbol("jupyter.widget"), "id", false)
 )
 msg_content = Dict("target_name" => "jupyter.widget")
@@ -21,8 +21,8 @@ reply = if haskey(msg_content, "target_name")
 else
     comms
 end
-@test Dict{AbstractString,Comm} == typeof(reply)
-_comms = Dict{AbstractString,Dict{Symbol,Symbol}}()
+@test Dict{String,Comm} == typeof(reply)
+_comms = Dict{String,Dict{Symbol,Symbol}}()
 for (comm_id,comm) in reply
     _comms[comm_id] = Dict(:target_name => comm_target(comm))
 end
