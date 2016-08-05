@@ -12,6 +12,7 @@ else
     @test """eval(:(Base.Docs.@repl \$(Symbol("import"))))""" == helpcode("import")
 end
 
-
 content = error_content(UndefVarError(:a))
 @test "UndefVarError" == content["ename"]
+
+@test haskey(IJulia.docdict("sum"), "text/plain")

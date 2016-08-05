@@ -90,14 +90,31 @@ function shutdown_request(socket, msg)
     exit()
 end
 
-# TODO: better Julia help integration (issue #13)
-docdict(o) = Dict()
-docdict(o::Union{Function,DataType}) = display_dict(methods(o))
-function docdict(s::AbstractString, o)
-    d = sprint(help, s)
-    return startswith(d, "Symbol not found.") ? docdict(o) : Dict("text/plain" => d)
+stripdots(ex) = :_
+stripdots(ex::Symbol) = ex
+stripdots(ex::Expr) = Meta.isexpr(ex, :.) ? stripdots(ex.args[2]) : :_
+stripdots(ex::QuoteNode) = ex.value
+stripdots(ex::GlobalRef) = ex.name
+rm_sideeffects(ex) = ex
+function rm_sideeffects(ex::Expr)
+    if Meta.isexpr(ex, :call)
+        name = stripdots(ex.args[1])
+        if name == :repl_search || name == :repl_corrections
+            return nothing
+        else
+            return ex
+        end
+    else
+        return Expr(ex.head, map(rm_sideeffects, ex.args)...)
+    end
 end
-
+function docdict(s::AbstractString)
+    ex = macroexpand(parse(helpcode(s)))
+    # unfortunately, the REPL help macros sometimes have
+    # expressions with side effects (I/O), so we need to
+    # remove these.
+    display_dict(eval(Main, rm_sideeffects(ex)))
+end
 import Base: is_id_char, is_id_start_char
 function get_token(code, pos)
     # given a string and a cursor position, find substring to request
@@ -137,14 +154,13 @@ function inspect_request(socket, msg)
     try
         code = msg.content["code"]
         s = get_token(code, chr2ind(code, msg.content["cursor_pos"]))
-
         if isempty(s)
             content = Dict("status" => "ok", "found" => false)
         else
-            d = docdict(s, eval(Main, parse(s)))
+            d = docdict(s)
             content = Dict("status" => "ok",
-                                   "found" => !isempty(d),
-                                   "data" => d)
+                           "found" => !isempty(d),
+                           "data" => d)
         end
         send_ipython(requests[], msg_reply(msg, "inspect_reply", content))
     catch e
