@@ -114,8 +114,6 @@ function init(args)
     read_stdout[], = redirect_stdout()
     if capture_stderr
         read_stderr[], = redirect_stderr()
-    else
-        read_stderr[], = IOBuffer()
     end
 
     send_status("starting")
