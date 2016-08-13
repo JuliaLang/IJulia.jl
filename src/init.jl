@@ -64,7 +64,7 @@ function init(args)
         if signature_scheme[1] != "hmac" || length(signature_scheme) != 2
             error("unrecognized signature_scheme $signature_scheme")
         end
-        push!(hmacstate, HMACState(signature_scheme[2], profile["key"]))
+        hmacstate[] = MbedTLS.MD(MbedTLS.MD_SHA256, profile["key"])
     end
 
     ctx[] = Context()

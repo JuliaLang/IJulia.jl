@@ -1,13 +1,15 @@
-using Nettle
-const hmacstate = HMACState[]
+using MbedTLS
+const hmacstate = Ref{MbedTLS.MD{true}}()
+
 function hmac(s1,s2,s3,s4)
-    if isempty(hmacstate)
+    if !isdefined(hmacstate, :x)
         return ""
     else
-        update!(hmacstate[1], s1)
-        update!(hmacstate[1], s2)
-        update!(hmacstate[1], s3)
-        update!(hmacstate[1], s4)
-        return hexdigest!(hmacstate[1])
+        MbedTLS.reset!(hmacstate[])
+        for s in (s1, s2, s3, s4)
+            write(hmacstate[], s)
+        end
+        # Take the digest (returned as a byte array) and convert it to hex string representation
+        return join([hex(_, 2) for _ in MbedTLS.finish!(hmacstate[])])
     end
 end
