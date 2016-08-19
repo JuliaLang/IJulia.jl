@@ -186,9 +186,9 @@ function waitloop()
 end
 
 export notebook
-function notebook(; detached=false)
+function notebook(; dir=homedir(), detached=false)
     inited && error("IJulia is already running")
-    p = spawn(detach(`$notebook_cmd`))
+    p = spawn(Cmd(`$notebook_cmd`, detach=true, dir=dir))
     if !detached
         try
             wait(p)

@@ -69,6 +69,9 @@ notebook()
 to launch the IJulia notebook in your browser.  You can
 use `notebook(detached=true)` to launch a notebook server
 in the background that will persist even when you quit Julia.
+By default, the notebook "dashboard" opens in your
+home directory (`homedir()`), but you can open the dashboard
+in a different directory with `notebook(dir="/some/path")`.
 
 Alternatively, you can run
 ```
