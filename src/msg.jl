@@ -45,46 +45,56 @@ function show(io::IO, msg::Msg)
 end
 
 function send_ipython(socket, m::Msg)
-    @vprintln("SENDING $m")
-    for i in m.idents
-        send(socket, i, SNDMORE)
+    lock(socket_locks[socket])
+    try
+        @vprintln("SENDING $m")
+        for i in m.idents
+            send(socket, i, SNDMORE)
+        end
+        send(socket, "<IDS|MSG>", SNDMORE)
+        header = json(m.header)
+        parent_header = json(m.parent_header)
+        metadata = json(m.metadata)
+        content = json(m.content)
+        send(socket, hmac(header, parent_header, metadata, content), SNDMORE)
+        send(socket, header, SNDMORE)
+        send(socket, parent_header, SNDMORE)
+        send(socket, metadata, SNDMORE)
+        send(socket, content)
+    finally
+        unlock(socket_locks[socket])
     end
-    send(socket, "<IDS|MSG>", SNDMORE)
-    header = json(m.header)
-    parent_header = json(m.parent_header)
-    metadata = json(m.metadata)
-    content = json(m.content)
-    send(socket, hmac(header, parent_header, metadata, content), SNDMORE)
-    send(socket, header, SNDMORE)
-    send(socket, parent_header, SNDMORE)
-    send(socket, metadata, SNDMORE)
-    send(socket, content)
 end
 
 function recv_ipython(socket)
-    msg = recv(socket)
-    idents = String[]
-    # unsafe_string for ZMQ.jl has patched
-    s = bytestring(msg)
-    @vprintln("got msg part $s")
-    while s != "<IDS|MSG>"
-        push!(idents, s)
+    lock(socket_locks[socket])
+    try
         msg = recv(socket)
+        idents = String[]
+        # unsafe_string for ZMQ.jl has patched
         s = bytestring(msg)
         @vprintln("got msg part $s")
+        while s != "<IDS|MSG>"
+            push!(idents, s)
+            msg = recv(socket)
+            s = bytestring(msg)
+            @vprintln("got msg part $s")
+        end
+        signature = bytestring(recv(socket))
+        request = Dict{String,Any}()
+        header = bytestring(recv(socket))
+        parent_header = bytestring(recv(socket))
+        metadata = bytestring(recv(socket))
+        content = bytestring(recv(socket))
+        if signature != hmac(header, parent_header, metadata, content)
+            error("Invalid HMAC signature") # What should we do here?
+        end
+        m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
+        @vprintln("RECEIVED $m")
+        return m
+    finally
+        unlock(socket_locks[socket])
     end
-    signature = bytestring(recv(socket))
-    request = Dict{String,Any}()
-    header = bytestring(recv(socket))
-    parent_header = bytestring(recv(socket))
-    metadata = bytestring(recv(socket))
-    content = bytestring(recv(socket))
-    if signature != hmac(header, parent_header, metadata, content)
-        error("Invalid HMAC signature") # What should we do here?
-    end
-    m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
-    @vprintln("RECEIVED $m")
-    return m
 end
 
 function send_status(state::AbstractString, parent_header=nothing)

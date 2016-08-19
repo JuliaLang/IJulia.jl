@@ -61,6 +61,7 @@ const heartbeat = Ref{Socket}()
 const profile = Dict{String,Any}()
 const read_stdout = Ref{Base.PipeEndpoint}()
 const read_stderr = Ref{Base.PipeEndpoint}()
+const socket_locks = Dict{Socket,ReentrantLock}()
 
 function init(args)
     inited && error("IJulia is already running")
@@ -109,6 +110,12 @@ function init(args)
     bind(control[], "$(profile["transport"])://$(profile["ip"]):$(profile["control_port"])")
     bind(raw_input[], "$(profile["transport"])://$(profile["ip"]):$(profile["stdin_port"])")
     bind(heartbeat[], "$(profile["transport"])://$(profile["ip"]):$(profile["hb_port"])")
+
+    # associate a lock with each socket so that multi-part messages
+    # on a given socket don't get inter-mingled between tasks.
+    for s in (publish[], raw_input[], requests[], control[], heartbeat[])
+        socket_locks[s] = ReentrantLock()
+    end
 
     start_heartbeat(heartbeat[])
     read_stdout[], = redirect_stdout()
