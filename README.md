@@ -217,13 +217,20 @@ or IPython terminal interfaces by running `ipython qtconsole --kernel
 julia-0.3` or `ipython console --kernel julia-0.3`, respectively.
 (Replace `0.3` with whatever major Julia version you are using.)
 
-### Differences from IPython
+### Julia and IPython Magics
 
-One difference from IPython is that the IJulia kernel currently does
-not support "magics", which are special commands prefixed with `%` or
-`%%` to execute code in a different language.  This and other features
-are under consideration in the [IJulia
-issues](https://github.com/JuliaLang/IJulia.jl/issues) list.
+One difference from IPython is that the IJulia kernel does
+not use "magics", which are special commands prefixed with `%` or
+`%%` to execute code in a different language.   Instead, other
+syntaxes to accomplish the same goals are more natural in Julia,
+work in environments outside of IJulia code cells, and are often
+more powerful.
+
+However, if you enter an IPython magic command
+in an IJulia code cell, it will print help explaining how to
+achieve a similar effect in Julia if possible.
+For example, the analogue of IPython's `%load filename` in IJulia
+is `IJulia.load("filename")`.
 
 ### Debugging IJulia problems
 
