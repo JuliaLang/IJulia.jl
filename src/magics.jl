@@ -380,7 +380,7 @@ writefile_magic_help(magic::AbstractString, args::AbstractString) = md"""
     access to Julia 0.5's `write(filename,...)` syntax.)
 
     (`IJulia._n` is the index of the current code cell.  Of
-    course, you can also use `In[N]` for some `N` to output
+    course, you can also use `In[N]` for some other `N` to output
     the contents of a different input cell.)"""
 
 # map from magic to helpfunction(magic, magicargument)
