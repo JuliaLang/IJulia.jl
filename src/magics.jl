@@ -278,7 +278,11 @@ time_magic_help(magic::AbstractString, args::AbstractString) = md"""
 
     The `@time` macro prints the timing results, and returns the
     value of evaluating the expression.  To instead return the time
-    (in seconds), use `@elapsed statement`."""
+    (in seconds), use `@elapsed statement`.
+
+    For more extensive benchmarking tools, including the ability
+    to collect statistics from multiple runs, see the
+    [BenchmarkTools package](https://github.com/JuliaCI/BenchmarkTools.jl)."""
 
 who_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%who` and `%whos` is `whos()` in Julia.
