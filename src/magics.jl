@@ -374,15 +374,14 @@ svg_magic_help(magic::AbstractString, args::AbstractString) = md"""
     appear in the SVG code."""
 
 writefile_magic_help(magic::AbstractString, args::AbstractString) = md"""
-    An analogue of IPython's `%%writefile filename` is
-    ```
-    open("filename","w") do io
-        write(""\"
-    ...stuff to write...
-    ""\")
-    end
-    ```
-    in Julia."""
+    The analogue of IPython's `%%writefile filename` is
+    `write("filename", In[IJulia._n])`.  (In Julia 0.4, you
+    will need to do `using Compat` first in order to have
+    access to Julia 0.5's `write(filename,...)` syntax.)
+
+    (`IJulia._n` is the index of the current code cell.  Of
+    course, you can also use `In[N]` for some `N` to output
+    the contents of a different input cell.)"""
 
 # map from magic to helpfunction(magic, magicargument)
 const magic_help = Dict{Compat.ASCIIString, Function}(
