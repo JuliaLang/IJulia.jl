@@ -16,6 +16,8 @@ const text_html = MIME("text/html")
 const text_latex = MIME("text/latex") # Jupyter expects this
 const text_latex2 = MIME("application/x-latex") # but this is more standard?
 
+include("magics.jl")
+
 # return a String=>Any dictionary to attach as metadata
 # in Jupyter display_data and pyout messages
 metadata(x) = Dict()
@@ -161,7 +163,8 @@ function execute_request(socket, msg)
         end
 
         #run the code!
-        ans = result = include_string(code, "In[$_n]")
+        ans = result = ismatch(magics_regex, code) ? magics_help(code) :
+            include_string(code, "In[$_n]")
 
         if silent
             result = nothing
