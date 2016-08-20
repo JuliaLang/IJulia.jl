@@ -125,6 +125,9 @@ function helpcode(code::AbstractString)
     end
 end
 
+# use a global array to accumulate "payloads" for the execute_reply message
+const execute_payloads = Dict[]
+
 function execute_request(socket, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
@@ -132,6 +135,7 @@ function execute_request(socket, msg)
     global _n, In, Out, ans
     silent = msg.content["silent"]
     store_history = get(msg.content, "store_history", !silent)
+    empty!(execute_payloads)
 
     if !silent
         _n += 1
@@ -205,9 +209,10 @@ function execute_request(socket, msg)
         send_ipython(requests[],
                      msg_reply(msg, "execute_reply",
                                Dict("status" => "ok",
-                                            "payload" => "", # TODO: remove (see #325)
+                                            "payload" => execute_payloads,
                                             "execution_count" => _n,
                                             "user_expressions" => user_expressions)))
+        empty!(execute_payloads)
     catch e
         bt = catch_backtrace()
         try
