@@ -135,6 +135,11 @@ load_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of `%load url` is `IJulia.load(download("url"))`.
 """
 
+paste_magic_help(magic::AbstractString, args::AbstractString) = md"""
+    The analogue of `%paste` in IPython is `IJulia.load_string(clipboard())`
+    in IJulia (to load code from the clipboard into the current frontend).
+"""
+
 matplotlib_magic_help(magic::AbstractString, args::AbstractString) =
 Base.Markdown.parse("""
     The analogue of IPython's `$magic` in Julia is to use
@@ -175,6 +180,12 @@ pfile_magic_help(magic::AbstractString, args::AbstractString) = md"""
     `@less somefunction(somearguments...)` will print (or run
     through the `less` pager) the `somefunction` definition
     corresponding to the arguments you supply."""
+
+file_magic_help(magic::AbstractString, args::AbstractString) = md"""
+    The analogue of IPython's `%file somefunction` is
+    roughly `methods(somefunction)` in Julia.   This lists
+    all the methods of `sumfunction` along with the locations where
+    they are defined."""
 
 precision_magic_help(magic::AbstractString, args::AbstractString) = md"""
     There currently is no way to globally set the output precision
@@ -389,6 +400,7 @@ const magic_help = Dict{Compat.ASCIIString, Function}(
     "%history" => history_magic_help,
     "%load" => load_magic_help,
     "%loadpy" => load_magic_help,
+    "%paste" => paste_magic_help,
     "%lsmagic" => lsmagic_help,
     "%matplotlib" => matplotlib_magic_help,
     "%pylab" => matplotlib_magic_help,
@@ -397,6 +409,7 @@ const magic_help = Dict{Compat.ASCIIString, Function}(
     "%pinfo" => pdoc_magic_help,
     "%pinfo2" => pdoc_magic_help,
     "%pfile" => pfile_magic_help,
+    "%file" => file_magic_help,
     "%psource" => pfile_magic_help,
     "%precision" => precision_magic_help,
     "%prun" => prun_magic_help,
