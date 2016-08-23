@@ -90,25 +90,6 @@ function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_s
 end
 
 #######################################################################
-# Similar to the ipython kernel, we provide a mechanism by
-# which modules can register thunk functions to be called after
-# executing an input cell, e.g. to "close" the current plot in Pylab.
-# Modules should only use these if isdefined(Main, IJulia) is true.
-
-const postexecute_hooks = Function[]
-push_postexecute_hook(f::Function) = push!(postexecute_hooks, f)
-pop_postexecute_hook(f::Function) = splice!(postexecute_hooks, findfirst(postexecute_hooks, f))
-
-const preexecute_hooks = Function[]
-push_preexecute_hook(f::Function) = push!(preexecute_hooks, f)
-pop_preexecute_hook(f::Function) = splice!(preexecute_hooks, findfirst(pretexecute_hooks, f))
-
-# similar, but called after an error (e.g. to reset plotting state)
-const posterror_hooks = Function[]
-push_posterror_hook(f::Function) = push!(posterror_hooks, f)
-pop_posterror_hook(f::Function) = splice!(posterror_hooks, findfirst(posterror_hooks, f))
-
-#######################################################################
 
 # global variable so that display can be done in the correct Msg context
 execute_msg = Msg(["julia"], Dict("username"=>"julia", "session"=>"????"), Dict())
@@ -132,22 +113,22 @@ function execute_request(socket, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
     global execute_msg = msg
-    global _n, In, Out, ans
+    global n, In, Out, ans
     silent = msg.content["silent"]
     store_history = get(msg.content, "store_history", !silent)
     empty!(execute_payloads)
 
     if !silent
-        _n += 1
+        n += 1
         send_ipython(publish[],
                      msg_pub(msg, "execute_input",
-                             Dict("execution_count" => _n,
+                             Dict("execution_count" => n,
                                           "code" => code)))
     end
 
     silent = silent || ismatch(r";\s*$", code)
     if store_history
-        In[_n] = code
+        In[n] = code
     end
 
     # "; ..." cells are interpreted as shell commands for run
@@ -168,14 +149,14 @@ function execute_request(socket, msg)
 
         #run the code!
         ans = result = ismatch(magics_regex, code) ? magics_help(code) :
-            include_string(code, "In[$_n]")
+            include_string(code, "In[$n]")
 
         if silent
             result = nothing
         elseif result != nothing
             if store_history
                 if result != Out # workaround for Julia #3066
-                    Out[_n] = result
+                    Out[n] = result
                 end
             end
         end
@@ -201,7 +182,7 @@ function execute_request(socket, msg)
             result_metadata = invoke(metadata, (typeof(result),), result)
             send_ipython(publish[],
                          msg_pub(msg, "execute_result",
-                                 Dict("execution_count" => _n,
+                                 Dict("execution_count" => n,
                                               "metadata" => result_metadata,
                                               "data" => display_dict(result))))
 
@@ -210,7 +191,7 @@ function execute_request(socket, msg)
                      msg_reply(msg, "execute_reply",
                                Dict("status" => "ok",
                                             "payload" => execute_payloads,
-                                            "execution_count" => _n,
+                                            "execution_count" => n,
                                             "user_expressions" => user_expressions)))
         empty!(execute_payloads)
     catch e
@@ -227,20 +208,7 @@ function execute_request(socket, msg)
         content = error_content(e,bt)
         send_ipython(publish[], msg_pub(msg, "error", content))
         content["status"] = "error"
-        content["execution_count"] = _n
+        content["execution_count"] = n
         send_ipython(requests[], msg_reply(msg, "execute_reply", content))
     end
-end
-
-#######################################################################
-
-# The user can call IJulia.clear_output() to clear visible output from the
-# front end, useful for simple animations.  Using wait=true clears the
-# output only when new output is available, for minimal flickering.
-function clear_output(wait=false)
-    # flush pending stdio
-    flush_all()
-    empty!(displayqueue) # discard pending display requests
-    send_ipython(publish[], msg_reply(execute_msg::Msg, "clear_output",
-                                    Dict("wait" => wait)))
 end

@@ -12,7 +12,6 @@ eprintln(x...) = println(STDERR, x...)
 # Make sure Python uses UTF-8 output for Unicode paths
 ENV["PYTHONIOENCODING"] = "UTF-8"
 
-
 function prog_version(prog)
     try
        return convert(VersionNumber, chomp(readstring(`$prog --version`)))

@@ -1,20 +1,16 @@
-using Compat.is_apple
+import IJulia
 
 # workaround #60:
-if is_apple()
+if IJulia.Compat.is_apple()
     ENV["PATH"] = JULIA_HOME*":"*ENV["PATH"]
 end
 
-include("IJulia.jl")
-using IJulia
 IJulia.init(ARGS)
 
 # import things that we want visible in IJulia but not in REPL's using IJulia
-import IJulia.ans
+import IJulia: ans, In, Out, clear_history
 
-include("inline.jl")
-using IPythonDisplay
-pushdisplay(InlineDisplay())
+pushdisplay(IJulia.InlineDisplay())
 
 ccall(:jl_exit_on_sigint, Void, (Cint,), 0)
 

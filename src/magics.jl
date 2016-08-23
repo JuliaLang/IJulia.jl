@@ -379,11 +379,11 @@ svg_magic_help(magic::AbstractString, args::AbstractString) = md"""
 
 writefile_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%%writefile filename` is
-    `write("filename", In[IJulia._n])`.  (In Julia 0.4, you
+    `write("filename", In[IJulia.n])`.  (In Julia 0.4, you
     will need to do `using Compat` first in order to have
     access to Julia 0.5's `write(filename,...)` syntax.)
 
-    (`IJulia._n` is the index of the current code cell.  Of
+    (`IJulia.n` is the index of the current code cell.  Of
     course, you can also use `In[N]` for some other `N` to output
     the contents of a different input cell.)"""
 
@@ -447,31 +447,3 @@ const magic_help = Dict{Compat.ASCIIString, Function}(
     "%%svg" => svg_magic_help,
     "%%writefile" => writefile_magic_help,
 )
-
-"""
-    load_string(s, replace=false)
-
-Load the string `s` into a new input code cell in the running IJulia notebook,
-somewhat analogous to the `%load` magics in IPython. If the optional argument
-`replace` is `true`, then `s` replaces the *current* cell rather than creating
-a new cell.
-"""
-function load_string(s::AbstractString, replace::Bool=false)
-    push!(execute_payloads, Dict(
-        "source"=>"set_next_input",
-        "text"=>s,
-        "replace"=>replace
-    ))
-    return nothing
-end
-
-"""
-    load(filename, replace=false)
-
-Load the file given by `filename` into a new input code cell in the running
-IJulia notebook, analogous to the `%load` magics in IPython.
-If the optional argument `replace` is `true`, then the file contents
-replace the *current* cell rather than creating a new cell.
-"""
-load(filename::AbstractString, replace::Bool=false) =
-    load_string(readstring(filename), replace)

@@ -9,7 +9,6 @@ import IJulia: Msg, uuid4, send_ipython, msg_pub
 export Comm, comm_target, msg_comm, send_comm, close_comm,
        register_comm, comm_msg, comm_open, comm_close, comm_info_request
 
-
 type Comm{target}
     id::String
     primary::Bool
@@ -77,14 +76,12 @@ function msg_comm(comm::Comm, m::IJulia.Msg, msg_type,
     return msg_pub(m, msg_type, content, metadata)
 end
 
-
 function send_comm(comm::Comm, data::Dict,
                    metadata::Dict = Dict(); kwargs...)
     msg = msg_comm(comm, IJulia.execute_msg, "comm_msg", data,
                    metadata; kwargs...)
     send_ipython(IJulia.publish[], msg)
 end
-
 
 function close_comm(comm::Comm, data::Dict = Dict(),
                     metadata::Dict = Dict(); kwargs...)
@@ -122,7 +119,6 @@ function comm_open(sock, msg)
     end
 end
 
-
 function comm_msg(sock, msg)
     if haskey(msg.content, "comm_id")
         comm_id = msg.content["comm_id"]
@@ -140,7 +136,6 @@ function comm_msg(sock, msg)
     end
 end
 
-
 function comm_close(sock, msg)
     if haskey(msg.content, "comm_id")
         comm_id = msg.content["comm_id"]
@@ -154,6 +149,5 @@ function comm_close(sock, msg)
         delete!(comms, comm.id)
     end
 end
-
 
 end # module

@@ -1,11 +1,4 @@
-module IPythonDisplay
-
-using IJulia, Compat
-import IJulia: send_ipython, publish, msg_pub, execute_msg,
-               metadata, display_dict, displayqueue, undisplay
-
 import Base: display, redisplay
-export display, redisplay, InlineDisplay, undisplay
 
 immutable InlineDisplay <: Display end
 
@@ -59,5 +52,3 @@ function display()
         display(x)
     end
 end
-
-end # module

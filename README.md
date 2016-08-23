@@ -18,7 +18,7 @@ the [NBInclude](https://github.com/stevengj/NBInclude.jl) package.)
 
 ## Installation
 
-First, [download Julia](http://julialang.org/downloads/) *version 0.3
+First, [download Julia](http://julialang.org/downloads/) *version 0.4
 or later* and run the installer.  Then run the Julia application
 (double-click on it); a window with a `julia>` prompt will appear.  At
 the prompt, type:
@@ -177,8 +177,7 @@ First, you will need to install a few prerequisites:
 
 * You need **version 3.0** or later of IPython, or version 4 or later
 of Jupyter.  Note that IPython 3.0 was released in February 2015, so
-the version pre-packaged with operating-system distribution is likely
-to be too old for the next few weeks or months.  Until then, you may
+if you have an older operating system you may
 have to [install IPython
 manually](http://ipython.org/ipython-doc/stable/install/install.html).
 On Mac and Windows systems, it is currently easiest to use the
@@ -196,9 +195,9 @@ On Mac and Windows systems, it is currently easiest to use the
   you will need to install [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download) or
   [PySide](http://qt-project.org/wiki/Category:LanguageBindings::PySide).
 
-* You need Julia version 0.3 or later.
+* You need Julia version 0.4 or later.
 
-Once IPython 3.0+ and Julia 0.3+ are installed, you can install IJulia from a Julia console by typing:
+Once IPython 3.0+ and Julia 0.4+ are installed, you can install IJulia from a Julia console by typing:
 ```
 Pkg.add("IJulia")
 ```
@@ -214,8 +213,8 @@ Most people will use the notebook (browser-based) interface, but you
 can also use the IPython
 [qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html)
 or IPython terminal interfaces by running `ipython qtconsole --kernel
-julia-0.3` or `ipython console --kernel julia-0.3`, respectively.
-(Replace `0.3` with whatever major Julia version you are using.)
+julia-0.4` or `ipython console --kernel julia-0.4`, respectively.
+(Replace `0.4` with whatever major Julia version you are using.)
 
 ### Julia and IPython Magics
 
@@ -240,4 +239,4 @@ messages to the terminal: edit your [`IJulia/src/IJulia.jl`](src/IJulia.jl) file
 your `.julia` package directory) to change the line `verbose = false`
 at the top to `verbose = true` and `const capture_stderr = true` to
 `const capture_stderr = false`.  Then restart the kernel or open a new
-notebook and look for the error message when IJulia dies
+notebook and look for the error message when IJulia dies.

@@ -1,7 +1,7 @@
 include("comm_manager.jl")
 include("execute_request.jl")
 
-using IJulia.CommManager
+using .CommManager
 
 # Don't send previous lines to the completions function,
 # due to issue #380.  Find the start of the first line
