@@ -3,8 +3,9 @@ import JSON, Conda
 using Compat
 import Compat.String
 
-# remove deps.jl if it exists, in case build.jl fails
-isfile("deps.jl") && rm("deps.jl")
+# remove deps.jl at exit if it exists, in case build.jl fails
+try
+#######################################################################
 
 # print to stderr, since that is where Pkg prints its messages
 eprintln(x...) = println(STDERR, x...)
@@ -142,13 +143,17 @@ catch
         end
     end
 end
-open("deps.jl", "w") do f
-    print(f, """
-          const jupyter = "$(escape_string(jupyter))"
-          const notebook_cmd = ["$(join(map(escape_string, notebook), "\", \""))"]
-          const jupyter_vers = $(repr(jupyter_vers))
-          """)
+deps = """
+    const jupyter = "$(escape_string(jupyter))"
+    const notebook_cmd = ["$(join(map(escape_string, notebook), "\", \""))"]
+    const jupyter_vers = $(repr(jupyter_vers))
+    """
+if !isfile("deps.jl") || readstring("deps.jl") != deps
+    write("deps.jl", deps)
 end
-open("JUPYTER", "w") do f
-    println(f, jupyter)
+write("JUPYTER", jupyter)
+
+#######################################################################
+catch
+isfile("deps.jl") && rm("deps.jl") # remove deps.jl file on build error
 end
