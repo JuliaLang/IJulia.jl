@@ -73,6 +73,14 @@ By default, the notebook "dashboard" opens in your
 home directory (`homedir()`), but you can open the dashboard
 in a different directory with `notebook(dir="/some/path")`.
 
+The `notebook` function blocks the current process, but you can 
+also run it asynchronously, if you want to continue using the 
+same Julia prompt instead of having to open a new one.
+
+```julia
+using IJulia; @async notebook()
+```
+
 Alternatively, you can run
 ```
 jupyter notebook
