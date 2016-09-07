@@ -69,17 +69,19 @@ notebook()
 to launch the IJulia notebook in your browser.  You can
 use `notebook(detached=true)` to launch a notebook server
 in the background that will persist even when you quit Julia.
+This is also useful if you want to keep using the current Julia
+session instead of opening a new one.
+
+```julia
+julia> using IJulia; notebook(detached=true)
+Process(`'C:\Users\JuliaUser\.julia\v0.4\Conda\deps\usr\Scripts\jupyter' notebook`, ProcessRunning)
+
+julia> 
+```
+
 By default, the notebook "dashboard" opens in your
 home directory (`homedir()`), but you can open the dashboard
 in a different directory with `notebook(dir="/some/path")`.
-
-The `notebook` function blocks the current process, but you can 
-also run it asynchronously, if you want to continue using the 
-same Julia prompt instead of having to open a new one.
-
-```julia
-using IJulia; @async notebook()
-```
 
 Alternatively, you can run
 ```
