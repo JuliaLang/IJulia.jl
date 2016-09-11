@@ -147,7 +147,7 @@ function readline(io::StdioPipe)
             end
         end
     else
-        invoke(readline, (supertype(StdioPipe),), io)
+        invoke(readline, Tuple{supertype(StdioPipe)}, io)
     end
 end
 
@@ -181,7 +181,7 @@ end
 
 import Base.flush
 function flush(io::StdioPipe)
-    invoke(flush, (supertype(StdioPipe),), io)
+    invoke(flush, Tuple{supertype(StdioPipe)}, io)
     if io == STDOUT
         oslibuv_flush()
         send_stream("stdout")

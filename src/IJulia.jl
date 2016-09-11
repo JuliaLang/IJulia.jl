@@ -187,7 +187,7 @@ end
 
 # since a range could be huge, intersect it with 1:n first
 clear_history{T<:Integer}(r::Range{T}) =
-    invoke(clear_history, (Any,), intersect(r, 1:n))
+    invoke(clear_history, Tuple{Any}, intersect(r, 1:n))
 
 function clear_history()
     empty!(In)
