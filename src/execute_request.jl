@@ -176,10 +176,9 @@ function execute_request(socket, msg)
         undisplay(result) # dequeue if needed, since we display result in pyout
         display() # flush pending display requests
 
-        if result != nothing
+        if result !== nothing
             # Work around for Julia issue #265 (see # #7884 for context)
-            # We have to explicitly invoke the correct metadata method.
-            result_metadata = invoke(metadata, (typeof(result),), result)
+            result_metadata = eval(:(metadata($(QuoteNode(result)))))
             send_ipython(publish[],
                          msg_pub(msg, "execute_result",
                                  Dict("execution_count" => n,
