@@ -22,26 +22,44 @@ include("magics.jl")
 # in Jupyter display_data and pyout messages
 metadata(x) = Dict()
 
+if VERSION >= v"0.5.0-dev+4305" # JuliaLang/julia#16354
+    # convert x to a string of type mime, making sure to use an
+    # IOContext that tells the underlying show function to limit output
+    function limitstringmime(mime::MIME, x)
+        buf = IOBuffer()
+        if istextmime(mime)
+            show(IOContext(buf, limit=true), mime, x)
+        else
+            b64 = Base64EncodePipe(buf)
+            show(IOContext(b64, limit=true), mime, x)
+            close(b64)
+        end
+        return takebuf_string(buf)
+    end
+else
+    limitstringmime(mime::MIME, x) = stringmime(mime, x)
+end
+
 # return a String=>String dictionary of mimetype=>data
 # for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
-    data = Dict{String,String}("text/plain" => stringmime(text_plain, x))
+    data = Dict{String,String}("text/plain" => limitstringmime(text_plain, x))
     if mimewritable(image_svg, x)
-        data[string(image_svg)] = stringmime(image_svg, x)
+        data[string(image_svg)] = limitstringmime(image_svg, x)
     end
     if mimewritable(image_png, x)
-        data[string(image_png)] = stringmime(image_png, x)
+        data[string(image_png)] = limitstringmime(image_png, x)
     elseif mimewritable(image_jpeg, x) # don't send jpeg if we have png
-        data[string(image_jpeg)] = stringmime(image_jpeg, x)
+        data[string(image_jpeg)] = limitstringmime(image_jpeg, x)
     end
     if mimewritable(text_markdown, x)
-        data[string(text_markdown)] = stringmime(text_markdown, x)
+        data[string(text_markdown)] = limitstringmime(text_markdown, x)
     elseif mimewritable(text_html, x)
-        data[string(text_html)] = stringmime(text_html, x)
+        data[string(text_html)] = limitstringmime(text_html, x)
     elseif mimewritable(text_latex, x)
-        data[string(text_latex)] = stringmime(text_latex, x)
+        data[string(text_latex)] = limitstringmime(text_latex, x)
     elseif mimewritable(text_latex2, x)
-        data[string(text_latex)] = stringmime(text_latex2, x)
+        data[string(text_latex)] = limitstringmime(text_latex2, x)
     end
     return data
 end
