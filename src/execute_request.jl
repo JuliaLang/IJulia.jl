@@ -111,6 +111,9 @@ end
 
 # global variable so that display can be done in the correct Msg context
 execute_msg = Msg(["julia"], Dict("username"=>"julia", "session"=>"????"), Dict())
+# global variable tracking the number of bytes written in the current execution
+# request
+const stdout_bytes = Ref(0)
 
 function helpcode(code::AbstractString)
     code_ = strip(code)
@@ -132,6 +135,7 @@ function execute_request(socket, msg)
     @vprintln("EXECUTING ", code)
     global execute_msg = msg
     global n, In, Out, ans
+    stdout_bytes[] = 0
     silent = msg.content["silent"]
     store_history = get(msg.content, "store_history", !silent)
     empty!(execute_payloads)

@@ -31,12 +31,18 @@ end
 #name=>iobuffer for each stream ("stdout","stderr") so they can be sent in flush
 const bufs = Dict{String,IOBuffer}()
 const stream_interval = 0.1
+# maximum number of bytes in libuv/os buffer before emptying
 const max_bytes = 10*1024
+# max output per code cell is 512 kb by default
+const max_output_per_request = Ref(1 << 19)
 
-"""Continually read from (size limited) Libuv/OS buffer into an (effectively unlimited) `IObuffer`
-to avoid problems when the Libuv/OS buffer gets full (https://github.com/JuliaLang/julia/issues/8789).
-Send data immediately when buffer contains more than `max_bytes` bytes. Otherwise, if data is available
-it will be sent every `stream_interval` seconds (see the Timers set up in watch_stdio)"""
+"""
+Continually read from (size limited) Libuv/OS buffer into an `IObuffer` to avoid problems when
+the Libuv/OS buffer gets full (https://github.com/JuliaLang/julia/issues/8789). Send data immediately
+when buffer contains more than `max_bytes` bytes. Otherwise, if data is available it will be sent every
+`stream_interval` seconds (see the Timers set up in watch_stdio). Truncate the output to `max_output_per_request`
+bytes per execution request since excessive output can bring browsers to a grinding halt.
+"""
 function watch_stream(rd::IO, name::AbstractString)
     task_local_storage(:IJulia_task, "read $name task")
     try
@@ -45,7 +51,20 @@ function watch_stream(rd::IO, name::AbstractString)
         while !eof(rd) # blocks until something is available
             nb = nb_available(rd)
             if nb > 0
-                write(buf, read(rd, nb))
+                if name == "stdout"
+                    stdout_bytes[] += nb
+                    # if this stream as surpassed the maximum output limit then ignore future bytes
+                    if stdout_bytes[] > max_output_per_request[]
+                        if stdout_bytes[] - nb <= max_output_per_request[]
+                            warn("Excessive output truncated after $(stdout_bytes[]) bytes.")
+                        end
+                        read(rd, nb) # read from libuv/os buffer and discard
+                    else
+                        write(buf, read(rd, nb))
+                    end
+                else # always write stderr
+                    write(buf, read(rd, nb))
+                end
             end
             if buf.size > 0
                 if buf.size >= max_bytes

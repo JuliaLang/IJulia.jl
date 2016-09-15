@@ -250,3 +250,13 @@ your `.julia` package directory) to change the line `verbose = false`
 at the top to `verbose = true` and `const capture_stderr = true` to
 `const capture_stderr = false`.  Then restart the kernel or open a new
 notebook and look for the error message when IJulia dies.
+
+### Preventing truncation of output
+
+The new default behavior of IJulia is to truncate stdout (via `show` or `println`)
+after 512kb. This to prevent browsers from getting bogged down when displaying the
+results. This limit can be increased to a custom value, like 1MB, as follows
+
+```
+IJulia.set_max_excessive_output(1 << 20)
+```
