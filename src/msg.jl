@@ -71,21 +71,20 @@ function recv_ipython(socket)
     try
         msg = recv(socket)
         idents = String[]
-        # unsafe_string for ZMQ.jl has patched
-        s = bytestring(msg)
+        s = unsafe_string(msg)
         @vprintln("got msg part $s")
         while s != "<IDS|MSG>"
             push!(idents, s)
             msg = recv(socket)
-            s = bytestring(msg)
+            s = unsafe_string(msg)
             @vprintln("got msg part $s")
         end
-        signature = bytestring(recv(socket))
+        signature = unsafe_string(recv(socket))
         request = Dict{String,Any}()
-        header = bytestring(recv(socket))
-        parent_header = bytestring(recv(socket))
-        metadata = bytestring(recv(socket))
-        content = bytestring(recv(socket))
+        header = unsafe_string(recv(socket))
+        parent_header = unsafe_string(recv(socket))
+        metadata = unsafe_string(recv(socket))
+        content = unsafe_string(recv(socket))
         if signature != hmac(header, parent_header, metadata, content)
             error("Invalid HMAC signature") # What should we do here?
         end
