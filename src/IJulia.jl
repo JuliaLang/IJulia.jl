@@ -284,6 +284,19 @@ function clear_output(wait=false)
                                     Dict("wait" => wait)))
 end
 
+
+"""
+    set_max_stdio(max_output::Integer)
+
+Sets the maximum number of bytes, `max_output`, that can be written to stdout and
+stderr before getting truncated. A large value here allows a lot of output to be
+displayed in the notebook, potentially bogging down the browser.
+"""
+function set_max_stdio(max_output::Integer)
+    max_output_per_request[] = max_output
+end
+
+
 #######################################################################
 
 include("init.jl")
