@@ -258,5 +258,5 @@ after 512kb. This to prevent browsers from getting bogged down when displaying t
 results. This limit can be increased to a custom value, like 1MB, as follows
 
 ```
-IJulia.set_max_excessive_output(1 << 20)
+IJulia.set_max_stdio(1 << 20)
 ```

@@ -286,15 +286,14 @@ end
 
 
 """
-    set_max_excessive_output(max_output::Int)
+    set_max_stdio(max_output::Integer)
 
-Sets the maximum number of bytes, `max_output`, that can be written to stdout
-before getting truncated. A large value here allows a lot of output to be
+Sets the maximum number of bytes, `max_output`, that can be written to stdout and
+stderr before getting truncated. A large value here allows a lot of output to be
 displayed in the notebook, potentially bogging down the browser.
 """
-function set_max_excessive_output(max_output::Int)
+function set_max_stdio(max_output::Integer)
     max_output_per_request[] = max_output
-    println("Stdout will now be truncated after $max_output bytes")
 end
 
 

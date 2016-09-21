@@ -51,18 +51,15 @@ function watch_stream(rd::IO, name::AbstractString)
         while !eof(rd) # blocks until something is available
             nb = nb_available(rd)
             if nb > 0
-                if name == "stdout"
-                    stdout_bytes[] += nb
-                    # if this stream as surpassed the maximum output limit then ignore future bytes
-                    if stdout_bytes[] > max_output_per_request[]
-                        if stdout_bytes[] - nb <= max_output_per_request[]
-                            warn("Excessive output truncated after $(stdout_bytes[]) bytes.")
-                        end
-                        read(rd, nb) # read from libuv/os buffer and discard
-                    else
-                        write(buf, read(rd, nb))
+                stdio_bytes[] += nb
+                # if this stream has surpassed the maximum output limit then ignore future bytes
+                if stdio_bytes[] >= max_output_per_request[]
+                    read(rd, nb) # read from libuv/os buffer and discard
+                    if stdio_bytes[] - nb < max_output_per_request[]
+                        send_ipython(publish[], msg_pub(execute_msg, "stream",
+                            @compat Dict("name" => "stderr", "text" => "Excessive output truncated after $(stdio_bytes[]) bytes.")))
                     end
-                else # always write stderr
+                else
                     write(buf, read(rd, nb))
                 end
             end
