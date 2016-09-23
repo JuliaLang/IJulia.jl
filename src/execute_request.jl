@@ -95,6 +95,8 @@ function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_s
                                  "\n", keep=true))
     ename = string(typeof(e))
     evalue = try
+        # Peel away one LoadError layer that comes from running include_string on the cell
+        isa(e, LoadError) && (e = e.error)
         sprint((io, e, bt) -> showerror(io, e, bt, backtrace=false), e, bt)
     catch
         "SYSTEM: show(lasterr) caused an error"
