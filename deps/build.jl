@@ -62,7 +62,7 @@ juliakspec = abspath(spec_name)
 binary_name = is_windows() ? "julia.exe" : "julia"
 kernelcmd_array = String[joinpath(JULIA_HOME,("$binary_name")), "-i"]
 ijulia_dir = get(ENV, "IJULIA_DIR", Pkg.dir("IJulia")) # support non-Pkg IJulia installs
-append!(kernelcmd_array, ["--startup-file=yes", "--color=yes, "--depwarn=no", joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
+append!(kernelcmd_array, ["--startup-file=yes", "--color=yes", "--depwarn=no", joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
 
 ks = Dict(
     "argv" => kernelcmd_array,
