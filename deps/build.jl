@@ -31,12 +31,14 @@ for p in (haskey(ENV, "JUPYTER") ? (ENV["JUPYTER"],) : (isfile("JUPYTER") ? read
        break
     end
 end
-if jupyter_vers < v"3.0" || dirname(jupyter) == abspath(Conda.SCRIPTDIR)
+if Sys.ARCH in (:i686, :x86_64) && (jupyter_vers < v"3.0" || dirname(jupyter) == abspath(Conda.SCRIPTDIR))
     info("Installing Jupyter via the Conda package.")
     Conda.add("jupyter")
     jupyter = abspath(Conda.SCRIPTDIR,"jupyter")
     jupyter_vers = prog_version(jupyter)
-    jupyter_vers < v"3.0" && error("failed to find $jupyter 3.0 or later")
+end
+if jupyter_vers < v"3.0"
+    error("Failed to find or install Jupyter 3.0 or later. Please install manually and rerun `Pkg.build(\"IJulia\")`.")
 end
 info("Found Jupyter version $jupyter_vers: $jupyter")
 
