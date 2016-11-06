@@ -86,7 +86,9 @@ function init(args)
     end
 
     start_heartbeat(heartbeat[])
-    read_stdout[], = redirect_stdout()
+    if capture_stdout
+        read_stdout[], = redirect_stdout()
+    end
     if capture_stderr
         read_stderr[], = redirect_stderr()
     end
