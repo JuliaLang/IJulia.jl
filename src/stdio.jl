@@ -91,6 +91,20 @@ end
 send_stdout(t::Timer) = send_stdio("stdout")
 send_stderr(t::Timer) = send_stdio("stderr")
 
+"""
+Jupyter associates cells with message headers. Once a cell's execution state has
+been set as to idle, it will silently drop stream messages (i.e. output to
+stdout and stderr) - see https://github.com/jupyter/notebook/issues/518.
+When using Interact, and a widget's state changes, a new
+message header is sent to the IJulia kernel, and while Reactive
+is updating Signal graph state, it's execution state is busy, meaning Jupyter
+will not drop stream messages if Interact can set the header message under which
+the stream messages will be sent. Hence the need for this function.
+"""
+function set_cur_msg(msg)
+    global execute_msg = msg
+end
+
 function send_stream(name::AbstractString)
     buf = bufs[name]
     if buf.size > 0
