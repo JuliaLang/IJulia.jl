@@ -183,9 +183,11 @@ end
 
 function watch_stdio()
     task_local_storage(:IJulia_task, "init task")
-    read_task = @async watch_stream(read_stdout[], "stdout")
-    #send STDOUT stream msgs every stream_interval secs (if there is output to send)
-    Timer(send_stdout, stream_interval, stream_interval)
+    if capture_stdout
+        read_task = @async watch_stream(read_stdout[], "stdout")
+        #send STDOUT stream msgs every stream_interval secs (if there is output to send)
+        Timer(send_stdout, stream_interval, stream_interval)
+    end
     if capture_stderr
         readerr_task = @async watch_stream(read_stderr[], "stderr")
         #send STDERR stream msgs every stream_interval secs (if there is output to send)

@@ -68,10 +68,11 @@ inited = false
 """
 The IJulia kernel captures all [stdout and stderr](https://en.wikipedia.org/wiki/Standard_streams)
 output and redirects it to the notebook.   When debugging IJulia problems,
-however, it is more convenient to *not* capture stderr output (since the
-notebook may not be functioning).   This can be done by editing `IJulia.jl`
-to set `capture_stderr` to `false`.
+however, it can be more convenient to *not* capture stdout and stderr output
+(since the notebook may not be functioning). This can be done by editing
+`IJulia.jl` to set `capture_stderr` and/or `capture_stdout` to `false`.
 """
+const capture_stdout = true
 const capture_stderr = true
 
 #######################################################################
