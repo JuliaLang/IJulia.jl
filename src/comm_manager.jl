@@ -85,7 +85,7 @@ end
 
 function close_comm(comm::Comm, data::Dict = Dict(),
                     metadata::Dict = Dict(); kwargs...)
-    msg = msg_comm(comm, IJulia.execute_msg, "comm_msg", data,
+    msg = msg_comm(comm, IJulia.execute_msg, "comm_close", data,
                    metadata; kwargs...)
     send_ipython(IJulia.publish[], msg)
 end
