@@ -26,6 +26,7 @@ function eventloop(socket)
                                  msg_pub(execute_msg, "error", content))
                 end
             finally
+                flush_all()
                 send_status("idle", msg.header)
             end
         end
