@@ -26,7 +26,11 @@ function eventloop(socket)
                                  msg_pub(execute_msg, "error", content))
                 end
             finally
-                send_status("idle", msg.header)
+                @async begin
+                    sleep(idle_delay[])
+                    flush_all()
+                    send_status("idle", msg.header)
+                end
             end
         end
     catch e
@@ -55,4 +59,9 @@ function waitloop()
             end
         end
     end
+end
+
+const idle_delay = Ref(0.5)
+function set_idle_delay(delay_secs::Float64=0.5)
+    idle_delay[] = delay_secs
 end
