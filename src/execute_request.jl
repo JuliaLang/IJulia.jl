@@ -34,7 +34,7 @@ if VERSION >= v"0.5.0-dev+4305" # JuliaLang/julia#16354
             show(IOContext(b64, limit=true), mime, x)
             close(b64)
         end
-        return takebuf_string(buf)
+        return Compat.UTF8String(take!(buf))
     end
 else
     limitstringmime(mime::MIME, x) = stringmime(mime, x)

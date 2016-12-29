@@ -108,7 +108,7 @@ end
 function send_stream(name::AbstractString)
     buf = bufs[name]
     if buf.size > 0
-        d = takebuf_array(buf)
+        d = take!(buf)
         n = num_utf8_trailing(d)
         dextra = d[end-(n-1):end]
         resize!(d, length(d) - n)
@@ -125,7 +125,7 @@ function send_stream(name::AbstractString)
             write(b64, dextra)
             close(b64)
             print(sbuf, '\n')
-            s = takebuf_string(sbuf)
+            s = Compat.UTF8String(take!(sbuf))
         end
         send_ipython(publish[],
              msg_pub(execute_msg, "stream",
