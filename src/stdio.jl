@@ -15,7 +15,7 @@ end
 macro vprintln(x...)
     quote
         if verbose::Bool
-            println(orig_STDOUT[], get_log_preface(), $(x...))
+            println(orig_STDOUT[], get_log_preface(), $(map(esc, x)...))
         end
     end
 end
@@ -23,7 +23,7 @@ end
 macro verror_show(e, bt)
     quote
         if verbose::Bool
-            showerror(orig_STDERR[], $e, $bt)
+            showerror(orig_STDERR[], $(esc(e)), $(esc(bt)))
         end
     end
 end

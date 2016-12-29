@@ -47,7 +47,7 @@ end
 function send_ipython(socket, m::Msg)
     lock(socket_locks[socket])
     try
-        @vprintln("SENDING $m")
+        @vprintln("SENDING ", m)
         for i in m.idents
             send(socket, i, SNDMORE)
         end
