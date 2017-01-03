@@ -183,6 +183,7 @@ end
 
 function watch_stdio()
     task_local_storage(:IJulia_task, "init task")
+    eval(Base, :(have_color = true)) # Jupyter supports ANSI color codes
     if capture_stdout
         read_task = @async watch_stream(read_stdout[], "stdout")
         #send STDOUT stream msgs every stream_interval secs (if there is output to send)
