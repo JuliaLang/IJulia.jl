@@ -22,24 +22,6 @@ include("magics.jl")
 # in Jupyter display_data and pyout messages
 metadata(x) = Dict()
 
-if VERSION >= v"0.5.0-dev+4305" # JuliaLang/julia#16354
-    # convert x to a string of type mime, making sure to use an
-    # IOContext that tells the underlying show function to limit output
-    function limitstringmime(mime::MIME, x)
-        buf = IOBuffer()
-        if istextmime(mime)
-            show(IOContext(buf, limit=true), mime, x)
-        else
-            b64 = Base64EncodePipe(buf)
-            show(IOContext(b64, limit=true), mime, x)
-            close(b64)
-        end
-        return Compat.UTF8String(take!(buf))
-    end
-else
-    limitstringmime(mime::MIME, x) = stringmime(mime, x)
-end
-
 # return a String=>String dictionary of mimetype=>data
 # for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
