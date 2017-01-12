@@ -6,6 +6,24 @@ immutable InlineDisplay <: Display end
 # of preference (descending "richness")
 const ipy_mime = [ "text/html", "text/latex", "image/svg+xml", "image/png", "image/jpeg", "text/plain", "text/markdown", "application/javascript" ]
 
+if VERSION >= v"0.5.0-dev+4305" # JuliaLang/julia#16354
+    # convert x to a string of type mime, making sure to use an
+    # IOContext that tells the underlying show function to limit output
+    function limitstringmime(mime::MIME, x)
+        buf = IOBuffer()
+        if istextmime(mime)
+            show(IOContext(buf, limit=true), mime, x)
+        else
+            b64 = Base64EncodePipe(buf)
+            show(IOContext(b64, limit=true), mime, x)
+            close(b64)
+        end
+        return Compat.UTF8String(take!(buf))
+    end
+else
+    limitstringmime(mime::MIME, x) = stringmime(mime, x)
+end
+
 for mime in ipy_mime
     @eval begin
         function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
@@ -13,17 +31,17 @@ for mime in ipy_mime
                          msg_pub(execute_msg, "display_data",
                                  Dict("source" => "julia", # optional
                                   "metadata" => metadata(x), # optional
-                                  "data" => Dict($mime => stringmime(MIME($mime), x)))))
+                                  "data" => Dict($mime => limitstringmime(MIME($mime), x)))))
         end
         displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
     end
 end
 
 # deal with annoying application/x-latex == text/latex synonyms
-display(d::InlineDisplay, m::MIME"application/x-latex", x) = display(d, MIME("text/latex"), stringmime(m, x))
+display(d::InlineDisplay, m::MIME"application/x-latex", x) = display(d, MIME("text/latex"), limitstringmime(m, x))
 
 # deal with annoying text/javascript == application/javascript synonyms
-display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("application/javascript"), stringmime(m, x))
+display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("application/javascript"), limitstringmime(m, x))
 
 # if the user explicitly calls display("text/foo", x), we should output the text
 displayable(d::InlineDisplay, M::MIME) = istextmime(M)
@@ -33,7 +51,7 @@ function display(d::InlineDisplay, M::MIME, x)
                  msg_pub(execute_msg, "display_data",
                          Dict("source" => "julia", # optional
                           "metadata" => metadata(x), # optional
-                          "data" => Dict("text/plain" => stringmime(M, x)))))
+                          "data" => Dict("text/plain" => limitstringmime(M, x)))))
 end
 
 # override display to send IPython a dictionary of all supported
