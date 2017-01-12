@@ -15,6 +15,7 @@ for mime in ipy_mime
                                   "metadata" => metadata(x), # optional
                                   "data" => Dict($mime => stringmime(MIME($mime), x)))))
         end
+        displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
     end
 end
 
@@ -23,6 +24,17 @@ display(d::InlineDisplay, m::MIME"application/x-latex", x) = display(d, MIME("te
 
 # deal with annoying text/javascript == application/javascript synonyms
 display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("application/javascript"), stringmime(m, x))
+
+# if the user explicitly calls display("text/foo", x), we should output the text
+displayable(d::InlineDisplay, M::MIME) = istextmime(M)
+function display(d::InlineDisplay, M::MIME, x)
+    istextmime(M) || throw(MethodError(display, (d, M, x)))
+    send_ipython(publish[],
+                 msg_pub(execute_msg, "display_data",
+                         Dict("source" => "julia", # optional
+                          "metadata" => metadata(x), # optional
+                          "data" => Dict("text/plain" => stringmime(M, x)))))
+end
 
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
