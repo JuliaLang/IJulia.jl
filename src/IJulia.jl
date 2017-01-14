@@ -211,6 +211,38 @@ a subset of cell inputs/outputs to clear.
 clear_history
 
 #######################################################################
+# methods to print history or any subset thereof
+function print_history(io::IO, indices)
+    for n in indices
+      if haskey(In, n)
+        print(In[n])
+      end
+    end
+end
+
+# since a range could be huge, intersect it with 1:n first
+print_history{T<:Integer}(io::IO=Base.STDOUT, r::Range{T}=1:n) =
+    invoke(print_history, Tuple{IO, Any}, io, intersect(r, 1:n))
+
+print_history{T<:Integer}(r::Range{T}) =
+    invoke(print_history, Tuple{IO, Any}, Base.STDOUT, intersect(r, 1:n))
+
+"""
+    print_history([io], [indices])
+
+The `print_history()` function prints all of the input history stored in
+the running IJulia notebook, with most recent last. The Input history is
+printed without cell numbers so it can be directly pasted into an editor.
+
+The optional `indices` argument is a collection of indices indicating
+a subset of cell inputs to print.
+
+The optional `io` argument is for specifying an output stream. The default
+is Base.STDOUT.
+"""
+print_history
+
+#######################################################################
 # Similar to the ipython kernel, we provide a mechanism by
 # which modules can register thunk functions to be called after
 # executing an input cell, e.g. to "close" the current plot in Pylab.

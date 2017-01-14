@@ -121,11 +121,11 @@ gui_magic_help(magic::AbstractString, args::AbstractString) = md"""
     provide their own event-loop integration."""
 
 history_magic_help(magic::AbstractString, args::AbstractString) = md"""
-    The analogue of the `%history` magic of IPython, which provides
-    access to the input history, is to access the global variable `In`
-    in IJulia.  `In` is a dictionary mapping cell numbers to the inputs.
-    However, IJulia does not currently keep any other history, e.g.
-    it discards input cells that you overwrite.
+    An analogue of the `%history` magic of IPython, which provides
+    access to the input history, is given by IJulia.print_history(). It is
+    based on the global variable `In` in IJulia. `In` is a dictionary
+    mapping cell numbers to the inputs. However, IJulia does not currently
+    keep any other history, e.g. it discards input cells that you overwrite.
 """
 
 load_magic_help(magic::AbstractString, args::AbstractString) = md"""
