@@ -17,7 +17,7 @@ function __init__()
     orig_STDERR[] = STDERR
 end
 
-const threadid = Array(Int, 128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
+const threadid = Vector{Int}(128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
 
 # the following constants need to be initialized in init().
 const ctx = Ref{Context}()
