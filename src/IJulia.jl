@@ -223,16 +223,28 @@ end
 # since a range could be huge, intersect it with 1:n first
 print_history{T<:Integer}(io::IO=Base.STDOUT, r::Range{T}=1:n) =
     invoke(print_history, Tuple{IO, Any}, io, intersect(r, 1:n))
-
 print_history{T<:Integer}(r::Range{T}) =
-    invoke(print_history, Tuple{IO, Any}, Base.STDOUT, intersect(r, 1:n))
+    print_history(Base.STDOUT, r)
 
+print_history(io::IO, x::Integer) =
+    invoke(print_history, Tuple{IO, Any}, io, n-x:n)
+print_history(x::Integer) =
+    print_history(Base.STDOUT, x)
+
+print_history{T<:Integer}(io::IO, a::Array{T, 1}) =
+    invoke(print_history, Tuple{IO, Any}, io, intersect(a, 1:n))
+print_history{T<:Integer}(a::Array{T, 1}) =
+    print_history(Base.STDOUT, a)
+
+print_history{T<:Integer}(io::IO, t::Tuple{Vararg{T}}) =
+    invoke(print_history, Tuple{IO, Any}, io, intersect(t, 1:n))
+print_history{T<:Integer}(t::Tuple{Vararg{T}}) =
+    print_history(Base.STDOUT, t)
 """
     print_history([io], [indices])
 
 The `print_history()` function prints all of the input history stored in
-the running IJulia notebook, with most recent last. The Input history is
-printed without cell numbers so it can be directly pasted into an editor.
+the running IJulia notebook in a format convenient for copying.
 
 The optional `indices` argument is a collection of indices indicating
 a subset of cell inputs to print.
