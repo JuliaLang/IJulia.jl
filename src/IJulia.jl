@@ -213,33 +213,19 @@ clear_history
 #######################################################################
 # methods to print history or any subset thereof
 function print_history(io::IO, indices)
-    for n in indices
+	# since a range could be huge, intersect it with 1:n first
+    for n in intersect(indices, 1:IJulia.n)
       if haskey(In, n)
         print(In[n])
       end
     end
 end
+print_history(x) = print_history(Base.STDOUT, x)
+print_history() = print_history(1:n)
 
-# since a range could be huge, intersect it with 1:n first
-print_history{T<:Integer}(io::IO=Base.STDOUT, r::Range{T}=1:n) =
-    invoke(print_history, Tuple{IO, Any}, io, intersect(r, 1:n))
-print_history{T<:Integer}(r::Range{T}) =
-    print_history(Base.STDOUT, r)
-
+# print the last x history entries when argument x is integer
 print_history(io::IO, x::Integer) =
     invoke(print_history, Tuple{IO, Any}, io, n-x:n)
-print_history(x::Integer) =
-    print_history(Base.STDOUT, x)
-
-print_history{T<:Integer}(io::IO, a::Array{T, 1}) =
-    invoke(print_history, Tuple{IO, Any}, io, intersect(a, 1:n))
-print_history{T<:Integer}(a::Array{T, 1}) =
-    print_history(Base.STDOUT, a)
-
-print_history{T<:Integer}(io::IO, t::Tuple{Vararg{T}}) =
-    invoke(print_history, Tuple{IO, Any}, io, intersect(t, 1:n))
-print_history{T<:Integer}(t::Tuple{Vararg{T}}) =
-    print_history(Base.STDOUT, t)
 """
     print_history([io], [indices])
 
