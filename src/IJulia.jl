@@ -212,7 +212,7 @@ clear_history
 
 #######################################################################
 # methods to print history or any subset thereof
-function print_history(io::IO, indices)
+function history(io::IO, indices)
 	# since a range could be huge, intersect it with 1:n first
     for n in intersect(indices, 1:IJulia.n)
       if haskey(In, n)
@@ -220,16 +220,16 @@ function print_history(io::IO, indices)
       end
     end
 end
-print_history(x) = print_history(Base.STDOUT, x)
-print_history() = print_history(1:n)
+history(x) = history(Base.STDOUT, x)
+history() = history(1:n)
 
 # print the last x history entries when argument x is integer
-print_history(io::IO, x::Integer) =
-    invoke(print_history, Tuple{IO, Any}, io, n-x:n)
+history(io::IO, x::Integer) =
+    invoke(history, Tuple{IO, Any}, io, n-x:n)
 """
-    print_history([io], [indices])
+    history([io], [indices])
 
-The `print_history()` function prints all of the input history stored in
+The `history()` function prints all of the input history stored in
 the running IJulia notebook in a format convenient for copying.
 
 The optional `indices` argument is a collection of indices indicating
@@ -238,7 +238,7 @@ a subset of cell inputs to print.
 The optional `io` argument is for specifying an output stream. The default
 is Base.STDOUT.
 """
-print_history
+history
 
 #######################################################################
 # Similar to the ipython kernel, we provide a mechanism by
