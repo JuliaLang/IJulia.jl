@@ -212,20 +212,18 @@ clear_history
 
 #######################################################################
 # methods to print history or any subset thereof
-function history(io::IO, indices)
-	# since a range could be huge, intersect it with 1:n first
+function history(io::IO, indices::AbstractVector{Int})
     for n in intersect(indices, 1:IJulia.n)
       if haskey(In, n)
         print(In[n])
       end
     end
 end
-history(x) = history(Base.STDOUT, x)
-history() = history(1:n)
 
-# print the last x history entries when argument x is integer
-history(io::IO, x::Integer) =
-    invoke(history, Tuple{IO, Any}, io, n-x:n)
+history(io::IO, x::Union{Integer,AbstractVector{Int}}...) = history(io, vcat(x...))
+history(x...) = history(STDOUT, x...)
+history(io::IO, x...) = throw(MethodError(history, (x...)))
+history() = history(1:n)
 """
     history([io], [indices])
 
