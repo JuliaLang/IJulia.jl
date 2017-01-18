@@ -121,7 +121,7 @@ gui_magic_help(magic::AbstractString, args::AbstractString) = md"""
     provide their own event-loop integration."""
 
 history_magic_help(magic::AbstractString, args::AbstractString) = md"""
-    An analogue of the `%history` magic of IPython, which provides
+    An analogue of the `%history` or `%hist` magic of IPython, which provides
     access to the input history, is given by IJulia.history(). It is
     based on the global variable `In` in IJulia. `In` is a dictionary
     mapping cell numbers to the inputs. However, IJulia does not currently
@@ -400,6 +400,7 @@ const magic_help = Dict{Compat.ASCIIString, Function}(
     "%edit" => edit_magic_help,
     "%env" => env_magic_help,
     "%gui" => gui_magic_help,
+    "%hist" => history_magic_help,
     "%history" => history_magic_help,
     "%load" => load_magic_help,
     "%loadpy" => load_magic_help,
