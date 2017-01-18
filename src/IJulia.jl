@@ -225,13 +225,13 @@ history(x...) = history(STDOUT, x...)
 history(io::IO, x...) = throw(MethodError(history, (x...)))
 history() = history(1:n)
 """
-    history([io], [indices])
+    history([io], [indices...])
 
 The `history()` function prints all of the input history stored in
 the running IJulia notebook in a format convenient for copying.
 
-The optional `indices` argument is a collection of indices indicating
-a subset of cell inputs to print.
+The optional `indices` argument is one or more indices or collections
+of indices indicating a subset input cells to print.
 
 The optional `io` argument is for specifying an output stream. The default
 is Base.STDOUT.
