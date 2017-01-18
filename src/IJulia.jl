@@ -234,7 +234,7 @@ The optional `indices` argument is one or more indices or collections
 of indices indicating a subset input cells to print.
 
 The optional `io` argument is for specifying an output stream. The default
-is Base.STDOUT.
+is `STDOUT`.
 """
 history
 
