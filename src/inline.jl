@@ -7,15 +7,30 @@ immutable InlineDisplay <: Display end
 const ipy_mime = [ "text/html", "text/latex", "image/svg+xml", "image/png", "image/jpeg", "text/plain", "text/markdown", "application/javascript" ]
 
 if VERSION >= v"0.5.0-dev+4305" # JuliaLang/julia#16354
+    # need special handling for showing a string as a textmime
+    # type, since in that case the string is assumed to be
+    # raw data unless it is text/plain
+    israwtext(::MIME, x::AbstractString) = true
+    israwtext(::MIME"text/plain", x::AbstractString) = false
+    israwtext(::MIME, x) = false
+
     # convert x to a string of type mime, making sure to use an
     # IOContext that tells the underlying show function to limit output
     function limitstringmime(mime::MIME, x)
         buf = IOBuffer()
         if istextmime(mime)
-            show(IOContext(buf, limit=true), mime, x)
+            if israwtext(mime, x)
+                return Compat.UTF8String(x)
+            else
+                show(IOContext(buf, limit=true), mime, x)
+            end
         else
             b64 = Base64EncodePipe(buf)
-            show(IOContext(b64, limit=true), mime, x)
+            if isa(x, Vector{UInt8})
+                write(b64, x) # x assumed to be raw binary data
+            else
+                show(IOContext(b64, limit=true), mime, x)
+            end
             close(b64)
         end
         return Compat.UTF8String(take!(buf))
