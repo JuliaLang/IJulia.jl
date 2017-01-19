@@ -1,5 +1,5 @@
-julia 0.4
-MbedTLS 0.3.0
+julia 0.5
+MbedTLS 0.4.3
 JSON 0.5
 ZMQ 0.3.3
 Compat 0.9.5
