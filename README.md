@@ -27,37 +27,32 @@ Pkg.add("IJulia")
 ```
 to install IJulia.
 
-The `Pkg.add` process will look for a program named `jupyter` or
-`ipython` (version 3 or later) in your `PATH`.  If it doesn't find
-one, it will use the [Conda.jl](https://github.com/Luthaf/Conda.jl)
+By default, the `Pkg.add` process will use the [Conda.jl](https://github.com/Luthaf/Conda.jl)
 package to install a minimal Python+Jupyter distribution (via
 [Miniconda](http://conda.pydata.org/docs/install/quick.html)) that is
-private to Julia (not in your `PATH`).  You can use the `Conda` Julia
-package to install more Python packages, and `import Conda` to
-print the `Conda.SCRIPTDIR` directory where `jupyter` was installed.
+private to Julia (not in your `PATH`).  (You can use `using IJulia` followed by
+`IJulia.jupyter` to find the location `jupyter` where was installed.)
 
 Alternatively, you can [install
 Jupyter](http://jupyter.readthedocs.org/en/latest/install.html) (or
-IPython 3 or later) yourself *before* adding the IJulia package.  The
-simplest way to do this on Mac and Windows is by [downloading the
-Anaconda package](http://continuum.io/downloads) and running its
-installer.  (Do *not* use Enthought Canopy/EPD.)  On Windows, the
-Anaconda installer window gives options *Add Anaconda to the System
-Path* and also *Register Anaconda as default Python version of the
-system*.  Be sure to **check these boxes**.
+IPython 3 or later) yourself *before* adding the IJulia package.
+To tell IJulia to use your *own* `jupyter` installation, you need
+to set `ENV["JUPYTER"]` to the path of the `jupyter` program
+before running `Pkg.add("IJulia")`.   Alternatively, you can change
+which `jupyter` program IJulia is configured with by setting
+`ENV["JUPYTER"]` and then running `Pkg.build("IJulia")`.
 
-If you want `Pkg.add` to use a specific path for `jupyter` on your
-system (not the defaults above), you can do so by setting the
-`JUPYTER` environment variable before running `Pkg.add("IJulia")`.  To
-force IJulia to use its own Miniconda installation, just set `JUPYTER`
-to the empty string, e.g. set `ENV["JUPYTER"] = ""` in Julia.  You can
-run `Pkg.build("IJulia")` to re-run the installation process if
-needed.
+The simplest way to install Jupyter yourself on Mac and Windows is to [download
+the Anaconda package](http://continuum.io/downloads) and run its
+installer.  (We recommend that you *not* use Enthought Canopy/EPD,
+since that can cause problems with the PyCall package.)
 
 On subsequent builds (e.g. when IJulia is updated via `Pkg.update`),
 it will use the same `jupyter` program by default, unless you
 override it by setting the `JUPYTER` environment variable, or
 delete the file `joinpath(Pkg.dir("IJulia"), "deps", "JUPYTER")`.
+You can go back to using the Conda `jupyter` by setting
+`ENV["JUPYTER"]=""` and re-running `Pkg.build("IJulia")`.
 
 ### Running the IJulia Notebook
 
@@ -76,7 +71,7 @@ session instead of opening a new one.
 julia> using IJulia; notebook(detached=true)
 Process(`'C:\Users\JuliaUser\.julia\v0.4\Conda\deps\usr\Scripts\jupyter' notebook`, ProcessRunning)
 
-julia> 
+julia>
 ```
 
 By default, the notebook "dashboard" opens in your
@@ -103,7 +98,7 @@ text, and images, just as in IPython.  You can enter multiline input
 cells and execute them with *shift-ENTER*, and the menu items are
 mostly self-explanatory.  Refer to the [the IPython
 documentation](http://ipython.org/documentation.html) for more
-information.
+information, and see also the "Help" menu in the notebook itself.
 
 Given an IJulia notebook file, you can execute its code within any
 other Julia file (including another notebook) via the [NBInclude](https://github.com/stevengj/NBInclude.jl) package.
@@ -140,8 +135,8 @@ problem you can type `Pkg.build()` to try to rerun the install scripts.
 * On MacOS, you currently need MacOS 10.7 or later; [MacOS 10.6 doesn't work](https://github.com/JuliaLang/julia/issues/4215) (unless you compile Julia yourself, from source code).
 * Internet Explorer 8 (the default in Windows 7) or 9 don't work with the notebook; use Firefox (6 or later) or Chrome (13 or later).  Internet Explorer 10 in Windows 8 works (albeit with a few rendering glitches), but Chrome or Firefox is better.
 * If the notebook opens up, but doesn't respond (the input label is `In[*]` indefinitely), try creating a new Python notebook (not Julia) from the `New` button in the Jupyter dashboard, to see if `1+1` works in Python.  If it is the same problem, then probably you have a [firewall running](https://github.com/ipython/ipython/issues/2499) on your machine (this is common on Windows) and you need to disable the firewall or at least to allow the IP address 127.0.0.1.  (For the [Sophos](https://en.wikipedia.org/wiki/Sophos) endpoint security software, go to "Configure Anti-Virus and HIPS", select "Authorization" and then "Websites", and add 127.0.0.1 to "Authorized websites"; finally, restart your computer.)
-* Try running `ipython --version` and make sure that it prints `3.0.0` or larger; earlier versions of IPython are no longer supported by IJulia.
-* You can try setting `ENV["JUPYTER"]=""; Pkg.build("IJulia")` to force IJulia to use its own Conda-based Jupyter version.
+* Try running `jupyter --version` and make sure that it prints `3.0.0` or larger; earlier versions of IPython are no longer supported by IJulia.
+* You can try setting `ENV["JUPYTER"]=""; Pkg.build("IJulia")` to force IJulia to go back to its own Conda-based Jupyter version (if you previously tried a different `jupyter`).
 
 ## Low-level Information
 
@@ -241,16 +236,6 @@ achieve a similar effect in Julia if possible.
 For example, the analogue of IPython's `%load filename` in IJulia
 is `IJulia.load("filename")`.
 
-### Debugging IJulia problems
-
-If IJulia is crashing (e.g. it gives you a "kernel appears to have
-died" message), you can modify it to print more descriptive error
-messages to the terminal: edit your [`IJulia/src/IJulia.jl`](src/IJulia.jl) file (in
-your `.julia` package directory) to change the line `verbose = false`
-at the top to `verbose = true` and `const capture_stderr = true` to
-`const capture_stderr = false`.  Then restart the kernel or open a new
-notebook and look for the error message when IJulia dies.
-
 ### Preventing truncation of output
 
 The new default behavior of IJulia is to truncate stdout (via `show` or `println`)
@@ -260,3 +245,13 @@ results. This limit can be increased to a custom value, like 1MB, as follows
 ```
 IJulia.set_max_stdio(1 << 20)
 ```
+
+### Debugging IJulia problems
+
+If IJulia is crashing (e.g. it gives you a "kernel appears to have
+died" message), you can modify it to print more descriptive error
+messages to the terminal: edit your [`IJulia/src/IJulia.jl`](src/IJulia.jl) file (in
+your `.julia` package directory) to change the line `verbose = false`
+at the top to `verbose = true` and `const capture_stderr = true` to
+`const capture_stderr = false`.  Then restart the kernel or open a new
+notebook and look for the error message when IJulia dies.
