@@ -22,7 +22,7 @@ function prog_version(prog)
 end
 
 jupyter = get(ENV, "JUPYTER", isfile("JUPYTER") ? readchomp("JUPYTER") : "")
-jupyter_vers = isempty(jupyter) ? v"0.0" : prog_version(p)
+jupyter_vers = isempty(jupyter) ? v"0.0" : prog_version(jupyter)
 if Sys.ARCH in (:i686, :x86_64) && (jupyter_vers < v"3.0" || dirname(jupyter) == abspath(Conda.SCRIPTDIR))
     info("Installing Jupyter via the Conda package.")
     Conda.add("jupyter")
