@@ -36,7 +36,6 @@ module IJulia
 export notebook
 
 using ZMQ, JSON, Compat
-import Compat.String
 
 #######################################################################
 # Debugging IJulia

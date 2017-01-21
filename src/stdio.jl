@@ -57,7 +57,7 @@ function watch_stream(rd::IO, name::AbstractString)
                     read(rd, nb) # read from libuv/os buffer and discard
                     if stdio_bytes[] - nb < max_output_per_request[]
                         send_ipython(publish[], msg_pub(execute_msg, "stream",
-                            @compat Dict("name" => "stderr", "text" => "Excessive output truncated after $(stdio_bytes[]) bytes.")))
+                                     Dict("name" => "stderr", "text" => "Excessive output truncated after $(stdio_bytes[]) bytes.")))
                     end
                 else
                     write(buf, read(rd, nb))
@@ -112,8 +112,8 @@ function send_stream(name::AbstractString)
         n = num_utf8_trailing(d)
         dextra = d[end-(n-1):end]
         resize!(d, length(d) - n)
-        s = Compat.UTF8String(d)
-        if isvalid(Compat.UTF8String, s)
+        s = String(d)
+        if isvalid(String, s)
             write(buf, dextra) # assume that the rest of the string will be written later
             length(d) == 0 && return
         else
@@ -125,7 +125,7 @@ function send_stream(name::AbstractString)
             write(b64, dextra)
             close(b64)
             print(sbuf, '\n')
-            s = Compat.UTF8String(take!(sbuf))
+            s = String(take!(sbuf))
         end
         send_ipython(publish[],
              msg_pub(execute_msg, "stream",

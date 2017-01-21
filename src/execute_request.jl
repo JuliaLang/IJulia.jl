@@ -5,7 +5,6 @@
 import Base.Libc: flush_cstdio
 
 using Compat
-import Compat.String
 
 const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")
@@ -71,7 +70,7 @@ end
 
 # return the content of a pyerr message for exception e
 function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_string, msg::AbstractString="")
-    tb = map(x->convert(Compat.UTF8String, x), split(sprint(show_bt,
+    tb = map(x->String(x), split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
                                  "\n", keep=true))

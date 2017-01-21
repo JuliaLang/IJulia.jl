@@ -388,7 +388,7 @@ writefile_magic_help(magic::AbstractString, args::AbstractString) = md"""
     the contents of a different input cell.)"""
 
 # map from magic to helpfunction(magic, magicargument)
-const magic_help = Dict{Compat.ASCIIString, Function}(
+const magic_help = Dict{String, Function}(
     "%alias" => alias_magic_help,
     "%cd" => cd_magic_help,
     "%dhist" => cd_magic_help,

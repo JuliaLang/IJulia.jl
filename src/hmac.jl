@@ -19,6 +19,6 @@ function hmac(s1,s2,s3,s4)
             d = b & 0xf
             hexdigest[2i] = UInt8('0')+d+39*(d>9)
         end
-        return Compat.ASCIIString(hexdigest)
+        return String(hexdigest)
     end
 end

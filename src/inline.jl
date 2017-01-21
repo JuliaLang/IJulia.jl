@@ -20,7 +20,7 @@ if VERSION >= v"0.5.0-dev+4305" # JuliaLang/julia#16354
         buf = IOBuffer()
         if istextmime(mime)
             if israwtext(mime, x)
-                return Compat.UTF8String(x)
+                return String(x)
             else
                 show(IOContext(buf, limit=true), mime, x)
             end
@@ -33,7 +33,7 @@ if VERSION >= v"0.5.0-dev+4305" # JuliaLang/julia#16354
             end
             close(b64)
         end
-        return Compat.UTF8String(take!(buf))
+        return String(take!(buf))
     end
 else
     limitstringmime(mime::MIME, x) = stringmime(mime, x)
