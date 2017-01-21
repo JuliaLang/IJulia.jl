@@ -138,19 +138,41 @@ problem you can type `Pkg.build()` to try to rerun the install scripts.
 * Try running `jupyter --version` and make sure that it prints `3.0.0` or larger; earlier versions of IPython are no longer supported by IJulia.
 * You can try setting `ENV["JUPYTER"]=""; Pkg.build("IJulia")` to force IJulia to go back to its own Conda-based Jupyter version (if you previously tried a different `jupyter`).
 
-## Low-level Information
+## IJulia features
 
-### Using older IPython versions
+There are various features of IJulia that allow you to interact with a
+running IJulia kernel.
 
-While we strongly recommend using IPython version 3 or later (note that this
-has nothing to do with whether you use Python version 2 or 3), we recognize
-that in the short term some users may need to continue using IPython 2.x.  You
-can do this by checkout out the `ipython2` branch of the IJulia package:
+### Detecting that code is running under IJulia
 
-```
-Pkg.checkout("IJulia", "ipython2")
-Pkg.build("IJulia")
-```
+If your code needs to detect whether it is running in an IJulia notebook
+(or other Jupyter client), it can check `isdefined(Main, :IJulia) && Main.IJulia.inited`.
+
+### Julia and IPython Magics
+
+One difference from IPython is that the IJulia kernel does
+not use "magics", which are special commands prefixed with `%` or
+`%%` to execute code in a different language.   Instead, other
+syntaxes to accomplish the same goals are more natural in Julia,
+work in environments outside of IJulia code cells, and are often
+more powerful.
+
+However, if you enter an IPython magic command
+in an IJulia code cell, it will print help explaining how to
+achieve a similar effect in Julia if possible.
+For example, the analogue of IPython's `%load filename` in IJulia
+is `IJulia.load("filename")`.
+
+### Prompting for user input
+
+When you are running in a notebook, ordinary I/O functions on `STDIN` do
+not function.   However, you can prompt for the user to enter a string
+in one of two ways:
+
+* `readline()` and `readline(STDIN)` both open a `STDIN>` prompt widget where the user can enter a string, which is returned by `readline`.
+
+* `IJulia.readprompt(prompt)` displays the prompt string `prompt` and
+  returns a string entered by the user.  `IJulia.readprompt(prompt, password=true)` does the same thing, but hides the text the user types.
 
 ### Clearing output
 
@@ -175,6 +197,30 @@ this truncation is to 30 lines and 80 columns by default.   You can change
 this default by the `LINES` and `COLUMNS` environment variables, respectively,
 which can also be changed within IJulia via `ENV` (e.g. `ENV["LINES"] = 60`).
 (Like in the REPL, you can also display non-truncated data structures via `print(x)`.)
+
+### Preventing truncation of output
+
+The new default behavior of IJulia is to truncate stdout (via `show` or `println`)
+after 512kb. This to prevent browsers from getting bogged down when displaying the
+results. This limit can be increased to a custom value, like 1MB, as follows
+
+```
+IJulia.set_max_stdio(1 << 20)
+```
+
+## Low-level Information
+
+### Using older IPython versions
+
+While we strongly recommend using IPython version 3 or later (note that this
+has nothing to do with whether you use Python version 2 or 3), we recognize
+that in the short term some users may need to continue using IPython 2.x.  You
+can do this by checkout out the `ipython2` branch of the IJulia package:
+
+```
+Pkg.checkout("IJulia", "ipython2")
+Pkg.build("IJulia")
+```
 
 ### Manual installation of IPython
 
@@ -221,32 +267,7 @@ or IPython terminal interfaces by running `ipython qtconsole --kernel
 julia-0.4` or `ipython console --kernel julia-0.4`, respectively.
 (Replace `0.4` with whatever major Julia version you are using.)
 
-### Julia and IPython Magics
-
-One difference from IPython is that the IJulia kernel does
-not use "magics", which are special commands prefixed with `%` or
-`%%` to execute code in a different language.   Instead, other
-syntaxes to accomplish the same goals are more natural in Julia,
-work in environments outside of IJulia code cells, and are often
-more powerful.
-
-However, if you enter an IPython magic command
-in an IJulia code cell, it will print help explaining how to
-achieve a similar effect in Julia if possible.
-For example, the analogue of IPython's `%load filename` in IJulia
-is `IJulia.load("filename")`.
-
-### Preventing truncation of output
-
-The new default behavior of IJulia is to truncate stdout (via `show` or `println`)
-after 512kb. This to prevent browsers from getting bogged down when displaying the
-results. This limit can be increased to a custom value, like 1MB, as follows
-
-```
-IJulia.set_max_stdio(1 << 20)
-```
-
-### Debugging IJulia problems
+## Debugging IJulia problems
 
 If IJulia is crashing (e.g. it gives you a "kernel appears to have
 died" message), you can modify it to print more descriptive error

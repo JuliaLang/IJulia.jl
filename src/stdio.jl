@@ -151,6 +151,31 @@ function num_utf8_trailing(d::Vector{UInt8})
     return nend == n ? 0 : nend
 end
 
+"""
+    readprompt(prompt::AbstractString; password::Bool=false)
+
+Display the `prompt` string, request user input,
+and return the string entered by the user.  If `password`
+is `true`, the user's input is not displayed during typing.
+"""
+function readprompt(prompt::AbstractString; password::Bool=false)
+    if !execute_msg.content["allow_stdin"]
+        error("IJulia: this front-end does not implement stdin")
+    end
+    send_ipython(raw_input[],
+                 msg_reply(execute_msg, "input_request",
+                           Dict("prompt"=>prompt, "password"=>password)))
+    while true
+        msg = recv_ipython(raw_input[])
+        if msg.header["msg_type"] == "input_reply"
+            return msg.content["value"]
+        else
+            error("IJulia error: unknown stdin reply")
+        end
+    end
+end
+
+
 # this is hacky: we overload some of the I/O functions on pipe endpoints
 # in order to fix some interactions with stdio.
 const StdioPipe = Base.PipeEndpoint
@@ -162,20 +187,7 @@ const StdioPipe = Base.PipeEndpoint
 import Base.readline
 function readline(io::StdioPipe)
     if io == STDIN
-        if !execute_msg.content["allow_stdin"]
-            error("IJulia: this front-end does not implement stdin")
-        end
-        send_ipython(raw_input[],
-                     msg_reply(execute_msg, "input_request",
-                               Dict("prompt"=>"STDIN> ", "password"=>false)))
-        while true
-            msg = recv_ipython(raw_input[])
-            if msg.header["msg_type"] == "input_reply"
-                return msg.content["value"]
-            else
-                error("IJulia error: unknown stdin reply")
-            end
-        end
+        return readprompt("STDIN> ")
     else
         invoke(readline, Tuple{supertype(StdioPipe)}, io)
     end
