@@ -60,11 +60,12 @@ function init(args)
     if !isempty(profile["key"])
         signature_scheme = get(profile, "signature_scheme", "hmac-sha256")
         isempty(signature_scheme) && (signature_scheme = "hmac-sha256")
-        signature_scheme = split(signature_scheme, "-")
-        if signature_scheme[1] != "hmac" || length(signature_scheme) != 2
+        sigschm = split(signature_scheme, "-")
+        if sigschm[1] != "hmac" || length(sigschm) != 2
             error("unrecognized signature_scheme $signature_scheme")
         end
-        hmacstate[] = MbedTLS.MD(MbedTLS.MD_SHA256, profile["key"])
+        hmacstate[] = MbedTLS.MD(getfield(MbedTLS, Symbol("MD_", uppercase(sigschm[2]))),
+                                 profile["key"])
     end
 
     ctx[] = Context()
