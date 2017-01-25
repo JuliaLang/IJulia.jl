@@ -27,11 +27,14 @@ Pkg.add("IJulia")
 ```
 to install IJulia.
 
-By default, the `Pkg.add` process will use the [Conda.jl](https://github.com/Luthaf/Conda.jl)
+By default on Mac and Windows, the `Pkg.add` process will use the [Conda.jl](https://github.com/Luthaf/Conda.jl)
 package to install a minimal Python+Jupyter distribution (via
 [Miniconda](http://conda.pydata.org/docs/install/quick.html)) that is
 private to Julia (not in your `PATH`).  (You can use `using IJulia` followed by
 `IJulia.jupyter` to find the location `jupyter` where was installed.)
+On Linux, it defaults to looking for `jupyter` in your `PATH` first,
+and only installs the Conda Jupyter if that fails; you can force
+it to use Conda on Linux by setting `ENV["JUPYTER"]=""` first (see below).
 
 Alternatively, you can [install
 Jupyter](http://jupyter.readthedocs.org/en/latest/install.html) (or
@@ -42,7 +45,8 @@ before running `Pkg.add("IJulia")`.   Alternatively, you can change
 which `jupyter` program IJulia is configured with by setting
 `ENV["JUPYTER"]` and then running `Pkg.build("IJulia")`.
 
-The simplest way to install Jupyter yourself on Mac and Windows is to [download
+The simplest way to install Jupyter yourself on Mac and Windows, other
+than using Julia's Conda distro,  is to [download
 the Anaconda package](http://continuum.io/downloads) and run its
 installer.  (We recommend that you *not* use Enthought Canopy/EPD,
 since that can cause problems with the PyCall package.)
@@ -117,7 +121,7 @@ If you download and install a new version of Julia from the Julia web
 site, you will also probably want to update the packages with
 `Pkg.update()` (in case newer versions of the packages are required
 for the most recent Julia).  In any case, if you install a new Julia
-binary (or do anything that changes the location of Julia on your
+binary (or do anything that *changes the location of Julia* on your
 computer), you *must* update the IJulia installation (to tell Jupyter
 where to find the new Julia) by running
 ```
