@@ -183,8 +183,8 @@ function execute_request(socket, msg)
 
         if result !== nothing
             # Work around for Julia issue #265 (see # #7884 for context)
-            result_metadata = eval(:(metadata($(QuoteNode(result)))))
-            result_data = eval(:(display_dict($(QuoteNode(result)))))
+            result_metadata = eval(current_module(), :($metadata($(QuoteNode(result)))))
+            result_data = eval(current_module(), :($display_dict($(QuoteNode(result)))))
             send_ipython(publish[],
                          msg_pub(msg, "execute_result",
                                  Dict("execution_count" => n,
