@@ -78,7 +78,7 @@ function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_s
     evalue = try
         # Peel away one LoadError layer that comes from running include_string on the cell
         isa(e, LoadError) && (e = e.error)
-        sprint((io, e, bt) -> eval(:(showerror($io, $(QuoteNode(e)), $bt, backtrace=false))), e, bt)
+        sprint((io, e, bt) -> eval(current_module(), :(showerror($io, $(QuoteNode(e)), $bt, backtrace=false))), e, bt)
     catch
         "SYSTEM: show(lasterr) caused an error"
     end
@@ -168,7 +168,7 @@ function execute_request(socket, msg)
 
         user_expressions = Dict()
         for (v,ex) in msg.content["user_expressions"]
-            user_expressions[v] = eval(Main,parse(ex))
+            user_expressions[v] = eval(current_module(),parse(ex))
         end
 
         for hook in postexecute_hooks
@@ -183,8 +183,8 @@ function execute_request(socket, msg)
 
         if result !== nothing
             # Work around for Julia issue #265 (see # #7884 for context)
-            result_metadata = eval(:(metadata($(QuoteNode(result)))))
-            result_data = eval(:(display_dict($(QuoteNode(result)))))
+            result_metadata = eval(current_module(), :($metadata($(QuoteNode(result)))))
+            result_data = eval(current_module(), :($display_dict($(QuoteNode(result)))))
             send_ipython(publish[],
                          msg_pub(msg, "execute_result",
                                  Dict("execution_count" => n,
