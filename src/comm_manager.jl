@@ -14,8 +14,8 @@ type Comm{target}
     primary::Bool
     on_msg::Function
     on_close::Function
-    function Comm(id, primary, on_msg, on_close)
-        comm = new(id, primary, on_msg, on_close)
+    function (::Type{Comm{target}}){target}(id, primary, on_msg, on_close)
+        comm = new{target}(id, primary, on_msg, on_close)
         comms[id] = comm
         return comm
     end

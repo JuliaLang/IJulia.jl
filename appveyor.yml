@@ -30,7 +30,7 @@ install:
   - C:\projects\julia-binary.exe /S /D=C:\projects\julia
 
 build_script:
-  - C:\projects\julia\bin\julia -F -e "versioninfo(true);
+  - C:\projects\julia\bin\julia -e "versioninfo(true);
       Pkg.clone(pwd(), \"IJulia\");
       using Conda;
       try Conda.add(\"qt\") end;
