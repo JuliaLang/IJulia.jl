@@ -149,7 +149,7 @@ function execute_request(socket, msg)
 
     try
         for hook in preexecute_hooks
-            hook()
+            @eval $hook()
         end
 
         #run the code!
@@ -172,7 +172,7 @@ function execute_request(socket, msg)
         end
 
         for hook in postexecute_hooks
-            hook()
+            @eval $hook()
         end
 
         # flush pending stdio
@@ -205,7 +205,7 @@ function execute_request(socket, msg)
             # flush pending stdio
             flush_all()
             for hook in posterror_hooks
-                hook()
+                @eval $hook()
             end
         catch
         end
