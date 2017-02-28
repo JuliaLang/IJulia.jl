@@ -152,4 +152,5 @@ write("JUPYTER", jupyter)
 #######################################################################
 catch
 isfile("deps.jl") && rm("deps.jl") # remove deps.jl file on build error
+rethrow()
 end
