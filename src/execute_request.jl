@@ -131,7 +131,7 @@ function execute_request(socket, msg)
                                           "code" => code)))
     end
 
-    silent = silent || ismatch(r";\s*$", code)
+    silent = silent || Base.REPL.ends_with_semicolon(code)
     if store_history
         In[n] = code
     end
