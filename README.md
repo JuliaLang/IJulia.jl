@@ -22,7 +22,7 @@ First, [download Julia](http://julialang.org/downloads/) *version 0.4
 or later* and run the installer.  Then run the Julia application
 (double-click on it); a window with a `julia>` prompt will appear.  At
 the prompt, type:
-```
+```julia
 Pkg.add("IJulia")
 ```
 to install IJulia.
@@ -61,7 +61,7 @@ You can go back to using the Conda `jupyter` by setting
 ### Running the IJulia Notebook
 
 In Julia, at the `julia>` prompt, you can type
-```
+```julia
 using IJulia
 notebook()
 ```
@@ -112,7 +112,7 @@ other Julia file (including another notebook) via the [NBInclude](https://github
 Julia is improving rapidly, so it won't be long before you want to
 update to a more recent version.  To update the packages only, keeping
 Julia itself the same, just run:
-```
+```julia
 Pkg.update()
 ```
 at the Julia prompt (or in IJulia).
@@ -124,7 +124,7 @@ for the most recent Julia).  In any case, if you install a new Julia
 binary (or do anything that *changes the location of Julia* on your
 computer), you *must* update the IJulia installation (to tell Jupyter
 where to find the new Julia) by running
-```
+```julia
 Pkg.build("IJulia")
 ```
 at the Julia command line (**important**: not in IJulia).
@@ -182,7 +182,7 @@ in one of two ways:
 
 Analogous to the [IPython.display.clear_output()](http://ipython.org/ipython-doc/dev/api/generated/IPython.display.html#IPython.display.clear_output) function in IPython, IJulia provides a function:
 
-```
+```julia
 IJulia.clear_output(wait=false)
 ```
 
@@ -208,7 +208,7 @@ The new default behavior of IJulia is to truncate stdout (via `show` or `println
 after 512kb. This to prevent browsers from getting bogged down when displaying the
 results. This limit can be increased to a custom value, like 1MB, as follows
 
-```
+```julia
 IJulia.set_max_stdio(1 << 20)
 ```
 
@@ -221,7 +221,7 @@ has nothing to do with whether you use Python version 2 or 3), we recognize
 that in the short term some users may need to continue using IPython 2.x.  You
 can do this by checkout out the `ipython2` branch of the IJulia package:
 
-```
+```julia
 Pkg.checkout("IJulia", "ipython2")
 Pkg.build("IJulia")
 ```
@@ -253,7 +253,7 @@ On Mac and Windows systems, it is currently easiest to use the
 * You need Julia version 0.4 or later.
 
 Once IPython 3.0+ and Julia 0.4+ are installed, you can install IJulia from a Julia console by typing:
-```
+```julia
 Pkg.add("IJulia")
 ```
 This will download IJulia and a few other prerequisites, and will set up a
