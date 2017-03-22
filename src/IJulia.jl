@@ -273,7 +273,7 @@ push_preexecute_hook(f::Function) = push!(preexecute_hooks, f)
 Remove a function `f()` from the list of functions to
 execute before executing any notebook cell.
 """
-pop_preexecute_hook(f::Function) = splice!(preexecute_hooks, findfirst(pretexecute_hooks, f))
+pop_preexecute_hook(f::Function) = splice!(preexecute_hooks, findfirst(preexecute_hooks, f))
 
 # similar, but called after an error (e.g. to reset plotting state)
 const posterror_hooks = Function[]
