@@ -24,7 +24,7 @@ function complete_request(socket, msg)
     code = msg.content["code"]
     cursor_chr = msg.content["cursor_pos"]
     cursorpos = cursor_chr <= 0 ? 0 : chr2ind(code, cursor_chr)
-    if isspace(code[1:cursorpos])
+    if all(isspace, code[1:cursorpos])
         send_ipython(requests[], msg_reply(msg, "complete_reply",
                                  Dict("status" => "ok",
                                               "matches" => String[],
