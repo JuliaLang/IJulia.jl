@@ -139,6 +139,10 @@ catch
         end
     end
 end
+if v"4.2" ≤ jupyter_vers < v"5.1"
+    # disable broken data-rate limit (issue #528)
+    push!(notebook, "--NotebookApp.iopub_data_rate_limit=2147483647")
+end
 deps = """
     const jupyter = "$(escape_string(jupyter))"
     const notebook_cmd = ["$(join(map(escape_string, notebook), "\", \""))"]
