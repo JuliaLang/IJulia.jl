@@ -36,7 +36,11 @@ function complete_request(socket, msg)
     codestart = find_parsestart(code, cursorpos)
     comps, positions = Base.REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
     positions += codestart-1
-    if isempty(positions) # true if comps to be inserted without replacement
+    if isempty(comps)
+        # issue #530: REPLCompletions returns inconsistent results
+        # for positions when no completions are found
+        cursor_start = cursor_end = cursor_chr
+    elseif isempty(positions) # true if comps to be inserted without replacement
         cursor_start = (cursor_end = ind2chr(code, last(positions)))
     else
         cursor_start = ind2chr(code, first(positions)) - 1
