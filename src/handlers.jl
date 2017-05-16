@@ -20,10 +20,35 @@ function find_parsestart(code, cursorpos)
     return start(code) # failed to find parseable lines
 end
 
+# As described in jupyter/jupyter_client#259, Jupyter's cursor
+# positions are actually measured in UTF-16 code units, not
+# Unicode characters.  Hence, these functions are similar to
+# Base.chr2ind and Base.ind2chr but count non-BMP characters
+# as 2 code units.
+function utf16_to_ind(str, ic)
+    i = 0
+    e = endof(str)
+    while ic > 0 && i < e
+        i = nextind(str, i)
+        ic -= UInt32(str[i]) < 0x10000 ? 1 : 2
+    end
+    return i
+end
+function ind_to_utf16(str, i)
+    ic = 0
+    i = min(i, endof(str))
+    while i > 0
+        ic += UInt32(str[i]) < 0x10000 ? 1 : 2
+        i = prevind(str, i)
+    end
+    return ic
+end
+
+
 function complete_request(socket, msg)
     code = msg.content["code"]
     cursor_chr = msg.content["cursor_pos"]
-    cursorpos = cursor_chr <= 0 ? 0 : chr2ind(code, cursor_chr)
+    cursorpos = cursor_chr <= 0 ? 0 : utf16_to_ind(code, cursor_chr)
     if all(isspace, code[1:cursorpos])
         send_ipython(requests[], msg_reply(msg, "complete_reply",
                                  Dict("status" => "ok",
@@ -41,10 +66,10 @@ function complete_request(socket, msg)
         # for positions when no completions are found
         cursor_start = cursor_end = cursor_chr
     elseif isempty(positions) # true if comps to be inserted without replacement
-        cursor_start = (cursor_end = ind2chr(code, last(positions)))
+        cursor_start = (cursor_end = ind_to_utf16(code, last(positions)))
     else
-        cursor_start = ind2chr(code, first(positions)) - 1
-        cursor_end = ind2chr(code, last(positions))
+        cursor_start = ind_to_utf16(code, prevind(code, first(positions)))
+        cursor_end = ind_to_utf16(code, last(positions))
     end
     send_ipython(requests[], msg_reply(msg, "complete_reply",
                                      Dict("status" => "ok",
@@ -157,7 +182,7 @@ end
 function inspect_request(socket, msg)
     try
         code = msg.content["code"]
-        s = get_token(code, chr2ind(code, msg.content["cursor_pos"]))
+        s = get_token(code, utf16_to_ind(code, msg.content["cursor_pos"]))
         if isempty(s)
             content = Dict("status" => "ok", "found" => false)
         else
