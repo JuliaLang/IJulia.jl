@@ -1,3 +1,5 @@
+import Compat.invokelatest # for callbacks
+
 function eventloop(socket)
     task_local_storage(:IJulia_task, "write task")
     try
@@ -5,7 +7,7 @@ function eventloop(socket)
             msg = recv_ipython(socket)
             try
                 send_status("busy", msg.header)
-                handlers[msg.header["msg_type"]](socket, msg)
+                invokelatest(handlers[msg.header["msg_type"]], socket, msg)
             catch e
                 # Try to keep going if we get an exception, but
                 # send the exception traceback to the front-ends.
