@@ -1,5 +1,3 @@
-import Compat.invokelatest # for callbacks
-
 function eventloop(socket)
     task_local_storage(:IJulia_task, "write task")
     try
