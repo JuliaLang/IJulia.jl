@@ -4,7 +4,7 @@ function eventloop(socket)
         while true
             msg = recv_ipython(socket)
             try
-                send_status("busy", msg.header)
+                send_status("busy", msg)
                 invokelatest(handlers[msg.header["msg_type"]], socket, msg)
             catch e
                 # Try to keep going if we get an exception, but
@@ -14,22 +14,13 @@ function eventloop(socket)
                 if !isa(e, InterruptException)
                     content = error_content(e, msg="KERNEL EXCEPTION")
                     map(s -> println(orig_STDERR[], s), content["traceback"])
-                    send_ipython(publish[],
-                                 execute_msg == nothing ?
-                                 Msg([ "error" ],
-                                     Dict("msg_id" => uuid4(),
-                                          "username" => "jlkernel",
-                                          "session" => uuid4(),
-                                          "msg_type" => "error",
-                                          "version" => "5.0"),
-                                     content) :
-                                 msg_pub(execute_msg, "error", content))
+                    send_ipython(publish[], msg_pub(execute_msg, "error", content))
                 end
             finally
                 @async begin
                     sleep(idle_delay[])
                     flush_all()
-                    send_status("idle", msg.header)
+                    send_status("idle", msg)
                 end
             end
         end

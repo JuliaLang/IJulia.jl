@@ -15,6 +15,13 @@ type Msg
     end
 end
 
+msg_header(m::Msg, msg_type::String) = Dict("msg_id" => uuid4(),
+                                            "username" => m.header["username"],
+                                            "session" => m.header["session"],
+                                            "date" => now(),
+                                            "msg_type" => msg_type,
+                                            "version" => "5.0")
+
 # PUB/broadcast messages use the msg_type as the ident, except for
 # stream messages which use the stream name (e.g. "stdout").
 # [According to minrk, "this isn't well defined, or even really part
@@ -22,21 +29,10 @@ end
 # subscribers currently subscribe to all topics".]
 msg_pub(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
   Msg([ msg_type == "stream" ? content["name"] : msg_type ],
-      Dict("msg_id" => uuid4(),
-           "username" => m.header["username"],
-           "session" => m.header["session"],
-           "msg_type" => msg_type,
-               "version" => "5.0"),
-      content, m.header, metadata)
+      msg_header(m, msg_type), content, m.header, metadata)
 
 msg_reply(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
-  Msg(m.idents,
-      Dict("msg_id" => uuid4(),
-           "username" => m.header["username"],
-           "session" => m.header["session"],
-           "msg_type" => msg_type,
-           "version" => "5.0"),
-      content, m.header, metadata)
+  Msg(m.idents, msg_header(m, msg_type), content, m.header, metadata)
 
 function show(io::IO, msg::Msg)
     print(io, "IPython Msg [ idents ")
@@ -96,28 +92,7 @@ function recv_ipython(socket)
     end
 end
 
-function send_status(state::AbstractString, parent_header=nothing)
-    if parent_header == nothing
-        msg = Msg(
-                  [ "status" ],
-                  Dict("msg_id" => uuid4(),
-                       "username" => "jlkernel",
-                       "session" => execute_msg.header["session"],
-                       "msg_type" => "status",
-                       "version" => "5.0"),
-                  Dict("execution_state" => state)
-        )
-    else
-        msg = Msg(
-                  [ "status" ],
-                  Dict("msg_id" => uuid4(),
-                       "username" => "jlkernel",
-                       "session" => execute_msg.header["session"],
-                       "msg_type" => "status",
-                       "version" => "5.0"),
-                  Dict("execution_state" => state),
-                  parent_header
-        )
-    end
-    send_ipython(publish[], msg)
+function send_status(state::AbstractString, parent_msg::Msg=execute_msg)
+    send_ipython(publish[], Msg([ "status" ], msg_header(parent_msg, "status"),
+                                Dict("execution_state" => state), parent_msg.header))
 end
