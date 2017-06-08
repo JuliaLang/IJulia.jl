@@ -44,11 +44,16 @@ function ind_to_utf16(str, i)
     return ic
 end
 
+# protocol change in Jupyter 5.2 (jupyter/jupyter_client#262)
+Base.chr2ind(m::Msg, str::String, ic::Int) =
+    VersionNumber(m.header["version"]) ≥ v"5.2" ? chr2ind(str, ic) : utf16_to_ind(str, ic)
+Base.ind2chr(m::Msg, str::String, i::Int) =
+    VersionNumber(m.header["version"]) ≥ v"5.2" ? ind2chr(str, i) : ind_to_utf16(str, i)
 
 function complete_request(socket, msg)
     code = msg.content["code"]
     cursor_chr = msg.content["cursor_pos"]
-    cursorpos = cursor_chr <= 0 ? 0 : utf16_to_ind(code, cursor_chr)
+    cursorpos = cursor_chr <= 0 ? 0 : chr2ind(msg, code, cursor_chr)
     if all(isspace, code[1:cursorpos])
         send_ipython(requests[], msg_reply(msg, "complete_reply",
                                  Dict("status" => "ok",
@@ -66,10 +71,10 @@ function complete_request(socket, msg)
         # for positions when no completions are found
         cursor_start = cursor_end = cursor_chr
     elseif isempty(positions) # true if comps to be inserted without replacement
-        cursor_start = (cursor_end = ind_to_utf16(code, last(positions)))
+        cursor_start = (cursor_end = ind2chr(msg, code, last(positions)))
     else
-        cursor_start = ind_to_utf16(code, prevind(code, first(positions)))
-        cursor_end = ind_to_utf16(code, last(positions))
+        cursor_start = ind2chr(msg, code, prevind(code, first(positions)))
+        cursor_end = ind2chr(msg, code, last(positions))
     end
     send_ipython(requests[], msg_reply(msg, "complete_reply",
                                      Dict("status" => "ok",
@@ -182,7 +187,7 @@ end
 function inspect_request(socket, msg)
     try
         code = msg.content["code"]
-        s = get_token(code, utf16_to_ind(code, msg.content["cursor_pos"]))
+        s = get_token(code, chr2ind(msg, code, msg.content["cursor_pos"]))
         if isempty(s)
             content = Dict("status" => "ok", "found" => false)
         else
