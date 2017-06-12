@@ -164,9 +164,7 @@ function execute_request(socket, msg)
             result = nothing
         elseif result !== nothing
             if store_history
-                if result != Out # workaround for Julia #3066
-                    Out[n] = result
-                end
+                Out[n] = result
             end
         end
 
