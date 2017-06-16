@@ -181,7 +181,7 @@ function execute_request(socket, msg)
         flush_all()
 
         undisplay(result) # dequeue if needed, since we display result in pyout
-        display() # flush pending display requests
+        invokelatest(display) # flush pending display requests
 
         if result !== nothing
             result_metadata = invokelatest(metadata, result)
