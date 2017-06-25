@@ -23,6 +23,9 @@ end
 
 jupyter = get(ENV, "JUPYTER", isfile("JUPYTER") ? readchomp("JUPYTER") : is_linux() ? "jupyter" : "")
 jupyter_vers = isempty(jupyter) ? v"0.0" : prog_version(jupyter)
+if (jupyter_vers == v"0.0") && is_linux()                                       # some Linux distributions (Debian) use jupyter-notebook to launch Jupyter
+    jupyter_vers = prog_version(jupyter * "-notebook")
+end
 isconda = dirname(jupyter) == abspath(Conda.SCRIPTDIR)
 if Sys.ARCH in (:i686, :x86_64) && (jupyter_vers < v"3.0" || isconda)
     isempty(jupyter) || isconda || info("$jupyter was too old: got $jupyter_vers, required ≥ 3.0")
