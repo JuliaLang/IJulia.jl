@@ -40,6 +40,26 @@ end
 info("Found Jupyter version $jupyter_vers: $jupyter")
 
 #######################################################################
+# Get the latest syntax highlighter file.
+if isconda
+    highlighter = joinpath(Conda.LIBDIR, "python2.7", "site-packages", "notebook", "static",
+                           "components", "codemirror", "mode", "julia", "julia.js")
+    # CodeMirror commit from which we get the syntax highlighter
+    cm_commit = "d444cd1007bd32e418ace8ffed1cb0e692ee147d"
+    highlighter_url = "https://raw.githubusercontent.com/codemirror/CodeMirror/" *
+                      cm_commit * "/mode/julia/julia.js"
+    if isfile(highlighter)
+        try
+            download(highlighter_url, highlighter)
+        catch e
+            warn("The following error occurred while attempting to download latest ",
+                 "syntax highlighting definitions:\n\n", e, "\n\nSyntax highlighting may ",
+                 "not work as expected.")
+        end
+    end
+end
+
+#######################################################################
 # Warn people upgrading from older IJulia versions:
 try
     juliaprof = chomp(readstring(pipeline(`$ipython locate profile julia`,
