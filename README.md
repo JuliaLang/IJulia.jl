@@ -133,14 +133,14 @@ at the Julia command line (**important**: not in IJulia).
 
 You can also install additional Julia kernels, for example to
 pass alternative command-line arguments to the `julia` executable,
-by using the `IJulia.addkernel` function.  See the help for this
-function (`? IJulia.addkernel` in Julia) for complete details.
+by using the `IJulia.installkernel` function.  See the help for this
+function (`? IJulia.installkernel` in Julia) for complete details.
 
 For example, if you want to run Julia with all deprecation warnings
 disabled, you can do:
 ```julia
 using IJulia
-IJulia.addkernel("Julia nodeps", "--depwarn=no")
+IJulia.installkernel("Julia nodeps", "--depwarn=no")
 ```
 and a kernel called `Julia nodeps 0.6` (if you are using Julia 0.6)
 will be installed (will show up in your main Jupyter kernel menu) that

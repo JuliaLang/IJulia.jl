@@ -72,7 +72,7 @@ end
 # Install Jupyter kernel-spec file.
 
 include("kspec.jl")
-kspec_cmd, = addkernel("Julia")
+kspec_cmd, = installkernel("Julia")
 
 # figure out the notebook command by replacing (only!) the last occurrence of
 # "kernelspec" with "notebook":
