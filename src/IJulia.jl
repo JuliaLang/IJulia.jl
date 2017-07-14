@@ -33,7 +33,7 @@ The `IJulia` module is used in three ways:
   to the Jupyter server.
 """
 module IJulia
-export notebook
+export notebook, addkernel
 
 using ZMQ, JSON, Compat
 import Compat.invokelatest
