@@ -143,7 +143,7 @@ function rm_sideeffects(ex::Expr)
     end
 end
 function docdict(s::AbstractString)
-    ex = macroexpand(parse(helpcode(s)))
+    ex = macroexpand(Main, parse(helpcode(s)))
     # unfortunately, the REPL help macros sometimes have
     # expressions with side effects (I/O), so we need to
     # remove these.

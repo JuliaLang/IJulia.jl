@@ -1,7 +1,6 @@
 #######################################################################
 import JSON, Conda
 using Compat
-import Compat.String
 
 jupyter=""
 
@@ -20,7 +19,7 @@ function prog_version(prog)
     end
 end
 
-global jupyter = get(ENV, "JUPYTER", isfile("JUPYTER") ? readchomp("JUPYTER") : is_linux() ? "jupyter" : "")
+global jupyter = get(ENV, "JUPYTER", isfile("JUPYTER") ? readchomp("JUPYTER") : Compat.Sys.islinux() ? "jupyter" : "")
 jupyter_vers = isempty(jupyter) ? v"0.0" : prog_version(jupyter)
 if (jupyter_vers == v"0.0")                                                     # some Linux distributions (Debian) use jupyter-notebook to launch Jupyter
     jupyter_vers = prog_version(jupyter * "-notebook")

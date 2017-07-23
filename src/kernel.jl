@@ -1,7 +1,7 @@
 import IJulia
 
 # workaround #60:
-if IJulia.Compat.is_apple()
+if IJulia.Compat.Sys.isapple()
     ENV["PATH"] = JULIA_HOME*":"*ENV["PATH"]
 end
 

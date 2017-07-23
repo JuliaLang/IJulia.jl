@@ -102,7 +102,7 @@ process manager.)
 """
 function notebook(; dir=homedir(), detached=false)
     inited && error("IJulia is already running")
-    if is_apple() # issue #551 workaround, remove after macOS 10.12.6 release?
+    if Compat.Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
         withenv("BROWSER"=>"open") do
             p = spawn(Cmd(`$notebook_cmd`, detach=true, dir=dir))
         end

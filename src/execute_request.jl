@@ -58,14 +58,10 @@ function undisplay(x)
 end
 
 function show_bt(io::IO, top_func::Symbol, t, set)
-    if VERSION >= v"0.5.0-pre+5636" # julia PR #17570
-        # follow PR #17570 code in removing top_func from backtrace
-        eval_ind = findlast(addr->Base.REPL.ip_matches_func(addr, top_func), t)
-        eval_ind != 0 && (t = t[1:eval_ind-1])
-        Base.show_backtrace(io, t)
-    else
-        Base.show_backtrace(io, top_func, t, set)
-    end
+    # follow PR #17570 code in removing top_func from backtrace
+    eval_ind = findlast(addr->Base.REPL.ip_matches_func(addr, top_func), t)
+    eval_ind != 0 && (t = t[1:eval_ind-1])
+    Base.show_backtrace(io, t)
 end
 
 # wrapper for showerror(..., backtrace=false) since invokelatest
@@ -107,8 +103,6 @@ function helpcode(code::AbstractString)
     # as in base/REPL.jl, special-case keywords so that they parse
     if !haskey(Docs.keywords, Symbol(code_))
         return "Base.Docs.@repl $code_"
-    elseif VERSION < v"0.5.0-dev+3831"
-        return "eval(:(Base.Docs.@repl \$(symbol(\"$code_\"))))"
     else
         return "eval(:(Base.Docs.@repl \$(Symbol(\"$code_\"))))"
     end
@@ -143,7 +137,7 @@ function execute_request(socket, msg)
     # "; ..." cells are interpreted as shell commands for run
     code = replace(code, r"^\s*;.*$",
                    m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"),
-                               "`, STDOUT)"), 0)
+                               "`, STDOUT)"))
 
     # a cell beginning with "? ..." is interpreted as a help request
     hcode = replace(code, r"^\s*\?", "")
@@ -158,7 +152,7 @@ function execute_request(socket, msg)
 
         #run the code!
         ans = result = ismatch(magics_regex, code) ? magics_help(code) :
-            include_string(code, "In[$n]")
+            include_string(Main, code, "In[$n]")
 
         if silent
             result = nothing

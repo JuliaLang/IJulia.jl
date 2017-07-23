@@ -1,5 +1,4 @@
 using Base.Test
-using Compat
 import IJulia: Msg
 
 idents = ["idents"]
