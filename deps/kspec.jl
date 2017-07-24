@@ -40,7 +40,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
 
     juliakspec = joinpath(tempdir(), spec_name)
     try
-        binary_name = is_windows() ? "julia.exe" : "julia"
+        binary_name = Compat.Sys.iswindows() ? "julia.exe" : "julia"
         kernelcmd_array = String[joinpath(JULIA_HOME,"$binary_name"), "-i",
                                  "--startup-file=yes", "--color=yes"]
         append!(kernelcmd_array, julia_options)
@@ -75,13 +75,13 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
             run(`$jupyter kernelspec install --replace --user $juliakspec`)
             push!(kspec_cmd, jupyter, "kernelspec")
         catch
-            @static if is_unix()
+            @static if Compat.Sys.isunix()
                 run(`$jupyter-kernelspec install --replace --user $juliakspec`)
                 push!(kspec_cmd, jupyter * "-kernelspec")
             end
 
             # issue #363:
-            @static if is_windows()
+            @static if Compat.Sys.iswindows()
                 jupyter_dir = dirname(jupyter)
                 jks_exe = ""
                 if jupyter_dir == abspath(Conda.SCRIPTDIR)

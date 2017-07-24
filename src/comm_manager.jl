@@ -1,8 +1,6 @@
 module CommManager
 
 using IJulia
-using Compat
-import Compat.String
 
 import IJulia: Msg, uuid4, send_ipython, msg_pub
 

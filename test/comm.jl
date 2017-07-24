@@ -1,5 +1,4 @@
 using Base.Test
-using Compat
 import IJulia: Comm, comm_target
 
 
