@@ -45,9 +45,9 @@ function ind_to_utf16(str, i)
 end
 
 # protocol change in Jupyter 5.2 (jupyter/jupyter_client#262)
-Base.chr2ind(m::Msg, str::String, ic::Int) =
+Base.chr2ind(m::Msg, str::String, ic::Integer) =
     VersionNumber(m.header["version"]) ≥ v"5.2" ? chr2ind(str, ic) : utf16_to_ind(str, ic)
-Base.ind2chr(m::Msg, str::String, i::Int) =
+Base.ind2chr(m::Msg, str::String, i::Integer) =
     VersionNumber(m.header["version"]) ≥ v"5.2" ? ind2chr(str, i) : ind_to_utf16(str, i)
 
 function complete_request(socket, msg)
