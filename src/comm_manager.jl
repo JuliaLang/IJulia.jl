@@ -30,13 +30,14 @@ function Comm(target,
               primary=true,
               on_msg=noop_callback,
               on_close=noop_callback;
-              data=Dict())
+              data=Dict(),
+              metadata=Dict())
     comm = Comm{Symbol(target)}(id, primary, on_msg, on_close)
     if primary
         # Request a secondary object be created at the front end
         send_ipython(IJulia.publish[],
                      msg_comm(comm, IJulia.execute_msg, "comm_open",
-                              data, target_name=string(target)))
+                              data, metadata, target_name=string(target)))
     end
     return comm
 end
