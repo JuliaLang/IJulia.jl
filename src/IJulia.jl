@@ -152,7 +152,7 @@ If the optional argument `replace` is `true`, then the file contents
 replace the *current* cell rather than creating a new cell.
 """
 load(filename::AbstractString, replace::Bool=false) =
-    load_string(readstring(filename), replace)
+    load_string(read(filename, String), replace)
 
 #######################################################################
 # History: global In/Out and other exported history variables

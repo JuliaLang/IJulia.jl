@@ -250,9 +250,8 @@ save_magic_help(magic::AbstractString, args::AbstractString) = md"""
 
 sc_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%sc shell command` is `; shell command` in IJulia, or
-        readstring(`shell command`)
-    to capture the output as a string in Julia.
-    (In Julia 0.4, use `readall` instead of `readstring`.)"""
+        read(`shell command`, String)
+    to capture the output as a string in Julia."""
 
 set_env_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%set_env var val` is `ENV["var"]=val` in Julia."""
@@ -260,8 +259,8 @@ set_env_magic_help(magic::AbstractString, args::AbstractString) = md"""
 sx_magic_help(magic::AbstractString, args::AbstractString) =
 Base.Markdown.parse("""
     The analogue of IPython's `$magic shell command` is
-        split(readstring(`shell command`),'\n')
-    in Julia.  (In Julia 0.4, use `readall` instead of `readstring`.)""")
+        split(read(`shell command`, String),'\n')
+    in Julia.""")
 
 time_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%time statement` (also `%timeit`) in Julia is
