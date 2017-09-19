@@ -13,7 +13,7 @@ ENV["PYTHONIOENCODING"] = "UTF-8"
 
 function prog_version(prog)
     try
-       return convert(VersionNumber, chomp(readstring(`$prog --version`)))
+       return convert(VersionNumber, chomp(read(`$prog --version`, String)))
     catch
        return v"0.0"
     end
@@ -60,8 +60,8 @@ end
 #######################################################################
 # Warn people upgrading from older IJulia versions:
 try
-    juliaprof = chomp(readstring(pipeline(`$ipython locate profile julia`,
-                                          stderr=DevNull)))
+    juliaprof = chomp(read(pipeline(`$ipython locate profile julia`,
+                                    stderr=DevNull), String))
     warn("""You should now run IJulia just via `$jupyter notebook`, without
             the `--profile julia` flag.  IJulia no longer maintains the profile.
             Consider deleting $juliaprof""")
@@ -92,7 +92,7 @@ deps = """
     const notebook_cmd = ["$(join(map(escape_string, notebook), "\", \""))"]
     const jupyter_vers = $(repr(jupyter_vers))
     """
-if !isfile("deps.jl") || readstring("deps.jl") != deps
+if !isfile("deps.jl") || read("deps.jl", String) != deps
     write("deps.jl", deps)
 end
 write("JUPYTER", jupyter)

@@ -15,14 +15,19 @@ const comms = Dict{String, Comm}(
 )
 msg_content = Dict("target_name" => "jupyter.widget")
 reply = if haskey(msg_content, "target_name")
-    t = Symbol(msg_content["target_name"])
-    filter((k, v) -> comm_target(v) == t, comms)
+    let t, cb
+        t = Symbol(msg_content["target_name"])
+        cb(k, v) = comm_target(v) == t # For 0.6
+        cb(kv) = comm_target(kv[2]) == t # For 0.7
+        filter(cb, comms)
+    end
 else
     comms
 end
 @test Dict{String,Comm} == typeof(reply)
 _comms = Dict{String,Dict{Symbol,Symbol}}()
 for (comm_id,comm) in reply
+    local comm_id, comm
     _comms[comm_id] = Dict(:target_name => comm_target(comm))
 end
 @test Dict("id"=>Dict(:target_name=>Symbol("jupyter.widget"))) == _comms
