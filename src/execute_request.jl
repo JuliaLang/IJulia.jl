@@ -50,7 +50,7 @@ const displayqueue = Any[]
 
 # remove x from the display queue
 function undisplay(x)
-    i = findfirst(displayqueue, x)
+    i = findfirst(elem -> elem == displayqueue, x)
     if i > 0
         splice!(displayqueue, i)
     end
