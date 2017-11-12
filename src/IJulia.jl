@@ -264,7 +264,7 @@ push_postexecute_hook(f::Function) = push!(postexecute_hooks, f)
 Remove a function `f()` from the list of functions to
 execute after executing any notebook cell.
 """
-pop_postexecute_hook(f::Function) = splice!(postexecute_hooks, findfirst(x -> x == postexecute_hooks, f))
+pop_postexecute_hook(f::Function) = @compat splice!(postexecute_hooks, findfirst(equalto(f), postexecute_hooks))
 
 const preexecute_hooks = Function[]
 """
@@ -280,7 +280,7 @@ push_preexecute_hook(f::Function) = push!(preexecute_hooks, f)
 Remove a function `f()` from the list of functions to
 execute before executing any notebook cell.
 """
-pop_preexecute_hook(f::Function) = splice!(preexecute_hooks, findfirst(x -> x == preexecute_hooks, f))
+pop_preexecute_hook(f::Function) = @compat splice!(preexecute_hooks, findfirst(equalto(f), preexecute_hooks))
 
 # similar, but called after an error (e.g. to reset plotting state)
 const posterror_hooks = Function[]
@@ -297,7 +297,7 @@ push_posterror_hook(f::Function) = push!(posterror_hooks, f)
 Remove a function `f()` from the list of functions to
 execute after an error occurs when a notebook cell is evaluated.
 """
-pop_posterror_hook(f::Function) = splice!(posterror_hooks, findfirst(x -> x == posterror_hooks, f))
+pop_posterror_hook(f::Function) = @compat splice!(posterror_hooks, findfirst(equalto(f), posterror_hooks))
 
 #######################################################################
 
