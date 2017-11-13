@@ -50,7 +50,7 @@ const displayqueue = Any[]
 
 # remove x from the display queue
 function undisplay(x)
-    i = @compat findfirst(equalto(x), displayqueue)
+    i = findfirst(equalto(x), displayqueue)
     if i > 0
         splice!(displayqueue, i)
     end
