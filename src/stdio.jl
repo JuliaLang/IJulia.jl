@@ -1,6 +1,28 @@
-# During handling of an execute_request (when execute_msg is !nothing),
-# we redirect STDOUT and STDERR into "stream" messages sent to the IPython
-# front-end.
+# IJulia redirects STDOUT and STDERR into "stream" messages sent to the
+# Jupyter front-end.
+
+# create a wrapper type around redirected stdio streams,
+# both for overloading things like `flush` and so that we
+# can set properties like `color`.
+immutable IJuliaStdio{IO_t <: IO} <: Base.AbstractPipe
+    io::IOContext{IO_t}
+end
+IJuliaStdio(io::IO, stream::AbstractString="unknown") =
+    IJuliaStdio{typeof(io)}(IOContext(io, :color=>Base.have_color,
+                            :jupyter_stream=>stream,
+                            :displaysize=>displaysize()))
+Base.pipe_reader(io::IJuliaStdio) = io.io.io
+Base.pipe_writer(io::IJuliaStdio) = io.io.io
+Base.lock(io::IJuliaStdio) = lock(io.io.io)
+Base.unlock(io::IJuliaStdio) = unlock(io.io.io)
+Base.in(key_value::Pair, io::IJuliaStdio) = in(key_value, io.io)
+Base.haskey(io::IJuliaStdio, key) = haskey(io.io, key)
+Base.getindex(io::IJuliaStdio, key) = getindex(io.io, key)
+Base.get(io::IJuliaStdio, key, default) = get(io.io, key, default)
+Base.displaysize(io::IJuliaStdio) = displaysize(io.io)
+if VERSION >= v"0.7.0-DEV.1472" # Julia PR #23271
+    Base.unwrapcontext(io::IJuliaStdio) = Base.unwrapcontext(io.io)
+end
 
 # logging in verbose mode goes to original stdio streams.  Use macros
 # so that we do not even evaluate the arguments in no-verbose modes
@@ -175,21 +197,16 @@ function readprompt(prompt::AbstractString; password::Bool=false)
     end
 end
 
-
-# this is hacky: we overload some of the I/O functions on pipe endpoints
-# in order to fix some interactions with stdio.
-const StdioPipe = Base.PipeEndpoint
-
 # IJulia issue #42: there doesn't seem to be a good way to make a task
 # that blocks until there is a read request from STDIN ... this makes
 # it very hard to properly redirect all reads from STDIN to pyin messages.
 # In the meantime, however, we can just hack it so that readline works:
 import Base.readline
-function readline(io::StdioPipe)
-    if io == STDIN
+function readline(io::IJuliaStdio)
+    if get(io,:jupyter_stream,"unknown") == "stdin"
         return readprompt("STDIN> ")
     else
-        invoke(readline, Tuple{supertype(StdioPipe)}, io)
+        readline(io.io)
     end
 end
 
@@ -224,13 +241,8 @@ function oslibuv_flush()
 end
 
 import Base.flush
-function flush(io::StdioPipe)
-    invoke(flush, Tuple{supertype(StdioPipe)}, io)
-    if io == STDOUT
-        oslibuv_flush()
-        send_stream("stdout")
-    elseif io == STDERR
-        oslibuv_flush()
-        send_stream("stderr")
-    end
+function flush(io::IJuliaStdio)
+    flush(io.io)
+    oslibuv_flush()
+    send_stream(get(io,:jupyter_stream,"unknown"))
 end

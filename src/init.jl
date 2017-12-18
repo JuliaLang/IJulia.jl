@@ -90,10 +90,13 @@ function init(args)
     start_heartbeat(heartbeat[])
     if capture_stdout
         read_stdout[], = redirect_stdout()
+        eval(Base, :(STDOUT = $(IJuliaStdio(STDOUT,"stdout"))))
     end
     if capture_stderr
         read_stderr[], = redirect_stderr()
+        eval(Base, :(STDERR = $(IJuliaStdio(STDERR,"stderr"))))
     end
+    eval(Base, :(STDIN = $(IJuliaStdio(STDIN,"stdin"))))
 
     send_status("starting")
     global inited = true

@@ -2,5 +2,5 @@ julia 0.5
 MbedTLS 0.4.3
 JSON 0.5
 ZMQ 0.3.3
-Compat 0.33.0
+Compat 0.40.0
 Conda 0.1.5
