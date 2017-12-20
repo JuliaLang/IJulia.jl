@@ -1,6 +1,7 @@
 #######################################################################
 import JSON, Conda
 using Compat
+using Unicode
 
 jupyter=""
 
