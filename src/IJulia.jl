@@ -37,6 +37,8 @@ export notebook, installkernel
 
 using ZMQ, JSON, Compat
 import Compat.invokelatest
+using Compat.Unicode: uppercase, lowercase
+using Compat.Dates: now
 
 #######################################################################
 # Debugging IJulia
