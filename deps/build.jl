@@ -1,6 +1,7 @@
 #######################################################################
 import JSON, Conda
 using Compat
+using Compat.Unicode: lowercase
 
 jupyter=""
 
