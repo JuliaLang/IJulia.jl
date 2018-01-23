@@ -17,10 +17,13 @@ function eventloop(socket)
                     send_ipython(publish[], msg_pub(execute_msg, "error", content))
                 end
             finally
-                @async begin
-                    sleep(idle_delay[])
-                    flush_all()
-                    send_status("idle", msg)
+                # @async no longer implicitly captures local variables (see PR #618)
+                let msg = msg
+                    @async begin
+                        sleep(idle_delay[])
+                        flush_all()
+                        send_status("idle", msg)
+                    end
                 end
             end
         end
