@@ -17,6 +17,7 @@ function eventloop(socket)
                     send_ipython(publish[], msg_pub(execute_msg, "error", content))
                 end
             finally
+                # @async no longer implictly captures local variables #618
                 let msg = msg
                     @async begin
                         sleep(idle_delay[])
