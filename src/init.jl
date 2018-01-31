@@ -36,7 +36,7 @@ function qtconsole()
     if inited
         spawn(`$jupyter qtconsole --existing $connection_file`)
     else
-        warn("IJulia is not running. qtconsole must be called from an IJulia session.")
+        error("IJulia is not running. qtconsole must be called from an IJulia session.")
     end
 end
 
