@@ -220,6 +220,9 @@ psearch_magic_help(magic::AbstractString, args::AbstractString) = md"""
 pwd_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%pwd` is `pwd()` in Julia."""
 
+qtconsole_magic_help(magic::AbstractString, args::AbstractString) = md"""
+    The analogue of IPython's `%qtconsole` is `IJulia.qtconsole()` in Julia."""
+
 recall_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%recall n` in IJulia is
     `IJulia.load_string(In[n])`, and the analogue of
@@ -419,6 +422,7 @@ const magic_help = Dict{String, Function}(
     "%%prun" => prun_magic_help,
     "%psearch" => psearch_magic_help,
     "%pwd" => pwd_magic_help,
+    "%qtconsole" => qtconsole_magic_help,
     "%recall" => recall_magic_help,
     "%run" => run_magic_help,
     "%save" => save_magic_help,
