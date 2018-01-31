@@ -32,11 +32,20 @@ const read_stdout = Ref{Base.PipeEndpoint}()
 const read_stderr = Ref{Base.PipeEndpoint}()
 const socket_locks = Dict{Socket,ReentrantLock}()
 
+function qtconsole()
+    if inited
+        spawn(`$jupyter qtconsole --existing $connection_file`)
+    else
+        error("IJulia is not running. qtconsole must be called from an IJulia session.")
+    end
+end
+
 function init(args)
     inited && error("IJulia is already running")
     if length(args) > 0
         merge!(profile, open(JSON.parse,args[1]))
         verbose && println("PROFILE = $profile")
+        global connection_file = args[1]
     else
         # generate profile and save
         let port0 = 5678
@@ -51,7 +60,8 @@ function init(args)
                 "key" => uuid4()
             ))
             fname = "profile-$(getpid()).json"
-            println("connect ipython with --existing $(pwd())/$fname")
+            global connection_file = "$(pwd())/$fname"
+            println("connect ipython with --existing $connection_file")
             open(fname, "w") do f
                 JSON.print(f, profile)
             end
