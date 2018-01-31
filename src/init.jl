@@ -32,10 +32,12 @@ const read_stdout = Ref{Base.PipeEndpoint}()
 const read_stderr = Ref{Base.PipeEndpoint}()
 const socket_locks = Dict{Socket,ReentrantLock}()
 
-connection_file = ""
-
 function qtconsole()
-    spawn(`$jupyter qtconsole --existing $connection_file`)
+    if inited
+        spawn(`$jupyter qtconsole --existing $connection_file`)
+    else
+        warn("IJulia is not running. qtconsole must be called from an IJulia session.")
+    end
 end
 
 function init(args)
