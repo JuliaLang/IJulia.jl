@@ -230,7 +230,7 @@ end
 
 history(io::IO, x::Union{Integer,AbstractVector{Int}}...) = history(io, vcat(x...))
 history(x...) = history(STDOUT, x...)
-history(io::IO, x...) = throw(MethodError(history, (x...)))
+history(io::IO, x...) = throw(MethodError(history, (x...,)))
 history() = history(1:n)
 """
     history([io], [indices...])
