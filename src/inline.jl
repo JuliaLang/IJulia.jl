@@ -1,6 +1,9 @@
 import Base: display, redisplay
 
-immutable InlineDisplay <: Display end
+@static if !isdefined(Base, :AbstractDisplay) # remove when Compat.jl#482 is merged and tagged
+    const AbstractDisplay = Display
+end
+struct InlineDisplay <: AbstractDisplay end
 
 # supported MIME types for inline display in IPython, in descending order
 # of preference (descending "richness")

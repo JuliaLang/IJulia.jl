@@ -23,7 +23,11 @@ function magics_help(code::AbstractString)
     end
 end
 
-using Base.Markdown
+@static if VERSION < v"0.7.0-DEV.3589" # julia#25738
+    using Base.Markdown
+else
+    using Markdown
+end
 
 const magic_help_string = """
     Julia does not use the IPython `%magic` syntax.   To interact
@@ -55,7 +59,7 @@ alias_magic_help(magic::AbstractString, args::AbstractString) = md"""
     which you can then run with e.g. `bracket("hello world")`."""
 
 function cd_magic_help(magic::AbstractString, args::AbstractString)
-    if magic == "%cd" && !ismatch(r"\s*-", args)
+    if magic == "%cd" && !contains(args, r"\s*-")
         return md"""The equivalent of `%cd 'dir'` in IPython is `cd("dir")` in Julia."""
     else
         return md"""
@@ -213,7 +217,7 @@ prun_magic_help(magic::AbstractString, args::AbstractString) = md"""
 
 psearch_magic_help(magic::AbstractString, args::AbstractString) = md"""
     A rough analogue of IPython's `%psearch PATTERN` in Julia might be
-    `filter(s -> ismatch(r"PATTERN", string(s)), names(Base))`, which
+    `filter(s -> contains(string(s), r"PATTERN"), names(Base))`, which
     searches all the symbols defined in the `Base` module for a given
     regular-expression pattern `PATTERN`."""
 

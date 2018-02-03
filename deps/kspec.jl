@@ -4,7 +4,7 @@
 copy_config(src, dest) = cp(src, joinpath(dest, basename(src)), remove_destination=true)
 
 """
-    installkernel(name, options...; specname=replace(lowercase(name), " ", "-")
+    installkernel(name, options...; specname=replace(lowercase(name), " "=>"-")
 
 Install a new Julia kernel, where the given `options` are passed to the `julia`
 executable, and the user-visible kernel name is given by `name` followed by the
@@ -31,7 +31,7 @@ run(`\$kernelspec remove -f \$kernelname`)
 ```
 """
 function installkernel(name::AbstractString, julia_options::AbstractString...;
-                   specname::AbstractString = replace(lowercase(name), " ", "-"))
+                   specname::AbstractString = replace(lowercase(name), " "=>"-"))
     # Is IJulia being built from a debug build? If so, add "debug" to the description.
     debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
 
@@ -41,7 +41,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
     juliakspec = joinpath(tempdir(), spec_name)
     try
         binary_name = Compat.Sys.iswindows() ? "julia.exe" : "julia"
-        kernelcmd_array = String[joinpath(JULIA_HOME,"$binary_name"), "-i",
+        kernelcmd_array = String[joinpath(Compat.Sys.BINDIR,"$binary_name"), "-i",
                                  "--startup-file=yes", "--color=yes"]
         append!(kernelcmd_array, julia_options)
         ijulia_dir = get(ENV, "IJULIA_DIR", dirname(@__DIR__)) # support non-Pkg IJulia installs
@@ -65,7 +65,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
         copy_config(joinpath(ijulia_dir,"deps","logo-32x32.png"), juliakspec)
         copy_config(joinpath(ijulia_dir,"deps","logo-64x64.png"), juliakspec)
 
-        info("Installing $name kernelspec $spec_name")
+        Compat.@info("Installing $name kernelspec $spec_name")
 
         # remove these hacks when
         # https://github.com/jupyter/notebook/issues/448 is closed and the fix

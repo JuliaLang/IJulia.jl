@@ -2,7 +2,7 @@ import IJulia
 
 # workaround #60:
 if IJulia.Compat.Sys.isapple()
-    ENV["PATH"] = JULIA_HOME*":"*ENV["PATH"]
+    ENV["PATH"] = IJulia.Compat.Sys.BINDIR*":"*ENV["PATH"]
 end
 
 IJulia.init(ARGS)
@@ -12,7 +12,7 @@ import IJulia: ans, In, Out, clear_history
 
 pushdisplay(IJulia.InlineDisplay())
 
-ccall(:jl_exit_on_sigint, Void, (Cint,), 0)
+ccall(:jl_exit_on_sigint, Cvoid, (Cint,), 0)
 
 # the size of truncated output to show should not depend on the terminal
 # where the kernel is launched, since the display is elsewhere

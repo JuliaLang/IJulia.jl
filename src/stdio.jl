@@ -4,7 +4,7 @@
 # create a wrapper type around redirected stdio streams,
 # both for overloading things like `flush` and so that we
 # can set properties like `color`.
-immutable IJuliaStdio{IO_t <: IO} <: Base.AbstractPipe
+struct IJuliaStdio{IO_t <: IO} <: Base.AbstractPipe
     io::IOContext{IO_t}
 end
 IJuliaStdio(io::IO, stream::AbstractString="unknown") =
@@ -38,6 +38,7 @@ end
 # logging in verbose mode goes to original stdio streams.  Use macros
 # so that we do not even evaluate the arguments in no-verbose modes
 
+using Compat.Printf
 function get_log_preface()
     t = now()
     taskname = get(task_local_storage(), :IJulia_task, "")
@@ -82,7 +83,7 @@ function watch_stream(rd::IO, name::AbstractString)
         buf = IOBuffer()
         bufs[name] = buf
         while !eof(rd) # blocks until something is available
-            nb = nb_available(rd)
+            nb = @static VERSION < v"0.7.0-DEV.3481" ? nb_available(rd) : bytesavailable(rd)
             if nb > 0
                 stdio_bytes[] += nb
                 # if this stream has surpassed the maximum output limit then ignore future bytes
@@ -221,17 +222,23 @@ function readline(io::IJuliaStdio)
     end
 end
 
+if VERSION < v"0.7.0-DEV.3526" # julia#25647
+    _Timer(callback, delay, repeat) = Timer(callback, delay, repeat)
+else
+    _Timer(callback, delay, repeat) = Timer(callback, delay, interval=repeat)
+end
+
 function watch_stdio()
     task_local_storage(:IJulia_task, "init task")
     if capture_stdout
         read_task = @async watch_stream(read_stdout[], "stdout")
         #send STDOUT stream msgs every stream_interval secs (if there is output to send)
-        Timer(send_stdout, stream_interval, stream_interval)
+        _Timer(send_stdout, stream_interval, stream_interval)
     end
     if capture_stderr
         readerr_task = @async watch_stream(read_stderr[], "stderr")
         #send STDERR stream msgs every stream_interval secs (if there is output to send)
-        Timer(send_stderr, stream_interval, stream_interval)
+        _Timer(send_stderr, stream_interval, stream_interval)
     end
 end
 
@@ -245,7 +252,7 @@ function oslibuv_flush()
     #refs: https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144505862
     #      https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144605024
     @static if Compat.Sys.iswindows()
-        ccall(:SwitchToThread, stdcall, Void, ())
+        ccall(:SwitchToThread, stdcall, Cvoid, ())
     end
     yield()
     yield()

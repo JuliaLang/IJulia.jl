@@ -5,20 +5,23 @@ include(joinpath("..","deps","kspec.jl"))
 
 # use our own random seed for msg_id so that we
 # don't alter the user-visible random state (issue #336)
-const IJulia_RNG = srand(MersenneTwister(0))
-uuid4() = repr(Base.Random.uuid4(IJulia_RNG))
+const IJulia_RNG = Random.srand(Random.MersenneTwister(0))
+@static if VERSION < v"0.7.0-DEV.3666" # julia#25819
+    uuid4() = repr(Random.uuid4(IJulia_RNG))
+else
+    import UUIDs
+    uuid4() = repr(UUIDs.uuid4(IJulia_RNG))
+end
 
 const orig_STDIN  = Ref{IO}()
 const orig_STDOUT = Ref{IO}()
 const orig_STDERR = Ref{IO}()
 function __init__()
-    srand(IJulia_RNG)
+    Random.srand(IJulia_RNG)
     orig_STDIN[]  = STDIN
     orig_STDOUT[] = STDOUT
     orig_STDERR[] = STDERR
 end
-
-const threadid = Vector{Int}(128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
 
 # the following constants need to be initialized in init().
 const ctx = Ref{Context}()

@@ -19,7 +19,7 @@ function prog_version(prog)
         return nothing
     end
     try
-       return convert(VersionNumber, v)
+       return VersionNumber(v)
     catch
         warn("`$jupyter --version` returned an unrecognized version number $v")
         return v"0.0"
@@ -40,8 +40,8 @@ else
 end
 isconda = dirname(jupyter) == abspath(Conda.SCRIPTDIR)
 if Sys.ARCH in (:i686, :x86_64) && (jupyter_vers === nothing || jupyter_vers < v"3.0" || isconda)
-    isconda || jupyter_vers === nothing || info("$jupyter was too old: got $jupyter_vers, required ≥ 3.0")
-    info("Installing Jupyter via the Conda package.")
+    isconda || jupyter_vers === nothing || Compat.@info("$jupyter was too old: got $jupyter_vers, required ≥ 3.0")
+    Compat.@info("Installing Jupyter via the Conda package.")
     Conda.add("jupyter")
     jupyter = abspath(Conda.SCRIPTDIR, "jupyter")
     jupyter_vers = prog_version(jupyter)
@@ -49,7 +49,7 @@ end
 if jupyter_vers === nothing || jupyter_vers < v"3.0"
     error("Failed to find or install Jupyter 3.0 or later. Please install Jupyter manually, set `ENV[\"JUPYTER\"]=\"/path/to/jupyter\", and rerun `Pkg.build(\"IJulia\")`.")
 end
-info("Found Jupyter version $jupyter_vers: $jupyter")
+Compat.@info("Found Jupyter version $jupyter_vers: $jupyter")
 
 #######################################################################
 # Get the latest syntax highlighter file.
@@ -91,7 +91,7 @@ kspec_cmd, = installkernel("Julia")
 # "kernelspec" with "notebook":
 notebook = kspec_cmd.exec
 n = notebook[end]
-ki = rsearch(n, "kernelspec")
+ki = VERSION < v"0.7.0-DEV.3252" ? rsearch(n, "kernelspec") : findlast("kernelspec", n)
 notebook[end] = n[1:prevind(n,first(ki))] * "notebook" * n[nextind(n,last(ki)):end]
 
 #######################################################################

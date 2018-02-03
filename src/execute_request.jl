@@ -4,8 +4,6 @@
 
 import Base.Libc: flush_cstdio
 
-using Compat
-
 const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")
 const image_png = MIME("image/png")
@@ -59,7 +57,7 @@ const displayqueue = Any[]
 # remove x from the display queue
 function undisplay(x)
     i = findfirst(equalto(x), displayqueue)
-    if i > 0
+    if i !== nothing && i > 0
         splice!(displayqueue, i)
     end
     return x
@@ -67,8 +65,8 @@ end
 
 function show_bt(io::IO, top_func::Symbol, t, set)
     # follow PR #17570 code in removing top_func from backtrace
-    eval_ind = findlast(addr->Base.REPL.ip_matches_func(addr, top_func), t)
-    eval_ind != 0 && (t = t[1:eval_ind-1])
+    eval_ind = findlast(addr->REPL.ip_matches_func(addr, top_func), t)
+    eval_ind !== nothing && eval_ind != 0 && (t = t[1:eval_ind-1])
     Base.show_backtrace(io, t)
 end
 
@@ -90,9 +88,9 @@ function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_s
     catch
         "SYSTEM: show(lasterr) caused an error"
     end
-    unshift!(tb, evalue) # fperez says this needs to be in traceback too
+    pushfirst!(tb, evalue) # fperez says this needs to be in traceback too
     if !isempty(msg)
-        unshift!(tb, msg)
+        pushfirst!(tb, msg)
     end
     Dict("ename" => ename, "evalue" => evalue,
                  "traceback" => tb)
@@ -106,14 +104,10 @@ execute_msg = Msg(["julia"], Dict("username"=>"jlkernel", "session"=>uuid4()), D
 # request
 const stdio_bytes = Ref(0)
 
-function helpcode(code::AbstractString)
-    code_ = strip(code)
-    # as in base/REPL.jl, special-case keywords so that they parse
-    if !haskey(Docs.keywords, Symbol(code_))
-        return "Base.Docs.@repl $code_"
-    else
-        return "eval(:(Base.Docs.@repl \$(Symbol(\"$code_\"))))"
-    end
+if VERSION < v"0.7.0-DEV.3589" # julia #25738
+    import Base.Docs: helpmode # added in 0.6, see julia #19858
+else
+    import REPL: helpmode
 end
 
 # use a global array to accumulate "payloads" for the execute_reply message
@@ -137,30 +131,32 @@ function execute_request(socket, msg)
                                           "code" => code)))
     end
 
-    silent = silent || Base.REPL.ends_with_semicolon(code)
+    silent = silent || REPL.ends_with_semicolon(code)
     if store_history
         In[n] = code
     end
 
     # "; ..." cells are interpreted as shell commands for run
-    code = replace(code, r"^\s*;.*$",
+    code = replace(code, r"^\s*;.*$" =>
                    m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"),
                                "`, STDOUT)"))
 
     # a cell beginning with "? ..." is interpreted as a help request
-    hcode = replace(code, r"^\s*\?", "")
-    if hcode != code
-        code = helpcode(hcode)
-    end
+    hcode = replace(code, r"^\s*\?" => "")
 
     try
         for hook in preexecute_hooks
             invokelatest(hook)
         end
 
-        #run the code!
-        ans = result = ismatch(magics_regex, code) ? magics_help(code) :
-            include_string(current_module[], code, "In[$n]")
+
+        if hcode != code # help request
+            eval(Main, helpmode(hcode))
+        else
+            #run the code!
+            ans = result = contains(code, magics_regex) ? magics_help(code) :
+                include_string(current_module[], code, "In[$n]")
+        end
 
         if silent
             result = nothing
