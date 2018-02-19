@@ -44,7 +44,7 @@ if isconda
     highlighter = joinpath(Conda.LIBDIR, "python2.7", "site-packages", "notebook", "static",
                            "components", "codemirror", "mode", "julia", "julia.js")
     # CodeMirror commit from which we get the syntax highlighter
-    cm_commit = "d444cd1007bd32e418ace8ffed1cb0e692ee147d"
+    cm_commit = "ed9278cba6e1f75328df6b257f1043d35a690c59"
     highlighter_url = "https://raw.githubusercontent.com/codemirror/CodeMirror/" *
                       cm_commit * "/mode/julia/julia.js"
     if isfile(highlighter)
