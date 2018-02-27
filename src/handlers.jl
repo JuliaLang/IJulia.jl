@@ -49,6 +49,34 @@ Base.chr2ind(m::Msg, str::String, ic::Integer) = ic == 0 ? 0 :
     VersionNumber(m.header["version"]) ≥ v"5.2" ? chr2ind(str, ic) : utf16_to_ind(str, ic)
 Base.ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
     VersionNumber(m.header["version"]) ≥ v"5.2" ? ind2chr(str, i) : ind_to_utf16(str, i)
+#Compact display of types for Jupyterlab completion
+complete_type(T) = string(T) # maybe shorten?
+complete_type(::Type{<:Function}) = "function"
+complete_type(::Type{<:Type}) = "type"
+complete_type(::Type{<:Tuple}) = "tuple"
+
+function complete_type(T::DataType)
+    s = string(T)
+    (Compat.textwidth(s) ≤ 20 || isempty(T.parameters)) && return s
+    buf = IOBuffer()
+    print(buf, T.name)
+    position(buf) > 19 && return String(take!(buf))
+    print(buf, '{')
+    comma = false
+    for p in T.parameters
+        s = string(p)
+        if position(buf) + sizeof(s) > 20
+            comma || print(buf, '…')
+            break
+        end
+        comma && print(buf, ',')
+        comma = true
+        print(buf, s)
+    end
+    print(buf, '}')
+    return String(take!(buf))
+end
+
 
 function complete_request(socket, msg)
     code = msg.content["code"]
@@ -66,10 +94,8 @@ function complete_request(socket, msg)
 
     codestart = find_parsestart(code, cursorpos)
     comps, positions = Base.REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
-    metadata = Dict()
-
-
     positions += codestart-1
+    metadata = Dict()
     if isempty(comps)
         # issue #530: REPLCompletions returns inconsistent results
         # for positions when no completions are found
@@ -84,11 +110,7 @@ function complete_request(socket, msg)
         for c in comps
             try
                 t = eval(Main, parse("typeof($c)"))
-                if issubtype(t, Function)
-                    push!(typeMap, Dict("text" => c, "type" => "function"))
-                else
-                    push!(typeMap, Dict("text" => c, "type" => "$t"))
-                end
+                push!(typeMap, Dict("text" => c, "type" => "$(complete_type(t))"))
             catch E
             end
         end
