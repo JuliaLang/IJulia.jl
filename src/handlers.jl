@@ -57,6 +57,7 @@ function complete_request(socket, msg)
     if all(isspace, code[1:cursorpos])
         send_ipython(requests[], msg_reply(msg, "complete_reply",
                                  Dict("status" => "ok",
+                                              "metadata" => Dict(),
                                               "matches" => String[],
                                               "cursor_start" => cursor_chr,
                                               "cursor_end" => cursor_chr)))
@@ -65,6 +66,9 @@ function complete_request(socket, msg)
 
     codestart = find_parsestart(code, cursorpos)
     comps, positions = Base.REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
+    metadata = Dict()
+
+
     positions += codestart-1
     if isempty(comps)
         # issue #530: REPLCompletions returns inconsistent results
@@ -75,10 +79,25 @@ function complete_request(socket, msg)
     else
         cursor_start = ind2chr(msg, code, prevind(code, first(positions)))
         cursor_end = ind2chr(msg, code, last(positions))
+
+        typeMap = []
+        for c in comps
+            try
+                t = eval(Main, parse("typeof($c)"))
+                if issubtype(t, Function)
+                    push!(typeMap, Dict("text" => c, "type" => "function"))
+                else
+                    push!(typeMap, Dict("text" => c, "type" => "$t"))
+                end
+            catch E
+            end
+        end
+        metadata["_jupyter_types_experimental"] = typeMap
     end
     send_ipython(requests[], msg_reply(msg, "complete_reply",
                                      Dict("status" => "ok",
                                                   "matches" => comps,
+                                                  "metadata" => metadata,
                                                   "cursor_start" => cursor_start,
                                                   "cursor_end" => cursor_end)))
 end
