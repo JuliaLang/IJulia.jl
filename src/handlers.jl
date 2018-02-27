@@ -50,7 +50,7 @@ Base.chr2ind(m::Msg, str::String, ic::Integer) = ic == 0 ? 0 :
 Base.ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
     VersionNumber(m.header["version"]) ≥ v"5.2" ? ind2chr(str, i) : ind_to_utf16(str, i)
 #Compact display of types for Jupyterlab completion
-complete_type(T) = string(T) # maybe shorten?
+
 complete_type(::Type{<:Function}) = "function"
 complete_type(::Type{<:Type}) = "type"
 complete_type(::Type{<:Tuple}) = "tuple"
