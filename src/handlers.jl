@@ -77,6 +77,23 @@ function complete_type(T::DataType)
     return String(take!(buf))
 end
 
+#Get typeMap for Jupyter completions
+function complete_types(comps)
+    typeMap = []
+    for c in comps
+        expr = Meta.parse(c, raise=false)
+        if typeof(expr) == Symbol
+            try
+                t = eval(Main, Meta.parse("typeof($c)"))
+                push!(typeMap, Dict("text" => c, "type" => "$(complete_type(t))"))
+            catch
+            end
+        elseif expr.head == :macrocall
+            push!(typeMap, Dict("text" => c, "type" => "macro"))
+        end
+    end
+    return typeMap
+end
 
 function complete_request(socket, msg)
     code = msg.content["code"]
@@ -105,16 +122,7 @@ function complete_request(socket, msg)
     else
         cursor_start = ind2chr(msg, code, prevind(code, first(positions)))
         cursor_end = ind2chr(msg, code, last(positions))
-
-        typeMap = []
-        for c in comps
-            try
-                t = eval(Main, parse("typeof($c)"))
-                push!(typeMap, Dict("text" => c, "type" => "$(complete_type(t))"))
-            catch E
-            end
-        end
-        metadata["_jupyter_types_experimental"] = typeMap
+        metadata["_jupyter_types_experimental"] = complete_types(comps)
     end
     send_ipython(requests[], msg_reply(msg, "complete_reply",
                                      Dict("status" => "ok",
