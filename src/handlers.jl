@@ -51,6 +51,19 @@ Base.ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
     VersionNumber(m.header["version"]) ≥ v"5.2" ? ind2chr(str, i) : ind_to_utf16(str, i)
 #Compact display of types for Jupyterlab completion
 
+if isdefined(Main, :REPLCompletions)
+    import REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
+else
+    const sorted_keywords = [
+        "abstract type", "baremodule", "begin", "break", "catch", "ccall",
+        "const", "continue", "do", "else", "elseif", "end", "export", "false",
+        "finally", "for", "function", "global", "if", "import",
+        "let", "local", "macro", "module", "mutable struct",
+        "primitive type", "quote", "return", "struct",
+        "true", "try", "using", "while"]
+    import Base.REPL.REPLCompletions: emoji_symbols, latex_symbols
+end
+
 complete_type(::Type{<:Function}) = "function"
 complete_type(::Type{<:Type}) = "type"
 complete_type(::Type{<:Tuple}) = "tuple"
@@ -81,16 +94,28 @@ end
 function complete_types(comps)
     typeMap = []
     for c in comps
-        expr = Meta.parse(c, raise=false)
-        if typeof(expr) == Symbol
-            try
-                t = eval(Main, Meta.parse("typeof($c)"))
-                push!(typeMap, Dict("text" => c, "type" => "$(complete_type(t))"))
-            catch
+        ctype = ""
+        if !isempty(searchsorted(sorted_keywords, c))
+            ctype = "keyword"
+        elseif startswith(c, "\\:")
+            ctype = get(emoji_symbols, c, "")
+            isempty(ctype) || (ctype = "emoji: $ctype")
+        elseif startswith(c, "\\")
+            ctype = get(latex_symbols, c, "")
+        else
+            expr = Meta.parse(c, raise=false)
+            if typeof(expr) == Symbol
+                try
+                    ctype = complete_type(eval(Main, :(typeof($expr))))
+                catch
+                end
+            elseif !isa(expr, Expr)
+                ctype = complete_type(expr)
+            elseif expr.head == :macrocall
+                ctype = "macro"
             end
-        elseif expr.head == :macrocall
-            push!(typeMap, Dict("text" => c, "type" => "macro"))
         end
+        isempty(ctype) || push!(typeMap, Dict("text" => c, "type" => ctype))
     end
     return typeMap
 end
