@@ -40,7 +40,7 @@ for mime in ipy_mime
         function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
             send_ipython(publish[],
                          msg_pub(execute_msg, "display_data",
-                                 Dict("source" => "julia", # optional
+                                 Dict(
                                   "metadata" => metadata(x), # optional
                                   "data" => Dict($mime => limitstringmime(MIME($mime), x)))))
         end
