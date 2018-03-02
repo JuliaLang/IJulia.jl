@@ -49,6 +49,75 @@ Base.chr2ind(m::Msg, str::String, ic::Integer) = ic == 0 ? 0 :
     VersionNumber(m.header["version"]) ≥ v"5.2" ? chr2ind(str, ic) : utf16_to_ind(str, ic)
 Base.ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
     VersionNumber(m.header["version"]) ≥ v"5.2" ? ind2chr(str, i) : ind_to_utf16(str, i)
+#Compact display of types for Jupyterlab completion
+
+if isdefined(Main, :REPLCompletions)
+    import REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
+else
+    const sorted_keywords = [
+        "abstract type", "baremodule", "begin", "break", "catch", "ccall",
+        "const", "continue", "do", "else", "elseif", "end", "export", "false",
+        "finally", "for", "function", "global", "if", "import",
+        "let", "local", "macro", "module", "mutable struct",
+        "primitive type", "quote", "return", "struct",
+        "true", "try", "using", "while"]
+    import Base.REPL.REPLCompletions: emoji_symbols, latex_symbols
+end
+
+complete_type(::Type{<:Function}) = "function"
+complete_type(::Type{<:Type}) = "type"
+complete_type(::Type{<:Tuple}) = "tuple"
+
+function complete_type(T::DataType)
+    s = string(T)
+    (Compat.textwidth(s) ≤ 20 || isempty(T.parameters)) && return s
+    buf = IOBuffer()
+    print(buf, T.name)
+    position(buf) > 19 && return String(take!(buf))
+    print(buf, '{')
+    comma = false
+    for p in T.parameters
+        s = string(p)
+        if position(buf) + sizeof(s) > 20
+            comma || print(buf, '…')
+            break
+        end
+        comma && print(buf, ',')
+        comma = true
+        print(buf, s)
+    end
+    print(buf, '}')
+    return String(take!(buf))
+end
+
+#Get typeMap for Jupyter completions
+function complete_types(comps)
+    typeMap = []
+    for c in comps
+        ctype = ""
+        if !isempty(searchsorted(sorted_keywords, c))
+            ctype = "keyword"
+        elseif startswith(c, "\\:")
+            ctype = get(emoji_symbols, c, "")
+            isempty(ctype) || (ctype = "emoji: $ctype")
+        elseif startswith(c, "\\")
+            ctype = get(latex_symbols, c, "")
+        else
+            expr = Meta.parse(c, raise=false)
+            if typeof(expr) == Symbol
+                try
+                    ctype = complete_type(eval(Main, :(typeof($expr))))
+                end
+            elseif !isa(expr, Expr)
+                ctype = complete_type(expr)
+            elseif expr.head == :macrocall
+                ctype = "macro"
+            end
+        end
+        isempty(ctype) || push!(typeMap, Dict("text" => c, "type" => ctype))
+    end
+    return typeMap
+end
 
 function complete_request(socket, msg)
     code = msg.content["code"]
@@ -57,6 +126,7 @@ function complete_request(socket, msg)
     if all(isspace, code[1:cursorpos])
         send_ipython(requests[], msg_reply(msg, "complete_reply",
                                  Dict("status" => "ok",
+                                              "metadata" => Dict(),
                                               "matches" => String[],
                                               "cursor_start" => cursor_chr,
                                               "cursor_end" => cursor_chr)))
@@ -66,6 +136,7 @@ function complete_request(socket, msg)
     codestart = find_parsestart(code, cursorpos)
     comps, positions = Base.REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
     positions += codestart-1
+    metadata = Dict()
     if isempty(comps)
         # issue #530: REPLCompletions returns inconsistent results
         # for positions when no completions are found
@@ -75,10 +146,12 @@ function complete_request(socket, msg)
     else
         cursor_start = ind2chr(msg, code, prevind(code, first(positions)))
         cursor_end = ind2chr(msg, code, last(positions))
+        metadata["_jupyter_types_experimental"] = complete_types(comps)
     end
     send_ipython(requests[], msg_reply(msg, "complete_reply",
                                      Dict("status" => "ok",
                                                   "matches" => comps,
+                                                  "metadata" => metadata,
                                                   "cursor_start" => cursor_start,
                                                   "cursor_end" => cursor_end)))
 end
