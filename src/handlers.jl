@@ -67,6 +67,7 @@ end
 complete_type(::Type{<:Function}) = "function"
 complete_type(::Type{<:Type}) = "type"
 complete_type(::Type{<:Tuple}) = "tuple"
+complete_type(::Void) = "void"
 
 function complete_type(T::DataType)
     s = string(T)
@@ -119,6 +120,21 @@ function complete_types(comps)
     return typeMap
 end
 
+function complete_symbols(comps, symbol_dict)
+    newcomps = []
+    for c in comps
+        smb = get(symbol_dict, c, c)
+        scomps, positions = Base.REPLCompletions.completions(smb, 1)
+        (smb in  scomps) || push!(newcomps, smb)
+        if !isempty(scomps)
+            for s in scomps
+                push!(newcomps, s)
+            end
+         end
+    end
+    return newcomps
+end
+
 function complete_request(socket, msg)
     code = msg.content["code"]
     cursor_chr = msg.content["cursor_pos"]
@@ -146,6 +162,12 @@ function complete_request(socket, msg)
     else
         cursor_start = ind2chr(msg, code, prevind(code, first(positions)))
         cursor_end = ind2chr(msg, code, last(positions))
+        #Get completions for symbols
+        if startswith(comps[1], "\\:")
+            comps = complete_symbols(comps, emoji_symbols)
+        elseif startswith(comps[1], "\\")
+            comps = complete_symbols(comps, latex_symbols)
+        end
         metadata["_jupyter_types_experimental"] = complete_types(comps)
     end
     send_ipython(requests[], msg_reply(msg, "complete_reply",
