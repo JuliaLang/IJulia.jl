@@ -65,8 +65,7 @@ function display(d::InlineDisplay, M::MIME, x)
     end
     send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
-                         Dict("source" => "julia", # optional
-                              "metadata" => metadata(x), # optional
+                         Dict("metadata" => metadata(x), # optional
                               "data" => d)))
 end
 
@@ -76,9 +75,8 @@ function display(d::InlineDisplay, x)
     undisplay(x) # dequeue previous redisplay(x)
     send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
-                         Dict("source" => "julia", # optional
-                                      "metadata" => metadata(x), # optional
-                                      "data" => display_dict(x))))
+                         Dict("metadata" => metadata(x), # optional
+                              "data" => display_dict(x))))
 end
 
 # we overload redisplay(d, x) to add x to a queue of objects to display,
