@@ -24,6 +24,9 @@ if VERSION >= v"0.7.0-DEV.1472" # Julia PR #23271
     Base.unwrapcontext(io::IJuliaStdio) = Base.unwrapcontext(io.io)
 end
 Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, readable)
+Base.redirect_stdout(io::IJuliaStdio) = (eval(Base, :(STDOUT = $io)); io)
+Base.redirect_stderr(io::IJuliaStdio) = (eval(Base, :(STDERR = $io)); io)
+Base.redirect_stdin(io::IJuliaStdio) = (eval(Base, :(STDIN = $io)); io)
 
 # logging in verbose mode goes to original stdio streams.  Use macros
 # so that we do not even evaluate the arguments in no-verbose modes
