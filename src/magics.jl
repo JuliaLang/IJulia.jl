@@ -381,9 +381,7 @@ svg_magic_help(magic::AbstractString, args::AbstractString) = md"""
 
 writefile_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%%writefile filename` is
-    `write("filename", In[IJulia.n])`.  (In Julia 0.4, you
-    will need to do `using Compat` first in order to have
-    access to Julia 0.5's `write(filename,...)` syntax.)
+    `write("filename", In[IJulia.n])`.
 
     (`IJulia.n` is the index of the current code cell.  Of
     course, you can also use `In[N]` for some other `N` to output
