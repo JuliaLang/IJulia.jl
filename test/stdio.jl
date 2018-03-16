@@ -16,7 +16,9 @@ mktemp() do path, io
     end
     flush(io)
     seek(io, 0)
-    @test readstring(io) == "\e[1m\e[33mWARNING: \e[39m\e[22m\e[33mwarn\e[39m\n"
+    captured = readstring(io)
+    @test (captured == "\e[1m\e[33mWARNING: \e[39m\e[22m\e[33mwarn\e[39m\n" ||
+           captured == "WARNING: warn\n")  # output will differ based on whether color is currently enabled
 end
 
 mktemp() do path, io
