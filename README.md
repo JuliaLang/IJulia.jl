@@ -221,7 +221,7 @@ which can also be changed within IJulia via `ENV` (e.g. `ENV["LINES"] = 60`).
 
 ### Preventing truncation of output
 
-The new default behaviour of IJulia is to truncate stdout (via `show` or `println`)
+The new default behavior of IJulia is to truncate stdout (via `show` or `println`)
 after 512kb. This to prevent browsers from getting bogged down when displaying the
 results. This limit can be increased to a custom value, like 1MB, as follows
 
