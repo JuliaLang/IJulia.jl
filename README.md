@@ -48,7 +48,7 @@ which `jupyter` program IJulia is configured with by setting
 The simplest way to install Jupyter yourself on Mac and Windows, other
 than using Julia's Conda distro,  is to [download
 the Anaconda package](http://continuum.io/downloads) and run its
-installer.  (We recommend that you *not* use Enthought Canopy/EPD,
+installer.  (We recommend that you *not* use Enthought Canopy/EPD
 since that can cause problems with the PyCall package.)
 
 On subsequent builds (e.g. when IJulia is updated via `Pkg.update`),
@@ -100,7 +100,7 @@ on the *New* button and choose the *Julia* option to start a new
 "notebook".  A notebook will combine code, computed results, formatted
 text, and images, just as in IPython.  You can enter multiline input
 cells and execute them with *shift-ENTER*, and the menu items are
-mostly self-explanatory.  Refer to the [the IPython
+mostly self-explanatory.  Refer to [the IPython
 documentation](http://ipython.org/documentation.html) for more
 information, and see also the "Help" menu in the notebook itself.
 
@@ -131,7 +131,7 @@ at the Julia command line (**important**: not in IJulia).
 
 ### Installing additional Julia kernels
 
-You can also install additional Julia kernels, for example to
+You can also install additional Julia kernels, for example, to
 pass alternative command-line arguments to the `julia` executable,
 by using the `IJulia.installkernel` function.  See the help for this
 function (`? IJulia.installkernel` in Julia) for complete details.
@@ -193,7 +193,7 @@ in one of two ways:
 * `readline()` and `readline(STDIN)` both open a `STDIN>` prompt widget where the user can enter a string, which is returned by `readline`.
 
 * `IJulia.readprompt(prompt)` displays the prompt string `prompt` and
-  returns a string entered by the user.  `IJulia.readprompt(prompt, password=true)` does the same thing, but hides the text the user types.
+  returns a string entered by the user.  `IJulia.readprompt(prompt, password=true)` does the same thing but hides the text the user types.
 
 ### Clearing output
 
@@ -205,7 +205,7 @@ IJulia.clear_output(wait=false)
 
 to clear the output from the current input cell.  If the optional
 `wait` argument is `true`, then the front-end waits to clear the
-output until new output is available to replace it (to minimize
+output until a new output is available to replace it (to minimize
 flickering).  This is useful to make simple animations, via repeated
 calls to `IJulia.clear_output(true)` followed by calls to
 `display(...)` to display a new animation frame.
