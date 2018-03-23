@@ -8,6 +8,12 @@ mktemp() do path, io
     flush(io)
     seek(io, 0)
     @test readstring(io) == "print\n"
+    @test_throws ArgumentError redirect_stdout(IJulia.IJuliaStdio(io, "stderr"))
+    @test_throws ArgumentError redirect_stdout(IJulia.IJuliaStdio(io, "stdin"))
+    @test_throws ArgumentError redirect_stderr(IJulia.IJuliaStdio(io, "stdout"))
+    @test_throws ArgumentError redirect_stderr(IJulia.IJuliaStdio(io, "stdin"))
+    @test_throws ArgumentError redirect_stdin(IJulia.IJuliaStdio(io, "stdout"))
+    @test_throws ArgumentError redirect_stdin(IJulia.IJuliaStdio(io, "stderr"))
 end
 
 mktemp() do path, io
@@ -28,3 +34,4 @@ mktemp() do path, io
         # not error.
     end
 end
+
