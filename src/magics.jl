@@ -54,6 +54,12 @@ alias_magic_help(magic::AbstractString, args::AbstractString) = md"""
 
     which you can then run with e.g. `bracket("hello world")`."""
 
+autosave_magic_help(magic::AbstractString, args::AbstractString) = md"""
+    The equivalent of `%autosave 60` magic in Julia is `IJulia.autosave!(60)`,
+    to set the notebook autosave frequency, in seconds. Use `0` to disable
+    autosaving.
+"""
+
 function cd_magic_help(magic::AbstractString, args::AbstractString)
     if magic == "%cd" && !ismatch(r"\s*-", args)
         return md"""The equivalent of `%cd 'dir'` in IPython is `cd("dir")` in Julia."""
@@ -390,6 +396,7 @@ writefile_magic_help(magic::AbstractString, args::AbstractString) = md"""
 # map from magic to helpfunction(magic, magicargument)
 const magic_help = Dict{String, Function}(
     "%alias" => alias_magic_help,
+    "%autosave" => autosave_magic_help,
     "%cd" => cd_magic_help,
     "%dhist" => cd_magic_help,
     "%dirs" => cd_magic_help,
