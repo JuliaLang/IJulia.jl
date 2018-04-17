@@ -106,7 +106,7 @@ function complete_types(comps)
             expr = Meta.parse(c, raise=false)
             if typeof(expr) == Symbol
                 try
-                    ctype = complete_type(eval(Main, :(typeof($expr))))
+                    ctype = complete_type(eval(current_module[], :(typeof($expr))))
                 end
             elseif !isa(expr, Expr)
                 ctype = complete_type(expr)

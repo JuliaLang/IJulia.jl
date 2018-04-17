@@ -77,6 +77,9 @@ however, it can be more convenient to *not* capture stdout and stderr output
 const capture_stdout = true
 const capture_stderr = true
 
+set_current_module(m::Module) = current_module[] = m
+const current_module = Ref{Module}(Main)
+
 #######################################################################
 
 """
