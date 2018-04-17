@@ -156,7 +156,7 @@ function execute_request(socket, msg)
 
         #run the code!
         ans = result = ismatch(magics_regex, code) ? magics_help(code) :
-            include_string(Main, code, "In[$n]")
+            include_string(current_module[], code, "In[$n]")
 
         if silent
             result = nothing

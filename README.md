@@ -229,6 +229,11 @@ results. This limit can be increased to a custom value, like 1MB, as follows
 IJulia.set_max_stdio(1 << 20)
 ```
 
+### Setting the current module
+
+The module that code in an input cell is evaluated in can be set using `IJulia.set_current_module(::Module)`.
+It defaults to `Main`.
+
 ## Low-level Information
 
 ### Using older IPython versions
