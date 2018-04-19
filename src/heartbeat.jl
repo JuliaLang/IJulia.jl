@@ -6,7 +6,6 @@
 
 
 const threadid = zeros(Int, 128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
-const libzmq = ZMQ.zmq
 
 # entry point for new thread
 function heartbeat_thread(sock::Ptr{Cvoid})
