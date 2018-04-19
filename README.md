@@ -231,7 +231,7 @@ IJulia.set_max_stdio(1 << 20)
 
 ### Setting the current module
 
-The module that code in an input cell is evaluated in can be set using `IJulia.set_current_module(::Module)`.
+The module that code in an input cell is evaluated in can be set using `Main.IJulia.set_current_module(::Module)`.
 It defaults to `Main`.
 
 ## Low-level Information
