@@ -1,4 +1,5 @@
 import IJulia
+using Compat
 
 # workaround #60:
 if IJulia.Compat.Sys.isapple()
