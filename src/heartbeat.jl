@@ -4,11 +4,21 @@
 # call in libzmq, which simply blocks forever, so the usual lack of
 # thread safety in Julia should not be an issue here.
 
+const libzmq = isdefined(ZMQ, :libzmq) ? ZMQ.libzmq : ZMQ.zmq
+
 # entry point for new thread
-function heartbeat_thread(sock::Ptr{Void})
-    ccall((:zmq_device,ZMQ.zmq), Cint, (Cint, Ptr{Void}, Ptr{Void}),
-          ZMQ.QUEUE, sock, sock)
-    nothing
+if ZMQ.version ≥ v"3.2.1" # always true once we require a newer ZMQ.jl
+    function heartbeat_thread(sock::Ptr{Void})
+        ccall((:zmq_proxy,libzmq), Cint, (Ptr{Void}, Ptr{Void}, Ptr{Void}),
+              sock, sock, C_NULL)
+        nothing
+    end
+else
+    function heartbeat_thread(sock::Ptr{Void})
+        ccall((:zmq_device,libzmq), Cint, (Cint, Ptr{Void}, Ptr{Void}),
+              ZMQ.QUEUE, sock, sock)
+        nothing
+    end
 end
 
 function start_heartbeat(sock)
