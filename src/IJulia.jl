@@ -250,6 +250,29 @@ is `STDOUT`.
 history
 
 #######################################################################
+# autosave!
+# IPython kernel code: https://github.com/ipython/ipykernel/blob/17bd0602bf0d800d018caae3621483c6e652684a/ipykernel/zmqshell.py#L414
+
+"""
+    autosave!(seconds)
+
+Set the autosave interval in the notebook (in seconds).
+The default value is 120, or two minutes. `autosave(0)` will disable autosave.
+This only has an effect when called from the notebook interface.
+"""
+function autosave!(seconds::Integer)
+    milliseconds = 1000 * seconds      # javascript wants milliseconds
+    display("text/javascript",
+            "IPython.notebook.set_autosave_interval($milliseconds)")
+    if seconds > 0
+        info("Autosaving every $seconds seconds")
+    else
+        info("Autosave disabled")
+    end
+end
+    
+
+#######################################################################
 # Similar to the ipython kernel, we provide a mechanism by
 # which modules can register thunk functions to be called after
 # executing an input cell, e.g. to "close" the current plot in Pylab.
