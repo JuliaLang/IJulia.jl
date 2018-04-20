@@ -1,5 +1,4 @@
 import IJulia
-using Compat
 
 # workaround #60:
 if IJulia.Compat.Sys.isapple()
@@ -13,7 +12,7 @@ import IJulia: ans, In, Out, clear_history
 
 pushdisplay(IJulia.InlineDisplay())
 
-ccall(:jl_exit_on_sigint, Cvoid, (Cint,), 0)
+ccall(:jl_exit_on_sigint, IJulia.Compat.Cvoid, (Cint,), 0)
 
 # the size of truncated output to show should not depend on the terminal
 # where the kernel is launched, since the display is elsewhere
