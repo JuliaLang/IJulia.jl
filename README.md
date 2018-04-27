@@ -41,7 +41,7 @@ Jupyter](http://jupyter.readthedocs.org/en/latest/install.html) (or
 IPython 3 or later) yourself *before* adding the IJulia package.
 To tell IJulia to use your *own* `jupyter` installation, you need
 to set `ENV["JUPYTER"]` to the path of the `jupyter` program
-before running `Pkg.add("IJulia")`.   Alternatively, you can change
+before running `Pkg.add("IJulia")` (if jupyter is in your PATH, you can also just use `ENV["JUPYTER"]="jupyter"`).   Alternatively, you can change
 which `jupyter` program IJulia is configured with by setting
 `ENV["JUPYTER"]` and then running `Pkg.build("IJulia")`.
 
