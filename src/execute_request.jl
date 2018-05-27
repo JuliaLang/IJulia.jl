@@ -27,7 +27,7 @@ metadata(x) = Dict()
 function display_dict(x)
     data = Dict{String,Any}("text/plain" => limitstringmime(text_plain, x))
     if mimewritable(application_vnd_vegalite_v2, x)
-        data[string(application_vnd_vegalite_v2)] = JSON.parse(limitstringmime(application_vnd_vegalite_v2, x))
+        data[string(application_vnd_vegalite_v2)] = JSON.JSONText(limitstringmime(application_vnd_vegalite_v2, x))
     end
     if mimewritable(image_svg, x)
         data[string(image_svg)] = limitstringmime(image_svg, x)
