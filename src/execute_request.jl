@@ -15,6 +15,7 @@ const text_html = MIME("text/html")
 const text_latex = MIME("text/latex") # Jupyter expects this
 const text_latex2 = MIME("application/x-latex") # but this is more standard?
 const application_vnd_vegalite_v2 = MIME("application/vnd.vegalite.v2+json")
+const application_vnd_dataresource = MIME("application/vnd.dataresource+json")
 
 include("magics.jl")
 
@@ -28,6 +29,9 @@ function display_dict(x)
     data = Dict{String,Any}("text/plain" => limitstringmime(text_plain, x))
     if mimewritable(application_vnd_vegalite_v2, x)
         data[string(application_vnd_vegalite_v2)] = JSON.JSONText(limitstringmime(application_vnd_vegalite_v2, x))
+    end
+    if mimewritable(application_vnd_dataresource, x)
+        data[string(application_vnd_dataresource)] = JSON.JSONText(limitstringmime(application_vnd_dataresource, x))
     end
     if mimewritable(image_svg, x)
         data[string(image_svg)] = limitstringmime(image_svg, x)
