@@ -19,13 +19,13 @@ ccall(:jl_exit_on_sigint, IJulia.Compat.Cvoid, (Cint,), 0)
 ENV["LINES"] = get(ENV, "LINES", 30)
 ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
 
-println(IJulia.orig_STDOUT[], "Starting kernel event loops.")
+println(IJulia.orig_stdout[], "Starting kernel event loops.")
 IJulia.watch_stdio()
 
 # workaround JuliaLang/julia#4259
 delete!(task_local_storage(),:SOURCE_PATH)
 
 # workaround JuliaLang/julia#6765
-eval(Base, :(is_interactive = true))
+Core.eval(Base, :(is_interactive = true))
 
 IJulia.waitloop()

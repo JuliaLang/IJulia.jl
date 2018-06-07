@@ -13,14 +13,14 @@ else
     uuid4() = repr(UUIDs.uuid4(IJulia_RNG))
 end
 
-const orig_STDIN  = Ref{IO}()
-const orig_STDOUT = Ref{IO}()
-const orig_STDERR = Ref{IO}()
+const orig_stdin  = Ref{IO}()
+const orig_stdout = Ref{IO}()
+const orig_stderr = Ref{IO}()
 function __init__()
     Random.srand(IJulia_RNG)
-    orig_STDIN[]  = STDIN
-    orig_STDOUT[] = STDOUT
-    orig_STDERR[] = STDERR
+    orig_stdin[]  = stdin
+    orig_stdout[] = stdout
+    orig_stderr[] = stderr
 end
 
 # the following constants need to be initialized in init().
@@ -103,13 +103,13 @@ function init(args)
     start_heartbeat(heartbeat[])
     if capture_stdout
         read_stdout[], = redirect_stdout()
-        redirect_stdout(IJuliaStdio(STDOUT,"stdout"))
+        redirect_stdout(IJuliaStdio(stdout,"stdout"))
     end
     if capture_stderr
         read_stderr[], = redirect_stderr()
-        redirect_stderr(IJuliaStdio(STDERR,"stderr"))
+        redirect_stderr(IJuliaStdio(stderr,"stderr"))
     end
-    redirect_stdin(IJuliaStdio(STDIN,"stdin"))
+    redirect_stdin(IJuliaStdio(stdin,"stdin"))
 
     send_status("starting")
     global inited = true

@@ -243,7 +243,7 @@ function history(io::IO, indices::AbstractVector{Int})
 end
 
 history(io::IO, x::Union{Integer,AbstractVector{Int}}...) = history(io, vcat(x...))
-history(x...) = history(STDOUT, x...)
+history(x...) = history(stdout, x...)
 history(io::IO, x...) = throw(MethodError(history, (x...,)))
 history() = history(1:n)
 """
@@ -256,7 +256,7 @@ The optional `indices` argument is one or more indices or collections
 of indices indicating a subset input cells to print.
 
 The optional `io` argument is for specifying an output stream. The default
-is `STDOUT`.
+is `stdout`.
 """
 history
 

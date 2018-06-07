@@ -186,11 +186,11 @@ is `IJulia.load("filename")`.
 
 ### Prompting for user input
 
-When you are running in a notebook, ordinary I/O functions on `STDIN` do
+When you are running in a notebook, ordinary I/O functions on `stdin` do
 not function.   However, you can prompt for the user to enter a string
 in one of two ways:
 
-* `readline()` and `readline(STDIN)` both open a `STDIN>` prompt widget where the user can enter a string, which is returned by `readline`.
+* `readline()` and `readline(stdin)` both open a `stdin>` prompt widget where the user can enter a string, which is returned by `readline`.
 
 * `IJulia.readprompt(prompt)` displays the prompt string `prompt` and
   returns a string entered by the user.  `IJulia.readprompt(prompt, password=true)` does the same thing but hides the text the user types.

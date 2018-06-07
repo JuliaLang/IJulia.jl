@@ -6,16 +6,17 @@
 
 
 const threadid = zeros(Int, 128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
+using ZMQ: libzmq
 
 # entry point for new thread
 function heartbeat_thread(sock::Ptr{Cvoid})
-    ccall((:zmq_proxy,ZMQ.libzmq), Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
+    ccall((:zmq_proxy,libzmq), Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
           sock, sock, C_NULL)
     nothing
 end
 
 function start_heartbeat(sock)
-    heartbeat_c = cfunction(heartbeat_thread, Cvoid, Tuple{Ptr{Cvoid}})
+    heartbeat_c = @cfunction(heartbeat_thread, Cvoid, (Ptr{Cvoid},))
     ccall(:uv_thread_create, Cint, (Ptr{Int}, Ptr{Cvoid}, Ptr{Cvoid}),
           threadid, heartbeat_c, sock.data)
 end

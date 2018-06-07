@@ -1,4 +1,4 @@
-# IJulia redirects STDOUT and STDERR into "stream" messages sent to the
+# IJulia redirects stdout and stderr into "stream" messages sent to the
 # Jupyter front-end.
 
 # create a wrapper type around redirected stdio streams,
@@ -30,7 +30,7 @@ for s in ("stdout", "stderr", "stdin")
     S = QuoteNode(Symbol(uppercase(s)))
     @eval function Base.$f(io::IJuliaStdio)
         io[:jupyter_stream] != $s && throw(ArgumentError(string("expecting ", $s, " stream")))
-        eval(Base, Expr(:(=), $S, io))
+        Core.eval(Base, Expr(:(=), $S, io))
         return io
     end
 end
@@ -49,7 +49,7 @@ end
 macro vprintln(x...)
     quote
         if verbose::Bool
-            println(orig_STDOUT[], get_log_preface(), $(map(esc, x)...))
+            println(orig_stdout[], get_log_preface(), $(map(esc, x)...))
         end
     end
 end
@@ -57,7 +57,7 @@ end
 macro verror_show(e, bt)
     quote
         if verbose::Bool
-            showerror(orig_STDERR[], $(esc(e)), $(esc(bt)))
+            showerror(orig_stderr[], $(esc(e)), $(esc(bt)))
         end
     end
 end
@@ -216,7 +216,7 @@ end
 import Base.readline
 function readline(io::IJuliaStdio)
     if get(io,:jupyter_stream,"unknown") == "stdin"
-        return readprompt("STDIN> ")
+        return readprompt("stdin> ")
     else
         readline(io.io)
     end
@@ -232,7 +232,7 @@ function watch_stdio()
     task_local_storage(:IJulia_task, "init task")
     if capture_stdout
         read_task = @async watch_stream(read_stdout[], "stdout")
-        #send STDOUT stream msgs every stream_interval secs (if there is output to send)
+        #send stdout stream msgs every stream_interval secs (if there is output to send)
         _Timer(send_stdout, stream_interval, stream_interval)
     end
     if capture_stderr
@@ -244,8 +244,8 @@ end
 
 function flush_all()
     flush_cstdio() # flush writes to stdout/stderr by external C code
-    flush(STDOUT)
-    flush(STDERR)
+    flush(stdout)
+    flush(stderr)
 end
 
 function oslibuv_flush()

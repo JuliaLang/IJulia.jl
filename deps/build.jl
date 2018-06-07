@@ -75,7 +75,7 @@ end
 # Warn people upgrading from older IJulia versions:
 try
     juliaprof = chomp(read(pipeline(`$ipython locate profile julia`,
-                                    stderr=DevNull), String))
+                                    stderr=devnull), String))
     warn("""You should now run IJulia just via `$jupyter notebook`, without
             the `--profile julia` flag.  IJulia no longer maintains the profile.
             Consider deleting $juliaprof""")

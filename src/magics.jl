@@ -59,7 +59,7 @@ alias_magic_help(magic::AbstractString, args::AbstractString) = md"""
     which you can then run with e.g. `bracket("hello world")`."""
 
 function cd_magic_help(magic::AbstractString, args::AbstractString)
-    if magic == "%cd" && !contains(args, r"\s*-")
+    if magic == "%cd" && !occursin(r"\s*-", args)
         return md"""The equivalent of `%cd 'dir'` in IPython is `cd("dir")` in Julia."""
     else
         return md"""
@@ -217,7 +217,7 @@ prun_magic_help(magic::AbstractString, args::AbstractString) = md"""
 
 psearch_magic_help(magic::AbstractString, args::AbstractString) = md"""
     A rough analogue of IPython's `%psearch PATTERN` in Julia might be
-    `filter(s -> contains(string(s), r"PATTERN"), names(Base))`, which
+    `filter(s -> occursin(r"PATTERN", string(s)), names(Base))`, which
     searches all the symbols defined in the `Base` module for a given
     regular-expression pattern `PATTERN`."""
 
@@ -349,7 +349,7 @@ function pipe_magic_help(magic::AbstractString, args::AbstractString)
     The analogue of IPython's `$magic ...code...` in Julia can be
     constructed by first evaluating
     ```
-    macro $(cmd)_str(s) open(`$cmd`,"w",STDOUT) do io; print(io, s); end; end
+    macro $(cmd)_str(s) open(`$cmd`,"w",stdout) do io; print(io, s); end; end
     ```
     to define the `$cmd"...."` [string macro](http://docs.julialang.org/en/latest/manual/strings/#non-standard-string-literals)
     in Julia.  Subsequently, you can simply do:
@@ -358,7 +358,7 @@ function pipe_magic_help(magic::AbstractString, args::AbstractString)
     ...code...
     ""\"
     ```
-    to evaluate the code in `$cmd` (outputting to `STDOUT`).""")
+    to evaluate the code in `$cmd` (outputting to `stdout`).""")
 end
 
 svg_magic_help(magic::AbstractString, args::AbstractString) = md"""

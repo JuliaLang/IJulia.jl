@@ -109,7 +109,7 @@ function complete_types(comps)
             expr = Meta.parse(c, raise=false)
             if typeof(expr) == Symbol
                 try
-                    ctype = complete_type(eval(current_module[], :(typeof($expr))))
+                    ctype = complete_type(Core.eval(current_module[], :(typeof($expr))))
                 end
             elseif !isa(expr, Expr)
                 ctype = complete_type(expr)
@@ -200,7 +200,7 @@ function shutdown_request(socket, msg)
     exit()
 end
 
-docdict(s::AbstractString) = display_dict(eval(Main, helpmode(DevNull, s)))
+docdict(s::AbstractString) = display_dict(Core.eval(Main, helpmode(devnull, s)))
 
 import Base: is_id_char, is_id_start_char
 function get_token(code, pos)

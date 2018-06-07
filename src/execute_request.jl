@@ -25,27 +25,27 @@ metadata(x) = Dict()
 # for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
     data = Dict{String,Any}("text/plain" => limitstringmime(text_plain, x))
-    if mimewritable(application_vnd_vegalite_v2, x)
+    if showable(application_vnd_vegalite_v2, x)
         data[string(application_vnd_vegalite_v2)] = JSON.JSONText(limitstringmime(application_vnd_vegalite_v2, x))
     end
-    if mimewritable(application_vnd_dataresource, x)
+    if showable(application_vnd_dataresource, x)
         data[string(application_vnd_dataresource)] = JSON.JSONText(limitstringmime(application_vnd_dataresource, x))
     end
-    if mimewritable(image_svg, x)
+    if showable(image_svg, x)
         data[string(image_svg)] = limitstringmime(image_svg, x)
     end
-    if mimewritable(image_png, x)
+    if showable(image_png, x)
         data[string(image_png)] = limitstringmime(image_png, x)
-    elseif mimewritable(image_jpeg, x) # don't send jpeg if we have png
+    elseif showable(image_jpeg, x) # don't send jpeg if we have png
         data[string(image_jpeg)] = limitstringmime(image_jpeg, x)
     end
-    if mimewritable(text_markdown, x)
+    if showable(text_markdown, x)
         data[string(text_markdown)] = limitstringmime(text_markdown, x)
-    elseif mimewritable(text_html, x)
+    elseif showable(text_html, x)
         data[string(text_html)] = limitstringmime(text_html, x)
-    elseif mimewritable(text_latex, x)
+    elseif showable(text_latex, x)
         data[string(text_latex)] = limitstringmime(text_latex, x)
-    elseif mimewritable(text_latex2, x)
+    elseif showable(text_latex2, x)
         data[string(text_latex)] = limitstringmime(text_latex2, x)
     end
     return data
@@ -56,7 +56,7 @@ const displayqueue = Any[]
 
 # remove x from the display queue
 function undisplay(x)
-    i = findfirst(equalto(x), displayqueue)
+    i = findfirst(isequal(x), displayqueue)
     if i !== nothing && i > 0
         splice!(displayqueue, i)
     end
@@ -113,6 +113,8 @@ end
 # use a global array to accumulate "payloads" for the execute_reply message
 const execute_payloads = Dict[]
 
+const stdout_name = isdefined(Base, :stdout) ? "stdout" : "STDOUT"
+
 function execute_request(socket, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
@@ -139,7 +141,7 @@ function execute_request(socket, msg)
     # "; ..." cells are interpreted as shell commands for run
     code = replace(code, r"^\s*;.*$" =>
                    m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"),
-                               "`, STDOUT)"))
+                               "`, ", stdout_name, ")"))
 
     # a cell beginning with "? ..." is interpreted as a help request
     hcode = replace(code, r"^\s*\?" => "")
@@ -151,10 +153,10 @@ function execute_request(socket, msg)
 
 
         if hcode != code # help request
-            eval(Main, helpmode(hcode))
+            Core.eval(Main, helpmode(hcode))
         else
             #run the code!
-            ans = result = contains(code, magics_regex) ? magics_help(code) :
+            ans = result = occursin(magics_regex, code) ? magics_help(code) :
                 include_string(current_module[], code, "In[$n]")
         end
 
