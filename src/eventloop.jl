@@ -20,7 +20,6 @@ function eventloop(socket)
                 # @async no longer implicitly captures local variables (see PR #618)
                 let msg = msg
                     @async begin
-                        sleep(idle_delay[])
                         flush_all()
                         send_status("idle", msg)
                     end
@@ -53,9 +52,4 @@ function waitloop()
             end
         end
     end
-end
-
-const idle_delay = Ref(0.5)
-function set_idle_delay(delay_secs::Float64=0.5)
-    idle_delay[] = delay_secs
 end
