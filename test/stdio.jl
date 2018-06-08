@@ -1,4 +1,4 @@
-using Base.Test
+using Compat.Test
 using IJulia
 
 mktemp() do path, io
@@ -7,7 +7,7 @@ mktemp() do path, io
     end
     flush(io)
     seek(io, 0)
-    @test readstring(io) == "print\n"
+    @test read(io, String) == "print\n"
     @test_throws ArgumentError redirect_stdout(IJulia.IJuliaStdio(io, "stderr"))
     @test_throws ArgumentError redirect_stdout(IJulia.IJuliaStdio(io, "stdin"))
     @test_throws ArgumentError redirect_stderr(IJulia.IJuliaStdio(io, "stdout"))
@@ -22,7 +22,7 @@ mktemp() do path, io
     end
     flush(io)
     seek(io, 0)
-    captured = readstring(io)
+    captured = read(io, String)
     @test (captured == "\e[1m\e[33mWARNING: \e[39m\e[22m\e[33mwarn\e[39m\n" ||
            captured == "WARNING: warn\n")  # output will differ based on whether color is currently enabled
 end

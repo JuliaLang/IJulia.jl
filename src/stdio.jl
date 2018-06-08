@@ -27,7 +27,11 @@ Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, r
 
 for s in ("stdout", "stderr", "stdin")
     f = Symbol("redirect_", s)
-    S = QuoteNode(Symbol(uppercase(s)))
+    if VERSION >= v"0.7.0-DEV.4068" # Julia PR #25959
+      S = QuoteNode(Symbol(lowercase(s)))
+    else
+      S = QuoteNode(Symbol(uppercase(s)))
+    end
     @eval function Base.$f(io::IJuliaStdio)
         io[:jupyter_stream] != $s && throw(ArgumentError(string("expecting ", $s, " stream")))
         Core.eval(Base, Expr(:(=), $S, io))
@@ -44,7 +48,6 @@ function get_log_preface()
     taskname = get(task_local_storage(), :IJulia_task, "")
     @sprintf("%02d:%02d:%02d(%s): ", Dates.hour(t),Dates.minute(t),Dates.second(t),taskname)
 end
-
 
 macro vprintln(x...)
     quote

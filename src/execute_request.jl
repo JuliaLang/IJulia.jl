@@ -63,9 +63,15 @@ function undisplay(x)
     return x
 end
 
+if VERSION < v"0.7.0-DEV.3498" # julia #25544
+    import Base.REPL: ip_matches_func 
+else
+    import Base: ip_matches_func 
+end
+
 function show_bt(io::IO, top_func::Symbol, t, set)
     # follow PR #17570 code in removing top_func from backtrace
-    eval_ind = findlast(addr->REPL.ip_matches_func(addr, top_func), t)
+    eval_ind = findlast(addr->ip_matches_func(addr, top_func), t)
     eval_ind !== nothing && eval_ind != 0 && (t = t[1:eval_ind-1])
     Base.show_backtrace(io, t)
 end
@@ -74,12 +80,26 @@ end
 # doesn't support keyword arguments.
 showerror_nobt(io, e, bt) = showerror(io, e, bt, backtrace=false)
 
+@static if VERSION < v"0.7.0-DEV.4724"
+		# https://github.com/JuliaLang/Compat.jl/pull/572
+    # thanks to https://github.com/jipolanco/WriteVTK.jl/commit/ea046493c7787ae651b5f629455aaf7bdaa000b1
+    rsplit(s::AbstractString; limit::Integer=0, keepempty::Bool=false) =
+        Base.rsplit(s)
+    rsplit(s::AbstractString, splitter; limit::Integer=0, keepempty::Bool=false) =
+        Base.rsplit(s, splitter; limit=limit, keep=keepempty)
+    split(s::AbstractString; limit::Integer=0, keepempty::Bool=false) =
+        Base.split(s)
+    split(s::AbstractString, splitter; limit::Integer=0, keepempty::Bool=false) =
+        Base.split(s, splitter; limit=limit, keep=keepempty)
+end
+
 # return the content of a pyerr message for exception e
 function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_string, msg::AbstractString="")
     tb = map(x->String(x), split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
-                                 "\n", keep=true))
+                                  "\n", keepempty=true))
+
     ename = string(typeof(e))
     evalue = try
         # Peel away one LoadError layer that comes from running include_string on the cell

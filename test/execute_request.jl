@@ -1,6 +1,6 @@
 using Compat.Test
 
-import IJulia: helpcode, error_content, docdict
+import IJulia: helpmode, error_content, docdict
 
 content = error_content(UndefVarError(:a))
 @test "UndefVarError" == content["ename"]
