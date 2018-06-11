@@ -64,9 +64,9 @@ function undisplay(x)
 end
 
 if VERSION < v"0.7.0-DEV.3498" # julia #25544
-    import Base.REPL: ip_matches_func 
+    import Base.REPL: ip_matches_func
 else
-    import Base: ip_matches_func 
+    import Base: ip_matches_func
 end
 
 function show_bt(io::IO, top_func::Symbol, t, set)
