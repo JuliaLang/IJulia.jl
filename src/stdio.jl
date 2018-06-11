@@ -27,7 +27,7 @@ Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, r
 
 for s in ("stdout", "stderr", "stdin")
     f = Symbol("redirect_", s)
-    S = QuoteNode(Symbol(uppercase(s)))
+    S = QuoteNode(Symbol(isdefined(Base, :stdout) ? s : uppercase(s)))
     @eval function Base.$f(io::IJuliaStdio)
         io[:jupyter_stream] != $s && throw(ArgumentError(string("expecting ", $s, " stream")))
         Core.eval(Base, Expr(:(=), $S, io))
