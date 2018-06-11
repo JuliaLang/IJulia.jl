@@ -41,15 +41,8 @@ using Compat.Unicode: uppercase, lowercase
 import Compat.Dates
 using Compat.Dates: now
 import Compat.Random
-
-if VERSION ≥ v"0.7.0-DEV.2338" # julia#24361
-  using Base64: Base64EncodePipe
-end
-if isdefined(Base, :REPL) && !Base.isdeprecated(Base, :REPL)
-  import Base.REPL
-else
-  import REPL
-end
+using Compat.Base64: Base64EncodePipe
+using Compat.REPL
 
 #######################################################################
 # Debugging IJulia

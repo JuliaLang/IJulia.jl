@@ -45,7 +45,6 @@ function get_log_preface()
     @sprintf("%02d:%02d:%02d(%s): ", Dates.hour(t),Dates.minute(t),Dates.second(t),taskname)
 end
 
-
 macro vprintln(x...)
     quote
         if verbose::Bool

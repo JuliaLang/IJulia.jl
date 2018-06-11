@@ -52,7 +52,6 @@ Base.ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
 #Compact display of types for Jupyterlab completion
 
 if VERSION ≥ v"0.7.0-DEV.3500" #25544
-    import REPL
     import REPL.REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
 elseif isdefined(Main, :REPLCompletions)
     import REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
