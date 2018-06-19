@@ -16,15 +16,19 @@ mktemp() do path, io
     @test_throws ArgumentError redirect_stdin(IJulia.IJuliaStdio(io, "stderr"))
 end
 
+# Helper function to strip out color codes from strings to make it easier to
+# compare output within tests that has been colorized
+function strip_colorization(s)
+    return replace(s, r"(\e\[\d+m)"m => "")
+end
+
 mktemp() do path, io
     redirect_stderr(IJulia.IJuliaStdio(io, "stderr")) do
         warn("warn")
     end
     flush(io)
     seek(io, 0)
-    captured = read(io, String)
-    @test (captured == "\e[1m\e[33mWARNING: \e[39m\e[22m\e[33mwarn\e[39m\n" ||
-           captured == "WARNING: warn\n")  # output will differ based on whether color is currently enabled
+    @test strip_colorization(read(io, String)) == "WARNING: warn\n"
 end
 
 mktemp() do path, io
