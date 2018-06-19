@@ -27,10 +27,25 @@ Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, r
 
 for s in ("stdout", "stderr", "stdin")
     f = Symbol("redirect_", s)
-    S = QuoteNode(Symbol(isdefined(Base, :stdout) ? s : uppercase(s)))
+    Sq = QuoteNode(Symbol(uppercase(s)))
+    sq = QuoteNode(Symbol(s))
     @eval function Base.$f(io::IJuliaStdio)
         io[:jupyter_stream] != $s && throw(ArgumentError(string("expecting ", $s, " stream")))
-        Core.eval(Base, Expr(:(=), $S, io))
+        if isdefined(Base, :stdout)
+            # On Julia 0.7, we need to override the global logger as well
+            logger = Base.CoreLogging._global_logstate.logger
+
+            # Override logging if it's pointing at the default stderr
+            if logger.stream == Base.stderr
+                new_logstate = Base.CoreLogging.LogState(typeof(logger)(io, logger.min_level))
+                Core.eval(Base.CoreLogging, Expr(:(=), :(_global_logstate), new_logstate))
+            end
+
+            Core.eval(Base, Expr(:(=), $sq, io))
+        else
+            # On Julia 0.6-, the variables are called Base.STDIO, not Base.stdio
+            Core.eval(Base, Expr(:(=), $Sq, io))
+        end
         return io
     end
 end
@@ -145,7 +160,7 @@ function send_stream(name::AbstractString)
         n = num_utf8_trailing(d)
         dextra = d[end-(n-1):end]
         resize!(d, length(d) - n)
-        s = String(d)
+        s = String(copy(d))
         if isvalid(String, s)
             write(buf, dextra) # assume that the rest of the string will be written later
             length(d) == 0 && return
