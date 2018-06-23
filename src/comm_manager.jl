@@ -7,12 +7,12 @@ import IJulia: Msg, uuid4, send_ipython, msg_pub
 export Comm, comm_target, msg_comm, send_comm, close_comm,
        register_comm, comm_msg, comm_open, comm_close, comm_info_request
 
-type Comm{target}
+mutable struct Comm{target}
     id::String
     primary::Bool
     on_msg::Function
     on_close::Function
-    function (::Type{Comm{target}}){target}(id, primary, on_msg, on_close)
+    function (::Type{Comm{target}})(id, primary, on_msg, on_close) where {target}
         comm = new{target}(id, primary, on_msg, on_close)
         comms[id] = comm
         return comm
@@ -42,7 +42,7 @@ function Comm(target,
     return comm
 end
 
-comm_target{target}(comm :: Comm{target}) = target
+comm_target(comm :: Comm{target}) where {target} = target
 
 function comm_info_request(sock, msg)
     reply = if haskey(msg.content, "target_name")

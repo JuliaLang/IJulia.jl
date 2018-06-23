@@ -5,20 +5,23 @@ include(joinpath("..","deps","kspec.jl"))
 
 # use our own random seed for msg_id so that we
 # don't alter the user-visible random state (issue #336)
-const IJulia_RNG = srand(MersenneTwister(0))
-uuid4() = repr(Base.Random.uuid4(IJulia_RNG))
-
-const orig_STDIN  = Ref{IO}()
-const orig_STDOUT = Ref{IO}()
-const orig_STDERR = Ref{IO}()
-function __init__()
-    srand(IJulia_RNG)
-    orig_STDIN[]  = STDIN
-    orig_STDOUT[] = STDOUT
-    orig_STDERR[] = STDERR
+const IJulia_RNG = Random.srand(Random.MersenneTwister(0))
+@static if VERSION < v"0.7.0-DEV.3666" # julia#25819
+    uuid4() = repr(Random.uuid4(IJulia_RNG))
+else
+    import UUIDs
+    uuid4() = repr(UUIDs.uuid4(IJulia_RNG))
 end
 
-const threadid = Vector{Int}(128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
+const orig_stdin  = Ref{IO}()
+const orig_stdout = Ref{IO}()
+const orig_stderr = Ref{IO}()
+function __init__()
+    Random.srand(IJulia_RNG)
+    orig_stdin[]  = stdin
+    orig_stdout[] = stdout
+    orig_stderr[] = stderr
+end
 
 # the following constants need to be initialized in init().
 const ctx = Ref{Context}()
@@ -100,13 +103,13 @@ function init(args)
     start_heartbeat(heartbeat[])
     if capture_stdout
         read_stdout[], = redirect_stdout()
-        redirect_stdout(IJuliaStdio(STDOUT,"stdout"))
+        redirect_stdout(IJuliaStdio(stdout,"stdout"))
     end
     if capture_stderr
         read_stderr[], = redirect_stderr()
-        redirect_stderr(IJuliaStdio(STDERR,"stderr"))
+        redirect_stderr(IJuliaStdio(stderr,"stderr"))
     end
-    redirect_stdin(IJuliaStdio(STDIN,"stdin"))
+    redirect_stdin(IJuliaStdio(stdin,"stdin"))
 
     send_status("starting")
     global inited = true

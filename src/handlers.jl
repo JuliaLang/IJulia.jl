@@ -7,7 +7,7 @@ using .CommManager
 # due to issue #380.  Find the start of the first line
 # (if any) where the expression is parseable.  Replace
 # with find_parsestart(c,p) = start(c) once julia#9467 is merged.
-parseok(s) = !Meta.isexpr(parse(s, raise=false), :error)
+parseok(s) = !Meta.isexpr(Meta.parse(s, raise=false), :error)
 function find_parsestart(code, cursorpos)
     s = start(code)
     while s < cursorpos
@@ -51,7 +51,9 @@ Base.ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
     VersionNumber(m.header["version"]) ≥ v"5.2" ? ind2chr(str, i) : ind_to_utf16(str, i)
 #Compact display of types for Jupyterlab completion
 
-if isdefined(Main, :REPLCompletions)
+if VERSION ≥ v"0.7.0-DEV.3500" #25544
+    import REPL.REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
+elseif isdefined(Main, :REPLCompletions)
     import REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
 else
     const sorted_keywords = [
@@ -106,7 +108,7 @@ function complete_types(comps)
             expr = Meta.parse(c, raise=false)
             if typeof(expr) == Symbol
                 try
-                    ctype = complete_type(eval(current_module[], :(typeof($expr))))
+                    ctype = complete_type(Core.eval(current_module[], :(typeof($expr))))
                 end
             elseif !isa(expr, Expr)
                 ctype = complete_type(expr)
@@ -197,31 +199,8 @@ function shutdown_request(socket, msg)
     exit()
 end
 
-stripdots(ex) = :_
-stripdots(ex::Symbol) = ex
-stripdots(ex::Expr) = Meta.isexpr(ex, :.) ? stripdots(ex.args[2]) : :_
-stripdots(ex::QuoteNode) = ex.value
-stripdots(ex::GlobalRef) = ex.name
-rm_sideeffects(ex) = ex
-function rm_sideeffects(ex::Expr)
-    if Meta.isexpr(ex, :call)
-        name = stripdots(ex.args[1])
-        if name == :repl_search || name == :repl_corrections
-            return nothing
-        else
-            return ex
-        end
-    else
-        return Expr(ex.head, map(rm_sideeffects, ex.args)...)
-    end
-end
-function docdict(s::AbstractString)
-    ex = macroexpand(Main, parse(helpcode(s)))
-    # unfortunately, the REPL help macros sometimes have
-    # expressions with side effects (I/O), so we need to
-    # remove these.
-    display_dict(eval(Main, rm_sideeffects(ex)))
-end
+docdict(s::AbstractString) = display_dict(Core.eval(Main, helpmode(devnull, s)))
+
 import Base: is_id_char, is_id_start_char
 function get_token(code, pos)
     # given a string and a cursor position, find substring to request
@@ -287,7 +266,7 @@ function history_request(socket, msg)
 end
 
 function is_complete_request(socket, msg)
-    ex = parse(msg.content["code"], raise=false)
+    ex = Meta.parse(msg.content["code"], raise=false)
     status = Meta.isexpr(ex, :incomplete) ? "incomplete" : Meta.isexpr(ex, :error) ? "invalid" : "complete"
     send_ipython(requests[],
                  msg_reply(msg, "is_complete_reply",

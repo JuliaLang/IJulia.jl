@@ -2,7 +2,7 @@ import IJulia
 
 # workaround #60:
 if IJulia.Compat.Sys.isapple()
-    ENV["PATH"] = JULIA_HOME*":"*ENV["PATH"]
+    ENV["PATH"] = IJulia.Compat.Sys.BINDIR*":"*ENV["PATH"]
 end
 
 IJulia.init(ARGS)
@@ -12,20 +12,20 @@ import IJulia: ans, In, Out, clear_history
 
 pushdisplay(IJulia.InlineDisplay())
 
-ccall(:jl_exit_on_sigint, Void, (Cint,), 0)
+ccall(:jl_exit_on_sigint, IJulia.Compat.Cvoid, (Cint,), 0)
 
 # the size of truncated output to show should not depend on the terminal
 # where the kernel is launched, since the display is elsewhere
 ENV["LINES"] = get(ENV, "LINES", 30)
 ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
 
-println(IJulia.orig_STDOUT[], "Starting kernel event loops.")
+println(IJulia.orig_stdout[], "Starting kernel event loops.")
 IJulia.watch_stdio()
 
 # workaround JuliaLang/julia#4259
 delete!(task_local_storage(),:SOURCE_PATH)
 
 # workaround JuliaLang/julia#6765
-eval(Base, :(is_interactive = true))
+Core.eval(Base, :(is_interactive = true))
 
 IJulia.waitloop()

@@ -4,8 +4,6 @@
 
 import Base.Libc: flush_cstdio
 
-using Compat
-
 const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")
 const image_png = MIME("image/png")
@@ -28,29 +26,29 @@ metadata(x) = Dict()
 # for passing to Jupyter display_data and execute_result messages.
 function display_dict(x)
     data = Dict{String,Any}("text/plain" => limitstringmime(text_plain, x))
-    if mimewritable(application_vnd_vegalite_v2, x)
+    if showable(application_vnd_vegalite_v2, x)
         data[string(application_vnd_vegalite_v2)] = JSON.JSONText(limitstringmime(application_vnd_vegalite_v2, x))
     elseif mimewritable(application_vnd_vega_v3, x) # don't send vega if we have vega-lite
         data[string(application_vnd_vega_v3)] = JSON.JSONText(limitstringmime(application_vnd_vega_v3, x))
     end
-    if mimewritable(application_vnd_dataresource, x)
+    if showable(application_vnd_dataresource, x)
         data[string(application_vnd_dataresource)] = JSON.JSONText(limitstringmime(application_vnd_dataresource, x))
     end
-    if mimewritable(image_svg, x)
+    if showable(image_svg, x)
         data[string(image_svg)] = limitstringmime(image_svg, x)
     end
-    if mimewritable(image_png, x)
+    if showable(image_png, x)
         data[string(image_png)] = limitstringmime(image_png, x)
-    elseif mimewritable(image_jpeg, x) # don't send jpeg if we have png
+    elseif showable(image_jpeg, x) # don't send jpeg if we have png
         data[string(image_jpeg)] = limitstringmime(image_jpeg, x)
     end
-    if mimewritable(text_markdown, x)
+    if showable(text_markdown, x)
         data[string(text_markdown)] = limitstringmime(text_markdown, x)
-    elseif mimewritable(text_html, x)
+    elseif showable(text_html, x)
         data[string(text_html)] = limitstringmime(text_html, x)
-    elseif mimewritable(text_latex, x)
+    elseif showable(text_latex, x)
         data[string(text_latex)] = limitstringmime(text_latex, x)
-    elseif mimewritable(text_latex2, x)
+    elseif showable(text_latex2, x)
         data[string(text_latex)] = limitstringmime(text_latex2, x)
     end
     return data
@@ -61,17 +59,23 @@ const displayqueue = Any[]
 
 # remove x from the display queue
 function undisplay(x)
-    i = findfirst(equalto(x), displayqueue)
-    if i > 0
+    i = findfirst(isequal(x), displayqueue)
+    if i !== nothing && i > 0
         splice!(displayqueue, i)
     end
     return x
 end
 
+if VERSION < v"0.7.0-DEV.3498" # julia #25544
+    import Base.REPL: ip_matches_func
+else
+    import Base: ip_matches_func
+end
+
 function show_bt(io::IO, top_func::Symbol, t, set)
     # follow PR #17570 code in removing top_func from backtrace
-    eval_ind = findlast(addr->Base.REPL.ip_matches_func(addr, top_func), t)
-    eval_ind != 0 && (t = t[1:eval_ind-1])
+    eval_ind = findlast(addr->ip_matches_func(addr, top_func), t)
+    eval_ind !== nothing && eval_ind != 0 && (t = t[1:eval_ind-1])
     Base.show_backtrace(io, t)
 end
 
@@ -79,12 +83,26 @@ end
 # doesn't support keyword arguments.
 showerror_nobt(io, e, bt) = showerror(io, e, bt, backtrace=false)
 
+@static if VERSION < v"0.7.0-DEV.4724"
+		# https://github.com/JuliaLang/Compat.jl/pull/572
+    # thanks to https://github.com/jipolanco/WriteVTK.jl/commit/ea046493c7787ae651b5f629455aaf7bdaa000b1
+    rsplit(s::AbstractString; limit::Integer=0, keepempty::Bool=false) =
+        Base.rsplit(s)
+    rsplit(s::AbstractString, splitter; limit::Integer=0, keepempty::Bool=false) =
+        Base.rsplit(s, splitter; limit=limit, keep=keepempty)
+    split(s::AbstractString; limit::Integer=0, keepempty::Bool=false) =
+        Base.split(s)
+    split(s::AbstractString, splitter; limit::Integer=0, keepempty::Bool=false) =
+        Base.split(s, splitter; limit=limit, keep=keepempty)
+end
+
 # return the content of a pyerr message for exception e
 function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_string, msg::AbstractString="")
     tb = map(x->String(x), split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
-                                 "\n", keep=true))
+                                  "\n", keepempty=true))
+
     ename = string(typeof(e))
     evalue = try
         # Peel away one LoadError layer that comes from running include_string on the cell
@@ -93,9 +111,9 @@ function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_s
     catch
         "SYSTEM: show(lasterr) caused an error"
     end
-    unshift!(tb, evalue) # fperez says this needs to be in traceback too
+    pushfirst!(tb, evalue) # fperez says this needs to be in traceback too
     if !isempty(msg)
-        unshift!(tb, msg)
+        pushfirst!(tb, msg)
     end
     Dict("ename" => ename, "evalue" => evalue,
                  "traceback" => tb)
@@ -109,18 +127,16 @@ execute_msg = Msg(["julia"], Dict("username"=>"jlkernel", "session"=>uuid4()), D
 # request
 const stdio_bytes = Ref(0)
 
-function helpcode(code::AbstractString)
-    code_ = strip(code)
-    # as in base/REPL.jl, special-case keywords so that they parse
-    if !haskey(Docs.keywords, Symbol(code_))
-        return "Base.Docs.@repl $code_"
-    else
-        return "eval(:(Base.Docs.@repl \$(Symbol(\"$code_\"))))"
-    end
+if VERSION < v"0.7.0-DEV.3589" # julia #25738
+    import Base.Docs: helpmode # added in 0.6, see julia #19858
+else
+    import REPL: helpmode
 end
 
 # use a global array to accumulate "payloads" for the execute_reply message
 const execute_payloads = Dict[]
+
+const stdout_name = isdefined(Base, :stdout) ? "stdout" : "STDOUT"
 
 function execute_request(socket, msg)
     code = msg.content["code"]
@@ -140,30 +156,32 @@ function execute_request(socket, msg)
                                           "code" => code)))
     end
 
-    silent = silent || Base.REPL.ends_with_semicolon(code)
+    silent = silent || REPL.ends_with_semicolon(code)
     if store_history
         In[n] = code
     end
 
     # "; ..." cells are interpreted as shell commands for run
-    code = replace(code, r"^\s*;.*$",
+    code = replace(code, r"^\s*;.*$" =>
                    m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"),
-                               "`, STDOUT)"))
+                               "`, ", stdout_name, ")"))
 
     # a cell beginning with "? ..." is interpreted as a help request
-    hcode = replace(code, r"^\s*\?", "")
-    if hcode != code
-        code = helpcode(hcode)
-    end
+    hcode = replace(code, r"^\s*\?" => "")
 
     try
         for hook in preexecute_hooks
             invokelatest(hook)
         end
 
-        #run the code!
-        ans = result = ismatch(magics_regex, code) ? magics_help(code) :
-            include_string(current_module[], code, "In[$n]")
+
+        if hcode != code # help request
+            Core.eval(Main, helpmode(hcode))
+        else
+            #run the code!
+            ans = result = occursin(magics_regex, code) ? magics_help(code) :
+                include_string(current_module[], code, "In[$n]")
+        end
 
         if silent
             result = nothing

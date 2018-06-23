@@ -13,7 +13,7 @@ function eventloop(socket)
                 #  kernel interruption to interrupt long calculations.)
                 if !isa(e, InterruptException)
                     content = error_content(e, msg="KERNEL EXCEPTION")
-                    map(s -> println(orig_STDERR[], s), content["traceback"])
+                    map(s -> println(orig_stderr[], s), content["traceback"])
                     send_ipython(publish[], msg_pub(execute_msg, "error", content))
                 end
             finally

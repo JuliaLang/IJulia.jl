@@ -3,7 +3,7 @@ import Base.show
 export Msg, msg_pub, msg_reply, send_status, send_ipython
 
 # IPython message structure
-type Msg
+mutable struct Msg
     idents::Vector{String}
     header::Dict
     content::Dict
