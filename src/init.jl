@@ -13,6 +13,11 @@ else
     uuid4() = repr(UUIDs.uuid4(IJulia_RNG))
 end
 
+if VERSION < v"0.7.0-DEV.4445" # julia#26130
+    run(args...; wait=nothing) = wait === false ?
+        Base.spawn(args...) : Base.run(args...)
+end
+
 const orig_stdin  = Ref{IO}()
 const orig_stdout = Ref{IO}()
 const orig_stderr = Ref{IO}()
@@ -37,7 +42,7 @@ const socket_locks = Dict{Socket,ReentrantLock}()
 
 function qtconsole()
     if inited
-        spawn(`$jupyter qtconsole --existing $connection_file`)
+        run(`$jupyter qtconsole --existing $connection_file`; wait=false)
     else
         error("IJulia is not running. qtconsole must be called from an IJulia session.")
     end

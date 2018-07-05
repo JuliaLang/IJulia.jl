@@ -113,10 +113,10 @@ function notebook(; dir=homedir(), detached=false)
     inited && error("IJulia is already running")
     if Compat.Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
         withenv("BROWSER"=>"open") do
-            p = spawn(Cmd(`$notebook_cmd`, detach=true, dir=dir))
+            p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
         end
     else
-        p = spawn(Cmd(`$notebook_cmd`, detach=true, dir=dir))
+        p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
     end
     if !detached
         try
