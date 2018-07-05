@@ -109,6 +109,7 @@ function complete_types(comps)
             if typeof(expr) == Symbol
                 try
                     ctype = complete_type(Core.eval(current_module[], :(typeof($expr))))
+                catch
                 end
             elseif !isa(expr, Expr)
                 ctype = complete_type(expr)
