@@ -10,11 +10,6 @@ branches:
     - master
     - /release-.*/
 
-matrix:
-  allow_failures:
-  - JULIA_URL: "https://julialangnightlies-s3.julialang.org/bin/winnt/x86/julia-latest-win32.exe"
-  - JULIA_URL: "https://julialangnightlies-s3.julialang.org/bin/winnt/x64/julia-latest-win64.exe"
-
 notifications:
   - provider: Email
     on_build_success: false
@@ -38,7 +33,7 @@ install:
 build_script:
   - C:\projects\julia\bin\julia -e "versioninfo(true);
       Pkg.clone(pwd(), \"IJulia\");
-      using Conda;
+      Pkg.add(\"Conda\"); using Conda;
       try Conda.add(\"qt\") end;
       postlink = normpath(Pkg.dir(\"Conda\"), \"deps/usr/pkgs/qt-4.8.7-vc9_9/Scripts/.qt-post-link.bat\");
       isfile(postlink) && rm(postlink);

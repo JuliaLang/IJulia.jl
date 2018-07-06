@@ -1,10 +1,10 @@
-# IJulia redirects STDOUT and STDERR into "stream" messages sent to the
+# IJulia redirects stdout and stderr into "stream" messages sent to the
 # Jupyter front-end.
 
 # create a wrapper type around redirected stdio streams,
 # both for overloading things like `flush` and so that we
 # can set properties like `color`.
-immutable IJuliaStdio{IO_t <: IO} <: Base.AbstractPipe
+struct IJuliaStdio{IO_t <: IO} <: Base.AbstractPipe
     io::IOContext{IO_t}
 end
 IJuliaStdio(io::IO, stream::AbstractString="unknown") =
@@ -27,10 +27,16 @@ Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, r
 
 for s in ("stdout", "stderr", "stdin")
     f = Symbol("redirect_", s)
-    S = QuoteNode(Symbol(uppercase(s)))
+    Sq = QuoteNode(Symbol(uppercase(s)))
+    sq = QuoteNode(Symbol(s))
     @eval function Base.$f(io::IJuliaStdio)
         io[:jupyter_stream] != $s && throw(ArgumentError(string("expecting ", $s, " stream")))
-        eval(Base, Expr(:(=), $S, io))
+        if isdefined(Base, :stdout)
+            Core.eval(Base, Expr(:(=), $sq, io))
+        else
+            # On Julia 0.6-, the variables are called Base.STDIO, not Base.stdio
+            Core.eval(Base, Expr(:(=), $Sq, io))
+        end
         return io
     end
 end
@@ -38,17 +44,17 @@ end
 # logging in verbose mode goes to original stdio streams.  Use macros
 # so that we do not even evaluate the arguments in no-verbose modes
 
+using Compat.Printf
 function get_log_preface()
     t = now()
     taskname = get(task_local_storage(), :IJulia_task, "")
     @sprintf("%02d:%02d:%02d(%s): ", Dates.hour(t),Dates.minute(t),Dates.second(t),taskname)
 end
 
-
 macro vprintln(x...)
     quote
         if verbose::Bool
-            println(orig_STDOUT[], get_log_preface(), $(map(esc, x)...))
+            println(orig_stdout[], get_log_preface(), $(map(esc, x)...))
         end
     end
 end
@@ -56,7 +62,7 @@ end
 macro verror_show(e, bt)
     quote
         if verbose::Bool
-            showerror(orig_STDERR[], $(esc(e)), $(esc(bt)))
+            showerror(orig_stderr[], $(esc(e)), $(esc(bt)))
         end
     end
 end
@@ -82,7 +88,7 @@ function watch_stream(rd::IO, name::AbstractString)
         buf = IOBuffer()
         bufs[name] = buf
         while !eof(rd) # blocks until something is available
-            nb = nb_available(rd)
+            nb = @static VERSION < v"0.7.0-DEV.3481" ? nb_available(rd) : bytesavailable(rd)
             if nb > 0
                 stdio_bytes[] += nb
                 # if this stream has surpassed the maximum output limit then ignore future bytes
@@ -145,7 +151,7 @@ function send_stream(name::AbstractString)
         n = num_utf8_trailing(d)
         dextra = d[end-(n-1):end]
         resize!(d, length(d) - n)
-        s = String(d)
+        s = String(copy(d))
         if isvalid(String, s)
             write(buf, dextra) # assume that the rest of the string will be written later
             length(d) == 0 && return
@@ -215,37 +221,43 @@ end
 import Base.readline
 function readline(io::IJuliaStdio)
     if get(io,:jupyter_stream,"unknown") == "stdin"
-        return readprompt("STDIN> ")
+        return readprompt("stdin> ")
     else
         readline(io.io)
     end
+end
+
+if VERSION < v"0.7.0-DEV.3526" # julia#25647
+    _Timer(callback, delay, repeat) = Timer(callback, delay, repeat)
+else
+    _Timer(callback, delay, repeat) = Timer(callback, delay, interval=repeat)
 end
 
 function watch_stdio()
     task_local_storage(:IJulia_task, "init task")
     if capture_stdout
         read_task = @async watch_stream(read_stdout[], "stdout")
-        #send STDOUT stream msgs every stream_interval secs (if there is output to send)
-        Timer(send_stdout, stream_interval, stream_interval)
+        #send stdout stream msgs every stream_interval secs (if there is output to send)
+        _Timer(send_stdout, stream_interval, stream_interval)
     end
     if capture_stderr
         readerr_task = @async watch_stream(read_stderr[], "stderr")
         #send STDERR stream msgs every stream_interval secs (if there is output to send)
-        Timer(send_stderr, stream_interval, stream_interval)
+        _Timer(send_stderr, stream_interval, stream_interval)
     end
 end
 
 function flush_all()
     flush_cstdio() # flush writes to stdout/stderr by external C code
-    flush(STDOUT)
-    flush(STDERR)
+    flush(stdout)
+    flush(stderr)
 end
 
 function oslibuv_flush()
     #refs: https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144505862
     #      https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144605024
     @static if Compat.Sys.iswindows()
-        ccall(:SwitchToThread, stdcall, Void, ())
+        ccall(:SwitchToThread, stdcall, Cvoid, ())
     end
     yield()
     yield()

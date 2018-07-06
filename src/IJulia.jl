@@ -38,7 +38,11 @@ export notebook, installkernel
 using ZMQ, JSON, Compat
 import Compat.invokelatest
 using Compat.Unicode: uppercase, lowercase
+import Compat.Dates
 using Compat.Dates: now
+import Compat.Random
+using Compat.Base64: Base64EncodePipe
+using Compat.REPL
 
 #######################################################################
 # Debugging IJulia
@@ -109,10 +113,10 @@ function notebook(; dir=homedir(), detached=false)
     inited && error("IJulia is already running")
     if Compat.Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
         withenv("BROWSER"=>"open") do
-            p = spawn(Cmd(`$notebook_cmd`, detach=true, dir=dir))
+            p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
         end
     else
-        p = spawn(Cmd(`$notebook_cmd`, detach=true, dir=dir))
+        p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
     end
     if !detached
         try
@@ -198,7 +202,7 @@ function clear_history(indices)
 end
 
 # since a range could be huge, intersect it with 1:n first
-clear_history{T<:Integer}(r::AbstractRange{T}) =
+clear_history(r::AbstractRange{T}) where {T<:Integer} =
     invoke(clear_history, Tuple{Any}, intersect(r, 1:n))
 
 function clear_history()
@@ -232,7 +236,7 @@ function history(io::IO, indices::AbstractVector{Int})
 end
 
 history(io::IO, x::Union{Integer,AbstractVector{Int}}...) = history(io, vcat(x...))
-history(x...) = history(STDOUT, x...)
+history(x...) = history(stdout, x...)
 history(io::IO, x...) = throw(MethodError(history, (x...,)))
 history() = history(1:n)
 """
@@ -245,7 +249,7 @@ The optional `indices` argument is one or more indices or collections
 of indices indicating a subset input cells to print.
 
 The optional `io` argument is for specifying an output stream. The default
-is `STDOUT`.
+is `stdout`.
 """
 history
 
