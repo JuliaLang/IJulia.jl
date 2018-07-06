@@ -202,7 +202,7 @@ function clear_history(indices)
 end
 
 # since a range could be huge, intersect it with 1:n first
-clear_history(r::AbstractRange{T}) where {T<:Integer} =
+clear_history(r::AbstractRange{<:Integer}) =
     invoke(clear_history, Tuple{Any}, intersect(r, 1:n))
 
 function clear_history()
