@@ -273,7 +273,8 @@ push_postexecute_hook(f::Function) = push!(postexecute_hooks, f)
 Remove a function `f()` from the list of functions to
 execute after executing any notebook cell.
 """
-pop_postexecute_hook(f::Function) = filter!(isequal(f), postexecute_hooks)
+pop_postexecute_hook(f::Function) =
+    splice!(postexecute_hooks, findlast(isequal(f), postexecute_hooks)
 
 const preexecute_hooks = Function[]
 """
@@ -289,11 +290,8 @@ push_preexecute_hook(f::Function) = push!(preexecute_hooks, f)
 Remove a function `f()` from the list of functions to
 execute before executing any notebook cell.
 """
-function pop_preexecute_hook(f::Function)
-    i = Compat.findlast(isequal(f), preexecute_hooks)
-    i !== nothing && splice!(preexecute_hooks, i)
-    return f
-end
+pop_preexecute_hook(f::Function) =
+    splice!(preexecute_hooks, findlast(isequal(f), preexecute_hooks)
 
 # similar, but called after an error (e.g. to reset plotting state)
 const posterror_hooks = Function[]
@@ -310,11 +308,8 @@ push_posterror_hook(f::Function) = push!(posterror_hooks, f)
 Remove a function `f()` from the list of functions to
 execute after an error occurs when a notebook cell is evaluated.
 """
-function pop_posterror_hook(f::Function)
-    i = Compat.findlast(isequal(f), posterror_hooks)
-    i !== nothing && splice!(posterror_hooks, i)
-    return f
-end
+pop_posterror_hook(f::Function) =
+    splice!(posterror_hooks, findlast(isequal(f), posterror_hooks)
 
 #######################################################################
 
