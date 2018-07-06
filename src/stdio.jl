@@ -32,15 +32,6 @@ for s in ("stdout", "stderr", "stdin")
     @eval function Base.$f(io::IJuliaStdio)
         io[:jupyter_stream] != $s && throw(ArgumentError(string("expecting ", $s, " stream")))
         if isdefined(Base, :stdout)
-            # On Julia 0.7, we need to override the global logger as well
-            logger = Base.CoreLogging._global_logstate.logger
-
-            # Override logging if it's pointing at the default stderr
-            if logger.stream == Base.stderr
-                new_logstate = Base.CoreLogging.LogState(typeof(logger)(io, logger.min_level))
-                Core.eval(Base.CoreLogging, Expr(:(=), :(_global_logstate), new_logstate))
-            end
-
             Core.eval(Base, Expr(:(=), $sq, io))
         else
             # On Julia 0.6-, the variables are called Base.STDIO, not Base.stdio

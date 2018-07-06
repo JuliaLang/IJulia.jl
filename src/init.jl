@@ -116,6 +116,11 @@ function init(args)
     end
     redirect_stdin(IJuliaStdio(stdin,"stdin"))
 
+    if isdefined(Base, :CoreLogging)
+        logger = Base.CoreLogging.SimpleLogger(Base.stderr)
+        Base.CoreLogging.global_logger(logger)
+    end
+
     send_status("starting")
     global inited = true
 end
