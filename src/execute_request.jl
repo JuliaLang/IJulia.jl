@@ -28,7 +28,7 @@ function display_dict(x)
     data = Dict{String,Any}("text/plain" => limitstringmime(text_plain, x))
     if showable(application_vnd_vegalite_v2, x)
         data[string(application_vnd_vegalite_v2)] = JSON.JSONText(limitstringmime(application_vnd_vegalite_v2, x))
-    elseif mimewritable(application_vnd_vega_v3, x) # don't send vega if we have vega-lite
+    elseif showable(application_vnd_vega_v3, x) # don't send vega if we have vega-lite
         data[string(application_vnd_vega_v3)] = JSON.JSONText(limitstringmime(application_vnd_vega_v3, x))
     end
     if showable(application_vnd_dataresource, x)
