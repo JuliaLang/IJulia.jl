@@ -59,10 +59,8 @@ const displayqueue = Any[]
 
 # remove x from the display queue
 function undisplay(x)
-    i = findfirst(isequal(x), displayqueue)
-    if i !== nothing && i > 0
-        splice!(displayqueue, i)
-    end
+    i = Compat.findfirst(isequal(x), displayqueue)
+    i !== nothing && splice!(displayqueue, i)
     return x
 end
 
@@ -74,8 +72,8 @@ end
 
 function show_bt(io::IO, top_func::Symbol, t, set)
     # follow PR #17570 code in removing top_func from backtrace
-    eval_ind = findlast(addr->ip_matches_func(addr, top_func), t)
-    eval_ind !== nothing && eval_ind != 0 && (t = t[1:eval_ind-1])
+    eval_ind = Compat.findlast(addr->ip_matches_func(addr, top_func), t)
+    eval_ind !== nothing && (t = t[1:eval_ind-1])
     Base.show_backtrace(io, t)
 end
 
