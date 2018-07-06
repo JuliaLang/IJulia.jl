@@ -21,7 +21,7 @@ function prog_version(prog)
     try
        return VersionNumber(v)
     catch
-        warn("`$jupyter --version` returned an unrecognized version number $v")
+        Compat.@warn("`$jupyter --version` returned an unrecognized version number $v")
         return v"0.0"
     end
 end
@@ -35,7 +35,7 @@ else
         jupyter_vers = prog_version(jupyter * "-notebook")
     end
     if jupyter_vers === nothing
-        warn("Could not execute `$jupyter --version`.")
+        Compat.@warn("Could not execute `$jupyter --version`.")
     end
 end
 isconda = dirname(jupyter) == abspath(Conda.SCRIPTDIR)
@@ -64,7 +64,7 @@ if isconda
         try
             download(highlighter_url, highlighter)
         catch e
-            warn("The following error occurred while attempting to download latest ",
+            Compat.@warn("The following error occurred while attempting to download latest ",
                  "syntax highlighting definitions:\n\n", e, "\n\nSyntax highlighting may ",
                  "not work as expected.")
         end
@@ -76,9 +76,10 @@ end
 try
     juliaprof = chomp(read(pipeline(`$ipython locate profile julia`,
                                     stderr=devnull), String))
-    warn("""You should now run IJulia just via `$jupyter notebook`, without
+    Compat.@warn("""You should now run IJulia just via `$jupyter notebook`, without
             the `--profile julia` flag.  IJulia no longer maintains the profile.
             Consider deleting $juliaprof""")
+catch
 end
 
 #######################################################################

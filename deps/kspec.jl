@@ -1,7 +1,7 @@
 #######################################################################
 # Install Jupyter kernel-spec file.
 
-copy_config(src, dest) = cp(src, joinpath(dest, basename(src)), remove_destination=true)
+copy_config(src, dest) = Compat.cp(src, joinpath(dest, basename(src)), force=true)
 
 """
     installkernel(name, options...; specname=replace(lowercase(name), " "=>"-")

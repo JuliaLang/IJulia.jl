@@ -9,7 +9,7 @@ using .CommManager
 # with find_parsestart(c,p) = start(c) once julia#9467 is merged.
 parseok(s) = !Meta.isexpr(Meta.parse(s, raise=false), :error)
 function find_parsestart(code, cursorpos)
-    s = start(code)
+    s = firstindex(code)
     while s < cursorpos
         parseok(code[s:cursorpos]) && return s
         s = nextind(code, s)
@@ -17,7 +17,7 @@ function find_parsestart(code, cursorpos)
             s = nextind(code, s)
         end
     end
-    return start(code) # failed to find parseable lines
+    return firstindex(code) # failed to find parseable lines
 end
 
 # As described in jupyter/jupyter_client#259, Jupyter's cursor
@@ -27,7 +27,7 @@ end
 # as 2 code units.
 function utf16_to_ind(str, ic)
     i = 0
-    e = endof(str)
+    e = lastindex(str)
     while ic > 0 && i < e
         i = nextind(str, i)
         ic -= UInt32(str[i]) < 0x10000 ? 1 : 2
@@ -36,7 +36,7 @@ function utf16_to_ind(str, ic)
 end
 function ind_to_utf16(str, i)
     ic = 0
-    i = min(i, endof(str))
+    i = min(i, lastindex(str))
     while i > 0
         ic += UInt32(str[i]) < 0x10000 ? 1 : 2
         i = prevind(str, i)
@@ -52,8 +52,10 @@ Base.ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
 #Compact display of types for Jupyterlab completion
 
 if VERSION ≥ v"0.7.0-DEV.3500" #25544
+    import REPL: REPLCompletions
     import REPL.REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
 elseif isdefined(Main, :REPLCompletions)
+    import REPLCompletions
     import REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
 else
     const sorted_keywords = [
@@ -63,6 +65,7 @@ else
         "let", "local", "macro", "module", "mutable struct",
         "primitive type", "quote", "return", "struct",
         "true", "try", "using", "while"]
+    import Base: REPLCompletions
     import Base.REPL.REPLCompletions: emoji_symbols, latex_symbols
 end
 
@@ -137,8 +140,9 @@ function complete_request(socket, msg)
     end
 
     codestart = find_parsestart(code, cursorpos)
-    comps, positions = Base.REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
-    positions += codestart-1
+    comps, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
+    # positions = positions .+ (codestart - 1) on Julia 0.7
+    positions = (first(positions) + codestart - 1):(last(positions) + codestart - 1)
     metadata = Dict()
     if isempty(comps)
         # issue #530: REPLCompletions returns inconsistent results
@@ -213,7 +217,7 @@ function get_token(code, pos)
     # TODO: detect operators?
 
     startpos = pos
-    while startpos > start(code)
+    while startpos > firstindex(code)
         if is_id_char(code[startpos])
             break
         else
@@ -221,14 +225,14 @@ function get_token(code, pos)
         end
     end
     endpos = startpos
-    while startpos >= start(code) && (is_id_char(code[startpos]) || code[startpos] == '.')
+    while startpos >= firstindex(code) && (is_id_char(code[startpos]) || code[startpos] == '.')
         startpos = prevind(code, startpos)
     end
     startpos = startpos < pos ? nextind(code, startpos) : pos
     if !is_id_start_char(code[startpos])
         return ""
     end
-    while endpos < endof(code) && is_id_char(code[endpos])
+    while endpos < lastindex(code) && is_id_char(code[endpos])
         endpos = nextind(code, endpos)
     end
     if !is_id_char(code[endpos])
