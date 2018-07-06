@@ -26,7 +26,7 @@ function prog_version(prog)
     end
 end
 
-global jupyter = get(ENV, "JUPYTER", isfile("JUPYTER") ? readchomp("JUPYTER") : Compat.Sys.islinux() ? "jupyter" : "")
+global jupyter = get(ENV, "JUPYTER", isfile("JUPYTER") ? readchomp("JUPYTER") : Compat.Sys.isunix() && !Compat.Sys.isapple() ? "jupyter" : "")
 if isempty(jupyter)
     jupyter_vers = nothing
 else
