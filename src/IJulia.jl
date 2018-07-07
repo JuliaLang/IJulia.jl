@@ -202,7 +202,7 @@ function clear_history(indices)
 end
 
 # since a range could be huge, intersect it with 1:n first
-clear_history(r::AbstractRange{T}) where {T<:Integer} =
+clear_history(r::AbstractRange{<:Integer}) =
     invoke(clear_history, Tuple{Any}, intersect(r, 1:n))
 
 function clear_history()
@@ -273,7 +273,8 @@ push_postexecute_hook(f::Function) = push!(postexecute_hooks, f)
 Remove a function `f()` from the list of functions to
 execute after executing any notebook cell.
 """
-pop_postexecute_hook(f::Function) = splice!(postexecute_hooks, findfirst(equalto(f), postexecute_hooks))
+pop_postexecute_hook(f::Function) =
+    splice!(postexecute_hooks, Compat.findlast(isequal(f), postexecute_hooks))
 
 const preexecute_hooks = Function[]
 """
@@ -289,7 +290,8 @@ push_preexecute_hook(f::Function) = push!(preexecute_hooks, f)
 Remove a function `f()` from the list of functions to
 execute before executing any notebook cell.
 """
-pop_preexecute_hook(f::Function) = splice!(preexecute_hooks, findfirst(equalto(f), preexecute_hooks))
+pop_preexecute_hook(f::Function) =
+    splice!(preexecute_hooks, Compat.findlast(isequal(f), preexecute_hooks))
 
 # similar, but called after an error (e.g. to reset plotting state)
 const posterror_hooks = Function[]
@@ -306,7 +308,8 @@ push_posterror_hook(f::Function) = push!(posterror_hooks, f)
 Remove a function `f()` from the list of functions to
 execute after an error occurs when a notebook cell is evaluated.
 """
-pop_posterror_hook(f::Function) = splice!(posterror_hooks, findfirst(equalto(f), posterror_hooks))
+pop_posterror_hook(f::Function) =
+    splice!(posterror_hooks, Compat.findlast(isequal(f), posterror_hooks))
 
 #######################################################################
 
