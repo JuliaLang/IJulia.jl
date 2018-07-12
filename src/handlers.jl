@@ -45,10 +45,10 @@ function ind_to_utf16(str, i)
 end
 
 # protocol change in Jupyter 5.2 (jupyter/jupyter_client#262)
-Base.chr2ind(m::Msg, str::String, ic::Integer) = ic == 0 ? 0 :
-    VersionNumber(m.header["version"]) ≥ v"5.2" ? chr2ind(str, ic) : utf16_to_ind(str, ic)
-Base.ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
-    VersionNumber(m.header["version"]) ≥ v"5.2" ? ind2chr(str, i) : ind_to_utf16(str, i)
+chr2ind(m::Msg, str::String, ic::Integer) = ic == 0 ? 0 :
+    VersionNumber(m.header["version"]) ≥ v"5.2" ? nextind(str, 0, ic) : utf16_to_ind(str, ic)
+ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
+    VersionNumber(m.header["version"]) ≥ v"5.2" ? length(str, 1, i) : ind_to_utf16(str, i)
 #Compact display of types for Jupyterlab completion
 
 if VERSION ≥ v"0.7.0-DEV.3500" #25544
