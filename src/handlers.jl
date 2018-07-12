@@ -140,7 +140,12 @@ function complete_request(socket, msg)
     end
 
     codestart = find_parsestart(code, cursorpos)
-    comps, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
+    comps_, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
+    @static if isdefined(REPLCompletions, :completion_text)
+        comps = REPLCompletions.completion_text.(comps_) # julia#26930
+    else
+        comps = comps_
+    end
     # positions = positions .+ (codestart - 1) on Julia 0.7
     positions = (first(positions) + codestart - 1):(last(positions) + codestart - 1)
     metadata = Dict()
