@@ -141,7 +141,7 @@ function complete_request(socket, msg)
 
     codestart = find_parsestart(code, cursorpos)
     @static if VERSION >= v"0.7.0-beta.207"
-        comps_, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1; context_module=current_module[])
+        comps_, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1, current_module[])
     else
         comps_, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
     end
