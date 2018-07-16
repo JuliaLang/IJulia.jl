@@ -214,6 +214,27 @@ function readprompt(prompt::AbstractString; password::Bool=false)
     end
 end
 
+# override prompts using julia#28038 in 0.7
+if isdefined(Base, :prompt) && isdefined(Base, :getpass)
+    function check_prompt_streams(input::IJuliaStdio, output::IJuliaStdio)
+        if get(input,:jupyter_stream,"unknown") != "stdin" ||
+            get(output,:jupyter_stream,"unknown") != "stdout"
+            throw(ArgumentError("prompt on IJulia stdio streams only works for stdin/stdout"))
+         end
+     end
+    function Base.prompt(input::IJuliaStdio, output::IJuliaStdio, message::AbstractString; default::AbstractString="")
+        check_prompt_streams(input, output)
+        val = chomp(readprompt(message * ": "))
+        return isempty(val) ? default : val
+    end
+    function Base.getpass(input::IJuliaStdio, output::IJuliaStdio, message::AbstractString)
+        check_prompt_streams(input, output)
+        # fixme: should we do more to zero memory associated with the password?
+        #        doing this properly might require working with the raw ZMQ message buffer here
+        return Base.SecretBuffer!(Vector{UInt8}(codeunits(readprompt(message * ": ", password=true))))
+    end
+end
+
 # IJulia issue #42: there doesn't seem to be a good way to make a task
 # that blocks until there is a read request from STDIN ... this makes
 # it very hard to properly redirect all reads from STDIN to pyin messages.
