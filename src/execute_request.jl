@@ -173,11 +173,11 @@ function execute_request(socket, msg)
         end
 
 
-        if hcode != code # help request
+        ans = result = if hcode != code # help request
             Core.eval(Main, helpmode(hcode))
         else
             #run the code!
-            ans = result = occursin(magics_regex, code) ? magics_help(code) :
+            occursin(magics_regex, code) ? magics_help(code) :
                 include_string(current_module[], code, "In[$n]")
         end
 
