@@ -96,6 +96,12 @@ ki = VERSION < v"0.7.0-DEV.3252" ? rsearch(n, "kernelspec") : findlast("kernelsp
 notebook[end] = n[1:prevind(n,first(ki))] * "notebook" * n[nextind(n,last(ki)):end]
 
 #######################################################################
+# make it easier to get more debugging output by setting JULIA_DEBUG=1
+# when building.
+IJULIA_DEBUG = lowercase(get(ENV, "IJULIA_DEBUG", "0"))
+IJULIA_DEBUG = IJULIA_DEBUG in ("1", "true", "yes")
+
+#######################################################################
 # Install the deps.jl file:
 
 if v"4.2" ≤ jupyter_vers < v"5.1"
@@ -106,6 +112,7 @@ deps = """
     const jupyter = "$(escape_string(jupyter))"
     const notebook_cmd = ["$(join(map(escape_string, notebook), "\", \""))"]
     const jupyter_vers = $(repr(jupyter_vers))
+    const IJULIA_DEBUG = $(IJULIA_DEBUG)
     """
 if !isfile("deps.jl") || read("deps.jl", String) != deps
     write("deps.jl", deps)

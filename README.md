@@ -297,8 +297,17 @@ julia-0.6` or `ipython console --kernel julia-0.6`, respectively.
 
 If IJulia is crashing (e.g. it gives you a "kernel appears to have
 died" message), you can modify it to print more descriptive error
-messages to the terminal: edit your [`IJulia/src/IJulia.jl`](src/IJulia.jl) file (in
-your `.julia` package directory) to change the line `verbose = false`
-at the top to `verbose = true` and `const capture_stderr = true` to
-`const capture_stderr = false`.  Then restart the kernel or open a new
-notebook and look for the error message when IJulia dies.
+messages to the terminal by doing:
+
+```jl
+ENV["IJULIA_DEBUG"]=true
+Pkg.build("IJulia")
+```
+
+Restart the notebook and look for the error message when IJulia dies.
+(This changes IJulia to default to `verbose = true` mode, and sets
+`capture_stderr = false`, hopefully sending a bunch of debugging to
+the terminal where you launched `jupyter`).
+
+When you are done, set `ENV["IJULIA_DEBUG"]=false` and re-run
+`Pkg.build("IJulia")` to turn off the debugging output.
