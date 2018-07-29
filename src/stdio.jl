@@ -36,6 +36,9 @@ for s in ("stdout", "stderr", "stdin")
         else
             # On Julia 0.6-, the variables are called Base.STDIO, not Base.stdio
             Core.eval(Base, Expr(:(=), $Sq, io))
+            # We also need to change Compat.stdxxx because we use it in various places
+            # ref: https://github.com/JuliaLang/IJulia.jl/issues/690
+            Core.eval(Compat, Expr(:(=), $sq, io))
         end
         return io
     end
