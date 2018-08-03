@@ -1,8 +1,14 @@
 include(joinpath("..","deps","kspec.jl"))
 
+if VERSION < v"0.7.0-beta2.171" # julia#28295
+    seed!(s) = Random.srand(s)
+else
+    import Random: seed!
+end
+
 # use our own random seed for msg_id so that we
 # don't alter the user-visible random state (issue #336)
-const IJulia_RNG = Random.srand(Random.MersenneTwister(0))
+const IJulia_RNG = seed!(Random.MersenneTwister(0))
 @static if VERSION < v"0.7.0-DEV.3666" # julia#25819
     uuid4() = repr(Random.uuid4(IJulia_RNG))
 else
@@ -19,7 +25,7 @@ const orig_stdin  = Ref{IO}()
 const orig_stdout = Ref{IO}()
 const orig_stderr = Ref{IO}()
 function __init__()
-    Random.srand(IJulia_RNG)
+    seed!(IJulia_RNG)
     orig_stdin[]  = stdin
     orig_stdout[] = stdout
     orig_stderr[] = stderr
