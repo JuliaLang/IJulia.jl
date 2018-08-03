@@ -1,4 +1,4 @@
-__precompile__()
+VERSION < v"0.7.0-beta2.199" && __precompile__()
 
 """
 **IJulia** is a [Julia-language](http://julialang.org/) backend
