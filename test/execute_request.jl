@@ -1,4 +1,4 @@
-using Compat.Test
+using Test
 
 import IJulia: helpmode, error_content, docdict
 

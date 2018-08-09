@@ -1,6 +1,6 @@
-using Compat.Test
+using Test
 import IJulia: Msg
-using Compat.Dates
+using Dates
 
 idents = ["idents"]
 header = Dict("msg_id"=>"c673eed8-7c36-47f4-82af-df8ec546a87d",

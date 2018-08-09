@@ -1,6 +1,6 @@
 import Base: display, redisplay
 
-struct InlineDisplay <: Compat.AbstractDisplay end
+struct InlineDisplay <: AbstractDisplay end
 
 # supported MIME types for inline display in IPython, in descending order
 # of preference (descending "richness")

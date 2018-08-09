@@ -75,7 +75,7 @@ complete_type(::Type{<:Tuple}) = "tuple"
 
 function complete_type(T::DataType)
     s = string(T)
-    (Compat.textwidth(s) ≤ 20 || isempty(T.parameters)) && return s
+    (textwidth(s) ≤ 20 || isempty(T.parameters)) && return s
     buf = IOBuffer()
     print(buf, T.name)
     position(buf) > 19 && return String(take!(buf))

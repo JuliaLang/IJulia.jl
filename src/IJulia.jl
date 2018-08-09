@@ -35,14 +35,13 @@ The `IJulia` module is used in three ways:
 module IJulia
 export notebook, installkernel
 
-using ZMQ, JSON, Compat
-import Compat.invokelatest
-using Compat.Unicode: uppercase, lowercase
-import Compat.Dates
-using Compat.Dates: now
-import Compat.Random
-using Compat.Base64: Base64EncodePipe
-using Compat.REPL
+using ZMQ, JSON
+import Base: invokelatest
+using Unicode: uppercase, lowercase
+using Dates: now
+import Random
+using Base64: Base64EncodePipe
+using REPL
 
 const depfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
 isfile(depfile) || error("IJulia not properly installed. Please run Pkg.build(\"IJulia\")")
@@ -115,7 +114,7 @@ process manager.)
 """
 function notebook(; dir=homedir(), detached=false)
     inited && error("IJulia is already running")
-    if Compat.Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
+    if Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
         withenv("BROWSER"=>"open") do
             p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
         end
@@ -278,7 +277,7 @@ Remove a function `f()` from the list of functions to
 execute after executing any notebook cell.
 """
 pop_postexecute_hook(f::Function) =
-    splice!(postexecute_hooks, Compat.findlast(isequal(f), postexecute_hooks))
+    splice!(postexecute_hooks, findlast(isequal(f), postexecute_hooks))
 
 const preexecute_hooks = Function[]
 """
@@ -295,7 +294,7 @@ Remove a function `f()` from the list of functions to
 execute before executing any notebook cell.
 """
 pop_preexecute_hook(f::Function) =
-    splice!(preexecute_hooks, Compat.findlast(isequal(f), preexecute_hooks))
+    splice!(preexecute_hooks, findlast(isequal(f), preexecute_hooks))
 
 # similar, but called after an error (e.g. to reset plotting state)
 const posterror_hooks = Function[]
@@ -313,7 +312,7 @@ Remove a function `f()` from the list of functions to
 execute after an error occurs when a notebook cell is evaluated.
 """
 pop_posterror_hook(f::Function) =
-    splice!(posterror_hooks, Compat.findlast(isequal(f), posterror_hooks))
+    splice!(posterror_hooks, findlast(isequal(f), posterror_hooks))
 
 #######################################################################
 

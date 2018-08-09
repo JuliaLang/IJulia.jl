@@ -27,19 +27,10 @@ Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, r
 
 for s in ("stdout", "stderr", "stdin")
     f = Symbol("redirect_", s)
-    Sq = QuoteNode(Symbol(uppercase(s)))
     sq = QuoteNode(Symbol(s))
     @eval function Base.$f(io::IJuliaStdio)
         io[:jupyter_stream] != $s && throw(ArgumentError(string("expecting ", $s, " stream")))
-        if isdefined(Base, :stdout)
-            Core.eval(Base, Expr(:(=), $sq, io))
-        else
-            # On Julia 0.6-, the variables are called Base.STDIO, not Base.stdio
-            Core.eval(Base, Expr(:(=), $Sq, io))
-            # We also need to change Compat.stdxxx because we use it in various places
-            # ref: https://github.com/JuliaLang/IJulia.jl/issues/690
-            Core.eval(Compat, Expr(:(=), $sq, io))
-        end
+        Core.eval(Base, Expr(:(=), $sq, io))
         return io
     end
 end
@@ -47,7 +38,7 @@ end
 # logging in verbose mode goes to original stdio streams.  Use macros
 # so that we do not even evaluate the arguments in no-verbose modes
 
-using Compat.Printf
+using Printf
 function get_log_preface()
     t = now()
     taskname = get(task_local_storage(), :IJulia_task, "")
@@ -280,7 +271,7 @@ end
 function oslibuv_flush()
     #refs: https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144505862
     #      https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144605024
-    @static if Compat.Sys.iswindows()
+    @static if Sys.iswindows()
         ccall(:SwitchToThread, stdcall, Cvoid, ())
     end
     yield()

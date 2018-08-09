@@ -1,7 +1,6 @@
 #######################################################################
 import JSON, Conda
-using Compat
-using Compat.Unicode: lowercase
+using Unicode: lowercase
 
 jupyter=""
 
@@ -21,12 +20,12 @@ function prog_version(prog)
     try
        return VersionNumber(v)
     catch
-        Compat.@warn("`$jupyter --version` returned an unrecognized version number $v")
+        @warn("`$jupyter --version` returned an unrecognized version number $v")
         return v"0.0"
     end
 end
 
-global jupyter = get(ENV, "JUPYTER", isfile("JUPYTER") ? readchomp("JUPYTER") : Compat.Sys.isunix() && !Compat.Sys.isapple() ? "jupyter" : "")
+global jupyter = get(ENV, "JUPYTER", isfile("JUPYTER") ? readchomp("JUPYTER") : Sys.isunix() && !Sys.isapple() ? "jupyter" : "")
 if isempty(jupyter)
     jupyter_vers = nothing
 else
@@ -35,13 +34,13 @@ else
         jupyter_vers = prog_version(jupyter * "-notebook")
     end
     if jupyter_vers === nothing
-        Compat.@warn("Could not execute `$jupyter --version`.")
+        @warn("Could not execute `$jupyter --version`.")
     end
 end
 isconda = dirname(jupyter) == abspath(Conda.SCRIPTDIR)
 if Sys.ARCH in (:i686, :x86_64) && (jupyter_vers === nothing || jupyter_vers < v"3.0" || isconda)
-    isconda || jupyter_vers === nothing || Compat.@info("$jupyter was too old: got $jupyter_vers, required ≥ 3.0")
-    Compat.@info("Installing Jupyter via the Conda package.")
+    isconda || jupyter_vers === nothing || @info("$jupyter was too old: got $jupyter_vers, required ≥ 3.0")
+    @info("Installing Jupyter via the Conda package.")
     Conda.add("jupyter")
     jupyter = abspath(Conda.SCRIPTDIR, "jupyter")
     jupyter_vers = prog_version(jupyter)
@@ -49,7 +48,7 @@ end
 if jupyter_vers === nothing || jupyter_vers < v"3.0"
     error("Failed to find or install Jupyter 3.0 or later. Please install Jupyter manually, set `ENV[\"JUPYTER\"]=\"/path/to/jupyter\", and rerun `Pkg.build(\"IJulia\")`.")
 end
-Compat.@info("Found Jupyter version $jupyter_vers: $jupyter")
+@info("Found Jupyter version $jupyter_vers: $jupyter")
 
 #######################################################################
 # Get the latest syntax highlighter file.
@@ -64,7 +63,7 @@ if isconda
         try
             download(highlighter_url, highlighter)
         catch e
-            Compat.@warn("The following error occurred while attempting to download latest ",
+            @warn("The following error occurred while attempting to download latest ",
                  "syntax highlighting definitions:\n\n", e, "\n\nSyntax highlighting may ",
                  "not work as expected.")
         end
@@ -76,7 +75,7 @@ end
 try
     juliaprof = chomp(read(pipeline(`$ipython locate profile julia`,
                                     stderr=devnull), String))
-    Compat.@warn("""You should now run IJulia just via `$jupyter notebook`, without
+    @warn("""You should now run IJulia just via `$jupyter notebook`, without
             the `--profile julia` flag.  IJulia no longer maintains the profile.
             Consider deleting $juliaprof""")
 catch

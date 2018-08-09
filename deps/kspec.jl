@@ -1,7 +1,7 @@
 #######################################################################
 # Install Jupyter kernel-spec file.
 
-copy_config(src, dest) = Compat.cp(src, joinpath(dest, basename(src)), force=true)
+copy_config(src, dest) = cp(src, joinpath(dest, basename(src)), force=true)
 
 """
     installkernel(name, options...; specname=replace(lowercase(name), " "=>"-")
@@ -40,8 +40,8 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
 
     juliakspec = joinpath(tempdir(), spec_name)
     try
-        binary_name = Compat.Sys.iswindows() ? "julia.exe" : "julia"
-        kernelcmd_array = String[joinpath(Compat.Sys.BINDIR,"$binary_name"), "-i",
+        binary_name = Sys.iswindows() ? "julia.exe" : "julia"
+        kernelcmd_array = String[joinpath(Sys.BINDIR,"$binary_name"), "-i",
                                  "--startup-file=yes", "--color=yes"]
         append!(kernelcmd_array, julia_options)
         ijulia_dir = get(ENV, "IJULIA_DIR", dirname(@__DIR__)) # support non-Pkg IJulia installs
@@ -65,7 +65,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
         copy_config(joinpath(ijulia_dir,"deps","logo-32x32.png"), juliakspec)
         copy_config(joinpath(ijulia_dir,"deps","logo-64x64.png"), juliakspec)
 
-        Compat.@info("Installing $name kernelspec $spec_name")
+        @info("Installing $name kernelspec $spec_name")
 
         # remove these hacks when
         # https://github.com/jupyter/notebook/issues/448 is closed and the fix
@@ -75,13 +75,13 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
             run(`$jupyter kernelspec install --replace --user $juliakspec`)
             push!(kspec_cmd, jupyter, "kernelspec")
         catch
-            @static if Compat.Sys.isunix()
+            @static if Sys.isunix()
                 run(`$jupyter-kernelspec install --replace --user $juliakspec`)
                 push!(kspec_cmd, jupyter * "-kernelspec")
             end
 
             # issue #363:
-            @static if Compat.Sys.iswindows()
+            @static if Sys.iswindows()
                 jupyter_dir = dirname(jupyter)
                 jks_exe = ""
                 if jupyter_dir == abspath(Conda.SCRIPTDIR)
