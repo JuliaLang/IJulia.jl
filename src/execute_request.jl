@@ -161,7 +161,7 @@ function execute_request(socket, msg)
 
     # "; ..." cells are interpreted as shell commands for run
     code = replace(code, r"^\s*;.*$" =>
-                   m -> string(replace(m, r"^\s*;", "Base.repl_cmd(`"),
+                   m -> string(replace(m, r"^\s*;" => "Base.repl_cmd(`"),
                                "`, ", stdout_name, ")"))
 
     # a cell beginning with "? ..." is interpreted as a help request
