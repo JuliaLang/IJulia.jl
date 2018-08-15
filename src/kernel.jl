@@ -29,4 +29,10 @@ delete!(task_local_storage(),:SOURCE_PATH)
 # workaround JuliaLang/julia#6765
 Core.eval(Base, :(is_interactive = true))
 
+# check whether Revise is running and as needed configure it to run before every prompt
+if isdefined(Main, :Revise)
+    mode = get(ENV, "JULIA_REVISE", "auto")
+    mode == "auto" && IJulia.push_preexecute_hook(Main.Revise.revise)
+end
+
 IJulia.waitloop()
