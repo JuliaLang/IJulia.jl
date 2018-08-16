@@ -31,13 +31,22 @@ install:
   - C:\projects\julia-binary.exe /S /D=C:\projects\julia
 
 build_script:
-  - C:\projects\julia\bin\julia -e "versioninfo(true);
+  - C:\projects\julia\bin\julia -e "
+      if VERSION >= v\"0.7.0-DEV.3630\";
+          using InteractiveUtils;
+          versioninfo(verbose=true);
+      else
+          versioninfo(true);
+      end;
+      VERSION >= v\"0.7.0-DEV.5183\" && using Pkg;
       Pkg.clone(pwd(), \"IJulia\");
       Pkg.add(\"Conda\"); using Conda;
-      try Conda.add(\"qt\") end;
+      try Conda.add(\"qt\"); catch end;
       postlink = normpath(Pkg.dir(\"Conda\"), \"deps/usr/pkgs/qt-4.8.7-vc9_9/Scripts/.qt-post-link.bat\");
       isfile(postlink) && rm(postlink);
       Pkg.build(\"IJulia\")"
 
 test_script:
-  - C:\projects\julia\bin\julia -e "Pkg.test(\"IJulia\")"
+  - C:\projects\julia\bin\julia -e "
+      VERSION >= v\"0.7.0-DEV.5183\" && using Pkg;
+      Pkg.test(\"IJulia\")"

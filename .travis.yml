@@ -7,10 +7,6 @@ julia:
   - nightly
 notifications:
   email: false
-script:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.clone(pwd()); Pkg.build("IJulia")'
-  - julia -e 'Pkg.test("IJulia"; coverage=true)'
 after_success:
   - julia --color=yes -e 'cd(Pkg.dir("IJulia")); Pkg.add("Coverage"); using Coverage;
     Coveralls.submit(Coveralls.process_folder())'
