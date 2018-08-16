@@ -18,9 +18,9 @@ function eventloop(socket)
                 end
             finally
                 # @async no longer implicitly captures local variables (see PR #618)
+                flush_all()
                 let msg = msg
                     @async begin
-                        flush_all()
                         send_status("idle", msg)
                     end
                 end
