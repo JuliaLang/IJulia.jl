@@ -231,17 +231,17 @@ clear_history
 
 #######################################################################
 # methods to print history or any subset thereof
-function history(io::IO, indices::AbstractVector{Int})
+function history(io::IO, indices::AbstractVector{<:Integer})
     for n in intersect(indices, 1:IJulia.n)
       if haskey(In, n)
-        print(In[n])
+        print(io, In[n])
       end
     end
 end
 
-history(io::IO, x::Union{Integer,AbstractVector{Int}}...) = history(io, vcat(x...))
+history(io::IO, x::Union{Integer,AbstractVector{<:Integer}}...) = history(io, vcat(x...))
 history(x...) = history(stdout, x...)
-history(io::IO, x...) = throw(MethodError(history, (x...,)))
+history(io::IO, x...) = throw(MethodError(history, (io, x...,)))
 history() = history(1:n)
 """
     history([io], [indices...])
