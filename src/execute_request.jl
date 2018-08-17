@@ -3,6 +3,9 @@
 # returning results.
 
 import Base.Libc: flush_cstdio
+if VERSION ≥ v"0.7"
+    import Pkg
+end
 
 const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")
@@ -163,6 +166,14 @@ function execute_request(socket, msg)
     code = replace(code, r"^\s*;.*$" =>
                    m -> string(replace(m, r"^\s*;" => "Base.repl_cmd(`"),
                                "`, ", stdout_name, ")"))
+
+    if VERSION ≥ v"0.7"
+        # "] ..." cells are interpreted as pkg shell commands
+        if occursin(r"^\].*$", code)
+            code = "IJulia.Pkg.REPLMode.do_cmd(IJulia.minirepl[], \"" *
+                escape_string(code[2:end]) * "\"; do_rethrow=true)"
+        end
+    end
 
     # a cell beginning with "? ..." is interpreted as a help request
     hcode = replace(code, r"^\s*\?" => "")

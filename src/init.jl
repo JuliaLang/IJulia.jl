@@ -51,6 +51,20 @@ function qtconsole()
     end
 end
 
+# similar to Pkg.REPLMode.MiniREPL, a minimal REPL-like emulator
+# for use with Pkg.do_cmd.  We have to roll our own to
+# make sure it uses the redirected stdout, and because
+# we don't have terminal support.
+if VERSION ≥ v"0.7"
+    import REPL
+    struct MiniREPL <: REPL.AbstractREPL
+        display::TextDisplay
+    end
+    REPL.REPLDisplay(repl::MiniREPL) = repl.display
+    const minirepl = Ref{MiniREPL}()
+end
+
+
 function init(args)
     inited && error("IJulia is already running")
     if length(args) > 0
@@ -118,6 +132,9 @@ function init(args)
         redirect_stderr(IJuliaStdio(stderr,"stderr"))
     end
     redirect_stdin(IJuliaStdio(stdin,"stdin"))
+    if VERSION ≥ v"0.7"
+        minirepl[] = MiniREPL(TextDisplay(stdout))
+    end
 
     if isdefined(Base, :CoreLogging)
         logger = Base.CoreLogging.SimpleLogger(Base.stderr)
