@@ -4,7 +4,9 @@
 copy_config(src, dest) = Compat.cp(src, joinpath(dest, basename(src)), force=true)
 
 """
-    installkernel(name, options...; specname=replace(lowercase(name), " "=>"-")
+    installkernel(name, options...;
+                  specname=replace(lowercase(name), " "=>"-"),
+                  jupyter_options=["--replace", "--user"])
 
 Install a new Julia kernel, where the given `options` are passed to the `julia`
 executable, and the user-visible kernel name is given by `name` followed by the
@@ -14,6 +16,14 @@ Internally, the Jupyter name for the kernel (for the `jupyter kernelspec`
 command is given by the optional keyword `specname` (which defaults to
 `name`, converted to lowercase with spaces replaced by hyphens),
 followed by the Julia version number.
+
+To modify the system call to `jupyter kernelspec install` change the parameters
+by editing the `jupyter_options`. This allows registering the kernel with a server
+installed in a virtual environment instead of the default (user home directory).
+For example:
+```
+installkernel("Virtual Julia", jupyter_options = ["--prefix='/path/to/jupyter/notebook/venv'"])
+```
 
 Both the `kernelspec` command (a `Cmd` object)
 and the new kernel name are returned by `installkernel`.
@@ -31,7 +41,8 @@ run(`\$kernelspec remove -f \$kernelname`)
 ```
 """
 function installkernel(name::AbstractString, julia_options::AbstractString...;
-                   specname::AbstractString = replace(lowercase(name), " "=>"-"))
+                       specname::AbstractString = replace(lowercase(name), " "=>"-"),
+                       jupyter_options::Array{String,1} = ["--replace","--user"])
     # Is IJulia being built from a debug build? If so, add "debug" to the description.
     debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
 
@@ -72,11 +83,17 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
         # is widely available -- just run `$jupyter kernelspec ...` then.
         kspec_cmd = String[] # keep track of the kernelspec command used
         try
-            run(`$jupyter kernelspec install --replace --user $juliakspec`)
+            jupyter_command = cat([jupyter, "kernelspec", "install"],
+                                  jupyter_options,
+                                  [juliakspec], dims = 1)
+            run(Cmd(jupyter_command))
             push!(kspec_cmd, jupyter, "kernelspec")
         catch
             @static if Compat.Sys.isunix()
-                run(`$jupyter-kernelspec install --replace --user $juliakspec`)
+                jupyter_command = cat(["$jupyter-kernelspec", "install"],
+                                      jupyter_options,
+                                      [juliakspec], dims = 1)
+                run(Cmd(jupyter_command))
                 push!(kspec_cmd, jupyter * "-kernelspec")
             end
 
@@ -103,10 +120,16 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
                     end
                 end
                 if isfile(jks_exe)
-                    run(`$jks_exe install --replace --user $juliakspec`)
+                    jupyter_command = cat([jks_exe, "install"],
+                                          jupyter_options,
+                                          [juliakspec], dims = 1)
+                    run(Cmd(jupyter_command))
                     push!(kspec_cmd, jks_exe)
                 else
-                    run(`$python $jk_path install --replace --user $juliakspec`)
+                    jupyter_command = cat([python, jk_path, "install"],
+                                          jupyter_options,
+                                          [juliakspec], dims = 1)
+                    run(Cmd(jupyter_command))
                     push!(kspec_cmd, python, jk_path)
                 end
             end
