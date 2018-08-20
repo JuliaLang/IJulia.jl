@@ -23,6 +23,7 @@ or later* and run the installer.  Then run the Julia application
 (double-click on it); a window with a `julia>` prompt will appear.  At
 the prompt, type:
 ```julia
+using Pkg
 Pkg.add("IJulia")
 ```
 to install IJulia.
