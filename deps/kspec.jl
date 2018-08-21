@@ -75,7 +75,11 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
             run(`$jupyter kernelspec install --replace --user $juliakspec`)
             push!(kspec_cmd, jupyter, "kernelspec")
         catch
-            @static if Compat.Sys.isunix()
+
+            @static if Compat.Sys.isbsd()
+                run(`$jupyter-kernelspec-3.6 install --replace --user $juliakspec`)
+                push!(kspec_cmd, jupyter * "-kernelspec-3.6")
+            elseif Compat.Sys.isunix()
                 run(`$jupyter-kernelspec install --replace --user $juliakspec`)
                 push!(kspec_cmd, jupyter * "-kernelspec")
             end
