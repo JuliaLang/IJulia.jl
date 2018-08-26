@@ -117,3 +117,123 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
         rm(juliakspec, force=true, recursive=true)
     end
 end
+
+
+"""
+    install_kernel(name,
+                   julia_options...;
+                   kernel_id = "auto",
+                   jupyter_options = String[])
+
+Install a new Julia kernel to Jupyter. Use the String `name` as display name
+and the String `kernel_id` as kernel identifier.
+
+If the id provided equals the String "auto", the id is derived from the name.
+It has then spaces replaced with underscores and major and minor version
+appended. If IJulia was built from debug build, a "-debug" tag suffix is added.
+
+The parameter `julia_options` are passed to the `julia` executable during kernel
+startup.
+
+The function returns tuple of a Vector{String} with the validated `jupyter kernelspec`
+command and the kernel id as String.
+
+Example:
+
+```
+# install kernel
+cmd, id = install_kernel("Julia O3", "-O3")
+
+# list kernel
+run(`\$cmd list`)
+
+# uninstall kernel
+run(`\$cmd remove -f \$id`)
+```
+"""
+function install_kernel(
+                        name::String,
+                        julia_options::String...;
+                        kernel_id::String = "auto",
+                        jupyter_options::Vector{String} = String[]
+                       )
+
+    # determine if IJulia is being built from a debug build
+    tag_debug = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
+
+    # configure kernel id
+    if kernel_id == "auto"
+        kernel_id = replace(lowercase(name), " " => "_")
+        kernel_id = "$kernel_id-$(VERSION.major).$(VERSION.minor)$tag_debug"
+    else
+        kernel_id = replace(kernel_id, " " => "_")
+    end
+
+    # configure path
+    kernel_path = joinpath(tempdir(), kernel_id)
+    # configure jupyter options
+    prepend!(jupyter_options, ["install"])
+    push!(jupyter_options, kernel_path)
+
+    # export and install
+    try
+        binary_name = Compat.Sys.iswindows() ? "julia.exe" : "julia"
+        julia_command = [joinpath(Compat.Sys.BINDIR,"$binary_name"),
+                         "-i", "--startup-file=yes", "--color=yes"]
+        append!(julia_command, julia_options)
+        ijulia_dir = get(ENV, "IJULIA_DIR", dirname(@__DIR__)) # support non-Pkg IJulia installs
+        append!(julia_command, [joinpath(ijulia_dir, "src", "kernel.jl"), "{connection_file}"])
+        kernel_config = Dict(
+            "argv" => julia_command,
+            "display_name" => name,
+            "language" => "julia",
+        )
+        mkpath(kernel_path)
+        open(joinpath(kernel_path, "kernel.json"), "w") do f
+            write(f, JSON.json(kernel_config, 2))
+        end
+        copy_config(joinpath(ijulia_dir, "deps", "logo-32x32.png"), kernel_path)
+        copy_config(joinpath(ijulia_dir, "deps", "logo-64x64.png"), kernel_path)
+        Compat.@info("Installing kernel '$name' with id '$kernel_id'")
+        jupyter_command = [jupyter, "kernelspec"]
+        # issue #448
+        try
+            run(Cmd(vcat(jupyter_command, jupyter_options)))
+        catch
+            @static if Compat.Sys.isunix()
+                jupyter_command = ["$jupyter-kernelspec"]
+                run(Cmd(vcat(jupyter_command, jupyter_options)))
+            end
+            # issue #363
+            @static if Compat.Sys.iswindows()
+                jupyter_dir = dirname(jupyter)
+                if jupyter_dir == abspath(Conda.SCRIPTDIR)
+                    jupyter_exe = "$jupyter-kernelspec"
+                    if isfile(jupyter_exe * "-script.py")
+                        jupyter_exe *= "-script.py"
+                    end
+                    python = abspath(Conda.PYTHONDIR, "python.exe")
+                    jupyter_command = [python, jupyter_exe]
+                else
+                    jupyter_exe = joinpath(jupyter_dir, "jupyter-kernelspec.exe")
+                    if isfile(jupyter_exe)
+                        jupyter_command = [jupyter_exe]
+                    else
+                        jupyter_exe = readchomp(`where.exe $jupyter-kernelspec`)
+                        # jupyter-kernelspec should start with "#!/path/to/python":
+                        python = strip(chomp(open(readline, jupyter_exe, "r"))[3:end])
+                        # strip quotes, if any
+                        if python[1] == python[end] == '"'
+                            python = python[2:end-1]
+                        end
+                        jupyter_command = [python, jupyter_exe]
+                    end
+                end
+                run(Cmd(vcat(jupyter_command, jupyter_options)))
+            end
+        end
+        return Cmd(jupyter_command), kernel_id
+    finally
+        rm(kernel_path, force = true, recursive = true)
+    end
+end
