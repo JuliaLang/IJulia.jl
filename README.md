@@ -147,6 +147,25 @@ and a kernel called `Julia nodeps 0.6` (if you are using Julia 0.6)
 will be installed (will show up in your main Jupyter kernel menu) that
 lets you open notebooks with this flag.
 
+To install kernels into jupyter notebooks outside of Julia's environment (see also section on
+_Manual installation of IPython_ below), you can use the function `IJulia.install_kernel`,
+which allows to configure the `jupyter kernelspec` command line options for installation.
+This enables installations in a jupyter environment, which is not residing in the
+default system paths, such as in a virtual environment.
+
+A short example (in Unix/bash):
+```bash
+python3 -m venv /User/john/jupyter.environment
+source /User/john/jupyter.environment/bin/activate
+pip install jupyter
+```
+
+And the installation of a Julia kernel into the virtual environment:
+```julia
+using IJulia
+install_kernel("Julia", jupyter_options = ["--prefix='/User/john/jupyter.environment'"]
+```
+
 ### Troubleshooting:
 
 * If you ran into a problem with the above steps, after fixing the
