@@ -35,7 +35,7 @@ The `IJulia` module is used in three ways:
 module IJulia
 export notebook, installkernel
 
-using ZMQ, JSON, Compat
+using ZMQ, JSON, Compat, SoftGlobalScope
 import Compat.invokelatest
 using Compat.Unicode: uppercase, lowercase
 import Compat.Dates
