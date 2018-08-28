@@ -83,6 +83,8 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
             "display_name" => name * " " * Base.VERSION_STRING * debugdesc,
             "language" => "julia",
             "env" => env,
+            # Jupyter's signal interrupt mode is not supported on Windows
+            "interrupt_mode" => Sys.iswindows() ? "message" : "signal",
         )
 
         mkpath(juliakspec)

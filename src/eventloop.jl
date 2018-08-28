@@ -32,16 +32,17 @@ function eventloop(socket)
     end
 end
 
+const requests_task = Ref{Task}()
 function waitloop()
     @async eventloop(control[])
-    requests_task = @async eventloop(requests[])
+    requests_task[] = @async eventloop(requests[])
     while true
         try
             wait()
         catch e
             # send interrupts (user SIGINT) to the code-execution task
             if isa(e, InterruptException)
-                @async Base.throwto(requests_task, e)
+                @async Base.throwto(requests_task[], e)
             else
                 rethrow()
             end
