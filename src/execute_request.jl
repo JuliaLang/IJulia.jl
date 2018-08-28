@@ -98,7 +98,9 @@ showerror_nobt(io, e, bt) = showerror(io, e, bt, backtrace=false)
 end
 
 # return the content of a pyerr message for exception e
-function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:include_string, msg::AbstractString="")
+function error_content(e, bt=catch_backtrace();
+                       backtrace_top::Symbol=SOFTSCOPE[] ? :softscope_include_string : :include_string,
+                       msg::AbstractString="")
     tb = map(x->String(x), split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
@@ -189,6 +191,7 @@ function execute_request(socket, msg)
         else
             #run the code!
             occursin(magics_regex, code) ? magics_help(code) :
+                SOFTSCOPE[] ? softscope_include_string(current_module[], code, "In[$n]") :
                 include_string(current_module[], code, "In[$n]")
         end
 

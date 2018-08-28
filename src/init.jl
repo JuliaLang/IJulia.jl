@@ -24,11 +24,13 @@ end
 const orig_stdin  = Ref{IO}()
 const orig_stdout = Ref{IO}()
 const orig_stderr = Ref{IO}()
+const SOFTSCOPE = Ref{Bool}()
 function __init__()
     seed!(IJulia_RNG)
     orig_stdin[]  = stdin
     orig_stdout[] = stdout
     orig_stderr[] = stderr
+    SOFTSCOPE[] = lowercase(get(ENV, "IJULIA_SOFTSCOPE", "yes")) in ("yes", "true")
 end
 
 # the following constants need to be initialized in init().

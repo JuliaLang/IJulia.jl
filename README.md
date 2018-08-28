@@ -235,6 +235,14 @@ IJulia.set_max_stdio(1 << 20)
 The module that code in an input cell is evaluated in can be set using `Main.IJulia.set_current_module(::Module)`.
 It defaults to `Main`.
 
+### Opting out of soft scope
+
+By default, IJulia evaluates user code using "soft" global scope, via the [SoftGlobalScope.jl package](https://github.com/stevengj/SoftGlobalScope.jl): this means that you don't need explicit `global` declarations to modify global variables in `for` loops and similar, which is convenient for interactive use.
+
+To opt out of this behavior, making notebooks behave similarly to global code in Julia `.jl` files,
+you can set `IJulia.SOFTSCOPE[] = false` at runtime, or include the environment variable `IJULIA_SOFTSCOPE=no`
+environment of the IJulia kernel when it is launched.
+
 ## Low-level Information
 
 ### Using older IPython versions
