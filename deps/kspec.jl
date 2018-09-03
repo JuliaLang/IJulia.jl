@@ -40,8 +40,8 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
 
     juliakspec = joinpath(tempdir(), spec_name)
     try
-        binary_name = Compat.Sys.iswindows() ? "julia.exe" : "julia"
-        kernelcmd_array = String[joinpath(Compat.Sys.BINDIR,"$binary_name"), "-i",
+        binary_name = Sys.iswindows() ? "julia.exe" : "julia"
+        kernelcmd_array = String[joinpath(Sys.BINDIR,"$binary_name"), "-i",
                                  "--startup-file=yes", "--color=yes"]
         append!(kernelcmd_array, julia_options)
         ijulia_dir = get(ENV, "IJULIA_DIR", dirname(@__DIR__)) # support non-Pkg IJulia installs

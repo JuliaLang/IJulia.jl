@@ -1,4 +1,4 @@
-using Compat.Test
+using Test
 using IJulia
 using Compat: occursin
 

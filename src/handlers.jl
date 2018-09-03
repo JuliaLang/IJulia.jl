@@ -125,11 +125,7 @@ function complete_request(socket, msg)
     end
 
     codestart = find_parsestart(code, cursorpos)
-    @static if VERSION >= v"0.7.0-beta.207"
-        comps_, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1, current_module[])
-    else
-        comps_, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1)
-    end
+    comps_, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1, current_module[])
     @static if isdefined(REPLCompletions, :completion_text)
         comps = unique!(REPLCompletions.completion_text.(comps_)) # julia#26930
     else
