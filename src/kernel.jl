@@ -1,3 +1,8 @@
+if "IJuliaProjectPath" in keys(ENV)
+    using Pkg
+    Pkg.activate(ENV["IJuliaProjectPath"])
+end
+
 import IJulia
 using IJulia.Compat.InteractiveUtils
 
