@@ -21,6 +21,8 @@ ENV["LINES"] = get(ENV, "LINES", 30)
 ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
 
 println(IJulia.orig_stdout[], "Starting kernel event loops.")
+# display the cute banner of Julia in the console
+Base.banner(IJulia.orig_stdout[])
 IJulia.watch_stdio()
 
 # workaround JuliaLang/julia#4259
