@@ -18,5 +18,5 @@ end
 function start_heartbeat(sock)
     heartbeat_c = @cfunction(heartbeat_thread, Cvoid, (Ptr{Cvoid},))
     ccall(:uv_thread_create, Cint, (Ptr{Int}, Ptr{Cvoid}, Ptr{Cvoid}),
-          threadid, heartbeat_c, sock.data)
+          threadid, heartbeat_c, sock)
 end
