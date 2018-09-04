@@ -23,11 +23,7 @@ function magics_help(code::AbstractString)
     end
 end
 
-@static if VERSION < v"0.7.0-DEV.3589" # julia#25738
-    using Base.Markdown
-else
-    using Markdown
-end
+using Markdown
 
 const magic_help_string = """
     Julia does not use the IPython `%magic` syntax.   To interact

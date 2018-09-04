@@ -1,4 +1,4 @@
-using Compat.Test
+using Test
 import IJulia: Comm, comm_target
 
 
