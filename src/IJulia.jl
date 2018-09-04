@@ -35,6 +35,7 @@ export notebook, installkernel
 
 using ZMQ, JSON, Compat, SoftGlobalScope
 import Base.invokelatest
+import Dates
 using Dates: now
 import Random
 using Base64: Base64EncodePipe
