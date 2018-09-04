@@ -51,23 +51,8 @@ ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
     VersionNumber(m.header["version"]) ≥ v"5.2" ? length(str, 1, i) : ind_to_utf16(str, i)
 #Compact display of types for Jupyterlab completion
 
-if VERSION ≥ v"0.7.0-DEV.3500" #25544
-    import REPL: REPLCompletions
-    import REPL.REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
-elseif isdefined(Main, :REPLCompletions)
-    import REPLCompletions
-    import REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
-else
-    const sorted_keywords = [
-        "abstract type", "baremodule", "begin", "break", "catch", "ccall",
-        "const", "continue", "do", "else", "elseif", "end", "export", "false",
-        "finally", "for", "function", "global", "if", "import",
-        "let", "local", "macro", "module", "mutable struct",
-        "primitive type", "quote", "return", "struct",
-        "true", "try", "using", "while"]
-    import Base: REPLCompletions
-    import Base.REPL.REPLCompletions: emoji_symbols, latex_symbols
-end
+import REPL: REPLCompletions
+import REPL.REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
 
 complete_type(::Type{<:Function}) = "function"
 complete_type(::Type{<:Type}) = "type"
@@ -75,7 +60,7 @@ complete_type(::Type{<:Tuple}) = "tuple"
 
 function complete_type(T::DataType)
     s = string(T)
-    (Compat.textwidth(s) ≤ 20 || isempty(T.parameters)) && return s
+    (textwidth(s) ≤ 20 || isempty(T.parameters)) && return s
     buf = IOBuffer()
     print(buf, T.name)
     position(buf) > 19 && return String(take!(buf))

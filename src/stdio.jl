@@ -20,9 +20,7 @@ Base.haskey(io::IJuliaStdio, key) = haskey(io.io, key)
 Base.getindex(io::IJuliaStdio, key) = getindex(io.io, key)
 Base.get(io::IJuliaStdio, key, default) = get(io.io, key, default)
 Base.displaysize(io::IJuliaStdio) = displaysize(io.io)
-if VERSION >= v"0.7.0-DEV.1472" # Julia PR #23271
-    Base.unwrapcontext(io::IJuliaStdio) = Base.unwrapcontext(io.io)
-end
+Base.unwrapcontext(io::IJuliaStdio) = Base.unwrapcontext(io.io)
 Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, readable)
 
 for s in ("stdout", "stderr", "stdin")
@@ -36,7 +34,7 @@ for s in ("stdout", "stderr", "stdin")
         else
             # On Julia 0.6-, the variables are called Base.STDIO, not Base.stdio
             Core.eval(Base, Expr(:(=), $Sq, io))
-            # We also need to change Compat.stdxxx because we use it in various places
+            # We also need to change Compat.stdxxx for packages that use it
             # ref: https://github.com/JuliaLang/IJulia.jl/issues/690
             Core.eval(Compat, Expr(:(=), $sq, io))
         end
@@ -47,7 +45,7 @@ end
 # logging in verbose mode goes to original stdio streams.  Use macros
 # so that we do not even evaluate the arguments in no-verbose modes
 
-using Compat.Printf
+using Printf
 function get_log_preface()
     t = now()
     taskname = get(task_local_storage(), :IJulia_task, "")
@@ -91,7 +89,7 @@ function watch_stream(rd::IO, name::AbstractString)
         buf = IOBuffer()
         bufs[name] = buf
         while !eof(rd) # blocks until something is available
-            nb = @static VERSION < v"0.7.0-DEV.3481" ? nb_available(rd) : bytesavailable(rd)
+            nb = bytesavailable(rd)
             if nb > 0
                 stdio_bytes[] += nb
                 # if this stream has surpassed the maximum output limit then ignore future bytes
@@ -251,23 +249,17 @@ function readline(io::IJuliaStdio)
     end
 end
 
-if VERSION < v"0.7.0-DEV.3526" # julia#25647
-    _Timer(callback, delay, repeat) = Timer(callback, delay, repeat)
-else
-    _Timer(callback, delay, repeat) = Timer(callback, delay, interval=repeat)
-end
-
 function watch_stdio()
     task_local_storage(:IJulia_task, "init task")
     if capture_stdout
         read_task = @async watch_stream(read_stdout[], "stdout")
         #send stdout stream msgs every stream_interval secs (if there is output to send)
-        _Timer(send_stdout, stream_interval, stream_interval)
+        Timer(send_stdout, stream_interval, interval=stream_interval)
     end
     if capture_stderr
         readerr_task = @async watch_stream(read_stderr[], "stderr")
         #send STDERR stream msgs every stream_interval secs (if there is output to send)
-        _Timer(send_stderr, stream_interval, stream_interval)
+        Timer(send_stderr, stream_interval, interval=stream_interval)
     end
 end
 
@@ -280,7 +272,7 @@ end
 function oslibuv_flush()
     #refs: https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144505862
     #      https://github.com/JuliaLang/IJulia.jl/issues/347#issuecomment-144605024
-    @static if Compat.Sys.iswindows()
+    @static if Sys.iswindows()
         ccall(:SwitchToThread, stdcall, Cvoid, ())
     end
     yield()

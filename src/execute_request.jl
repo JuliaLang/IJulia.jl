@@ -3,9 +3,7 @@
 # returning results.
 
 import Base.Libc: flush_cstdio
-if VERSION ≥ v"0.7"
-    import Pkg
-end
+import Pkg
 
 const text_plain = MIME("text/plain")
 const image_svg = MIME("image/svg+xml")
@@ -62,20 +60,16 @@ const displayqueue = Any[]
 
 # remove x from the display queue
 function undisplay(x)
-    i = Compat.findfirst(isequal(x), displayqueue)
+    i = findfirst(isequal(x), displayqueue)
     i !== nothing && splice!(displayqueue, i)
     return x
 end
 
-if VERSION < v"0.7.0-DEV.3498" # julia #25544
-    import Base.REPL: ip_matches_func
-else
-    import Base: ip_matches_func
-end
+import Base: ip_matches_func
 
 function show_bt(io::IO, top_func::Symbol, t, set)
     # follow PR #17570 code in removing top_func from backtrace
-    eval_ind = Compat.findlast(addr->ip_matches_func(addr, top_func), t)
+    eval_ind = findlast(addr->ip_matches_func(addr, top_func), t)
     eval_ind !== nothing && (t = t[1:eval_ind-1])
     Base.show_backtrace(io, t)
 end
@@ -83,19 +77,6 @@ end
 # wrapper for showerror(..., backtrace=false) since invokelatest
 # doesn't support keyword arguments.
 showerror_nobt(io, e, bt) = showerror(io, e, bt, backtrace=false)
-
-@static if VERSION < v"0.7.0-DEV.4724"
-		# https://github.com/JuliaLang/Compat.jl/pull/572
-    # thanks to https://github.com/jipolanco/WriteVTK.jl/commit/ea046493c7787ae651b5f629455aaf7bdaa000b1
-    rsplit(s::AbstractString; limit::Integer=0, keepempty::Bool=false) =
-        Base.rsplit(s)
-    rsplit(s::AbstractString, splitter; limit::Integer=0, keepempty::Bool=false) =
-        Base.rsplit(s, splitter; limit=limit, keep=keepempty)
-    split(s::AbstractString; limit::Integer=0, keepempty::Bool=false) =
-        Base.split(s)
-    split(s::AbstractString, splitter; limit::Integer=0, keepempty::Bool=false) =
-        Base.split(s, splitter; limit=limit, keep=keepempty)
-end
 
 # return the content of a pyerr message for exception e
 function error_content(e, bt=catch_backtrace();
@@ -130,11 +111,7 @@ execute_msg = Msg(["julia"], Dict("username"=>"jlkernel", "session"=>uuid4()), D
 # request
 const stdio_bytes = Ref(0)
 
-if VERSION < v"0.7.0-DEV.3589" # julia #25738
-    import Base.Docs: helpmode # added in 0.6, see julia #19858
-else
-    import REPL: helpmode
-end
+import REPL: helpmode
 
 # use a global array to accumulate "payloads" for the execute_reply message
 const execute_payloads = Dict[]
@@ -169,12 +146,11 @@ function execute_request(socket, msg)
                    m -> string(replace(m, r"^\s*;" => "Base.repl_cmd(`"),
                                "`, ", stdout_name, ")"))
 
-    if VERSION ≥ v"0.7"
-        # "] ..." cells are interpreted as pkg shell commands
-        if occursin(r"^\].*$", code)
-            code = "IJulia.Pkg.REPLMode.do_cmd(IJulia.minirepl[], \"" *
-                escape_string(code[2:end]) * "\"; do_rethrow=true)"
-        end
+
+    # "] ..." cells are interpreted as pkg shell commands
+    if occursin(r"^\].*$", code)
+        code = "IJulia.Pkg.REPLMode.do_cmd(IJulia.minirepl[], \"" *
+            escape_string(code[2:end]) * "\"; do_rethrow=true)"
     end
 
     # a cell beginning with "? ..." is interpreted as a help request

@@ -36,13 +36,11 @@ module IJulia
 export notebook, installkernel
 
 using ZMQ, JSON, Compat, SoftGlobalScope
-import Compat.invokelatest
-using Compat.Unicode: uppercase, lowercase
-import Compat.Dates
-using Compat.Dates: now
-import Compat.Random
-using Compat.Base64: Base64EncodePipe
-using Compat.REPL
+import Base.invokelatest
+using Dates: now
+import Random
+using Base64: Base64EncodePipe
+import REPL
 
 const depfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
 isfile(depfile) || error("IJulia not properly installed. Please run Pkg.build(\"IJulia\")")
