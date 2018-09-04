@@ -21,7 +21,6 @@ function __init__()
 end
 
 # the following constants need to be initialized in init().
-const ctx = Ref{Context}()
 const publish = Ref{Socket}()
 const raw_input = Ref{Socket}()
 const requests = Ref{Socket}()
@@ -91,12 +90,11 @@ function init(args)
                                  profile["key"])
     end
 
-    ctx[] = Context()
-    publish[] = Socket(ctx[], PUB)
-    raw_input[] = Socket(ctx[], ROUTER)
-    requests[] = Socket(ctx[], ROUTER)
-    control[] = Socket(ctx[], ROUTER)
-    heartbeat[] = Socket(ctx[], ROUTER)
+    publish[] = Socket(PUB)
+    raw_input[] = Socket(ROUTER)
+    requests[] = Socket(ROUTER)
+    control[] = Socket(ROUTER)
+    heartbeat[] = Socket(ROUTER)
     bind(publish[], "$(profile["transport"])://$(profile["ip"]):$(profile["iopub_port"])")
     bind(requests[], "$(profile["transport"])://$(profile["ip"]):$(profile["shell_port"])")
     bind(control[], "$(profile["transport"])://$(profile["ip"]):$(profile["control_port"])")

@@ -45,17 +45,17 @@ function send_ipython(socket, m::Msg)
     try
         @vprintln("SENDING ", m)
         for i in m.idents
-            send(socket, i, SNDMORE)
+            send(socket, i, more=true)
         end
-        send(socket, "<IDS|MSG>", SNDMORE)
+        send(socket, "<IDS|MSG>", more=true)
         header = json(m.header)
         parent_header = json(m.parent_header)
         metadata = json(m.metadata)
         content = json(m.content)
-        send(socket, hmac(header, parent_header, metadata, content), SNDMORE)
-        send(socket, header, SNDMORE)
-        send(socket, parent_header, SNDMORE)
-        send(socket, metadata, SNDMORE)
+        send(socket, hmac(header, parent_header, metadata, content), more=true)
+        send(socket, header, more=true)
+        send(socket, parent_header, more=true)
+        send(socket, metadata, more=true)
         send(socket, content)
     finally
         unlock(socket_locks[socket])
@@ -65,22 +65,20 @@ end
 function recv_ipython(socket)
     lock(socket_locks[socket])
     try
-        msg = recv(socket)
         idents = String[]
-        s = unsafe_string(msg)
+        s = recv(socket, String)
         @vprintln("got msg part $s")
         while s != "<IDS|MSG>"
             push!(idents, s)
-            msg = recv(socket)
-            s = unsafe_string(msg)
+            s = recv(socket, String)
             @vprintln("got msg part $s")
         end
-        signature = unsafe_string(recv(socket))
+        signature = recv(socket, String)
         request = Dict{String,Any}()
-        header = unsafe_string(recv(socket))
-        parent_header = unsafe_string(recv(socket))
-        metadata = unsafe_string(recv(socket))
-        content = unsafe_string(recv(socket))
+        header = recv(socket, String)
+        parent_header = recv(socket, String)
+        metadata = recv(socket, String)
+        content = recv(socket, String)
         if signature != hmac(header, parent_header, metadata, content)
             error("Invalid HMAC signature") # What should we do here?
         end
