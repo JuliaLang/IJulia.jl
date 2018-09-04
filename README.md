@@ -18,7 +18,7 @@ the [NBInclude](https://github.com/stevengj/NBInclude.jl) package.)
 
 ## Installation
 
-First, [download Julia](http://julialang.org/downloads/) *version 0.6
+First, [download Julia](http://julialang.org/downloads/) *version 0.7
 or later* and run the installer.  Then run the Julia application
 (double-click on it); a window with a `julia>` prompt will appear.  At
 the prompt, type:
@@ -74,7 +74,7 @@ session instead of opening a new one.
 
 ```julia
 julia> using IJulia; notebook(detached=true)
-Process(`'C:\Users\JuliaUser\.julia\v0.6\Conda\deps\usr\Scripts\jupyter' notebook`, ProcessRunning)
+Process(`'C:\Users\JuliaUser\.julia\v0.7\Conda\deps\usr\Scripts\jupyter' notebook`, ProcessRunning)
 
 julia>
 ```
@@ -143,7 +143,7 @@ disabled, you can do:
 using IJulia
 IJulia.installkernel("Julia nodeps", "--depwarn=no")
 ```
-and a kernel called `Julia nodeps 0.6` (if you are using Julia 0.6)
+and a kernel called `Julia nodeps 0.7` (if you are using Julia 0.7)
 will be installed (will show up in your main Jupyter kernel menu) that
 lets you open notebooks with this flag.
 
@@ -281,9 +281,9 @@ On Mac and Windows systems, it is currently easiest to use the
   you will need to install [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download) or
   [PySide](http://qt-project.org/wiki/Category:LanguageBindings::PySide).
 
-* You need Julia version 0.6 or later.
+* You need Julia version 0.7 or later.
 
-Once IPython 3.0+ and Julia 0.6+ are installed, you can install IJulia from a Julia console by typing:
+Once IPython 3.0+ and Julia 0.7+ are installed, you can install IJulia from a Julia console by typing:
 ```julia
 Pkg.add("IJulia")
 ```
@@ -299,8 +299,8 @@ Most people will use the notebook (browser-based) interface, but you
 can also use the IPython
 [qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html)
 or IPython terminal interfaces by running `ipython qtconsole --kernel
-julia-0.6` or `ipython console --kernel julia-0.6`, respectively.
-(Replace `0.6` with whatever major Julia version you are using.)
+julia-0.7` or `ipython console --kernel julia-0.7`, respectively.
+(Replace `0.7` with whatever major Julia version you are using.)
 
 ## Debugging IJulia problems
 
