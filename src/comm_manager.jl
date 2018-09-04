@@ -12,7 +12,7 @@ mutable struct Comm{target}
     primary::Bool
     on_msg::Function
     on_close::Function
-    function (::Type{Comm{target}})(id, primary, on_msg, on_close) where {target}
+    function Comm{target}(id, primary, on_msg, on_close) where {target}
         comm = new{target}(id, primary, on_msg, on_close)
         comms[id] = comm
         return comm

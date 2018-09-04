@@ -1,4 +1,3 @@
-VERSION < v"0.7.0-beta2.199" && __precompile__()
 
 """
 **IJulia** is a [Julia-language](http://julialang.org/) backend
@@ -113,7 +112,7 @@ process manager.)
 """
 function notebook(; dir=homedir(), detached=false)
     inited && error("IJulia is already running")
-    if Compat.Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
+    if Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
         withenv("BROWSER"=>"open") do
             p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
         end
