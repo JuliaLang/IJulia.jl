@@ -1,5 +1,3 @@
-VERSION < v"0.7.0-beta2.199" && __precompile__()
-
 """
 **IJulia** is a [Julia-language](http://julialang.org/) backend
 combined with the [Jupyter](http://jupyter.org/) interactive
@@ -113,7 +111,7 @@ process manager.)
 """
 function notebook(; dir=homedir(), detached=false)
     inited && error("IJulia is already running")
-    if Compat.Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
+    if Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
         withenv("BROWSER"=>"open") do
             p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
         end
@@ -276,7 +274,7 @@ Remove a function `f()` from the list of functions to
 execute after executing any notebook cell.
 """
 pop_postexecute_hook(f::Function) =
-    splice!(postexecute_hooks, Compat.findlast(isequal(f), postexecute_hooks))
+    splice!(postexecute_hooks, findlast(isequal(f), postexecute_hooks))
 
 const preexecute_hooks = Function[]
 """
@@ -293,7 +291,7 @@ Remove a function `f()` from the list of functions to
 execute before executing any notebook cell.
 """
 pop_preexecute_hook(f::Function) =
-    splice!(preexecute_hooks, Compat.findlast(isequal(f), preexecute_hooks))
+    splice!(preexecute_hooks, findlast(isequal(f), preexecute_hooks))
 
 # similar, but called after an error (e.g. to reset plotting state)
 const posterror_hooks = Function[]
@@ -311,7 +309,7 @@ Remove a function `f()` from the list of functions to
 execute after an error occurs when a notebook cell is evaluated.
 """
 pop_posterror_hook(f::Function) =
-    splice!(posterror_hooks, Compat.findlast(isequal(f), posterror_hooks))
+    splice!(posterror_hooks, findlast(isequal(f), posterror_hooks))
 
 #######################################################################
 

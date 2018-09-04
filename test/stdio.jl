@@ -1,6 +1,5 @@
-using Compat.Test
+using Test
 using IJulia
-using Compat: occursin
 
 mktemp() do path, io
     redirect_stdout(IJulia.IJuliaStdio(io, "stdout")) do

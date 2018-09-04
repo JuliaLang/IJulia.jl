@@ -92,7 +92,7 @@ kspec_cmd, = installkernel("Julia")
 # "kernelspec" with "notebook":
 notebook = kspec_cmd.exec
 n = notebook[end]
-ki = VERSION < v"0.7.0-DEV.3252" ? rsearch(n, "kernelspec") : findlast("kernelspec", n)
+ki = findlast("kernelspec", n)
 notebook[end] = n[1:prevind(n,first(ki))] * "notebook" * n[nextind(n,last(ki)):end]
 
 #######################################################################
