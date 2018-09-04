@@ -4,4 +4,8 @@ JSON 0.17
 ZMQ 1.0.0
 Compat 0.69.0
 Conda 0.1.5
+<<<<<<< HEAD
 SoftGlobalScope
+=======
+VersionParsing
+>>>>>>> work on jupyter-free installation
