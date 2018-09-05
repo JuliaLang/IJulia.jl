@@ -47,7 +47,7 @@ comm_target(comm :: Comm{target}) where {target} = target
 function comm_info_request(sock, msg)
     reply = if haskey(msg.content, "target_name")
         t = Symbol(msg.content["target_name"])
-        filter((k, v) -> comm_target(v) == t, comms)
+        filter(kv -> comm_target(kv.second) == t, comms)
     else
         # reply with all comms.
         comms
