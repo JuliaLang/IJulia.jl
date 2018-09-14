@@ -8,6 +8,9 @@ end
 
 IJulia.init(ARGS)
 
+startupfile = abspath(homedir(), ".julia", "config", "startup_ijulia.jl")
+isfile(startupfile) && Base.include(Main, startupfile)
+
 # import things that we want visible in IJulia but not in REPL's using IJulia
 import IJulia: ans, In, Out, clear_history
 
