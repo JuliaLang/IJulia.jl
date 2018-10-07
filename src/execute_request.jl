@@ -8,7 +8,17 @@ import Pkg
 Base.showable(a::Vector{MIME}, x) = any(m -> showable(m, x), a)
 
 """
-Data (aka MIME) types that IJulia will try to render.
+A vector of MIME types (or vectors of MIME types) that IJulia will try to
+render. IJulia will try to render every MIME type specified in the first level
+of the vector. If a vector of MIME types is specified, IJulia will include only
+the first MIME type that is renderable (this allows for the expression of
+priority and exclusion of redundant data).
+
+For example, since "text/plain" is specified as a first-child of the array,
+IJulia will always try to include a "text/plain" representation of anything that
+is displayed. Since markdown and latex are specified within a sub-vector, IJulia
+will always try to render "text/markdown", and will only try to render
+"text/latex" if markdown isn't possible.
 """
 const ijulia_mime_types = Vector{Union{MIME, Vector{MIME}}}([
     MIME("text/plain"),
@@ -24,7 +34,8 @@ const ijulia_mime_types = Vector{Union{MIME, Vector{MIME}}}([
 ])
 
 """
-Data (aka MIME) types that when rendered (via stringmime) return JSON.
+MIME types that when rendered (via stringmime) return JSON data. See
+`ijulia_mime_types` for a description of how MIME types are selected.
 
 This is necessary to embed the JSON as is in the displaydata bundle (rather than
 as stringify'd JSON).
@@ -45,7 +56,8 @@ metadata(x) = Dict()
 """
 Generate the preferred MIME representation of x.
 
-Returns a tuple
+Returns a tuple with the selected MIME type and the representation of the data
+using that MIME type.
 """
 function display_mimestring(mime_array::Vector{MIME}, x)
     for m in mime_array
@@ -58,6 +70,12 @@ end
 
 display_mimestring(m::MIME, x) = (m, limitstringmime(m, x))
 
+"""
+Generate the preferred json-MIME representation of x.
+
+Returns a tuple with the selected MIME type and the representation of the data
+using that MIME type (as a `JSONText`).
+"""
 function display_mimejson(mime_array::Vector{MIME}, x)
     for m in mime_array
         if showable(mime_array, x)
@@ -70,8 +88,6 @@ end
 display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x)))
 
 """
-    display_dict(x)
-
 Generate a dictionary of `mime_type => data` pairs for all registered MIME
 types. This is the format that Jupyter expects in display_data and
 execute_result messages.
