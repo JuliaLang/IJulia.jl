@@ -1,5 +1,7 @@
 using Test
+using Base64, JSON
 
+import IJulia
 import IJulia: helpmode, error_content, docdict
 
 content = error_content(UndefVarError(:a))
@@ -8,11 +10,36 @@ content = error_content(UndefVarError(:a))
 @test haskey(docdict("import"), "text/plain")
 @test haskey(docdict("sum"), "text/plain")
 
+struct FriendlyData
+    name::AbstractString
+end
+
 @testset "Custom MIME types" begin
-    FRIENDLY_MIME_TYPE = MIME"application/vnd.ijulia.friendly"
+    friend = FriendlyData("world")
+
+    FRIENDLY_MIME_TYPE = MIME"application/vnd.ijulia.friendly-text"
     FRIENDLY_MIME = FRIENDLY_MIME_TYPE()
-    Base.show(io, ::FRIENDLY_MIME_TYPE, x::AbstractString) = write(io, "hello, $x")
-    IJulia.register_ijulia_mime(FRIENDLY_MIME())
-    data = IJulia.display_dict("world")
-    @test data[string(FRIENDLY_MIME)] == "hello, world"
+    Base.Multimedia.istextmime(::FRIENDLY_MIME_TYPE) = true
+    Base.show(io, ::FRIENDLY_MIME_TYPE, x::FriendlyData) = write(io, "Hello, $(x.name)!")
+    IJulia.register_ijulia_mime(FRIENDLY_MIME)
+
+    BINARY_MIME_TYPE = MIME"application/vnd.ijulia.friendly-binary"
+    BINARY_MIME = BINARY_MIME_TYPE()
+    Base.Multimedia.istextmime(::BINARY_MIME_TYPE) = false
+    Base.show(io, ::BINARY_MIME_TYPE, x::FriendlyData) = write(io, "Hello, $(x.name)!")
+    IJulia.register_ijulia_mime(BINARY_MIME)
+
+    JSON_MIME_TYPE = MIME"application/vnd.ijulia.friendly-json"
+    JSON_MIME = JSON_MIME_TYPE()
+    Base.Multimedia.istextmime(::JSON_MIME_TYPE) = true
+    Base.show(io, ::JSON_MIME_TYPE, x::FriendlyData) = write(io, JSON.json(Dict("name" => x.name)))
+    IJulia.register_ijulia_jsonmime(JSON_MIME)
+
+    # We stringify then re-parse the dict so that JSONText's are parsed as
+    # actual JSON objects and we can index into them.
+    data = JSON.parse(JSON.json(IJulia.display_dict(friend)))
+    @test data[string(FRIENDLY_MIME)] == "Hello, world!"
+    @test data[string(BINARY_MIME)] == base64encode("Hello, world!")
+    @test data[string(JSON_MIME)]["name"] == "world"
+
 end
