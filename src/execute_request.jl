@@ -5,17 +5,35 @@
 import Base.Libc: flush_cstdio
 import Pkg
 
-const text_plain = MIME("text/plain")
-const image_svg = MIME("image/svg+xml")
-const image_png = MIME("image/png")
-const image_jpeg = MIME("image/jpeg")
-const text_markdown = MIME("text/markdown")
-const text_html = MIME("text/html")
-const text_latex = MIME("text/latex") # Jupyter expects this
-const text_latex2 = MIME("application/x-latex") # but this is more standard?
-const application_vnd_vega_v3 = MIME("application/vnd.vega.v3+json")
-const application_vnd_vegalite_v2 = MIME("application/vnd.vegalite.v2+json")
-const application_vnd_dataresource = MIME("application/vnd.dataresource+json")
+const MIMEArray = Array{Union{MIME, Vector{MIME}}, 1}
+Base.showable(a::Vector{MIME}, x) = any(m -> showable(m, x), a)
+
+"""
+Data (aka MIME) types that IJulia will try to render.
+"""
+const ijulia_mime_types = MIMEArray([
+    MIME("text/plain"),
+    MIME("image/svg+xml"),
+    MIME("image/png"),
+    MIME("image/jpeg"),
+    MIME("text/markdown"),
+    MIME("text/html"),
+    MIME("text/latex"), # Jupyter expects this
+    MIME("application/x-latex"), # but this is more standard?
+])
+
+"""
+Data (aka MIME) types that when rendered (via stringmime) return JSON.
+
+This is necessary to embed the JSON as is in the displaydata bundle (rather than
+as stringify'd JSON).
+"""
+const ijulia_jsonmime_types = MIMEArray([
+    [MIME("application/vnd.vegalite.v2+json"), MIME("application/vnd.vega.v3+json")],
+])
+
+register_ijulia_mime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_mime_types, x)
+register_ijulia_jsonmime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_jsonmime_types, x)
 
 include("magics.jl")
 
@@ -23,36 +41,58 @@ include("magics.jl")
 # in Jupyter display_data and pyout messages
 metadata(x) = Dict()
 
-# return a String=>String dictionary of mimetype=>data
-# for passing to Jupyter display_data and execute_result messages.
+"""
+Generate the preferred MIME representation of x.
+
+Returns a tuple
+"""
+function display_mimestring(mime_array::MIMEArray, x)
+    for m in mime_array
+        if showable(mime_array, x)
+            return display_mimestring(m, x)
+        end
+    end
+    error("No displayable MIME types in mime array.")
+end
+
+display_mimestring(m::MIME, x) = (m, limitstringmime(m, x))
+
+function display_mimejson(mime_array::MIMEArray, x)
+    for m in mime_array
+        if showable(mime_array, x)
+            return display_mimejson(m, x)
+        end
+    end
+    error("No displayable MIME types in mime array.")
+end
+
+display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitststringstringringmime(m, x)))
+
+"""
+    display_dict(x)
+
+Generate a dictionary of `mime_type => data` pairs for all registered MIME
+types. This is the format that Jupyter expects in display_data and
+execute_result messages.
+"""
 function display_dict(x)
-    data = Dict{String,Any}("text/plain" => limitstringmime(text_plain, x))
-    if showable(application_vnd_vegalite_v2, x)
-        data[string(application_vnd_vegalite_v2)] = JSON.JSONText(limitstringmime(application_vnd_vegalite_v2, x))
-    elseif showable(application_vnd_vega_v3, x) # don't send vega if we have vega-lite
-        data[string(application_vnd_vega_v3)] = JSON.JSONText(limitstringmime(application_vnd_vega_v3, x))
+    data = Dict{String, String}()
+    for m in ijulia_mime_types
+        if showable(m, x)
+            mime, mime_repr = display_mimestring(m, x)
+            data[string(mime)] = mime_repr
+        end
     end
-    if showable(application_vnd_dataresource, x)
-        data[string(application_vnd_dataresource)] = JSON.JSONText(limitstringmime(application_vnd_dataresource, x))
+
+    for m in ijulia_jsonmime_types
+        if showable(m, x)
+            mime, mime_repr = display_mimejson(m, x)
+            data[string(mime)] = mime_repr
+        end
     end
-    if showable(image_svg, x)
-        data[string(image_svg)] = limitstringmime(image_svg, x)
-    end
-    if showable(image_png, x)
-        data[string(image_png)] = limitstringmime(image_png, x)
-    elseif showable(image_jpeg, x) # don't send jpeg if we have png
-        data[string(image_jpeg)] = limitstringmime(image_jpeg, x)
-    end
-    if showable(text_markdown, x)
-        data[string(text_markdown)] = limitstringmime(text_markdown, x)
-    elseif showable(text_html, x)
-        data[string(text_html)] = limitstringmime(text_html, x)
-    elseif showable(text_latex, x)
-        data[string(text_latex)] = limitstringmime(text_latex, x)
-    elseif showable(text_latex2, x)
-        data[string(text_latex)] = limitstringmime(text_latex2, x)
-    end
+
     return data
+
 end
 
 # queue of objects to display at end of cell execution
