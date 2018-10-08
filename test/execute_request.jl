@@ -35,11 +35,23 @@ end
     Base.show(io, ::JSON_MIME_TYPE, x::FriendlyData) = write(io, JSON.json(Dict("name" => x.name)))
     IJulia.register_jsonmime(JSON_MIME)
 
+    FRIENDLY_MIME_TYPE_1 = MIME"application/vnd.ijulia.friendly-text-1"
+    FRIENDLY_MIME_TYPE_2 = MIME"application/vnd.ijulia.friendly-text-2"
+    FRIENDLY_MIME_1 = FRIENDLY_MIME_TYPE_1()
+    FRIENDLY_MIME_2 = FRIENDLY_MIME_TYPE_2()
+    FRIENDLY_MIME_TYPE_UNION = Union{FRIENDLY_MIME_TYPE_1, FRIENDLY_MIME_TYPE_2}
+    Base.Multimedia.istextmime(::FRIENDLY_MIME_TYPE_UNION) = true
+    Base.show(io, ::FRIENDLY_MIME_TYPE_UNION, x::FriendlyData) = write(io, "Hello, $(x.name)!")
+    IJulia.register_mime([FRIENDLY_MIME_1, FRIENDLY_MIME_2])
+
     # We stringify then re-parse the dict so that JSONText's are parsed as
     # actual JSON objects and we can index into them.
     data = JSON.parse(JSON.json(IJulia.display_dict(friend)))
     @test data[string(FRIENDLY_MIME)] == "Hello, world!"
     @test data[string(BINARY_MIME)] == base64encode("Hello, world!")
     @test data[string(JSON_MIME)]["name"] == "world"
+    @test data[string(FRIENDLY_MIME_1)] == "Hello, world!"
+    @test !haskey(data, string(FRIENDLY_MIME_2))
+
 
 end

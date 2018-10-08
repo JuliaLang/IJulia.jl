@@ -5,7 +5,7 @@
 import Base.Libc: flush_cstdio
 import Pkg
 
-Base.showable(a::Vector{MIME}, x) = any(m -> showable(m, x), a)
+Base.showable(a::AbstractVector{<:MIME}, x) = any(m -> showable(m, x), a)
 
 """
 A vector of MIME types (or vectors of MIME types) that IJulia will try to
@@ -20,7 +20,7 @@ is displayed. Since markdown and latex are specified within a sub-vector, IJulia
 will always try to render "text/markdown", and will only try to render
 "text/latex" if markdown isn't possible.
 """
-const ijulia_mime_types = Vector{Union{MIME, Vector{MIME}}}([
+const ijulia_mime_types = Vector{Union{MIME, AbstractVector{MIME}}}([
     MIME("text/plain"),
     MIME("image/svg+xml"),
     [MIME("image/png"),MIME("image/jpeg")],
@@ -39,13 +39,13 @@ MIME types that when rendered (via stringmime) return JSON data. See
 This is necessary to embed the JSON as is in the displaydata bundle (rather than
 as stringify'd JSON).
 """
-const ijulia_jsonmime_types = Vector{Union{MIME, Vector{MIME}}}([
+const ijulia_jsonmime_types = Vector{Union{MIME, AbstractVector{MIME}}}([
     [MIME("application/vnd.vegalite.v2+json"), MIME("application/vnd.vega.v3+json")],
     MIME("application/vnd.dataresource+json"),
 ])
 
-register_mime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_mime_types, x)
-register_jsonmime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_jsonmime_types, x)
+register_mime(x::Union{M, AbstractVector{M}}) where {M <: MIME} = push!(ijulia_mime_types, x)
+register_jsonmime(x::Union{M, AbstractVector{M}}) where {M <: MIME} = push!(ijulia_jsonmime_types, x)
 
 include("magics.jl")
 
@@ -59,7 +59,7 @@ Generate the preferred MIME representation of x.
 Returns a tuple with the selected MIME type and the representation of the data
 using that MIME type.
 """
-function display_mimestring(mime_array::Vector{MIME}, x)
+function display_mimestring(mime_array::AbstractVector{MIME}, x)
     for m in mime_array
         if showable(mime_array, x)
             return display_mimestring(m, x)
@@ -76,7 +76,7 @@ Generate the preferred json-MIME representation of x.
 Returns a tuple with the selected MIME type and the representation of the data
 using that MIME type (as a `JSONText`).
 """
-function display_mimejson(mime_array::Vector{MIME}, x)
+function display_mimejson(mime_array::AbstractVector{MIME}, x)
     for m in mime_array
         if showable(mime_array, x)
             return display_mimejson(m, x)
