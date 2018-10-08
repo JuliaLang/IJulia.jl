@@ -44,8 +44,8 @@ const ijulia_jsonmime_types = Vector{Union{MIME, Vector{MIME}}}([
     MIME("application/vnd.dataresource+json"),
 ])
 
-register_ijulia_mime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_mime_types, x)
-register_ijulia_jsonmime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_jsonmime_types, x)
+register_mime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_mime_types, x)
+register_jsonmime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_jsonmime_types, x)
 
 include("magics.jl")
 

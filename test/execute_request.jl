@@ -21,19 +21,19 @@ end
     FRIENDLY_MIME = FRIENDLY_MIME_TYPE()
     Base.Multimedia.istextmime(::FRIENDLY_MIME_TYPE) = true
     Base.show(io, ::FRIENDLY_MIME_TYPE, x::FriendlyData) = write(io, "Hello, $(x.name)!")
-    IJulia.register_ijulia_mime(FRIENDLY_MIME)
+    IJulia.register_mime(FRIENDLY_MIME)
 
     BINARY_MIME_TYPE = MIME"application/vnd.ijulia.friendly-binary"
     BINARY_MIME = BINARY_MIME_TYPE()
     Base.Multimedia.istextmime(::BINARY_MIME_TYPE) = false
     Base.show(io, ::BINARY_MIME_TYPE, x::FriendlyData) = write(io, "Hello, $(x.name)!")
-    IJulia.register_ijulia_mime(BINARY_MIME)
+    IJulia.register_mime(BINARY_MIME)
 
     JSON_MIME_TYPE = MIME"application/vnd.ijulia.friendly-json"
     JSON_MIME = JSON_MIME_TYPE()
     Base.Multimedia.istextmime(::JSON_MIME_TYPE) = true
     Base.show(io, ::JSON_MIME_TYPE, x::FriendlyData) = write(io, JSON.json(Dict("name" => x.name)))
-    IJulia.register_ijulia_jsonmime(JSON_MIME)
+    IJulia.register_jsonmime(JSON_MIME)
 
     # We stringify then re-parse the dict so that JSONText's are parsed as
     # actual JSON objects and we can index into them.
