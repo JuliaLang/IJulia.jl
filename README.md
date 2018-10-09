@@ -36,7 +36,7 @@ private to Julia (not in your `PATH`).  (You can use `using IJulia` followed by
 On Linux, it defaults to looking for `jupyter` in your `PATH` first,
 and only installs the Conda Jupyter if that fails; you can force
 it to use Conda on Linux by setting `ENV["JUPYTER"]=""` first (see below). In a Debian or Ubuntu 
-Linux system, install the package jupyter-client.
+GNU/Linux system, install the package `jupyter-client`.
 
 Alternatively, you can [install
 Jupyter](http://jupyter.readthedocs.org/en/latest/install.html) (or
