@@ -63,7 +63,7 @@ using that MIME type.
 """
 function display_mimestring(mime_array::Vector{MIME}, x)
     for m in mime_array
-        if showable(mime_array, x)
+        if showable(m, x)
             return display_mimestring(m, x)
         end
     end
@@ -80,7 +80,7 @@ using that MIME type (as a `JSONText`).
 """
 function display_mimejson(mime_array::Vector{MIME}, x)
     for m in mime_array
-        if showable(mime_array, x)
+        if showable(m, x)
             return display_mimejson(m, x)
         end
     end
