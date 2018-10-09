@@ -47,6 +47,19 @@ function limitstringmime(mime::MIME, x)
     return String(take!(buf))
 end
 
+const ipy_mime_json = [
+    "application/vnd.dataresource+json",
+    "application/vnd.vegalite.v2+json",
+    "application/vnd.vega.v3+json",
+]
+_display_dict(m::MIME, m_str, x) = Dict(m_str=>limitstringmime(m, x))
+# escape JSON string correctly before send_ipython
+for mime in ipy_mime_json
+    @eval begin
+        _display_dict(m::MIME{Symbol($mime)}, m_str, x) = Dict(m_str=>JSON.JSONText(limitstringmime(m, x)))
+    end
+end
+
 for mime in ipy_mime
     @eval begin
         function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
@@ -54,7 +67,7 @@ for mime in ipy_mime
                          msg_pub(execute_msg, "display_data",
                                  Dict(
                                   "metadata" => metadata(x), # optional
-                                  "data" => Dict($mime => limitstringmime(MIME($mime), x)))))
+                                  "data" => _display_dict(MIME($mime), $mime, x))))
         end
         displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
     end
