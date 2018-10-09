@@ -53,5 +53,31 @@ end
     @test data[string(FRIENDLY_MIME_1)] == "Hello, world!"
     @test !haskey(data, string(FRIENDLY_MIME_2))
 
+end
 
+struct AngryData
+    thing::AbstractString
+end
+
+@testset "Render 1st available MIME in MIME-vector." begin
+    ANGRY_MIME_TYPE_1 = MIME"application/vnd.ijulia.angry-1"
+    ANGRY_MIME_1 = ANGRY_MIME_TYPE_1()
+    ANGRY_MIME_TYPE_2 = MIME"application/vnd.ijulia.angry-2"
+    ANGRY_MIME_2 = ANGRY_MIME_TYPE_2()
+    ANGRY_MIME_TYPE_3 = MIME"application/vnd.ijulia.angry-3"
+    ANGRY_MIME_3 = ANGRY_MIME_TYPE_3()
+    ANGRY_MIME_VECTOR = [ANGRY_MIME_1, ANGRY_MIME_2, ANGRY_MIME_3]
+
+    Base.Multimedia.istextmime(::Union{ANGRY_MIME_TYPE_1, ANGRY_MIME_TYPE_2, ANGRY_MIME_TYPE_3}) = true
+    Base.show(io, ::Union{ANGRY_MIME_TYPE_2, ANGRY_MIME_TYPE_3}, x::AngryData) = write(io, "I hate $(x.thing)!")
+    IJulia.register_mime(ANGRY_MIME_VECTOR)
+
+    broccoli = AngryData("broccoli")
+    @test showable(ANGRY_MIME_VECTOR, broccoli)
+    @test !showable(ANGRY_MIME_1, broccoli)
+
+    data = IJulia.display_dict(broccoli)
+    @test data[string(ANGRY_MIME_2)] == "I hate broccoli!"
+    @test !haskey(data, ANGRY_MIME_1)
+    @test !haskey(data, ANGRY_MIME_3)
 end
