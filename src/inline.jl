@@ -57,6 +57,7 @@ _display_dict(m::MIME, m_str, x) = Dict(m_str=>limitstringmime(m, x))
 for mime in ipy_mime_json
     @eval begin
         _display_dict(m::MIME{Symbol($mime)}, m_str, x) = Dict(m_str=>JSON.JSONText(limitstringmime(m, x)))
+        Base.Multimedia.istextmime(::MIME{Symbol($mime)}) = true
     end
 end
 
