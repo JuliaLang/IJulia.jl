@@ -39,13 +39,15 @@ MIME types that when rendered (via stringmime) return JSON data. See
 This is necessary to embed the JSON as is in the displaydata bundle (rather than
 as stringify'd JSON).
 """
-const ijulia_jsonmime_types = Vector{Union{MIME, AbstractVector{MIME}}}([
+const ijulia_jsonmime_types = Vector{Union{MIME, Vector{MIME}}}([
     [MIME("application/vnd.vegalite.v2+json"), MIME("application/vnd.vega.v3+json")],
     MIME("application/vnd.dataresource+json"),
 ])
 
-register_mime(x::Union{M, AbstractVector{M}}) where {M <: MIME} = push!(ijulia_mime_types, x)
-register_jsonmime(x::Union{M, AbstractVector{M}}) where {M <: MIME} = push!(ijulia_jsonmime_types, x)
+register_mime(x::Union{MIME, Vector{MIME}})= push!(ijulia_mime_types, x)
+register_mime(x::AbstractVector{<:MIME}) = push!(ijulia_mime_types, Vector{Mime}(x))
+register_jsonmime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_jsonmime_types, x)
+register_jsonmime(x::AbstractVector{<:MIME}) = push!(ijulia_jsonmime_types, Vector{Mime}(x))
 
 include("magics.jl")
 
@@ -59,7 +61,7 @@ Generate the preferred MIME representation of x.
 Returns a tuple with the selected MIME type and the representation of the data
 using that MIME type.
 """
-function display_mimestring(mime_array::AbstractVector{MIME}, x)
+function display_mimestring(mime_array::Vector{MIME}, x)
     for m in mime_array
         if showable(mime_array, x)
             return display_mimestring(m, x)
@@ -76,7 +78,7 @@ Generate the preferred json-MIME representation of x.
 Returns a tuple with the selected MIME type and the representation of the data
 using that MIME type (as a `JSONText`).
 """
-function display_mimejson(mime_array::AbstractVector{MIME}, x)
+function display_mimejson(mime_array::Vector{MIME}, x)
     for m in mime_array
         if showable(mime_array, x)
             return display_mimejson(m, x)
