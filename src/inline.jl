@@ -8,6 +8,7 @@ const ipy_mime = [
     "application/vnd.dataresource+json",
     "application/vnd.vegalite.v2+json",
     "application/vnd.vega.v3+json",
+    "application/vnd.vega.v4+json",
     "text/html",
     "text/latex",
     "image/svg+xml",
@@ -51,6 +52,7 @@ const ipy_mime_json = [
     "application/vnd.dataresource+json",
     "application/vnd.vegalite.v2+json",
     "application/vnd.vega.v3+json",
+    "application/vnd.vega.v4+json",
 ]
 _display_dict(m::MIME, m_str, x) = Dict(m_str=>limitstringmime(m, x))
 # escape JSON string correctly before send_ipython
