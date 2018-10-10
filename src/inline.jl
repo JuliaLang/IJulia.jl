@@ -2,22 +2,6 @@ import Base: display, redisplay
 
 struct InlineDisplay <: AbstractDisplay end
 
-# supported MIME types for inline display in IPython, in descending order
-# of preference (descending "richness")
-const ipy_mime = [
-    "application/vnd.dataresource+json",
-    "application/vnd.vegalite.v2+json",
-    "application/vnd.vega.v3+json",
-    "text/html",
-    "text/latex",
-    "image/svg+xml",
-    "image/png",
-    "image/jpeg",
-    "text/plain",
-    "text/markdown",
-    "application/javascript"
-]
-
 # need special handling for showing a string as a textmime
 # type, since in that case the string is assumed to be
 # raw data unless it is text/plain
@@ -29,7 +13,7 @@ israwtext(::MIME, x) = false
 # IOContext that tells the underlying show function to limit output
 function limitstringmime(mime::MIME, x)
     buf = IOBuffer()
-    if istextmime(mime)
+    if _istextmime(mime)
         if israwtext(mime, x)
             return String(x)
         else
@@ -47,14 +31,14 @@ function limitstringmime(mime::MIME, x)
     return String(take!(buf))
 end
 
-for mime in ipy_mime
+for mime in ijulia_mime_types
     @eval begin
-        function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
+        function display(d::InlineDisplay, m::MIME{Symbol($mime)}, x)
             send_ipython(publish[],
                          msg_pub(execute_msg, "display_data",
                                  Dict(
                                   "metadata" => metadata(x), # optional
-                                  "data" => Dict($mime => limitstringmime(MIME($mime), x)))))
+                                  "data" => Dict($mime=>display_mimestring(m, x)[2]))))
         end
         displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
     end
@@ -68,11 +52,11 @@ display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("applic
 
 # If the user explicitly calls display("foo/bar", x), we send
 # the display message, also sending text/plain for text data.
-displayable(d::InlineDisplay, M::MIME) = istextmime(M)
+displayable(d::InlineDisplay, M::MIME) = _istextmime(M)
 function display(d::InlineDisplay, M::MIME, x)
     sx = limitstringmime(M, x)
     d = Dict(string(M) => sx)
-    if istextmime(M)
+    if _istextmime(M)
         d["text/plain"] = sx # directly show text data, e.g. text/csv
     end
     send_ipython(publish[],
