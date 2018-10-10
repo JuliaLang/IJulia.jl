@@ -5,7 +5,7 @@
 import Base.Libc: flush_cstdio
 import Pkg
 
-Base.showable(a::AbstractVector{<:MIME}, x) = any(m -> showable(m, x), a)
+Base.showable(a::Vector{<:MIME}, x) = any(m -> showable(m, x), a)
 
 """
 A vector of MIME types (or vectors of MIME types) that IJulia will try to
@@ -20,9 +20,19 @@ is displayed. Since markdown and latex are specified within a sub-vector, IJulia
 will always try to render "text/markdown", and will only try to render
 "text/latex" if markdown isn't possible.
 """
-const ijulia_mime_types = Vector{Union{MIME, AbstractVector{MIME}}}()
+const ijulia_mime_types = Vector{Union{MIME, Vector{<:MIME}}}([
+    MIME("text/plain"),
+    MIME("image/svg+xml"),
+    [MIME("image/png"),MIME("image/jpeg")],
+    [
+        MIME("text/markdown"),
+        MIME("text/html"),
+        MIME("text/latex"), # Jupyter expects this
+        MIME("application/x-latex"), # but this is more standard?
+    ],
+])
 
-register_mime(x::Union{M, AbstractVector{M}}) where {M <: MIME} = push!(ijulia_mime_types, x)
+register_mime(x::Union{M, Vector{M}}) where {M <: MIME} = push!(ijulia_mime_types, x)
 
 include("magics.jl")
 
@@ -36,7 +46,15 @@ Generate the preferred MIME representation of x.
 Returns a tuple with the selected MIME type and the representation of the data
 using that MIME type.
 """
-function display_mimestring(mime_array::AbstractVector{MIME}, x)
+function display_mimestring end
+
+abstract type MIMEStringType end
+struct RawMIMEString <: MIMEStringType end
+mimestringtype(m::MIME) = RawMIMEString
+display_mimestring(::Type{T}, m::MIME, x) where{T<:MIMEStringType} = display_mimestring(T(), m, x)
+display_mimestring(::RawMIMEString, m::MIME, x) = (m, limitstringmime(m, x))
+display_mimestring(m::MIME, x) = display_mimestring(mimestringtype(m), m, x)
+function display_mimestring(mime_array::Vector{<:MIME}, x)
     for m in mime_array
         if showable(mime_array, x)
             return display_mimestring(m, x)
@@ -45,56 +63,41 @@ function display_mimestring(mime_array::AbstractVector{MIME}, x)
     error("No displayable MIME types in mime array.")
 end
 
-abstract type MIMEStringType end
-display_mimestring(m::MIME, x) = display_mimestring(m, mimestringtype(m), x)
-
 """
     If false then data of the mime type should be sent to ipython in b64-encoded string.
     If true then it will be sent as is.
     Defaults to the value of istextmime.
+    Use a private name to avoid type piracy.
 """
 _istextmime(m::MIME) = istextmime(m)
 
-struct RawMIMEString <: MIMEStringType end
-for m in [
-    MIME("text/plain"),
-    MIME("image/svg+xml"),
-    [MIME("image/png"),MIME("image/jpeg")],
-    [
-        MIME("text/markdown"),
-        MIME("text/html"),
-        MIME("text/latex"), # Jupyter expects this
-        MIME("application/x-latex"), # but this is more standard?
-    ],
-]
-    register_mime(m)
-    if m isa MIME
-        @eval mimestringtype(::$m) = RawMIMEString
-    else
-        for _m in m
-            @eval mimestringtype(::$m) = RawMIMEString
-        end
-    end
-end
-display_mimestring(m::MIME, ::RawMIMEString, x) = (m, limitstringmime(m, x))
-
+"""
+    To add a new MIME type that require special treatment before sending to ipython,
+    follow the example of JSONMIMEString to do the following:
+    0. define a singleton type inherited from MIMEStringType. This is a trait type.
+    1. register_mime
+    2. specialize mimestringtype on the new MIME returning the new trait.
+    3. (optinal) specialize _istextmime to return true if the new MIME should be send as text.
+    4. specialize display_mimestring to implement your special treatment.
+"""
 struct JSONMIMEString <: MIMEStringType end
-for m in [
-    [MIME("application/vnd.vegalite.v2+json"), MIME("application/vnd.vega.v3+json")],
-    MIME("application/vnd.dataresource+json")
-]
-    register_mime(m)
+for mime in [[MIME("application/vnd.vegalite.v2+json"), MIME("application/vnd.vega.v3+json")],
+             MIME("application/vnd.vega.v4+json"),
+             MIME("application/vnd.dataresource+json")]
+    register_mime(mime)
+    m = typeof(mime)
     if m <: MIME
         @eval mimestringtype(::$m) = JSONMIMEString
         @eval _istextmime(::$m) = true
     else
-        for _m in m
+        for _m in mime
+            m = typeof(_m)
             @eval mimestringtype(::$m) = JSONMIMEString
             @eval _istextmime(::$m) = true
         end
     end
 end
-display_mimestring(m::MIME, ::JSONMIMEString, x) = (m, JSON.JSONText(limitstringmime(m, x)))
+display_mimestring(::JSONMIMEString, m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x)))
 
 """
 Generate a dictionary of `mime_type => data` pairs for all registered MIME
