@@ -1,6 +1,3 @@
-import Base: display, redisplay
-
-struct InlineDisplay <: AbstractDisplay end
 
 # need special handling for showing a string as a textmime
 # type, since in that case the string is assumed to be
@@ -30,25 +27,6 @@ function limitstringmime(mime::MIME, x)
     end
     return String(take!(buf))
 end
-
-for mime in ijulia_mime_types
-    @eval begin
-        function display(d::InlineDisplay, m::MIME{Symbol($mime)}, x)
-            send_ipython(publish[],
-                         msg_pub(execute_msg, "display_data",
-                                 Dict(
-                                  "metadata" => metadata(x), # optional
-                                  "data" => Dict($mime=>display_mimestring(m, x)[2]))))
-        end
-        displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
-    end
-end
-
-# deal with annoying application/x-latex == text/latex synonyms
-display(d::InlineDisplay, m::MIME"application/x-latex", x) = display(d, MIME("text/latex"), limitstringmime(m, x))
-
-# deal with annoying text/javascript == application/javascript synonyms
-display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("application/javascript"), limitstringmime(m, x))
 
 # If the user explicitly calls display("foo/bar", x), we send
 # the display message, also sending text/plain for text data.

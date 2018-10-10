@@ -20,19 +20,43 @@ is displayed. Since markdown and latex are specified within a sub-vector, IJulia
 will always try to render "text/markdown", and will only try to render
 "text/latex" if markdown isn't possible.
 """
-const ijulia_mime_types = Vector{Union{MIME, Vector{<:MIME}}}([
-    MIME("text/plain"),
-    MIME("image/svg+xml"),
-    [MIME("image/png"),MIME("image/jpeg")],
-    [
-        MIME("text/markdown"),
-        MIME("text/html"),
-        MIME("text/latex"), # Jupyter expects this
-        MIME("application/x-latex"), # but this is more standard?
-    ],
-])
+const ijulia_mime_types = Vector{Union{MIME, Vector{<:MIME}}}()
 
-register_mime(x::Union{M, Vector{M}}) where {M <: MIME} = push!(ijulia_mime_types, x)
+function register_mime(x::Union{M, Vector{M}}) where {M <: MIME}
+    push!(ijulia_mime_types, x)
+    if x isa MIME
+        register_mime_display(x)
+    else
+        register_mime_display.(x)
+    end
+end
+
+import Base: display, redisplay
+struct InlineDisplay <: AbstractDisplay end
+function register_mime_display(mime)
+    mime_type = typeof(mime)
+    mime_str = string(mime)
+    @eval begin
+        function display(d::InlineDisplay, m::$(mime_type), x)
+            send_ipython(publish[],
+                         msg_pub(execute_msg, "display_data",
+                                 Dict(
+                                  "metadata" => metadata(x), # optional
+                                  "data" => Dict($(mime_str)=>display_mimestring(m, x)[2]))))
+        end
+        displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
+    end
+end
+
+register_mime.([MIME("text/plain"),
+                MIME("image/svg+xml"),
+                [MIME("image/png"),MIME("image/jpeg")],
+                [MIME("text/markdown"),
+                 MIME("text/html"),
+                 MIME("text/latex"), # Jupyter expects this
+                 MIME("application/x-latex")], # but this is more standard?
+                [MIME("text/javascript"), MIME("application/javascript")],
+                ])
 
 include("magics.jl")
 
@@ -75,16 +99,15 @@ _istextmime(m::MIME) = istextmime(m)
     To add a new MIME type that require special treatment before sending to ipython,
     follow the example of JSONMIMEString to do the following:
     0. define a singleton type inherited from MIMEStringType. This is a trait type.
-    1. register_mime
-    2. specialize mimestringtype on the new MIME returning the new trait.
-    3. (optinal) specialize _istextmime to return true if the new MIME should be send as text.
-    4. specialize display_mimestring to implement your special treatment.
+    1. specialize mimestringtype on the new MIME returning the new trait.
+    2. (optinal) specialize _istextmime to return true if the new MIME should be send as text.
+    3. specialize display_mimestring to implement your special treatment.
+    4. register_mime
 """
 struct JSONMIMEString <: MIMEStringType end
 for mime in [[MIME("application/vnd.vegalite.v2+json"), MIME("application/vnd.vega.v3+json")],
              MIME("application/vnd.vega.v4+json"),
              MIME("application/vnd.dataresource+json")]
-    register_mime(mime)
     m = typeof(mime)
     if m <: MIME
         @eval mimestringtype(::$m) = JSONMIMEString
@@ -96,6 +119,7 @@ for mime in [[MIME("application/vnd.vegalite.v2+json"), MIME("application/vnd.ve
             @eval _istextmime(::$m) = true
         end
     end
+    register_mime(mime)
 end
 display_mimestring(::JSONMIMEString, m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x)))
 
