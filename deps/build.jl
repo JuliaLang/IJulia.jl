@@ -25,8 +25,11 @@ function prog_version(prog)
         return v"0.0"
     end
 end
+    
+const prefsfile = joinpath(first(DEPOT_PATH), "prefs", "IJulia")
+mkpath(dirname(prefsfile))
 
-global jupyter = get(ENV, "JUPYTER", isfile("JUPYTER") ? readchomp("JUPYTER") : Compat.Sys.isunix() && !Compat.Sys.isapple() ? "jupyter" : "")
+global jupyter = get(ENV, "JUPYTER", isfile(prefsfile) ? readchomp(prefsfile) : Compat.Sys.isunix() && !Compat.Sys.isapple() ? "jupyter" : "")
 if isempty(jupyter)
     jupyter_vers = nothing
 else
@@ -117,7 +120,7 @@ deps = """
 if !isfile("deps.jl") || read("deps.jl", String) != deps
     write("deps.jl", deps)
 end
-write("JUPYTER", jupyter)
+write(prefsfile, jupyter)
 
 #######################################################################
 catch
