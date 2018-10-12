@@ -26,7 +26,7 @@ function prog_version(prog)
     end
 end
     
-const prefsfile = joinpath(first(DEPOT_PATH), "prefs", "IJulia")
+prefsfile = joinpath(first(DEPOT_PATH), "prefs", "IJulia")
 mkpath(dirname(prefsfile))
 
 global jupyter = get(ENV, "JUPYTER", isfile(prefsfile) ? readchomp(prefsfile) : Compat.Sys.isunix() && !Compat.Sys.isapple() ? "jupyter" : "")
