@@ -80,7 +80,7 @@ display_mimestring(::RawMIMEString, m::MIME, x) = (m, limitstringmime(m, x))
 display_mimestring(m::MIME, x) = display_mimestring(mimestringtype(m), m, x)
 function display_mimestring(mime_array::Vector{<:MIME}, x)
     for m in mime_array
-        if showable(mime_array, x)
+        if showable(m, x)
             return display_mimestring(m, x)
         end
     end
