@@ -141,7 +141,7 @@ showerror_nobt(io, e, bt) = showerror(io, e, bt, backtrace=false)
 function error_content(e, bt=catch_backtrace();
                        backtrace_top::Symbol=SOFTSCOPE[] ? :softscope_include_string : :include_string,
                        msg::AbstractString="")
-    tb = map(x->String(x), split(sprint(show_bt,
+    tb = map(String, split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
                                   "\n", keepempty=true))
