@@ -8,6 +8,7 @@ const ipy_mime = [
     "application/vnd.dataresource+json",
     "application/vnd.vegalite.v2+json",
     "application/vnd.vega.v3+json",
+    "application/vnd.plotly.v1+json",
     "text/html",
     "text/latex",
     "image/svg+xml",
