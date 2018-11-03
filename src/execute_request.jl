@@ -41,7 +41,7 @@ as stringify'd JSON).
 """
 const ijulia_jsonmime_types = Vector{Union{MIME, Vector{MIME}}}([
     [MIME("application/vnd.vegalite.v2+json"), MIME("application/vnd.vega.v3+json")],
-    MIME("application/vnd.dataresource+json"),
+    MIME("application/vnd.dataresource+json"), MIME("application/vnd.plotly.v1+json")
 ])
 
 register_mime(x::Union{MIME, Vector{MIME}})= push!(ijulia_mime_types, x)
