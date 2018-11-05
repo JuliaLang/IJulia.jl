@@ -31,13 +31,13 @@ const magic_help_string = """
     example.  Julia macros, string macros, and functions can be used to
     accomplish most of the other functionalities of IPython magics."""
 generic_magic_help(magic::AbstractString, args::AbstractString) =
-    Base.Markdown.parse("""
+    Markdown.parse("""
         Unrecognized magic `$magic`.
 
         $magic_help_string""")
 
 lsmagic_help(magic::AbstractString, args::AbstractString) =
-    Base.Markdown.parse("""
+    Markdown.parse("""
     $magic_help_string
 
     The Julia analogues of many IPython magics are printed if
@@ -141,7 +141,7 @@ paste_magic_help(magic::AbstractString, args::AbstractString) = md"""
 """
 
 matplotlib_magic_help(magic::AbstractString, args::AbstractString) =
-Base.Markdown.parse("""
+Markdown.parse("""
     The analogue of IPython's `$magic` in Julia is to use
     the [PyPlot package](https://github.com/stevengj/PyPlot.jl),
     which gives a Julia interface to Matplotlib including inline
@@ -260,7 +260,7 @@ set_env_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%set_env var val` is `ENV["var"]=val` in Julia."""
 
 sx_magic_help(magic::AbstractString, args::AbstractString) =
-Base.Markdown.parse("""
+Markdown.parse("""
     The analogue of IPython's `$magic shell command` is
         split(read(`shell command`, String),'\n')
     in Julia.""")
@@ -341,7 +341,7 @@ function pipe_magic_help(magic::AbstractString, args::AbstractString)
         cmd = isempty(arglist) ? "someprogram" : arglist[end]
         magic = "%%script $cmd"
     end
-    Base.Markdown.parse("""
+    Markdown.parse("""
     The analogue of IPython's `$magic ...code...` in Julia can be
     constructed by first evaluating
     ```
