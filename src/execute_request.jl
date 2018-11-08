@@ -16,9 +16,9 @@ priority and exclusion of redundant data).
 
 For example, since "text/plain" is specified as a first-child of the array,
 IJulia will always try to include a "text/plain" representation of anything that
-is displayed. Since markdown and latex are specified within a sub-vector, IJulia
+is displayed. Since markdown and html are specified within a sub-vector, IJulia
 will always try to render "text/markdown", and will only try to render
-"text/latex" if markdown isn't possible.
+"text/html" if markdown isn't possible.
 """
 const ijulia_mime_types = Vector{Union{MIME, AbstractVector{MIME}}}([
     MIME("text/plain"),
@@ -27,9 +27,8 @@ const ijulia_mime_types = Vector{Union{MIME, AbstractVector{MIME}}}([
     [
         MIME("text/markdown"),
         MIME("text/html"),
-        MIME("text/latex"), # Jupyter expects this
-        MIME("application/x-latex"), # but this is more standard?
     ],
+    MIME("text/latex"),
 ])
 
 """
