@@ -1,6 +1,3 @@
-include("comm_manager.jl")
-include("execute_request.jl")
-
 using .CommManager
 
 # Don't send previous lines to the completions function,
