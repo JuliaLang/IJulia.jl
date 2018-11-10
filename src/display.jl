@@ -1,7 +1,7 @@
 
 # define our own method to avoid type piracy with Base.showable
 _showable(a::AbstractVector{<:MIME}, x) = any(m -> showable(m, x), a)
-_showable(m, x) = Base.showable(m, x)
+_showable(m, x) = showable(m, x)
 
 """
 A vector of MIME types (or vectors of MIME types) that IJulia will try to
