@@ -73,8 +73,8 @@ end
     IJulia.register_mime(ANGRY_MIME_VECTOR)
 
     broccoli = AngryData("broccoli")
-    @test showable(ANGRY_MIME_VECTOR, broccoli)
-    @test !showable(ANGRY_MIME_1, broccoli)
+    @test IJulia._showable(ANGRY_MIME_VECTOR, broccoli)
+    @test !IJulia._showable(ANGRY_MIME_1, broccoli)
 
     data = IJulia.display_dict(broccoli)
     @test data[string(ANGRY_MIME_2)] == "I hate broccoli!"
