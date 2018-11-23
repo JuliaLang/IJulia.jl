@@ -46,6 +46,7 @@ if Sys.ARCH in (:i686, :x86_64) && (jupyter_vers === nothing || jupyter_vers < v
     isconda || jupyter_vers === nothing || Compat.@info("$jupyter was too old: got $jupyter_vers, required ≥ 3.0")
     Compat.@info("Installing Jupyter via the Conda package.")
     Conda.add("jupyter")
+    Conda.add("jupyterlab")
     jupyter = abspath(Conda.SCRIPTDIR, "jupyter")
     jupyter_vers = prog_version(jupyter)
 end
