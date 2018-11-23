@@ -111,37 +111,21 @@ stop Jupyter will then be to kill it in your operating system's
 process manager.)
 """
 function notebook(; dir=homedir(), detached=false)
-    inited && error("IJulia is already running")
-    if Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
-        withenv("BROWSER"=>"open") do
-            p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
-        end
-    else
-        p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
-    end
-    if !detached
-        try
-            wait(p)
-        catch e
-            if isa(e, InterruptException)
-                kill(p, 2) # SIGINT
-            else
-                kill(p) # SIGTERM
-                rethrow()
-            end
-        end
-    end
-    return p
+    launch(notebook_cmd,dir,detached)
 end
 
 function labbook(; dir=homedir(), detached=false)
+    launch(labbook_cmd,dir,detached)
+end
+
+function launch(launch_cmd, dir=homedir(), detached=false)
     inited && error("IJulia is already running")
     if Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
         withenv("BROWSER"=>"open") do
-            p = run(Cmd(`$labbook_cmd`, detach=true, dir=dir); wait=false)
+            p = run(Cmd(`$launch_cmd`, detach=true, dir=dir); wait=false)
         end
     else
-        p = run(Cmd(`$labbook_cmd`, detach=true, dir=dir); wait=false)
+        p = run(Cmd(`$launch_cmd`, detach=true, dir=dir); wait=false)
     end
     if !detached
         try
