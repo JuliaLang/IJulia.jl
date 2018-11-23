@@ -98,6 +98,11 @@ notebook = kspec_cmd.exec
 n = notebook[end]
 ki = findlast("kernelspec", n)
 notebook[end] = n[1:prevind(n,first(ki))] * "notebook" * n[nextind(n,last(ki)):end]
+    
+#######################################################################
+# create command to launch jupyterlab
+labbook=deepcopy(notebook)
+labbook[end] = n[1:prevind(n,first(ki))] * "lab" * n[nextind(n,last(ki)):end]
 
 #######################################################################
 # make it easier to get more debugging output by setting JULIA_DEBUG=1
@@ -111,10 +116,12 @@ IJULIA_DEBUG = IJULIA_DEBUG in ("1", "true", "yes")
 if v"4.2" ≤ jupyter_vers < v"5.1"
     # disable broken data-rate limit (issue #528)
     push!(notebook, "--NotebookApp.iopub_data_rate_limit=2147483647")
+    push!(labbook, "--NotebookApp.iopub_data_rate_limit=2147483647")
 end
 deps = """
     const jupyter = "$(escape_string(jupyter))"
     const notebook_cmd = ["$(join(map(escape_string, notebook), "\", \""))"]
+    const labbook_cmd = ["$(join(map(escape_string, labbook), "\", \""))"]
     const jupyter_vers = $(repr(jupyter_vers))
     const IJULIA_DEBUG = $(IJULIA_DEBUG)
     """
