@@ -31,7 +31,7 @@ The `IJulia` module is used in three ways:
   to the Jupyter server.
 """
 module IJulia
-export notebook, installkernel
+export notebook, installkernel,labbook
 
 using ZMQ, JSON, Compat, SoftGlobalScope
 import Base.invokelatest
@@ -118,6 +118,30 @@ function notebook(; dir=homedir(), detached=false)
         end
     else
         p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
+    end
+    if !detached
+        try
+            wait(p)
+        catch e
+            if isa(e, InterruptException)
+                kill(p, 2) # SIGINT
+            else
+                kill(p) # SIGTERM
+                rethrow()
+            end
+        end
+    end
+    return p
+end
+
+function labbook(; dir=homedir(), detached=false)
+    inited && error("IJulia is already running")
+    if Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
+        withenv("BROWSER"=>"open") do
+            p = run(Cmd(`$jlab_cmd`, detach=true, dir=dir); wait=false)
+        end
+    else
+        p = run(Cmd(`$jlab_cmd`, detach=true, dir=dir); wait=false)
     end
     if !detached
         try
