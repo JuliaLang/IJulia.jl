@@ -138,10 +138,10 @@ function labbook(; dir=homedir(), detached=false)
     inited && error("IJulia is already running")
     if Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
         withenv("BROWSER"=>"open") do
-            p = run(Cmd(`$jlab_cmd`, detach=true, dir=dir); wait=false)
+            p = run(Cmd(`$labbook_cmd`, detach=true, dir=dir); wait=false)
         end
     else
-        p = run(Cmd(`$jlab_cmd`, detach=true, dir=dir); wait=false)
+        p = run(Cmd(`$labbook_cmd`, detach=true, dir=dir); wait=false)
     end
     if !detached
         try
