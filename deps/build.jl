@@ -1,5 +1,4 @@
-using Compat
-using Compat.Unicode: lowercase
+using VersionParsing, Conda
 
 # Install Jupyter kernel-spec file.
 include("kspec.jl")
@@ -10,10 +9,35 @@ kernelpath = installkernel("Julia")
 IJULIA_DEBUG = lowercase(get(ENV, "IJULIA_DEBUG", "0"))
 IJULIA_DEBUG = IJULIA_DEBUG in ("1", "true", "yes")
 
+# remember the user's Jupyter preference, if any; empty == Conda
+prefsfile = joinpath(first(DEPOT_PATH), "prefs", "IJulia")
+mkpath(dirname(prefsfile))
+jupyter = get(ENV, "JUPYTER", isfile(prefsfile) ? readchomp(prefsfile) : Sys.isunix() && !Sys.isapple() ? "jupyter" : "")
+condajupyter = normpath(Conda.SCRIPTDIR, "jupyter")
+if !isempty(jupyter)
+    if dirname(jupyter) == abspath(Conda.SCRIPTDIR)
+        jupyter = condajupyter # will be installed if needed
+    if isabspath(jupyter)
+        if !Sys.isexecutable(jupyter)
+            @warn("ignoring non-executable JUPYTER=$jupyter")
+            jupyter = condajupyter
+        end
+    elseif Sys.which(jupyter) === nothing
+        @warn("JUPYTER=$jupyter not found in PATH, ignoring")
+        jupyter = condajupyter
+    end
+end
+
+function write_if_changed(filename, contents)
+    if !isfile(filename) || read(filename, String) != contents
+        write(filename, contents)
+    end
+end
+
 # Install the deps.jl file:
 deps = """
     const IJULIA_DEBUG = $(IJULIA_DEBUG)
+    const JUPYTER = $(repr(jupyter))
 """
-if !isfile("deps.jl") || read("deps.jl", String) != deps
-    write("deps.jl", deps)
-end
+write_if_changed("deps.jl", deps)
+write_if_changed(prefsfile, jupyter)

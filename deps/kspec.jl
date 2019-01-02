@@ -1,4 +1,3 @@
-using Compat
 import JSON
 
 #######################################################################
@@ -8,7 +7,7 @@ copy_config(src, dest) = cp(src, joinpath(dest, basename(src)), force=true)
 
 # return the user kernelspec directory, according to
 #     https://jupyter-client.readthedocs.io/en/latest/kernels.html#kernelspecs
-@static if Compat.Sys.iswindows()
+@static if Sys.iswindows()
     function appdata() # return %APPDATA%
         path = zeros(UInt16, 300)
         CSIDL_APPDATA = 0x001a
@@ -17,38 +16,43 @@ copy_config(src, dest) = cp(src, joinpath(dest, basename(src)), force=true)
         return result == 0 ? transcode(String, resize!(path, findfirst(iszero, path)-1)) : homedir()
     end
     kerneldir() = joinpath(appdata(), "jupyter", "kernels")
-elseif Compat.Sys.isapple()
+elseif Sys.isapple()
     kerneldir() = joinpath(homedir(), "Library/Jupyter/kernels")
 else
     kerneldir() = joinpath(homedir(), ".local/share/jupyter/kernels")
 end
 
 """
-    installkernel(name, options...; specname=replace(lowercase(name), " "=>"-")
+    installkernel(name, options...;
+                  specname,
+                  env=Dict())
 
 Install a new Julia kernel, where the given `options` are passed to the `julia`
-executable, and the user-visible kernel name is given by `name` followed by the
-Julia version.
+executable, the user-visible kernel name is given by `name` followed by the
+Julia version, and the `env` dictionary is added to the environment.
 
 The new kernel name is returned by `installkernel`.  For example:
 ```
-kernelpath = installkernel("Julia O3", "-O3")
+kernelpath = installkernel("Julia O3", "-O3", env=Dict("FOO"=>"yes"))
 ```
 creates a new Julia kernel in which `julia` is launched with the `-O3`
-optimization flag.  The returned `kernelpath` is the path of the
-installed kernel directory, something like `/...somepath.../kernels/julia-O3-1.0`
-(in Julia 1.0).
+optimization flag and `FOO=yes` is included in the environment variables.
+
+The returned `kernelpath` is the path of the installed kernel directory, something like `/...somepath.../kernels/julia-O3-1.0`
+(in Julia 1.0).  The `specname` argument can be passed to alter the name of this
+directory (which defaults to `name` with spaces replaced by hyphens).
 
 You can uninstall the kernel by calling `rm(kernelpath, recursive=true)`.
 """
 function installkernel(name::AbstractString, julia_options::AbstractString...;
-                   specname::AbstractString = replace(lowercase(name), " "=>"-"))
+                   specname::AbstractString = replace(lowercase(name), " "=>"-"),
+                   env::Dict{<:AbstractString}=Dict{String,Any}())
     # Is IJulia being built from a debug build? If so, add "debug" to the description.
     debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
 
     # path of the Jupyter kernelspec directory to install
     juliakspec = joinpath(kerneldir(), "$specname-$(VERSION.major).$(VERSION.minor)$debugdesc")
-    Compat.@info("Installing $name kernelspec in $juliakspec")
+    @info("Installing $name kernelspec in $juliakspec")
     rm(juliakspec, force=true, recursive=true)
     try
         binary_name = Sys.iswindows() ? "julia.exe" : "julia"
@@ -62,6 +66,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
             "argv" => kernelcmd_array,
             "display_name" => name * " " * Base.VERSION_STRING * debugdesc,
             "language" => "julia",
+            "env" => env,
         )
 
         mkpath(juliakspec)
