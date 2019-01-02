@@ -31,9 +31,9 @@ The `IJulia` module is used in three ways:
   to the Jupyter server.
 """
 module IJulia
-export notebook, installkernel
+export notebook, jupyterlab, installkernel
 
-using ZMQ, JSON, Compat, SoftGlobalScope
+using ZMQ, JSON, SoftGlobalScope
 import Base.invokelatest
 import Dates
 using Dates: now
@@ -86,55 +86,7 @@ set_current_module(m::Module) = current_module[] = m
 const current_module = Ref{Module}(Main)
 
 #######################################################################
-
-"""
-    notebook(; dir=homedir(), detached=false)
-
-The `notebook()` function launches the Jupyter notebook, and is
-equivalent to running `jupyter notebook` at the operating-system
-command-line.    The advantage of launching the notebook from Julia
-is that, depending on how Jupyter was installed, the user may not
-know where to find the `jupyter` executable.
-
-By default, the notebook server is launched in the user's home directory,
-but this location can be changed by passing the desired path in the
-`dir` keyword argument.  e.g. `notebook(dir=pwd())` to use the current
-directory.
-
-By default, `notebook()` does not return; you must hit ctrl-c
-or quit Julia to interrupt it, which halts Jupyter.  So, you
-must leave the Julia terminal open for as long as you want to
-run Jupyter.  Alternatively, if you run `notebook(detached=true)`,
-the `jupyter notebook` will launch in the background, and will
-continue running even after you quit Julia.  (The only way to
-stop Jupyter will then be to kill it in your operating system's
-process manager.)
-"""
-function notebook(; dir=homedir(), detached=false)
-    inited && error("IJulia is already running")
-    notebook_cmd = find_notebook()
-    if Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
-        withenv("BROWSER"=>"open") do
-            p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
-        end
-    else
-        p = run(Cmd(`$notebook_cmd`, detach=true, dir=dir); wait=false)
-    end
-    if !detached
-        try
-            wait(p)
-        catch e
-            if isa(e, InterruptException)
-                kill(p, 2) # SIGINT
-            else
-                kill(p) # SIGTERM
-                rethrow()
-            end
-        end
-    end
-    return p
-end
-
+include("jupyter.jl")
 #######################################################################
 
 """

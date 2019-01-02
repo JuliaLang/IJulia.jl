@@ -1,4 +1,4 @@
-using VersionParsing, Conda
+using Conda
 
 # Install Jupyter kernel-spec file.
 include("kspec.jl")
@@ -23,8 +23,7 @@ if !isempty(jupyter)
             jupyter = condajupyter
         end
     elseif Sys.which(jupyter) === nothing
-        @warn("JUPYTER=$jupyter not found in PATH, ignoring")
-        jupyter = condajupyter
+        @warn("JUPYTER=$jupyter not found in PATH")
     end
 end
 

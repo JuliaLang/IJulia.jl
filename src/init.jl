@@ -1,5 +1,3 @@
-include(joinpath("..","deps","kspec.jl"))
-
 import Random: seed!
 
 # use our own random seed for msg_id so that we
@@ -31,14 +29,6 @@ const read_stdout = Ref{Base.PipeEndpoint}()
 const read_stderr = Ref{Base.PipeEndpoint}()
 const socket_locks = Dict{Socket,ReentrantLock}()
 
-function qtconsole()
-    if inited
-        run(`$jupyter qtconsole --existing $connection_file`; wait=false)
-    else
-        error("IJulia is not running. qtconsole must be called from an IJulia session.")
-    end
-end
-
 # similar to Pkg.REPLMode.MiniREPL, a minimal REPL-like emulator
 # for use with Pkg.do_cmd.  We have to roll our own to
 # make sure it uses the redirected stdout, and because
@@ -49,7 +39,6 @@ struct MiniREPL <: REPL.AbstractREPL
 end
 REPL.REPLDisplay(repl::MiniREPL) = repl.display
 const minirepl = Ref{MiniREPL}()
-
 
 function init(args)
     inited && error("IJulia is already running")
