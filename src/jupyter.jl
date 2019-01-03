@@ -20,7 +20,7 @@ function find_jupyter_subcommand(subcommand::AbstractString)
     if !Sys.isexecutable(jupyter)
         if dirname(jupyter) == abspath(Conda.SCRIPTDIR) &&
            isyes(Base.prompt("install Jupyter via Conda, y/n? [y]"))
-           Conda.add("jupyter")
+           Conda.add(subcommand == "lab" ? "jupyterlab" : "jupyter")
         else
             error("$jupyter is not installed, cannot run $subcommand")
         end
