@@ -17,6 +17,7 @@ condajupyter = normpath(Conda.SCRIPTDIR, "jupyter")
 if !isempty(jupyter)
     if dirname(jupyter) == abspath(Conda.SCRIPTDIR)
         jupyter = condajupyter # will be installed if needed
+    end
     if isabspath(jupyter)
         if !Sys.isexecutable(jupyter)
             @warn("ignoring non-executable JUPYTER=$jupyter")

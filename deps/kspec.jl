@@ -23,8 +23,8 @@ else
 end
 
 """
-    installkernel(name, options...;
-                  specname,
+    installkernel(name::AbstractString, options::AbstractString...;
+                  specname::AbstractString,
                   env=Dict())
 
 Install a new Julia kernel, where the given `options` are passed to the `julia`
@@ -78,9 +78,11 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
 
         copy_config(joinpath(ijulia_dir,"deps","logo-32x32.png"), juliakspec)
         copy_config(joinpath(ijulia_dir,"deps","logo-64x64.png"), juliakspec)
+        println("DONE")
 
         return juliakspec
-    finally
+    catch
         rm(juliakspec, force=true, recursive=true)
+        rethrow()
     end
 end
