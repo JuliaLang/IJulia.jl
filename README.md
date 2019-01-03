@@ -147,7 +147,7 @@ For example, if you want to run Julia with all deprecation warnings
 disabled, you can do:
 ```julia
 using IJulia
-IJulia.installkernel("Julia nodeps", "--depwarn=no")
+installkernel("Julia nodeps", "--depwarn=no")
 ```
 and a kernel called `Julia nodeps 0.7` (if you are using Julia 0.7)
 will be installed (will show up in your main Jupyter kernel menu) that
@@ -157,7 +157,7 @@ You can also install kernels to run Julia with different environment
 variables, for example to set [`JULIA_NUM_THREADS`](https://docs.julialang.org/en/v1/manual/environment-variables/index.html#JULIA_NUM_THREADS-1) for use with Julia [multithreading](https://docs.julialang.org/en/v1/manual/parallel-computing/#Multi-Threading-(Experimental)-1):
 ```
 using IJulia
-IJulia.installkernel("Julia (4 threads)", env=Dict("JULIA_NUM_THREADS"=>"4"))
+installkernel("Julia (4 threads)", env=Dict("JULIA_NUM_THREADS"=>"4"))
 ```
 The `env` keyword should be a `Dict` mapping environment variables to values.
 
