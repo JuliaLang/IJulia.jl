@@ -11,7 +11,9 @@ environment (also used by [IPython](http://ipython.org/)).  This
 combination allows you to interact with the Julia language using
 Jupyter/IPython's powerful [graphical
 notebook](http://ipython.org/notebook.html), which combines code,
-formatted text, math, and multimedia in a single document.
+formatted text, math, and multimedia in a single document.  It
+also works with [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/), a Jupyter-based
+integrated development environment for notebooks and code.
 
 (IJulia notebooks can also be re-used in other Julia code via
 the [NBInclude](https://github.com/stevengj/NBInclude.jl) package.)
@@ -28,38 +30,16 @@ Pkg.add("IJulia")
 ```
 to install IJulia.
 
-By default on Mac and Windows, the `Pkg.add` process will use the [Conda.jl](https://github.com/Luthaf/Conda.jl)
-package to install a minimal Python+Jupyter distribution (via
-[Miniconda](http://conda.pydata.org/docs/install/quick.html)) that is
-private to Julia (not in your `PATH`).  (You can use `using IJulia` followed by
-`IJulia.jupyter` to find the location `jupyter` where was installed.)
-On Linux, it defaults to looking for `jupyter` in your `PATH` first,
-and only installs the Conda Jupyter if that fails; you can force
-it to use Conda on Linux by setting `ENV["JUPYTER"]=""` first (see below).
-(In a Debian or Ubuntu  GNU/Linux system, install the package `jupyter-client`
-first to use the system `jupyter`.)
+This process installs a [kernel specification](https://jupyter-client.readthedocs.io/en/latest/kernels.html#kernelspecs) that tells Jupyter (or JupyterLab) etcetera
+how to launch Julia.
 
-Alternatively, you can [install
-Jupyter](http://jupyter.readthedocs.org/en/latest/install.html) (or
-IPython 3 or later) yourself *before* adding the IJulia package.
-To tell IJulia to use your *own* `jupyter` installation, you need
-to set `ENV["JUPYTER"]` to the path of the `jupyter` program
-before running `Pkg.add("IJulia")` (if jupyter is in your PATH, you can also just use `ENV["JUPYTER"]="jupyter"`).   Alternatively, you can change
-which `jupyter` program IJulia is configured with by setting
-`ENV["JUPYTER"]` and then running `Pkg.build("IJulia")`.
-
-The simplest way to install Jupyter yourself on Mac and Windows, other
-than using Julia's Conda distro,  is to [download
-the Anaconda package](http://continuum.io/downloads) and run its
-installer.  (We recommend that you *not* use Enthought Canopy/EPD
-since that can cause problems with the PyCall package.)
-
-On subsequent builds (e.g. when IJulia is updated via `Pkg.update`),
-it will use the same `jupyter` program by default, unless you
-override it by setting the `JUPYTER` environment variable, or
-delete the file `joinpath(Pkg.dir("IJulia"), "deps", "JUPYTER")`.
-You can go back to using the Conda `jupyter` by setting
-`ENV["JUPYTER"]=""` and re-running `Pkg.build("IJulia")`.
+`Pkg.add("IJulia")` does not actually install Jupyter itself.
+You can install Jupyter if you want, but it can also be installed
+automatically when you run `IJulia.notebook()` below.  (You
+can force it to use a specific `jupyter` installation by
+setting `ENV["JUPYTER"]` to the path of the `jupyter` program
+before `Pkg.add`, or before running `Pkg.build("IJulia")`;
+your preference is remembered on subsequent updates.
 
 ### Running the IJulia Notebook
 
@@ -68,7 +48,19 @@ In Julia, at the `julia>` prompt, you can type
 using IJulia
 notebook()
 ```
-to launch the IJulia notebook in your browser.  You can
+to launch the IJulia notebook in your browser.
+
+The first time you run `notebook()`, it will prompt you
+for whether it should install Jupyter.  Hit enter to
+have it use the [Conda.jl](https://github.com/Luthaf/Conda.jl)
+package to install a minimal Python+Jupyter distribution (via
+[Miniconda](http://conda.pydata.org/docs/install/quick.html)) that is
+private to Julia (not in your `PATH`).
+On Linux, it defaults to looking for `jupyter` in your `PATH` first,
+and only asks to installs the Conda Jupyter if that fails; you can force
+it to use Conda on Linux by setting `ENV["JUPYTER"]=""` during installation (see above).  (In a Debian or Ubuntu  GNU/Linux system, install the package `jupyter-client` to install the system `jupyter`.)
+
+You can
 use `notebook(detached=true)` to launch a notebook server
 in the background that will persist even when you quit Julia.
 This is also useful if you want to keep using the current Julia
@@ -103,12 +95,24 @@ on the *New* button and choose the *Julia* option to start a new
 "notebook".  A notebook will combine code, computed results, formatted
 text, and images, just as in IPython.  You can enter multiline input
 cells and execute them with *shift-ENTER*, and the menu items are
-mostly self-explanatory.  Refer to [the IPython
-documentation](http://ipython.org/documentation.html) for more
+mostly self-explanatory.  Refer to [the Jupyter notebook
+documentation](https://jupyter-notebook.readthedocs.io/en/stable/) for more
 information, and see also the "Help" menu in the notebook itself.
 
 Given an IJulia notebook file, you can execute its code within any
 other Julia file (including another notebook) via the [NBInclude](https://github.com/stevengj/NBInclude.jl) package.
+
+### Running the JupyterLab
+
+Instead of running the classic notebook interface, you can use the IDE-like JupyterLab.  This can be launched from within Julia via:
+
+```jl
+using IJulia
+jupyterlab()
+```
+
+Like `notebook()`, this will install JupyterLab via Conda if it is
+not installed already.   `jupyterlab()` also supports `detached` and `dir` keyword options similar to `notebook()`.
 
 ### Updating Julia and IJulia
 
@@ -143,11 +147,19 @@ For example, if you want to run Julia with all deprecation warnings
 disabled, you can do:
 ```julia
 using IJulia
-IJulia.installkernel("Julia nodeps", "--depwarn=no")
+installkernel("Julia nodeps", "--depwarn=no")
 ```
 and a kernel called `Julia nodeps 0.7` (if you are using Julia 0.7)
 will be installed (will show up in your main Jupyter kernel menu) that
 lets you open notebooks with this flag.
+
+You can also install kernels to run Julia with different environment
+variables, for example to set [`JULIA_NUM_THREADS`](https://docs.julialang.org/en/v1/manual/environment-variables/index.html#JULIA_NUM_THREADS-1) for use with Julia [multithreading](https://docs.julialang.org/en/v1/manual/parallel-computing/#Multi-Threading-(Experimental)-1):
+```
+using IJulia
+installkernel("Julia (4 threads)", env=Dict("JULIA_NUM_THREADS"=>"4"))
+```
+The `env` keyword should be a `Dict` mapping environment variables to values.
 
 ### Troubleshooting:
 
