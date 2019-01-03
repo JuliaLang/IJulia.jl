@@ -43,7 +43,7 @@ your preference is remembered on subsequent updates.
 
 ### Running the IJulia Notebook
 
-In Julia, at the `julia>` prompt, you can type
+If you are comfortable managing your own Python/Jupyter installation, you can just run `jupyter notebook` yourself in a terminal.   To simplify installation, however, you can alternatively type the following in Julia, at the `julia>` prompt:
 ```julia
 using IJulia
 notebook()
@@ -104,14 +104,14 @@ other Julia file (including another notebook) via the [NBInclude](https://github
 
 ### Running the JupyterLab
 
-Instead of running the classic notebook interface, you can use the IDE-like JupyterLab.  This can be launched from within Julia via:
+Instead of running the classic notebook interface, you can use the IDE-like JupyterLab. If you are comfortable managing your own JupyterLab installation, you can just run `jupyter lab` yourself in a terminal.   To simplify installation, however, you can alternatively type the following in Julia, at the `julia>` prompt:
 
 ```jl
 using IJulia
 jupyterlab()
 ```
 
-Like `notebook()`, this will install JupyterLab via Conda if it is
+Like `notebook()`, above, this will install JupyterLab via Conda if it is
 not installed already.   `jupyterlab()` also supports `detached` and `dir` keyword options similar to `notebook()`.
 
 ### Updating Julia and IJulia
