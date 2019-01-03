@@ -26,9 +26,12 @@ function find_jupyter_subcommand(subcommand::AbstractString)
         end
     end
 
-    # do we still need hacks to find the subcommand path, or
-    # (ala jupyter/notebook#448), or can we now just run it directly?
-    return `$jupyter $subcommand`
+    # fails in Windows if jupyter directory is not in PATH (jupyter/jupyter_core#62)
+    env = Dict(uppercase(k)=>v for (k,v) in ENV) # julia#29334
+    pathsep = Compat.Sys.iswindows() ? ';' : ':'
+    env["PATH"] = haskey(env, "PATH") ? dirname(jupyter) * pathsep * env["PATH"] : dirname(jupyter)
+
+    return setenv(`$jupyter $subcommand`, env)
 end
 
 ##################################################################
@@ -98,7 +101,6 @@ function jupyterlab(; dir=homedir(), detached=false)
     jupyter = first(lab)
     if dirname(jupyter) == abspath(Conda.SCRIPTDIR) &&
        !Sys.isexecutable(exe("$jupyter-lab")) &&
-       !isfile("$jupyter-lab-script.py") &&
        isyes(Base.prompt("install JupyterLab via Conda, y/n? [y]"))
         Conda.add("jupyterlab")
     end
