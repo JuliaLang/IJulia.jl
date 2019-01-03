@@ -28,7 +28,7 @@ function find_jupyter_subcommand(subcommand::AbstractString)
 
     # fails in Windows if jupyter directory is not in PATH (jupyter/jupyter_core#62)
     env = Dict(uppercase(k)=>v for (k,v) in ENV) # julia#29334
-    pathsep = Compat.Sys.iswindows() ? ';' : ':'
+    pathsep = Sys.iswindows() ? ';' : ':'
     env["PATH"] = haskey(env, "PATH") ? dirname(jupyter) * pathsep * env["PATH"] : dirname(jupyter)
 
     return setenv(`$jupyter $subcommand`, env)
