@@ -13,7 +13,7 @@ IJULIA_DEBUG = IJULIA_DEBUG in ("1", "true", "yes")
 prefsfile = joinpath(first(DEPOT_PATH), "prefs", "IJulia")
 mkpath(dirname(prefsfile))
 jupyter = get(ENV, "JUPYTER", isfile(prefsfile) ? readchomp(prefsfile) : Sys.isunix() && !Sys.isapple() ? "jupyter" : "")
-condajupyter = normpath(Conda.SCRIPTDIR, "jupyter")
+condajupyter = normpath(Conda.SCRIPTDIR, exe("jupyter"))
 if !isempty(jupyter)
     if dirname(jupyter) == abspath(Conda.SCRIPTDIR)
         jupyter = condajupyter # will be installed if needed

@@ -22,6 +22,8 @@ else
     kerneldir() = joinpath(homedir(), ".local/share/jupyter/kernels")
 end
 
+exe(s::AbstractString) = Sys.iswindows() ? "$s.exe" : s
+
 """
     installkernel(name::AbstractString, options::AbstractString...;
                   specname::AbstractString,
@@ -55,8 +57,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
     @info("Installing $name kernelspec in $juliakspec")
     rm(juliakspec, force=true, recursive=true)
     try
-        binary_name = Sys.iswindows() ? "julia.exe" : "julia"
-        kernelcmd_array = String[joinpath(Sys.BINDIR,"$binary_name"), "-i",
+        kernelcmd_array = String[joinpath(Sys.BINDIR,exe("julia")), "-i",
                                  "--startup-file=yes", "--color=yes"]
         append!(kernelcmd_array, julia_options)
         ijulia_dir = get(ENV, "IJULIA_DIR", dirname(@__DIR__)) # support non-Pkg IJulia installs
