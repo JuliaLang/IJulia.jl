@@ -17,7 +17,7 @@ function find_jupyter_subcommand(subcommand::AbstractString)
             jupyter = joinpath(Conda.SCRIPTDIR, "jupyter")
         end
     end
-    if !isexecutable(jupyter)
+    if !Sys.isexecutable(jupyter)
         if dirname(jupyter) == abspath(Conda.SCRIPTDIR) &&
            isyes(Base.prompt("install Jupyter via Conda, y/n? [y]"))
            Conda.add("jupyter")
@@ -97,9 +97,9 @@ function jupyterlab(; dir=homedir(), detached=false)
     lab = find_jupyter_subcommand("lab")
     jupyter = first(lab)
     if dirname(jupyter) == abspath(Conda.SCRIPTDIR) &&
-       !isexecutable("$jupyter-lab") &&
-       !isexecutable("$jupyter-lab.exe") &&
-       !isexecutable("$jupyter-lab-script.py") &&
+       !Sys.isexecutable("$jupyter-lab") &&
+       !Sys.isexecutable("$jupyter-lab.exe") &&
+       !isfile("$jupyter-lab-script.py") &&
        isyes(Base.prompt("install JupyterLab via Conda, y/n? [y]"))
         Conda.add("jupyterlab")
     end
