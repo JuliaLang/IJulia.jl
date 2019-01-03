@@ -5,8 +5,7 @@ using IJulia
 
     mktemp() do path, io
         redirect_stdout(IJulia.IJuliaStdio(io, "stdout")) do
-            stdout = isdefined(Base, :devnull) ? Base.stdout : Base.STDOUT
-            println(stdout, "stdout")
+            println(Base.stdout, "stdout")
             println("print")
         end
         flush(io)
@@ -22,8 +21,7 @@ using IJulia
 
     mktemp() do path, io
         redirect_stderr(IJulia.IJuliaStdio(io, "stderr")) do
-            stderr = isdefined(Base, :devnull) ? Base.stderr : Base.STDERR
-            println(stderr, "stderr")
+            println(Base.stderr, "stderr")
         end
         flush(io)
         seek(io, 0)

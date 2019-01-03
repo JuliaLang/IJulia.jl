@@ -108,10 +108,8 @@ function init(args)
     redirect_stdin(IJuliaStdio(stdin,"stdin"))
     minirepl[] = MiniREPL(TextDisplay(stdout))
 
-    if isdefined(Base, :CoreLogging)
-        logger = Base.CoreLogging.SimpleLogger(Base.stderr)
-        Base.CoreLogging.global_logger(logger)
-    end
+    logger = Base.CoreLogging.SimpleLogger(Base.stderr)
+    Base.CoreLogging.global_logger(logger)
 
     send_status("starting")
     global inited = true

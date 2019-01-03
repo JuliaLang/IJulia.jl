@@ -16,8 +16,6 @@ import REPL: helpmode
 # use a global array to accumulate "payloads" for the execute_reply message
 const execute_payloads = Dict[]
 
-const stdout_name = isdefined(Base, :stdout) ? "stdout" : "STDOUT"
-
 function execute_request(socket, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
@@ -44,7 +42,7 @@ function execute_request(socket, msg)
     # "; ..." cells are interpreted as shell commands for run
     code = replace(code, r"^\s*;.*$" =>
                    m -> string(replace(m, r"^\s*;" => "Base.repl_cmd(`"),
-                               "`, ", stdout_name, ")"))
+                               "`, stdout)"))
 
 
     # "] ..." cells are interpreted as pkg shell commands
