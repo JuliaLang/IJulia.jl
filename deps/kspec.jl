@@ -78,7 +78,6 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
 
         copy_config(joinpath(ijulia_dir,"deps","logo-32x32.png"), juliakspec)
         copy_config(joinpath(ijulia_dir,"deps","logo-64x64.png"), juliakspec)
-        println("DONE")
 
         return juliakspec
     catch

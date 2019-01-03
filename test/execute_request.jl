@@ -4,11 +4,15 @@ using Base64, JSON
 import IJulia
 import IJulia: helpmode, error_content, docdict
 
-content = error_content(UndefVarError(:a))
-@test "UndefVarError" == content["ename"]
+@testset "errors" begin
+    content = error_content(UndefVarError(:a))
+    @test "UndefVarError" == content["ename"]
+end
 
-@test haskey(docdict("import"), "text/plain")
-@test haskey(docdict("sum"), "text/plain")
+@testset "docdict" begin
+    @test haskey(docdict("import"), "text/plain")
+    @test haskey(docdict("sum"), "text/plain")
+end
 
 struct FriendlyData
     name::AbstractString
