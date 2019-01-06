@@ -14,7 +14,9 @@ prefsfile = joinpath(first(DEPOT_PATH), "prefs", "IJulia")
 mkpath(dirname(prefsfile))
 jupyter = get(ENV, "JUPYTER", isfile(prefsfile) ? readchomp(prefsfile) : Sys.isunix() && !Sys.isapple() ? "jupyter" : "")
 condajupyter = normpath(Conda.SCRIPTDIR, exe("jupyter"))
-if !isempty(jupyter)
+if isempty(jupyter)
+    jupyter = condajupyter # will be installed if needed
+else
     if dirname(jupyter) == abspath(Conda.SCRIPTDIR)
         jupyter = condajupyter # will be installed if needed
     end
