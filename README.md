@@ -203,6 +203,21 @@ achieve a similar effect in Julia if possible.
 For example, the analogue of IPython's `%load filename` in IJulia
 is `IJulia.load("filename")`.
 
+### Changing font
+To change the font used in the Markdown text boxes you can use run
+the following code in the first cell of a Jupyter notebook:
+```julia
+HTML("""
+<style>
+body {
+    font-family: "Comic Sans MS", cursive, sans-serif;
+}
+</style>
+"""
+)
+```
+(with `font-family` mapping to your preferred font).
+
 ### Prompting for user input
 
 When you are running in a notebook, ordinary I/O functions on `stdin` do
