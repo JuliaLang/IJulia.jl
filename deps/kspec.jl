@@ -15,15 +15,27 @@ copy_config(src, dest) = cp(src, joinpath(dest, basename(src)), force=true)
             (Ptr{Cvoid},Cint,Ptr{Cvoid},Cint,Ptr{UInt8}),C_NULL,CSIDL_APPDATA,C_NULL,0,path)
         return result == 0 ? transcode(String, resize!(path, findfirst(iszero, path)-1)) : homedir()
     end
-    kerneldir() = joinpath(appdata(), "jupyter", "kernels")
+    default_jupyter_data_dir() = joinpath(appdata(), "jupyter")
 elseif Sys.isapple()
-    kerneldir() = joinpath(homedir(), "Library/Jupyter/kernels")
+    default_jupyter_data_dir() = joinpath(homedir(), "Library/Jupyter")
 else
-    kerneldir() = joinpath(homedir(), ".local/share/jupyter/kernels")
+    function default_jupyter_data_dir()
+        xdg_data_home = get(ENV, "XDG_DATA_HOME", "")
+        data_home = !isempty(xdg_data_home) ? xdg_data_home : joinpath(homedir(), ".local", "share")
+        joinpath(data_home, "jupyter")
+    end
 end
 
-exe(s::AbstractString) = Sys.iswindows() ? "$s.exe" : s
+function jupyter_data_dir()
+    env_data_dir = get(ENV, "JUPYTER_DATA_DIR", "")
+    !isempty(env_data_dir) ? env_data_dir : default_jupyter_data_dir()
+end
 
+kerneldir() = joinpath(jupyter_data_dir(), "kernels")
+
+
+exe(s::AbstractString) = Sys.iswindows() ? "$s.exe" : s
+ 
 """
     installkernel(name::AbstractString, options::AbstractString...;
                   specname::AbstractString,
