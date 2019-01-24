@@ -13,9 +13,12 @@ copy_config(src, dest) = cp(src, joinpath(dest, basename(src)), force=true)
         CSIDL_APPDATA = 0x001a
         result = ccall((:SHGetFolderPathW,:shell32), stdcall, Cint,
             (Ptr{Cvoid},Cint,Ptr{Cvoid},Cint,Ptr{UInt8}),C_NULL,CSIDL_APPDATA,C_NULL,0,path)
-        return result == 0 ? transcode(String, resize!(path, findfirst(iszero, path)-1)) : homedir()
+        return result == 0 ? transcode(String, resize!(path, findfirst(iszero, path)-1)) : get(ENV, "APPDATA", "")
     end
-    default_jupyter_data_dir() = joinpath(appdata(), "jupyter")
+    function default_jupyter_data_dir()
+        APPDATA = appdata()
+        return !isempty(APPDATA) ? joinpath(APPDATA, "jupyter") : joinpath(get(ENV, "JUPYTER_CONFIG_DIR", joinpath(homedir(), ".jupyter")), "data")
+    end
 elseif Sys.isapple()
     default_jupyter_data_dir() = joinpath(homedir(), "Library/Jupyter")
 else
