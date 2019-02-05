@@ -7,7 +7,7 @@ Jupyter/IPython's powerful [graphical
 notebook](http://ipython.org/notebook.html), which combines code,
 formatted text, math, and multimedia in a single document.
 
-The `IJulia` module is used in three ways:
+The `IJulia` module is used in three ways
 
 * Typing `using IJulia; notebook()` will launch the Jupyter notebook
   interface in your web browser.  This is an alternative to launching
