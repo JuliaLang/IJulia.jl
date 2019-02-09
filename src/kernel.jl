@@ -1,4 +1,13 @@
 import IJulia
+
+let
+    ijulia_kernel_file = joinpath(dirname(pathof(IJulia)), "kernel.jl")
+    this_kernel_file = @__FILE__
+    if ijulia_kernel_file != this_kernel_file
+        @warn "this kernel.jl is different from the one provided by IJulia" this_kernel_file ijulia_kernel_file
+    end
+end
+
 using InteractiveUtils
 
 # workaround #60:
