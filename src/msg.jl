@@ -20,7 +20,7 @@ msg_header(m::Msg, msg_type::String) = Dict("msg_id" => uuid4(),
                                             "session" => m.header["session"],
                                             "date" => now(),
                                             "msg_type" => msg_type,
-                                            "version" => "5.0")
+                                            "version" => "5.3")
 
 # PUB/broadcast messages use the msg_type as the ident, except for
 # stream messages which use the stream name (e.g. "stdout").

@@ -261,6 +261,11 @@ function is_complete_request(socket, msg)
                            Dict("status"=>status, "indent"=>"")))
 end
 
+function interrupt_request(socket, msg)
+    @async Base.throwto(requests_task[], InterruptException())
+    send_ipython(requests[], msg_reply(msg, "interrupt_reply", Dict()))
+end
+
 const handlers = Dict{String,Function}(
     "execute_request" => execute_request,
     "complete_request" => complete_request,
@@ -270,6 +275,7 @@ const handlers = Dict{String,Function}(
     "shutdown_request" => shutdown_request,
     "history_request" => history_request,
     "is_complete_request" => is_complete_request,
+    "interrupt_request" => interrupt_request,
     "comm_open" => comm_open,
     "comm_info_request" => comm_info_request,
     "comm_msg" => comm_msg,
