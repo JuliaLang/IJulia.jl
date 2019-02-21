@@ -43,8 +43,9 @@ Core.eval(Base, :(is_interactive = true))
 
 # check whether Revise is running and as needed configure it to run before every prompt
 if isdefined(Main, :Revise)
-    mode = get(ENV, "JULIA_REVISE", "auto")
-    mode == "auto" && IJulia.push_preexecute_hook(Main.Revise.revise)
+    let mode = get(ENV, "JULIA_REVISE", "auto")
+        mode == "auto" && IJulia.push_preexecute_hook(Main.Revise.revise)
+    end
 end
 
 IJulia.waitloop()
