@@ -79,7 +79,11 @@ function execute_request(socket, msg)
 
         user_expressions = Dict()
         for (v,ex) in msg.content["user_expressions"]
-            user_expressions[v] = invokelatest(parse, ex)
+            value = SOFTSCOPE[] ? softscope_include_string(current_module[], code) :
+                                  include_string(current_module[], code)
+            user_expressions[v] = Dict("data" => display_dict(value),
+                                       "metadata" => metadata(value),
+                                       "execution_count" => n)
         end
 
         for hook in postexecute_hooks
