@@ -79,10 +79,14 @@ function execute_request(socket, msg)
 
         user_expressions = Dict()
         for (v,ex) in msg.content["user_expressions"]
-            value = include_string(current_module[], ex)
-            user_expressions[v] = Dict("data" => display_dict(value),
-                                       "metadata" => metadata(value),
-                                       "execution_count" => n)
+	    try
+		value = include_string(current_module[], ex)
+		user_expressions[v] = Dict("data" => display_dict(value),
+					   "metadata" => metadata(value),
+					   "execution_count" => n)
+	    catch e
+		user_expressions[v] = error_content(e, catch_backtrace())
+	    end
         end
 
         for hook in postexecute_hooks
