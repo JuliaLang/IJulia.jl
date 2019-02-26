@@ -79,8 +79,7 @@ function execute_request(socket, msg)
 
         user_expressions = Dict()
         for (v,ex) in msg.content["user_expressions"]
-            value = SOFTSCOPE[] ? softscope_include_string(current_module[], code) :
-                                  include_string(current_module[], code)
+            value = include_string(current_module[], ex)
             user_expressions[v] = Dict("data" => display_dict(value),
                                        "metadata" => metadata(value),
                                        "execution_count" => n)
