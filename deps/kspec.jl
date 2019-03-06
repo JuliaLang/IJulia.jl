@@ -12,7 +12,7 @@ copy_config(src, dest) = cp(src, joinpath(dest, basename(src)), force=true)
         path = zeros(UInt16, 300)
         CSIDL_APPDATA = 0x001a
         result = ccall((:SHGetFolderPathW,:shell32), stdcall, Cint,
-            (Ptr{Cvoid},Cint,Ptr{Cvoid},Cint,Ptr{UInt8}),C_NULL,CSIDL_APPDATA,C_NULL,0,path)
+            (Ptr{Cvoid},Cint,Ptr{Cvoid},Cint,Ptr{UInt16}),C_NULL,CSIDL_APPDATA,C_NULL,0,path)
         return result == 0 ? transcode(String, resize!(path, findfirst(iszero, path)-1)) : get(ENV, "APPDATA", "")
     end
     function default_jupyter_data_dir()
