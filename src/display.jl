@@ -35,7 +35,7 @@ This is necessary to embed the JSON as is in the displaydata bundle (rather than
 as stringify'd JSON).
 """
 const ijulia_jsonmime_types = Vector{Union{MIME, Vector{MIME}}}([
-    [MIME("application/vnd.vegalite.v2+json"), MIME("application/vnd.vega.v3+json")],
+    [MIME("application/vnd.vegalite.v2+json"), MIME("application/vnd.vega.v4+json"), MIME("application/vnd.vega.v3+json")],
     MIME("application/vnd.dataresource+json"), MIME("application/vnd.plotly.v1+json")
 ])
 
