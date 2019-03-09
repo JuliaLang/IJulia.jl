@@ -81,11 +81,19 @@ function execute_request(socket, msg)
         for (v,ex) in msg.content["user_expressions"]
             try
                 value = include_string(current_module[], ex)
-                user_expressions[v] = Dict("data" => display_dict(value),
-                                           "metadata" => metadata(value),
-                                           "execution_count" => n)
+                # Like the IPython reference implementation, we return
+                # something that looks like a `display_data` but also has a
+                # `status` field:
+                # https://github.com/ipython/ipython/blob/master/IPython/core/interactiveshell.py#L2609-L2614
+                user_expressions[v] = Dict("status" => "ok",
+                                           "data" => display_dict(value),
+                                           "metadata" => metadata(value))
             catch e
-                user_expressions[v] = error_content(e, catch_backtrace())
+                # The format of user_expressions[v] is like `error` except that
+                # it also has a `status` field:
+                # https://jupyter-client.readthedocs.io/en/stable/messaging.html#execution-errors
+                user_expressions[v] = Dict("status" => "ok",
+                                           error_content(e, catch_backtrace())...)
             end
         end
 
