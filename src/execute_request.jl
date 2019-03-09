@@ -92,7 +92,7 @@ function execute_request(socket, msg)
                 # The format of user_expressions[v] is like `error` except that
                 # it also has a `status` field:
                 # https://jupyter-client.readthedocs.io/en/stable/messaging.html#execution-errors
-                user_expressions[v] = Dict("status" => "ok",
+                user_expressions[v] = Dict("status" => "error",
                                            error_content(e, catch_backtrace())...)
             end
         end
