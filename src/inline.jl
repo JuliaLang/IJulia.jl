@@ -6,8 +6,8 @@ struct InlineDisplay <: AbstractDisplay end
 # of preference (descending "richness")
 const ipy_mime = [
     "application/vnd.dataresource+json",
-    "application/vnd.vegalite.v2+json",
-    "application/vnd.vega.v3+json",
+    ["application/vnd.vegalite.v$n+json" for n in 3:-1:2]...,
+    ["application/vnd.vega.v$n+json" for n in 5:-1:3]...,
     "application/vnd.plotly.v1+json",
     "text/html",
     "text/latex",
