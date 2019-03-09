@@ -79,7 +79,22 @@ function execute_request(socket, msg)
 
         user_expressions = Dict()
         for (v,ex) in msg.content["user_expressions"]
-            user_expressions[v] = invokelatest(parse, ex)
+            try
+                value = include_string(current_module[], ex)
+                # Like the IPython reference implementation, we return
+                # something that looks like a `display_data` but also has a
+                # `status` field:
+                # https://github.com/ipython/ipython/blob/master/IPython/core/interactiveshell.py#L2609-L2614
+                user_expressions[v] = Dict("status" => "ok",
+                                           "data" => display_dict(value),
+                                           "metadata" => metadata(value))
+            catch e
+                # The format of user_expressions[v] is like `error` except that
+                # it also has a `status` field:
+                # https://jupyter-client.readthedocs.io/en/stable/messaging.html#execution-errors
+                user_expressions[v] = Dict("status" => "error",
+                                           error_content(e, catch_backtrace())...)
+            end
         end
 
         for hook in postexecute_hooks
