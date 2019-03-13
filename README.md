@@ -184,6 +184,17 @@ running IJulia kernel.
 If your code needs to detect whether it is running in an IJulia notebook
 (or other Jupyter client), it can check `isdefined(Main, :IJulia) && Main.IJulia.inited`.
 
+### Julia projects
+
+The default Jupyter kernel that is installed by IJulia starts with the
+Julia command line flag `--project=@.`. A  `Project.toml` (or `JuliaProject.toml`)
+in the folder of a notebook (or in a parent folder of this notebook) will
+therefore automatically become the active project for that notebook.
+Users that don't want this behavior should install an additional IJulia
+kernel without that command line flag (see section
+[Installing additional Julia kernels](#Installing-additional-Julia-kernels)).
+
+
 ### Customizing your IJulia environment
 
 If you want to run code every time you start IJulia---but only when in IJulia---add a `startup_ijulia.jl` file to your Julia `config` directory, e.g., `~/.julia/config/startup_ijulia.jl`.
