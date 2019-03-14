@@ -2,7 +2,7 @@ using Conda
 
 # Install Jupyter kernel-spec file.
 include("kspec.jl")
-kernelpath = installkernel("Julia")
+kernelpath = installkernel("Julia", "--project=@.")
 
 # make it easier to get more debugging output by setting JULIA_DEBUG=1
 # when building.
