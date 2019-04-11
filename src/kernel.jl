@@ -15,6 +15,11 @@ if Sys.isapple()
     ENV["PATH"] = Sys.BINDIR*":"*ENV["PATH"]
 end
 
+# the size of truncated output to show should not depend on the terminal
+# where the kernel is launched, since the display is elsewhere
+ENV["LINES"] = get(ENV, "LINES", 30)
+ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
+
 IJulia.init(ARGS)
 
 let startupfile = abspath(homedir(), ".julia", "config", "startup_ijulia.jl")
@@ -27,11 +32,6 @@ import IJulia: ans, In, Out, clear_history
 pushdisplay(IJulia.InlineDisplay())
 
 ccall(:jl_exit_on_sigint, Cvoid, (Cint,), 0)
-
-# the size of truncated output to show should not depend on the terminal
-# where the kernel is launched, since the display is elsewhere
-ENV["LINES"] = get(ENV, "LINES", 30)
-ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
 
 println(IJulia.orig_stdout[], "Starting kernel event loops.")
 IJulia.watch_stdio()
