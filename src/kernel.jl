@@ -1,3 +1,7 @@
+# Manually add this package as the last entry in the LOAD_PATH so that if IJulia isn't
+# installed in the user's Environment, IJulia will still be picked up from this directory.
+push!(LOAD_PATH, dirname(@__DIR__))
+
 import IJulia
 
 let
