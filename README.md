@@ -114,6 +114,11 @@ jupyterlab()
 Like `notebook()`, above, this will install JupyterLab via Conda if it is
 not installed already.   `jupyterlab()` also supports `detached` and `dir` keyword options similar to `notebook()`.
 
+### Running nteract
+
+The [nteract Desktop](https://nteract.io/) is an application that lets you work with notebooks without a Python installation. First, install IJulia (but do not run `notebook()` unless you want a Python installation) and then nteract.
+
+
 ### Updating Julia and IJulia
 
 Julia is improving rapidly, so it won't be long before you want to
