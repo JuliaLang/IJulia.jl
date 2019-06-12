@@ -195,15 +195,14 @@ function get_previous_token(code, pos, crossed_parentheses)
     # given a string and a cursor position, find substring corresponding to previous token
 
     startpos = pos
-    additional_parentheses = 0
     while startpos > firstindex(code)
         c = code[startpos]
         if c == '('
-            additional_parentheses += 1
+            crossed_parentheses += 1
         elseif c == ')'
-            additional_parentheses -= 1
+            crossed_parentheses -= 1
         elseif !is_id_char(c) && !isspace(c)
-            additional_parentheses = max(0, additional_parentheses - 1)
+            crossed_parentheses = max(0, crossed_parentheses - 1)
         end
         if is_id_char(code[startpos])
             break
@@ -225,7 +224,7 @@ function get_previous_token(code, pos, crossed_parentheses)
     if !is_id_char(code[endpos])
         endpos = prevind(code, endpos)
     end
-    return startpos, endpos, crossed_parentheses + additional_parentheses
+    return startpos, endpos, crossed_parentheses
 end
 
 function get_token(code, pos)
@@ -241,18 +240,18 @@ function get_token(code, pos)
     crossed_parentheses = 0
     prev_startpos, prev_endpos, crossed_parentheses =
         get_previous_token(code, pos, crossed_parentheses)
-    # println("(DD) code: ", code, ", firstindex: ", firstindex(code))
-    # println("(DD) prev token @ ",(prev_startpos, prev_endpos) ,
-    # ": ", code[prev_startpos:prev_endpos],
-    # " w/ crossed_parentheses: ", crossed_parentheses)
+    println("(DD) code: ", code, ", firstindex: ", firstindex(code))
+    println("(DD) prev token @ ",(prev_startpos, prev_endpos) ,
+    ": ", code[prev_startpos:prev_endpos],
+    " w/ crossed_parentheses: ", crossed_parentheses)
     startpos = prev_startpos
     endpos = prev_endpos
     while prev_startpos > firstindex(code) && crossed_parentheses <= 0
         pos = prevind(code, startpos)
         startpos, endpos, crossed_parentheses = get_previous_token(code, pos, crossed_parentheses)
-        # println("(DD) prev token @ ",(startpos, endpos) ,
-        # ": ", code[startpos:endpos],
-        # " w/ crossed_parentheses: ", crossed_parentheses)
+        println("(DD) iter token @ ",(startpos, endpos) ,
+        ": ", code[startpos:endpos],
+        " w/ crossed_parentheses: ", crossed_parentheses)
     end
 
     if crossed_parentheses > 0
