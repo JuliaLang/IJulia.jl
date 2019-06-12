@@ -195,13 +195,20 @@ function get_previous_token(code, pos, crossed_parentheses)
     # given a string and a cursor position, find substring corresponding to previous token
 
     startpos = pos
+    separator = false
+    stop = false
     while startpos > firstindex(code)
         c = code[startpos]
         if c == '('
             crossed_parentheses += 1
+            selarator = false
         elseif c == ')'
             crossed_parentheses -= 1
-        elseif !is_id_char(c) && !isspace(c)
+            separator = false
+        elseif c == ';'
+            stop = true
+        elseif !is_id_char(c) && !isspace(c) && !separator
+            separator = true
             crossed_parentheses = max(0, crossed_parentheses - 1)
         end
         if is_id_char(code[startpos])
@@ -216,7 +223,7 @@ function get_previous_token(code, pos, crossed_parentheses)
     end
     startpos = startpos < pos ? nextind(code, startpos) : pos
     if !is_id_start_char(code[startpos])
-        return ""
+        return startpos, -1, crossed_parentheses, stop
     end
     while endpos < lastindex(code) && is_id_char(code[endpos])
         endpos = nextind(code, endpos)
@@ -224,7 +231,7 @@ function get_previous_token(code, pos, crossed_parentheses)
     if !is_id_char(code[endpos])
         endpos = prevind(code, endpos)
     end
-    return startpos, endpos, crossed_parentheses
+    return startpos, endpos, crossed_parentheses, stop
 end
 
 function get_token(code, pos)
@@ -237,28 +244,37 @@ function get_token(code, pos)
     # TODO: detect operators?
     # startpos, endpos = get_previous_token(code, pos)
     # return code[startpos:endpos]
+    println("(DD) code: ", code)
     crossed_parentheses = 0
-    prev_startpos, prev_endpos, crossed_parentheses =
+    prev_startpos, prev_endpos, crossed_parentheses, stop =
         get_previous_token(code, pos, crossed_parentheses)
-    println("(DD) code: ", code, ", firstindex: ", firstindex(code))
     println("(DD) prev token @ ",(prev_startpos, prev_endpos) ,
     ": ", code[prev_startpos:prev_endpos],
     " w/ crossed_parentheses: ", crossed_parentheses)
     startpos = prev_startpos
-    endpos = prev_endpos
-    while prev_startpos > firstindex(code) && crossed_parentheses <= 0
+    endpos = prev_endpos # Does not matter
+    last_valid_start = startpos
+    last_valid_end = -1
+    while !stop && startpos > firstindex(code) && crossed_parentheses <= 0
         pos = prevind(code, startpos)
-        startpos, endpos, crossed_parentheses = get_previous_token(code, pos, crossed_parentheses)
+        startpos, endpos, crossed_parentheses, stop = get_previous_token(code, pos, crossed_parentheses)
+        if endpos != -1
+            last_valid_start = startpos
+            last_valid_end = endpos
+        end
         println("(DD) iter token @ ",(startpos, endpos) ,
         ": ", code[startpos:endpos],
         " w/ crossed_parentheses: ", crossed_parentheses)
     end
 
-    if crossed_parentheses > 0
-        return code[startpos:endpos]
+    token = ""
+    if crossed_parentheses > 0 || (prev_endpos == -1 && last_valid_end != -1)
+        token = last_valid_end == -1 ? "" : code[last_valid_start:last_valid_end]
     else
-        return code[prev_startpos:prev_endpos]
+        token = prev_endpos == -1 ? "" : code[prev_startpos:prev_endpos]
     end
+    println("(DD) final token: ", token)
+    return token
 end
 
 function inspect_request(socket, msg)
