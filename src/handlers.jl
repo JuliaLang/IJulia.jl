@@ -191,11 +191,17 @@ docdict(s::AbstractString) = display_dict(Core.eval(Main, helpmode(devnull, s)))
 
 import Base: is_id_char, is_id_start_char
 
-function get_previous_token(code, pos)
+function get_previous_token(code, pos, crossed_parentheses)
     # given a string and a cursor position, find substring corresponding to previous token
 
     startpos = pos
     while startpos > firstindex(code)
+        c = code[startpos]
+        if c == '('
+            crossed_parentheses += 1
+        elseif c == ')'
+            crossed_parentheses -= 1
+        end
         if is_id_char(code[startpos])
             break
         else
@@ -216,7 +222,7 @@ function get_previous_token(code, pos)
     if !is_id_char(code[endpos])
         endpos = prevind(code, endpos)
     end
-    return code[startpos:endpos]
+    return startpos, endpos, crossed_parentheses
 end
 
 function get_token(code, pos)
@@ -227,7 +233,30 @@ function get_token(code, pos)
     #   2) search backwards to find the biggest identifier (including .)
     #   3) if nothing found, do return empty string
     # TODO: detect operators?
-    return get_previous_token(code, pos)
+    # startpos, endpos = get_previous_token(code, pos)
+    # return code[startpos:endpos]
+    crossed_parentheses = 0
+    prev_startpos, prev_endpos, crossed_parentheses =
+        get_previous_token(code, pos, crossed_parentheses)
+    # println("(DD) code: ", code, ", firstindex: ", firstindex(code))
+    # println("(DD) prev token @ ",(prev_startpos, prev_endpos) ,
+    # ": ", code[prev_startpos:prev_endpos],
+    # " w/ crossed_parentheses: ", crossed_parentheses)
+    startpos = prev_startpos
+    endpos = prev_endpos
+    while prev_startpos > firstindex(code) && crossed_parentheses <= 0
+        pos = prevind(code, startpos)
+        startpos, endpos, crossed_parentheses = get_previous_token(code, pos, crossed_parentheses)
+        # println("(DD) prev token @ ",(startpos, endpos) ,
+        # ": ", code[startpos:endpos],
+        # " w/ crossed_parentheses: ", crossed_parentheses)
+    end
+
+    if crossed_parentheses > 0
+        return code[startpos:endpos]
+    else
+        return code[prev_startpos:prev_endpos]
+    end
 end
 
 function inspect_request(socket, msg)
