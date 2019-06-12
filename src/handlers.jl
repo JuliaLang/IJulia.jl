@@ -197,7 +197,7 @@ function get_previous_token(code, pos, crossed_parentheses)
 
     Given a string and a cursor position, find substring corresponding to previous token.
     `crossed_parentheses:Int` keeps track of how many parentheses have been crossed.
-    A pair of parentheses yields 0 crossing; a '(' add 1; a ')' subtracks 1.
+    A pair of parentheses yields 0 crossing; a '(' add 1; a ')' subtracts 1.
 
     Returns `(startpos, endpos, crossed_parentheses, stop)`
 
@@ -270,7 +270,7 @@ function get_token(code, pos)
     - `f(|)` has imbalanced parentheses, thus `f` is the desired token.
     - `f(x|, y)` gives tokens `x` and `f`. `x` has balanced parentheses, while `f` is left-imbalanced. `f` is desired.
     - `f(x)|` returns `f`
-    - `f(x, y)|` however, returns `f`.
+    - `f(x, y)|` returns `f`.
     - `f((x|))` returns `f`, as expected
     - `f(x, (|y))` returns `f`. **This is a hack**, as I deduct `crossed_parentheses` whenever a separator is encountered, clamped to 0!
         Otherwise, `x` would be returned.
@@ -287,11 +287,9 @@ function get_token(code, pos)
     endpos = prev_endpos # Does not matter
     last_valid_start = startpos
     last_valid_end = -1
-    println("(DD) first token: ", code[startpos:endpos], " w/ ", crossed_parentheses)
     while !stop && startpos > firstindex(code) && crossed_parentheses <= 0
         pos = prevind(code, startpos)
         startpos, endpos, crossed_parentheses, stop = get_previous_token(code, pos, crossed_parentheses)
-        println("(DD) token: ", code[startpos:endpos], " w/ ", crossed_parentheses)
         if endpos != -1 && last_valid_end == -1
             last_valid_start = startpos
             last_valid_end = endpos
@@ -314,14 +312,6 @@ function get_token(code, pos)
             token = code[last_valid_start:last_valid_end]
         end
     end
-    # if (crossed_parentheses >= 0 && last_valid_end != -1) ||
-    #     (crossed_parentheses < 0 && prev_endpos == -1 && last_valid_end != -1)
-    #     token = code[last_valid_start:last_valid_end]
-    # elseif (crossed_parentheses < 0 && prev_endpos != -1) ||
-    #     (crossed_parentheses >= 0 && last_valid_end == -1 && prev_endpos != -1)
-    #         token = code[prev_startpos:prev_endpos]
-    # end
-    println("(DD) returns: ", token)
     return token
 end
 
