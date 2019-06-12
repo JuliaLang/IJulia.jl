@@ -190,14 +190,9 @@ end
 docdict(s::AbstractString) = display_dict(Core.eval(Main, helpmode(devnull, s)))
 
 import Base: is_id_char, is_id_start_char
-function get_token(code, pos)
-    # given a string and a cursor position, find substring to request
-    # help on by:
-    #   1) searching backwards, skipping invalid identifier chars
-    #        ... search forward for end of identifier
-    #   2) search backwards to find the biggest identifier (including .)
-    #   3) if nothing found, do return empty string
-    # TODO: detect operators?
+
+function get_previous_token(code, pos)
+    # given a string and a cursor position, find substring corresponding to previous token
 
     startpos = pos
     while startpos > firstindex(code)
@@ -222,6 +217,17 @@ function get_token(code, pos)
         endpos = prevind(code, endpos)
     end
     return code[startpos:endpos]
+end
+
+function get_token(code, pos)
+    # given a string and a cursor position, find substring to request
+    # help on by:
+    #   1) searching backwards, skipping invalid identifier chars
+    #        ... search forward for end of identifier
+    #   2) search backwards to find the biggest identifier (including .)
+    #   3) if nothing found, do return empty string
+    # TODO: detect operators?
+    return get_previous_token(code, pos)
 end
 
 function inspect_request(socket, msg)
