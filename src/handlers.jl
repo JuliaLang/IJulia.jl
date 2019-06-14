@@ -280,6 +280,10 @@ function get_token(code, pos)
     TODO: detect operators? More robust parsing using the Julia parser instead of string hacks?
     """
 
+    # Keep cursor in code range
+    pos = max(1, pos)
+    pos = min(pos, length(code))
+
     crossed_parentheses = 0
     prev_startpos, prev_endpos, crossed_parentheses, stop =
         get_previous_token(code, pos, crossed_parentheses)
@@ -297,7 +301,7 @@ function get_token(code, pos)
     end
 
     token = ""
-    if crossed_parentheses >= 0 # Potential function token
+    if crossed_parentheses > 0 # Potential function token
         if endpos != -1 # Function token valid
             token = code[startpos:endpos]
         elseif prev_endpos != -1 # Closest token valid
