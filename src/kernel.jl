@@ -22,7 +22,7 @@ ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
 
 IJulia.init(ARGS)
 
-let startupfile = abspath(homedir(), ".julia", "config", "startup_ijulia.jl")
+let startupfile = !isempty(DEPOT_PATH) ? abspath(DEPOT_PATH[1], "config", "startup_ijulia.jl") : ""
     isfile(startupfile) && Base.JLOptions().startupfile != 2 && Base.include(Main, startupfile)
 end
 
