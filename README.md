@@ -229,7 +229,7 @@ in one of two ways:
 
 * `IJulia.readprompt(prompt)` displays the prompt string `prompt` and
   returns a string entered by the user.  `IJulia.readprompt(prompt, password=true)` does the same thing but hides the text the user types.
-
+  
 ### Clearing output
 
 Analogous to the [IPython.display.clear_output()](http://ipython.org/ipython-doc/dev/api/generated/IPython.display.html#IPython.display.clear_output) function in IPython, IJulia provides a function:
@@ -244,6 +244,19 @@ output until a new output is available to replace it (to minimize
 flickering).  This is useful to make simple animations, via repeated
 calls to `IJulia.clear_output(true)` followed by calls to
 `display(...)` to display a new animation frame.
+
+
+### Input and output history
+
+IJulia will store dictionarys of the user's input and output history 
+for each session in exported variables called `In` and `Out`. To recall
+old inputs and outputs, simply index into `In` and `Out`. Sometimes, a user
+may find them selves outputting large matrices or other datastructures which
+will be stored in `Out` and not garbage collected, possibly hogging memory. 
+If you need to free this memory, empty the output dictionary:
+```
+empty!(Out)
+```
 
 ### Default display size
 
