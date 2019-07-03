@@ -253,7 +253,7 @@ for each session in exported variables called `In` and `Out`. To recall
 old inputs and outputs, simply index into them, e.g. `In[1]` or `Out[5]`. Sometimes, a user
 may find themselves outputting large matrices or other datastructures which
 will be stored in `Out` and hence not garbage collected, possibly hogging memory. 
-If you need to free this memory, empty the output dictionary:
+If you find that IJulia is using too much memory after generating large outputs, empty this output dictionary:
 ```
 empty!(Out)
 ```
