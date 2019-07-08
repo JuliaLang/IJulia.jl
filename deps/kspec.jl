@@ -38,7 +38,7 @@ kerneldir() = joinpath(jupyter_data_dir(), "kernels")
 
 
 exe(s::AbstractString) = Sys.iswindows() ? "$s.exe" : s
- 
+
 """
     installkernel(name::AbstractString, options::AbstractString...;
                   specname::AbstractString,
@@ -68,7 +68,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
     debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
 
     # path of the Jupyter kernelspec directory to install
-    juliakspec = joinpath(kerneldir(), "$specname-$(VERSION.major).$(VERSION.minor)$debugdesc")
+    juliakspec = joinpath(kerneldir(), "$specname$(VERSION.major)$debugdesc")
     @info("Installing $name kernelspec in $juliakspec")
     rm(juliakspec, force=true, recursive=true)
     try
