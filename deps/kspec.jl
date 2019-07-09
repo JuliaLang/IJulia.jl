@@ -39,9 +39,13 @@ kerneldir() = joinpath(jupyter_data_dir(), "kernels")
 
 exe(s::AbstractString) = Sys.iswindows() ? "$s.exe" : s
 
+# Is IJulia being built from a debug build? If so, add "debug" to the description.
+debugdesc() = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
+
 """
     installkernel(name::AbstractString, options::AbstractString...;
                   specname::AbstractString,
+                  specversion::AbstractString,
                   env=Dict())
 
 Install a new Julia kernel, where the given `options` are passed to the `julia`
@@ -57,18 +61,20 @@ optimization flag and `FOO=yes` is included in the environment variables.
 
 The returned `kernelpath` is the path of the installed kernel directory, something like `/...somepath.../kernels/julia-O3-1.0`
 (in Julia 1.0).  The `specname` argument can be passed to alter the name of this
-directory (which defaults to `name` with spaces replaced by hyphens).
+directory (which defaults to `name` with spaces replaced by hyphens), and the `specversion`
+argument to alter the _version_ part of this name, which gets appended to the `specname`.
 
 You can uninstall the kernel by calling `rm(kernelpath, recursive=true)`.
 """
 function installkernel(name::AbstractString, julia_options::AbstractString...;
                    specname::AbstractString = replace(lowercase(name), " "=>"-"),
+                   # TODO: Should debugdesc() be part of the user-overridable specversion,
+                   # or should it always be appended as it was before?
+                   specversion::AbstractString = "$(VERSION.major).$(VERSION.minor)$(debugdesc())",
                    env::Dict{<:AbstractString}=Dict{String,Any}())
-    # Is IJulia being built from a debug build? If so, add "debug" to the description.
-    debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
-
+    versionstr = !isempty(specversion) ? "-$specversion" : ""
     # path of the Jupyter kernelspec directory to install
-    juliakspec = joinpath(kerneldir(), "$specname-v$(VERSION.major)$debugdesc")
+    juliakspec = joinpath(kerneldir(), "$specname$versionstr")
     @info("Installing $name kernelspec in $juliakspec")
     rm(juliakspec, force=true, recursive=true)
     try
@@ -80,7 +86,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
 
         ks = Dict(
             "argv" => kernelcmd_array,
-            "display_name" => name * " " * Base.VERSION_STRING * debugdesc,
+            "display_name" => name * " " * Base.VERSION_STRING * debugdesc(),
             "language" => "julia",
             "env" => env,
             # Jupyter's signal interrupt mode is not supported on Windows
