@@ -168,7 +168,8 @@ function kernel_info_request(socket, msg)
                                                               "url"=>"http://docs.julialang.org/"),
                                                          Dict("text"=>"Julia Packages",
                                                               "url"=>"http://pkg.julialang.org/")
-                                                        ])))
+                                                        ],
+                                        "status" => "ok")))
 end
 
 function connect_request(socket, msg)
