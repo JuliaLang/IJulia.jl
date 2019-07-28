@@ -191,21 +191,21 @@ docdict(s::AbstractString) = display_dict(Core.eval(Main, helpmode(devnull, s)))
 
 import Base: is_id_char, is_id_start_char
 
+"""
+    get_previous_token(code, pos, crossed_parentheses)
+
+Given a string and a cursor position, find substring corresponding to previous token.
+`crossed_parentheses:Int` keeps track of how many parentheses have been crossed.
+A pair of parentheses yields 0 crossing; a '(' add 1; a ')' subtracts 1.
+
+Returns `(startpos, endpos, crossed_parentheses, stop)`
+
+- `startpos` is the start position of the closest potential token before `pos`.
+- `endpos` is end position if said token is can be valid identifier, or `-1` otherwise
+- `crossed_parentheses` is the new count for parentheses.
+- `stop` is true if ';' is hit, denoting the beginning of a clause.
+"""
 function get_previous_token(code, pos, crossed_parentheses)
-    """
-        get_previous_token(code, pos, crossed_parentheses)
-
-    Given a string and a cursor position, find substring corresponding to previous token.
-    `crossed_parentheses:Int` keeps track of how many parentheses have been crossed.
-    A pair of parentheses yields 0 crossing; a '(' add 1; a ')' subtracts 1.
-
-    Returns `(startpos, endpos, crossed_parentheses, stop)`
-
-    - `startpos` is the start position of the closest potential token before `pos`.
-    - `endpos` is end position if said token is can be valid identifier, or `-1` otherwise
-    - `crossed_parentheses` is the new count for parentheses.
-    - `stop` is true if ';' is hit, denoting the beginning of a clause.
-    """
     startpos = pos
     separator = false
     stop = false
@@ -246,39 +246,39 @@ function get_previous_token(code, pos, crossed_parentheses)
     return startpos, endpos, crossed_parentheses, stop
 end
 
+"""
+    get_token(code, pos)
+
+Given a string and a cursor position, find substring to request
+help on by:
+
+1. Searching backwards for the closest token (may be invalid)
+2. Keep searching backwards until we find an token before an unbalanced '('
+    a. If (1) is not valid, store the first valid token
+    b. We assume a token before an unbalanced '(' is a function
+3. If we find a possible function token, return this token.
+4. Otherwise, return the last valid token
+
+# Important Note
+
+Tokens are chosen following several empirical observations instead of rigorous rules.
+We assume that the first valid token before left-imbalanced (more '(' than ')') parentheses is the function "closest" to cursor.
+The following examples use '|' to denote cursor, showing observations on parentheses.
+
+- `f()|` has balanced parentheses with nothing within, thus `f` is the desired token.
+- `f(|)` has imbalanced parentheses, thus `f` is the desired token.
+- `f(x|, y)` gives tokens `x` and `f`. `x` has balanced parentheses, while `f` is left-imbalanced. `f` is desired.
+- `f(x)|` returns `f`
+- `f(x, y)|` returns `f`.
+- `f((x|))` returns `f`, as expected
+- `f(x, (|y))` returns `f`. **This is a hack**, as I deduct `crossed_parentheses` whenever a separator is encountered, clamped to 0!
+    Otherwise, `x` would be returned.
+- `f(x, (y|))`, `f(x, (y)|)`, and `f(x, (y))|` all behave as above. Arbitrary nesting of tuples should not cause misbehavior.
+- `expr1 ; expr2`, cursor in `expr2` never causes search in `expr1`
+
+TODO: detect operators? More robust parsing using the Julia parser instead of string hacks?
+"""
 function get_token(code, pos)
-    """
-        get_token(code, pos)
-
-    Given a string and a cursor position, find substring to request
-    help on by:
-
-    1. Searching backwards for the closest token (may be invalid)
-    2. Keep searching backwards until we find an token before an unbalanced '('
-        a. If (1) is not valid, store the first valid token
-        b. We assume a token before an unbalanced '(' is a function
-    3. If we find a possible function token, return this token.
-    4. Otherwise, return the last valid token
-
-    # Important Note
-
-    Tokens are chosen following several empirical observations instead of rigorous rules.
-    We assume that the first valid token before left-imbalanced (more '(' than ')') parentheses is the function "closest" to cursor.
-    The following examples use '|' to denote cursor, showing observations on parentheses.
-
-    - `f()|` has balanced parentheses with nothing within, thus `f` is the desired token.
-    - `f(|)` has imbalanced parentheses, thus `f` is the desired token.
-    - `f(x|, y)` gives tokens `x` and `f`. `x` has balanced parentheses, while `f` is left-imbalanced. `f` is desired.
-    - `f(x)|` returns `f`
-    - `f(x, y)|` returns `f`.
-    - `f((x|))` returns `f`, as expected
-    - `f(x, (|y))` returns `f`. **This is a hack**, as I deduct `crossed_parentheses` whenever a separator is encountered, clamped to 0!
-        Otherwise, `x` would be returned.
-    - `f(x, (y|))`, `f(x, (y)|)`, and `f(x, (y))|` all behave as above. Arbitrary nesting of tuples should not cause misbehavior.
-    - `expr1 ; expr2`, cursor in `expr2` never causes search in `expr1`
-
-    TODO: detect operators? More robust parsing using the Julia parser instead of string hacks?
-    """
 
     # Keep cursor in code range
     pos = max(1, pos)
