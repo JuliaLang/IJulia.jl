@@ -87,6 +87,9 @@ display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x)))
 Generate a dictionary of `mime_type => data` pairs for all registered MIME
 types. This is the format that Jupyter expects in display_data and
 execute_result messages.
+
+This function may also return `nothing`, in which case no Jupyter message is
+sent at all.
 """
 function display_dict(x)
     data = Dict{String, Union{String, JSONText}}()
@@ -114,8 +117,23 @@ function display_dict(x)
     end
 
     return data
-
 end
+
+display_dict(::Nothing) = nothing
+
+"""
+Generate a `(data=..., metadata=...)` tuple.
+
+This defaults to using `display_dict` and `metadata` respectively (see the
+documentaiton for those functions to see what `data` and `metadata` should be).
+A custom method for this function can be specified whenever it is difficult to
+compute the data and metadata separately. Most users will just need to define a
+method for `display_dict`.
+
+This function may also return `nothing`, in which case no Jupyter message is
+sent at all.
+"""
+display_payload(x) = (data=display_dict(x), metadata=metadata(x))
 
 # queue of objects to display at end of cell execution
 const displayqueue = Any[]

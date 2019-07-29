@@ -107,16 +107,23 @@ function execute_request(socket, msg)
         undisplay(result) # dequeue if needed, since we display result in pyout
         invokelatest(display) # flush pending display requests
 
-        if result !== nothing
-            result_metadata = invokelatest(metadata, result)
-            result_data = invokelatest(display_dict, result)
-            send_ipython(publish[],
-                         msg_pub(msg, "execute_result",
-                                 Dict("execution_count" => n,
-                                              "metadata" => result_metadata,
-                                              "data" => result_data)))
-
+        result_payload = invokelatest(display_payload, result)
+        if result_payload !== nothing && result_payload[1] !== nothing
+            data, metadata = result_payload
+            send_ipython(
+                publish[],
+                msg_pub(
+                    msg,
+                    "execute_result",
+                    Dict(
+                        "execution_count" => n,
+                        "metadata" => metadata,
+                        "data" => data,
+                    ),
+                ),
+            )
         end
+
         send_ipython(requests[],
                      msg_reply(msg, "execute_reply",
                                Dict("status" => "ok",
