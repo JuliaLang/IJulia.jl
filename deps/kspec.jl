@@ -36,7 +36,7 @@ end
 
 kerneldir() = joinpath(jupyter_data_dir(), "kernels")
 
-@if Sys.iswindows()
+if Sys.iswindows()
     exe(s::AbstractString) = endswith(s, ".exe") ? s : "$s.exe"
     exe(s::AbstractString, e::AbstractString) =
         string(endswith(s, ".exe") ? s[1:end-4] : s, e, ".exe")
