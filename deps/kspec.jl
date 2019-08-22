@@ -42,7 +42,7 @@ kerneldir() = joinpath(jupyter_data_dir(), "kernels")
         string(endswith(s, ".exe") ? s[1:end-4] : s, e, ".exe")
 else
     exe(s::AbstractString) = s
-    exe(s::AbstractString, s::AbstractString) = s * e
+    exe(s::AbstractString, e::AbstractString) = s * e
 end
 
 """
