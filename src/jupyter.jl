@@ -100,7 +100,7 @@ function jupyterlab(; dir=homedir(), detached=false)
     lab = find_jupyter_subcommand("lab")
     jupyter = first(lab)
     if dirname(jupyter) == abspath(Conda.SCRIPTDIR) &&
-       !Sys.isexecutable(exe("$jupyter-lab")) &&
+       !Sys.isexecutable(exe(jupyter, "-lab")) &&
        isyes(Base.prompt("install JupyterLab via Conda, y/n? [y]"))
         Conda.add("jupyterlab")
     end

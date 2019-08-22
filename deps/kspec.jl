@@ -36,9 +36,15 @@ end
 
 kerneldir() = joinpath(jupyter_data_dir(), "kernels")
 
+@if Sys.iswindows()
+    exe(s::AbstractString) = endswith(s, ".exe") ? s : "$s.exe"
+    exe(s::AbstractString, e::AbstractString) =
+        string(endswith(s, ".exe") ? s[1:end-4] : s, e, ".exe")
+else
+    exe(s::AbstractString) = s
+    exe(s::AbstractString, s::AbstractString) = s * e
+end
 
-exe(s::AbstractString) = Sys.iswindows() ? "$s.exe" : s
- 
 """
     installkernel(name::AbstractString, options::AbstractString...;
                   specname::AbstractString,
