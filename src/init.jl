@@ -84,11 +84,12 @@ function init(args)
     requests[] = Socket(ROUTER)
     control[] = Socket(ROUTER)
     heartbeat[] = Socket(ROUTER)
-    bind(publish[], "$(profile["transport"])://$(profile["ip"]):$(profile["iopub_port"])")
-    bind(requests[], "$(profile["transport"])://$(profile["ip"]):$(profile["shell_port"])")
-    bind(control[], "$(profile["transport"])://$(profile["ip"]):$(profile["control_port"])")
-    bind(raw_input[], "$(profile["transport"])://$(profile["ip"]):$(profile["stdin_port"])")
-    bind(heartbeat[], "$(profile["transport"])://$(profile["ip"]):$(profile["hb_port"])")
+    sep = profile["transport"]=="ipc" ? "-" : ":"
+    bind(publish[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["iopub_port"])")
+    bind(requests[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["shell_port"])")
+    bind(control[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["control_port"])")
+    bind(raw_input[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["stdin_port"])")
+    bind(heartbeat[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["hb_port"])")
 
     # associate a lock with each socket so that multi-part messages
     # on a given socket don't get inter-mingled between tasks.
