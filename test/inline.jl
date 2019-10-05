@@ -2,7 +2,7 @@ using Test
 import IJulia: InlineIOContext
 
 @testset "Custom Jupyter inline display" begin
-    struct TestDataType
+    @eval struct TestDataType
         payload
     end
 
