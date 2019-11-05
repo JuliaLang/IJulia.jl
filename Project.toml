@@ -1,6 +1,6 @@
 name = "IJulia"
 uuid = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
-version = "1.20.0"
+version = "1.20.1"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -20,8 +20,9 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 ZMQ = "c2297ded-f4af-51ae-bb23-16f91089e4e1"
 
 [compat]
-Conda = "≥ 0.1.5"
-JSON = "≥ 0.17.0"
-MbedTLS = "≥ 0.4.3"
-ZMQ = "≥ 1.0.0"
-julia = "≥ 0.7.0"
+Conda = "1"
+JSON = "0.18,0.19,0.20,0.21"
+MbedTLS = "0.5,0.6,0.7"
+SoftGlobalScope = "1"
+ZMQ = "1"
+julia = "0.7,1"
