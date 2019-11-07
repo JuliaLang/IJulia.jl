@@ -1,6 +1,6 @@
 name = "IJulia"
 uuid = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
-version = "1.20.1"
+version = "1.20.2"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
