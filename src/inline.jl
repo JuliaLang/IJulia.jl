@@ -26,6 +26,12 @@ israwtext(::MIME, x::AbstractString) = true
 israwtext(::MIME"text/plain", x::AbstractString) = false
 israwtext(::MIME, x) = false
 
+InlineIOContext(io, KVs::Pair...) = IOContext(
+    io,
+    :limit=>true, :color=>true, :jupyter=>true,
+    KVs...
+)
+
 # convert x to a string of type mime, making sure to use an
 # IOContext that tells the underlying show function to limit output
 function limitstringmime(mime::MIME, x)
@@ -34,14 +40,14 @@ function limitstringmime(mime::MIME, x)
         if israwtext(mime, x)
             return String(x)
         else
-            show(IOContext(buf, :limit=>true, :color=>true), mime, x)
+            show(InlineIOContext(buf), mime, x)
         end
     else
         b64 = Base64EncodePipe(buf)
         if isa(x, Vector{UInt8})
             write(b64, x) # x assumed to be raw binary data
         else
-            show(IOContext(b64, :limit=>true, :color=>true), mime, x)
+            show(InlineIOContext(b64), mime, x)
         end
         close(b64)
     end
