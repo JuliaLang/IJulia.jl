@@ -64,7 +64,7 @@ function execute_request(socket, msg)
             Core.eval(Main, helpmode(hcode))
         else
             #run the code!
-            occursin(magics_regex, code) ? magics_help(code) :
+            occursin(magics_regex, code) && match(magics_regex, code).offset == 1 ? magics_help(code) :
                 SOFTSCOPE[] ? softscope_include_string(current_module[], code, "In[$n]") :
                 include_string(current_module[], code, "In[$n]")
         end
