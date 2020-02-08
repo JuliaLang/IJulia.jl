@@ -17,21 +17,29 @@ function find_jupyter_subcommand(subcommand::AbstractString)
             jupyter = joinpath(Conda.SCRIPTDIR, exe("jupyter"))
         end
     end
+    isconda = dirname(jupyter) == abspath(Conda.SCRIPTDIR)
     if !Sys.isexecutable(jupyter)
-        if dirname(jupyter) == abspath(Conda.SCRIPTDIR) &&
-           isyes(Base.prompt("install Jupyter via Conda, y/n? [y]"))
+        if isconda && isyes(Base.prompt("install Jupyter via Conda, y/n? [y]"))
            Conda.add(subcommand == "lab" ? "jupyterlab" : "jupyter")
         else
             error("$jupyter is not installed, cannot run $subcommand")
         end
     end
 
-    # fails in Windows if jupyter directory is not in PATH (jupyter/jupyter_core#62)
-    env = Sys.iswindows() ? Dict(uppercase(k)=>v for (k,v) in ENV) : copy(ENV) # julia#29334
-    pathsep = Sys.iswindows() ? ';' : ':'
-    env["PATH"] = haskey(env, "PATH") ? dirname(jupyter) * pathsep * env["PATH"] : dirname(jupyter)
+    cmd = `$jupyter $subcommand`
 
-    return setenv(`$jupyter $subcommand`, env)
+    # fails in Windows if jupyter directory is not in PATH (jupyter/jupyter_core#62)
+    pathsep = Sys.iswindows() ? ';' : ':'
+    withenv("PATH" => dirname(jupyter) * pathsep * get(ENV, "PATH", "")) do
+        if isconda
+            # sets PATH and other environment variables for Julia's Conda environment
+            cmd = Conda._set_conda_env(cmd)
+        else
+            setenv(cmd, ENV)
+        end
+    end
+
+    return cmd
 end
 
 ##################################################################
