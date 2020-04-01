@@ -1,8 +1,14 @@
 using Conda
 
-# Install Jupyter kernel-spec file.
+# make it possible to skipe the initial jupyter kernel installation
+IJULIA_SKIP_KERNELSPEC = lowercase(get(ENV, "IJULIA_SKIP_KERNELSPEC", "0"))
+IJULIA_SKIP_KERNELSPEC = IJULIA_SKIP_KERNELSPEC in ("1", "true", "yes")
+
 include("kspec.jl")
-kernelpath = installkernel("Julia", "--project=@.")
+if !IJULIA_SKIP_KERNELSPEC
+  # Install Jupyter kernel-spec file.
+  kernelpath = installkernel("Julia", "--project=@.")
+end
 
 # make it easier to get more debugging output by setting JULIA_DEBUG=1
 # when building.
