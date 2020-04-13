@@ -22,7 +22,7 @@ ZMQ = "c2297ded-f4af-51ae-bb23-16f91089e4e1"
 [compat]
 Conda = "1"
 JSON = "0.18,0.19,0.20,0.21,1"
-MbedTLS = "0.5,0.6,0.7"
+MbedTLS = "0.5,0.6,0.7,1"
 SoftGlobalScope = "1"
 ZMQ = "1"
 julia = "0.7,1"
