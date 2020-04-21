@@ -1,5 +1,5 @@
 using Test
-import IJulia: InlineIOContext
+import IJulia: InlineIOContext, png_wh
 
 @testset "Custom Jupyter inline display" begin
     @eval struct TestDataType
@@ -22,7 +22,7 @@ import IJulia: InlineIOContext
 
     Base.show(InlineIOContext(buf), MIME("text/plain"), data)
     @test String(take!(buf)) == "TestDataType: Jupyter: \"foo\""
-    
+
     # test that we can extract a PNG header
     @test png_wh(
         "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAMCAYAAACqYHctAAAAE0lEQVR42mNk+P+/ngENMI4MQQCgfR3py/"
