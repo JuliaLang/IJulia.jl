@@ -88,14 +88,39 @@ function display(d::InlineDisplay, M::MIME, x)
                               "data" => d)))
 end
 
+
+# look for a short sequence in an array
+function get_ind(sub_arr, arr)
+    nsub = length(sub_arr)
+    search_end = length(arr) - nsub + 1
+    return findfirst(i -> all(sub_arr .== arr[i:i+nsub-1]) , 1:search_end)
+end
+
+# get w, h from PNG base64
+function png_wh(img::String)
+    decoded = base64decode(img[1:32])  # you need 13 + 8 bytes, this is a bit extra
+    ihdr = get_ind(b"IHDR", decoded) + 4  # find the location of the header
+    w, h = ntoh.(reinterpret(Int32, decoded[ihdr:ihdr+8-1]))  # get the 8 bytes after
+    return w, h
+end
+
+const retina = Ref(false)  # flag for setting retina-type images
+
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
     undisplay(x) # dequeue previous redisplay(x)
+
+    meta = metadata(x)
+    data = display_dict(x)
+    if retina[] && "image/png" in keys(data)  # if retina, apply metadata to halve sizes
+        w, h = png_wh(data["image/png"])
+        meta["image/png"] = Dict("width" => w/2, "height" => h/2)
+    end
     send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
-                         Dict("metadata" => metadata(x), # optional
-                              "data" => display_dict(x))))
+                         Dict("metadata" => meta, # optional
+                              "data" => data)))
 end
 
 # we overload redisplay(d, x) to add x to a queue of objects to display,

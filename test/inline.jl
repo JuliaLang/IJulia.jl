@@ -22,4 +22,9 @@ import IJulia: InlineIOContext
 
     Base.show(InlineIOContext(buf), MIME("text/plain"), data)
     @test String(take!(buf)) == "TestDataType: Jupyter: \"foo\""
+    
+    # test that we can extract a PNG header
+    @test png_wh(
+        "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAMCAYAAACqYHctAAAAE0lEQVR42mNk+P+/ngENMI4MQQCgfR3py/"
+        * "xS9AAAAABJRU5ErkJggg==") == (5,12)
 end
