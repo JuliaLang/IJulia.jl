@@ -25,6 +25,9 @@ import IJulia: InlineIOContext, png_wh
 
     # test that we can extract a PNG header
     @test png_wh(
-        "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAMCAYAAACqYHctAAAAE0lEQVR42mNk+P+/ngENMI4MQQCgfR3py/"
-        * "xS9AAAAABJRU5ErkJggg==") == (5,12)
+        "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAMCAYAAACqYHctAAAAE0lEQVR42mNk+P"
+        * "+/ngENMI4MQQCgfR3py/xS9AAAAABJRU5ErkJggg==") == (5,12)
+    @test png_wh(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x"
+        * "8AAwMCAO+ip1sAAAAASUVORK5CYII=") == (1,1)
 end

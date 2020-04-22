@@ -96,9 +96,10 @@ function get_ind(sub_arr, arr)
     return findfirst(i -> all(sub_arr .== arr[i:i+nsub-1]) , 1:search_end)
 end
 
-# get w, h from PNG base64
+# extract width and height from a PNG file header inside a base64 string
 function png_wh(img::String)
-    decoded = base64decode(img[1:32])  # you need 13 + 8 bytes, this is a bit extra
+    # PNG header is 8 bytes, 4 byte chunk size, 4 byte IHDR string, 8 bytes for w, h
+    decoded = base64decode(img[1:32]) 
     ihdr = get_ind(b"IHDR", decoded) + 4  # find the location of the header
     w, h = ntoh.(reinterpret(Int32, decoded[ihdr:ihdr+8-1]))  # get the 8 bytes after
     return w, h
