@@ -89,19 +89,15 @@ function display(d::InlineDisplay, M::MIME, x)
 end
 
 
-# look for a short sequence in an array
-function get_ind(sub_arr, arr)
-    nsub = length(sub_arr)
-    search_end = length(arr) - nsub + 1
-    return findfirst(i -> all(sub_arr .== arr[i:i+nsub-1]) , 1:search_end)
-end
 
 # extract width and height from a PNG file header inside a base64 string
 function png_wh(img::String)
     # PNG header is 8 bytes, 4 byte chunk size, 4 byte IHDR string, 8 bytes for w, h
-    decoded = base64decode(img[1:32]) 
-    ihdr = get_ind(b"IHDR", decoded) + 4  # find the location of the header
-    w, h = ntoh.(reinterpret(Int32, decoded[ihdr:ihdr+8-1]))  # get the 8 bytes after
+    decoded = base64decode(img[1:32])  # Base64 encodes 6 bits per character
+    if any(decoded[13:16] .!= b"IHDR")  # check if the header looks reasonable
+        throw(ArgumentError("Base64-encoded PNG has a badly formed header."))
+    end
+    w, h = ntoh.(reinterpret(Int32, decoded[17:24]))  # get the 8 bytes after
     return w, h
 end
 
