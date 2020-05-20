@@ -66,6 +66,12 @@ end
 
 display_mimestring(m::MIME, x) = (m, limitstringmime(m, x))
 
+# text/plain output must have valid Unicode data to display in Jupyter
+function display_mimestring(m::MIME"text/plain", x)
+    s = limitstringmime(m, x)
+    return m, (isvalid(s) ? s : "(binary data)")
+end
+
 """
 Generate the preferred json-MIME representation of x.
 
