@@ -54,6 +54,7 @@ import REPL.REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
 complete_type(::Type{<:Function}) = "function"
 complete_type(::Type{<:Type}) = "type"
 complete_type(::Type{<:Tuple}) = "tuple"
+complete_type(::Any) = ""
 
 function complete_type(T::DataType)
     s = string(T)
