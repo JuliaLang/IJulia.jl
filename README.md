@@ -33,6 +33,15 @@ to install IJulia.
 This process installs a [kernel specification](https://jupyter-client.readthedocs.io/en/latest/kernels.html#kernelspecs) that tells Jupyter (or JupyterLab) etcetera
 how to launch Julia.
 
+If you would like to skip the kernel specification installation when adding
+IJulia, instead you can run at the prompt:
+
+```julia
+using Pkg
+ENV["IJULIA_SKIP_KERNELSPEC"]=true
+Pkg.add("IJulia")
+```
+
 `Pkg.add("IJulia")` does not actually install Jupyter itself.
 You can install Jupyter if you want, but it can also be installed
 automatically when you run `IJulia.notebook()` below.  (You
@@ -229,7 +238,7 @@ in one of two ways:
 
 * `IJulia.readprompt(prompt)` displays the prompt string `prompt` and
   returns a string entered by the user.  `IJulia.readprompt(prompt, password=true)` does the same thing but hides the text the user types.
-  
+
 ### Clearing output
 
 Analogous to the [IPython.display.clear_output()](http://ipython.org/ipython-doc/dev/api/generated/IPython.display.html#IPython.display.clear_output) function in IPython, IJulia provides a function:
@@ -248,11 +257,11 @@ calls to `IJulia.clear_output(true)` followed by calls to
 
 ### Input and output history
 
-IJulia will store dictionaries of the user's input and output history 
+IJulia will store dictionaries of the user's input and output history
 for each session in exported variables called `In` and `Out`. To recall
 old inputs and outputs, simply index into them, e.g. `In[1]` or `Out[5]`. Sometimes, a user
 may find themselves outputting large matrices or other datastructures which
-will be stored in `Out` and hence not garbage collected, possibly hogging memory. 
+will be stored in `Out` and hence not garbage collected, possibly hogging memory.
 If you find that IJulia is using too much memory after generating large outputs, empty this output dictionary:
 ```
 empty!(Out)
