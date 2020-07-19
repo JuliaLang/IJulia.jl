@@ -16,6 +16,65 @@ import REPL: helpmode
 # use a global array to accumulate "payloads" for the execute_reply message
 const execute_payloads = Dict[]
 
+
+const cell_macros = []
+
+function run_cell_code(code)
+    do_auto_macros = true
+
+    # Check for cell macros
+    cell_macro_calls = []
+    line_no = 1
+    if startswith(code, "@@")
+        lines = split(code, '\n')
+        for line in lines
+            startswith(line, "@@") || break
+            mac_call = Meta.parse(line[2:end])
+            @assert Meta.isexpr(mac_call, :macrocall)
+            if mac_call.args[1] == Symbol("@nothing")
+                do_auto_macros = false
+                continue
+            end
+            push!(cell_macro_calls, mac_call)
+            line_no += 1
+        end
+        code = join((@view lines[line_no:end]), '\n')
+    end
+
+    # Apply macros to ast
+    mod = current_module[]
+    file = "In[$n]"
+    line_node = LineNumberNode(line_no, file)
+    ast = Meta.parse("begin\n$(code)\nend")
+    for mac_call in Iterators.reverse(cell_macro_calls)
+        push!(mac_call.args, ast)
+        ast = macroexpand(mod, mac_call)
+    end
+    if do_auto_macros
+        if SOFTSCOPE[]
+            ast = _apply_macro(var"@softscope", ast, mod)
+        end
+        for mac in Iterators.reverse(cell_macros)
+            ast = _apply_macro(mac, ast, mod)
+        end
+    end
+
+    # Make top level
+    if ast isa Expr && Meta.isexpr(ast.head, :block)
+        ast.head = :toplevel
+    end
+
+    # Run
+    Base.eval(mod, ast)
+end
+
+function _apply_macro(mac, ast, mod)
+    macro_expr = :(@macro_placehoder $ast)
+    @assert Meta.isexpr(macro_expr, :macrocall)
+    macro_expr.args[1] = mac
+    macroexpand(mod, macro_expr)
+end
+
 function execute_request(socket, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
@@ -65,8 +124,7 @@ function execute_request(socket, msg)
         else
             #run the code!
             occursin(magics_regex, code) && match(magics_regex, code).offset == 1 ? magics_help(code) :
-                SOFTSCOPE[] ? softscope_include_string(current_module[], code, "In[$n]") :
-                include_string(current_module[], code, "In[$n]")
+                run_cell_code(code)
         end
 
         if silent
