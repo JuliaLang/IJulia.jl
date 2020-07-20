@@ -16,7 +16,7 @@ import REPL: helpmode
 # use a global array to accumulate "payloads" for the execute_reply message
 const execute_payloads = Dict[]
 
-
+# An array of macros to run on the contents of each cell
 const cell_macros = []
 
 function run_cell_code(code)
@@ -31,11 +31,11 @@ function run_cell_code(code)
             startswith(line, "@@") || break
             mac_call = Meta.parse(line[2:end])
             @assert Meta.isexpr(mac_call, :macrocall)
-            if mac_call.args[1] == Symbol("@nothing")
+            if mac_call.args[1] == Symbol("@noauto")
                 do_auto_macros = false
-                continue
+            else
+                push!(cell_macro_calls, mac_call)
             end
-            push!(cell_macro_calls, mac_call)
             line_no += 1
         end
         code = join((@view lines[line_no:end]), '\n')
@@ -46,9 +46,13 @@ function run_cell_code(code)
     file = "In[$n]"
     line_node = LineNumberNode(line_no, file)
     ast = Meta.parse("begin\n$(code)\nend")
+    # Make block top level
+    if Meta.isexpr(ast, :block)
+        ast.head = :toplevel
+    end
     for mac_call in Iterators.reverse(cell_macro_calls)
         push!(mac_call.args, ast)
-        ast = macroexpand(mod, mac_call)
+        ast = macroexpand(mod, mac_call, recursive=false)
     end
     if do_auto_macros
         if SOFTSCOPE[]
@@ -59,11 +63,6 @@ function run_cell_code(code)
         end
     end
 
-    # Make top level
-    if ast isa Expr && Meta.isexpr(ast.head, :block)
-        ast.head = :toplevel
-    end
-
     # Run
     Base.eval(mod, ast)
 end
@@ -72,7 +71,7 @@ function _apply_macro(mac, ast, mod)
     macro_expr = :(@macro_placehoder $ast)
     @assert Meta.isexpr(macro_expr, :macrocall)
     macro_expr.args[1] = mac
-    macroexpand(mod, macro_expr)
+    macroexpand(mod, macro_expr, recursive=false)
 end
 
 function execute_request(socket, msg)
