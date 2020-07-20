@@ -49,12 +49,17 @@ function run_cell_code(code)
     # Apply macros to ast
     mod = current_module[]
     file = "In[$n]"
-    line_node = LineNumberNode(line_no, file)
-    ast = Meta.parse("begin\n$(code)\nend")
-    # Make block top level
-    if Meta.isexpr(ast, :block)
-        ast.head = :toplevel
-    end
+
+    ast = parse_file(code, file, false)
+    # More compatible?
+    #ast = Meta.parse("begin\n$(code)\nend", raise=false)
+    ## Make block top level
+    #if Meta.isexpr(ast, :block)
+    #    ast.head = :toplevel
+    #    line_node = LineNumberNode(line_no, file)
+    #    push!(ast.args, 1, line_node)
+    #end
+
     for mac_call in Iterators.reverse(cell_macro_calls)
         push!(mac_call.args, ast)
         ast = macroexpand(mod, mac_call, recursive=false)
@@ -77,6 +82,29 @@ function _apply_macro(mac, ast, mod)
     @assert Meta.isexpr(macro_expr, :macrocall)
     macro_expr.args[1] = mac
     macroexpand(mod, macro_expr, recursive=false)
+end
+
+"""
+    parse_file(content, fname; raise=true, depwarn=true)
+
+Parse the entire string as a file, reading multiple expressions.  Equivalent to
+`Meta.parse()` but for more than one expression.
+"""
+function parse_file(content::AbstractString, fname::AbstractString,
+                    raise::Bool=true, depwarn::Bool=true)
+    # returns (expr, end_pos). expr is () in case of parse error.
+    bcontent = String(content)
+    bfname = String(fname)
+    # For now, assume all parser warnings are depwarns
+    ex = Meta.with_logger(depwarn ? Meta.current_logger() : Meta.NullLogger()) do
+        ccall(:jl_parse_all, Any,
+              (Ptr{UInt8}, Csize_t, Ptr{UInt8}, Csize_t),
+              bcontent, sizeof(bcontent), fname, sizeof(fname))
+    end
+    if raise && Meta.isexpr(ex, :error)
+        throw(ParseError(ex.args[1]))
+    end
+    ex
 end
 
 function execute_request(socket, msg)
