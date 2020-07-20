@@ -28,6 +28,11 @@ function run_cell_code(code)
     if startswith(code, "@@")
         lines = split(code, '\n')
         for line in lines
+            line = strip(line)
+            if length(line) <= 0
+                line_no += 1
+                continue
+            end
             startswith(line, "@@") || break
             mac_call = Meta.parse(line[nextind("abc", 0, 2):end])
             @assert Meta.isexpr(mac_call, :macrocall)
