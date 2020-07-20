@@ -29,7 +29,7 @@ function run_cell_code(code)
         lines = split(code, '\n')
         for line in lines
             startswith(line, "@@") || break
-            mac_call = Meta.parse(line[2:end])
+            mac_call = Meta.parse(line[nextind("abc", 0, 2):end])
             @assert Meta.isexpr(mac_call, :macrocall)
             if mac_call.args[1] == Symbol("@noauto")
                 do_auto_macros = false
