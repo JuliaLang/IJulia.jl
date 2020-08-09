@@ -12,5 +12,9 @@ makedocs(
             "manual/usage.md",
             "manual/troubleshooting.md",
         ],
+        "Library" => [
+            "library/public.md",
+            "library/internals.md",
+        ],
     ],
 )
