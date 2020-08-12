@@ -18,3 +18,9 @@ makedocs(
         ],
     ],
 )
+
+
+deploydocs(
+    repo = "github.com/JuliaLang/IJulia.jl.git",
+    push_preview = true,
+)
