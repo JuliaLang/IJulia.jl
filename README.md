@@ -52,4 +52,4 @@ package to install a minimal Python+Jupyter distribution (via
 private to Julia (not in your `PATH`).
 
 For more advanced installation options, such as specifying a specific Jupyter
-installation to use, see the documentation.
+installation to use, see the [documentation](https://JuliaLang.github.io/IJulia.jl/stable).
