@@ -122,6 +122,15 @@ It defaults to `Main`.
 
 By default, IJulia evaluates user code using "soft" global scope, via the [SoftGlobalScope.jl package](https://github.com/stevengj/SoftGlobalScope.jl): this means that you don't need explicit `global` declarations to modify global variables in `for` loops and similar, which is convenient for interactive use.
 
-To opt out of this behavior, making notebooks behave similarly to global code in Julia `.jl` files,
+To opt out of this behavior, making notebooks behave similarly to global code in Julia `.jl` files or the REPL in Julia 1.0…1.4,
 you can set `IJulia.SOFTSCOPE[] = false` at runtime, or include the environment variable `IJULIA_SOFTSCOPE=no`
 environment of the IJulia kernel when it is launched.
+
+In Julia 1.5 or later, [soft-scope became the default
+in the Julia REPL](https://julialang.org/blog/2020/08/julia-1.5-highlights/#the_return_of_quotsoft_scopequot_in_the_repl), and
+IJulia once again matches the REPL behavior.   The `IJULIA_SOFTSCOPE`
+and `IJulia.SOFTSCOPE[]` can still be used to disable soft scope
+in IJulia, however.   More generally, the soft scoping can
+be disabled in both the REPL and in IJulia by removing the
+`REPL.softscope` function from the variable `REPL.repl_ast_transforms`
+in your [`~/.julia/config/startup.jl`](https://docs.julialang.org/en/v1/manual/getting-started/) file.

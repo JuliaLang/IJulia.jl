@@ -11,10 +11,29 @@ execute_msg = Msg(["julia"], Dict("username"=>"jlkernel", "session"=>uuid4()), D
 # request
 const stdio_bytes = Ref(0)
 
+import REPL
 import REPL: helpmode
 
 # use a global array to accumulate "payloads" for the execute_reply message
 const execute_payloads = Dict[]
+
+function execute_code(code::AbstractString, filename::AbstractString)
+    @static if !isdefined(REPL, :repl_ast_transforms)
+        return SOFTSCOPE[] ? softscope_include_string(current_module[], code, "In[$n]") :
+                             include_string(current_module[], code, "In[$n]")
+    else
+        # use the default REPL ast transformations in Julia 1.5,
+        # which include the soft-scope transformation.
+        include_string(current_module[], code, "In[$n]") do ast
+            for xf in REPL.repl_ast_transforms
+                if xf !== REPL.softscope || SOFTSCOPE[]
+                    ast = Base.invokelatest(xf, ast)
+                end
+            end
+            ast
+        end
+    end
+end
 
 function execute_request(socket, msg)
     code = msg.content["code"]
@@ -65,8 +84,7 @@ function execute_request(socket, msg)
         else
             #run the code!
             occursin(magics_regex, code) && match(magics_regex, code).offset == 1 ? magics_help(code) :
-                SOFTSCOPE[] ? softscope_include_string(current_module[], code, "In[$n]") :
-                include_string(current_module[], code, "In[$n]")
+                execute_code(code, "In[$n]")
         end
 
         if silent
