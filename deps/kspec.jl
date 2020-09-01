@@ -47,6 +47,7 @@ end
 
 """
     installkernel(name::AbstractString, options::AbstractString...;
+                  julia_cmd::Cmd,
                   specname::AbstractString,
                   env=Dict())
 
@@ -66,8 +67,23 @@ The returned `kernelpath` is the path of the installed kernel directory, somethi
 directory (which defaults to `name` with spaces replaced by hyphens).
 
 You can uninstall the kernel by calling `rm(kernelpath, recursive=true)`.
+
+You can specify a custom `julia` command via `julia_cmd`. For example,
+you may want specify that the Julia kernel is running in a Docker
+container (but Jupyter will run outside of it), by calling `installkernel`
+from within such a container instance like this (or similar):
+
+```
+installkernel(
+    "Julia via Docker",
+    julia_cmd = `docker run --rm --net=host
+        --volume=/home/USERNAME/.local/share/jupyter:/home/USERNAME/.local/share/jupyter
+        some-container /opt/julia-1.x/bin/julia`
+)
+```
 """
 function installkernel(name::AbstractString, julia_options::AbstractString...;
+                   julia_cmd::Cmd = `$(joinpath(Sys.BINDIR,exe("julia")))`,
                    specname::AbstractString = replace(lowercase(name), " "=>"-"),
                    env::Dict{<:AbstractString}=Dict{String,Any}())
     # Is IJulia being built from a debug build? If so, add "debug" to the description.
@@ -78,7 +94,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
     @info("Installing $name kernelspec in $juliakspec")
     rm(juliakspec, force=true, recursive=true)
     try
-        kernelcmd_array = String[joinpath(Sys.BINDIR,exe("julia")), "-i",
+        kernelcmd_array = String[julia_cmd.exec..., "-i",
                                  "--startup-file=yes", "--color=yes"]
         append!(kernelcmd_array, julia_options)
         ijulia_dir = get(ENV, "IJULIA_DIR", dirname(@__DIR__)) # support non-Pkg IJulia installs
