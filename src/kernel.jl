@@ -8,7 +8,8 @@ let
     end
 end
 
-using InteractiveUtils
+# Load InteractiveUtils from the IJulia namespace since @stdlib might not be in LOAD_PATH
+using IJulia.InteractiveUtils
 
 # workaround #60:
 if Sys.isapple()
