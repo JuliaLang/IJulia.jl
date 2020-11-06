@@ -103,7 +103,7 @@ On Mac and Windows systems, it is currently easiest to use the
 * To use the [IPython notebook](http://ipython.org/notebook.html) interface, which runs in your web
   browser and provides a rich multimedia environment, you will need
   to install the [jsonschema](https://pypi.python.org/pypi/jsonschema), [Jinja2](http://jinja.pocoo.org/docs/), [Tornado](http://www.tornadoweb.org/en/stable/),
-  and [pyzmq](https://github.com/zeromq/pyzmq) (requires `apt-get install libzmq-dev` and possibly `pip install --upgrade --force-reinstall pyzmq` on Ubuntu if you are using `pip`) Python packages.
+  and [pyzmq](https://github.com/zeromq/pyzmq) (requires `apt-get install libzmq-dev` and possibly `pip3 install --upgrade --force-reinstall pyzmq` on Ubuntu if you are using `pip3`) Python packages.
   (Given the [pip](http://www.pip-installer.org/en/latest/) installer, `pip install jsonschema jinja2 tornado pyzmq`
   should normally be sufficient.)  These should have been automatically installed if you installed IPython itself
   [via `easy_install` or `pip`](http://ipython.org/ipython-doc/stable/install/install.html#quickstart).
