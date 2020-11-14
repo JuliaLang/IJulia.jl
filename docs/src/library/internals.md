@@ -10,16 +10,6 @@ IJulia.init
 
 ## Cell execution hooks
 
-These functions can be used to modify the behavior of IJulia
-by executing custom code before or after cells are executed
-(or errors are handled).
-
-In Julia 1.5 or later, you can *also* add a transformation
-function to `REPL.repl_ast_transforms` which takes every parsed
-expression and transforms it to another expression.  These
-transformations are [used in the Julia REPL](https://github.com/JuliaLang/julia/issues/37047) (technically, they are the deaults for `Base.active_repl_backend.ast_transforms` in new REPL instances),
-and are also executed by IJulia on each parsed code-cell expression.
-
 ```@docs
 IJulia.pop_posterror_hook
 IJulia.pop_postexecute_hook
@@ -28,6 +18,7 @@ IJulia.push_posterror_hook
 IJulia.push_postexecute_hook
 IJulia.push_preexecute_hook
 ```
+
 
 ## Messaging
 
