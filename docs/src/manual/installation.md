@@ -73,6 +73,7 @@ installkernel("Julia (4 threads)", env=Dict("JULIA_NUM_THREADS"=>"4"))
 ```
 The `env` keyword should be a `Dict` mapping environment variables to values.
 
+To *prevent* IJulia from installing a default kernel when the package is built, define the `IJULIA_NODEFAULTKERNEL` environment variable before adding/building IJulia.
 
 ## Low-level Information
 
