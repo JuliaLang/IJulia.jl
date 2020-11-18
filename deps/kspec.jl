@@ -49,11 +49,13 @@ end
     installkernel(name::AbstractString, options::AbstractString...;
                   julia::Cmd,
                   specname::AbstractString,
-                  env=Dict())
+                  fuzzy_completion_mode::Bool=false
+                  env::Dict{<:AbstractString}=Dict())
 
 Install a new Julia kernel, where the given `options` are passed to the `julia`
 executable, the user-visible kernel name is given by `name` followed by the
 Julia version, and the `env` dictionary is added to the environment.
+If `fuzzy_completion_mode` is `true`, then <kbd>shift-tab</kbd> completions will be done fuzzily.
 
 The new kernel name is returned by `installkernel`.  For example:
 ```
@@ -85,7 +87,9 @@ installkernel(
 function installkernel(name::AbstractString, julia_options::AbstractString...;
                    julia::Cmd = `$(joinpath(Sys.BINDIR,exe("julia")))`,
                    specname::AbstractString = replace(lowercase(name), " "=>"-"),
-                   env::Dict{<:AbstractString}=Dict{String,Any}())
+                   fuzzy_completion_mode::Bool = false,
+                   env::Dict{<:AbstractString} = Dict{String,Any}(),
+                   )
     # Is IJulia being built from a debug build? If so, add "debug" to the description.
     debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
 
@@ -99,6 +103,8 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
         append!(kernelcmd_array, julia_options)
         ijulia_dir = get(ENV, "IJULIA_DIR", dirname(@__DIR__)) # support non-Pkg IJulia installs
         append!(kernelcmd_array, [joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
+
+        push!(env, "IJULIA_COMPLETION_MODE" => fuzzy_completion_mode ? "fuzzy" : "repl")
 
         ks = Dict(
             "argv" => kernelcmd_array,
