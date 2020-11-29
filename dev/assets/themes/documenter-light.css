@@ -7277,6 +7277,9 @@ h1:hover .docs-heading-anchor-permalink, h2:hover .docs-heading-anchor-permalink
   top: 0;
   right: 0; }
 
+.katex-display, mjx-container, .MathJax_Display {
+  margin: 0.5em 0 !important; }
+
 html {
   -moz-osx-font-smoothing: auto;
   -webkit-font-smoothing: auto; }
@@ -7287,6 +7290,8 @@ html {
  */
 #documenter .docs-main > article {
   overflow-wrap: break-word; }
+  #documenter .docs-main > article .math-container {
+    overflow-x: auto; }
 
 @media screen and (min-width: 1056px) {
   #documenter .docs-main {

@@ -7305,11 +7305,15 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .katex .katex-mathml {
     top: 0;
     right: 0; }
+  html.theme--documenter-dark .katex-display, html.theme--documenter-dark mjx-container, html.theme--documenter-dark .MathJax_Display {
+    margin: 0.5em 0 !important; }
   html.theme--documenter-dark html {
     -moz-osx-font-smoothing: auto;
     -webkit-font-smoothing: auto; }
   html.theme--documenter-dark #documenter .docs-main > article {
     overflow-wrap: break-word; }
+    html.theme--documenter-dark #documenter .docs-main > article .math-container {
+      overflow-x: auto; }
   @media screen and (min-width: 1056px) {
     html.theme--documenter-dark #documenter .docs-main {
       max-width: 52rem;
