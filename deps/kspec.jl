@@ -94,8 +94,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
     @info("Installing $name kernelspec in $juliakspec")
     rm(juliakspec, force=true, recursive=true)
     try
-        kernelcmd_array = String[julia.exec..., "-i",
-                                 "--startup-file=yes", "--color=yes"]
+        kernelcmd_array = String[julia.exec..., "-i", "--color=yes"]
         append!(kernelcmd_array, julia_options)
         ijulia_dir = get(ENV, "IJULIA_DIR", dirname(@__DIR__)) # support non-Pkg IJulia installs
         append!(kernelcmd_array, [joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
