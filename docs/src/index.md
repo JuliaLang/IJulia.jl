@@ -9,6 +9,8 @@ notebook](http://ipython.org/notebook.html), which combines code,
 formatted text, math, and multimedia in a single document.  It
 also works with [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/), a Jupyter-based
 integrated development environment for notebooks and code.
+The [nteract notebook desktop](https://nteract.io/) supports IJulia with
+detailed instructions for its [installation with nteract](https://nteract.io/kernels/julia).
 
 (IJulia notebooks can also be re-used in other Julia code via
 the [NBInclude](https://github.com/stevengj/NBInclude.jl) package.)
