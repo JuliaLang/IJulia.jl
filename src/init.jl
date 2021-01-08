@@ -4,7 +4,7 @@ import Random: seed!
 # don't alter the user-visible random state (issue #336)
 const IJulia_RNG = seed!(Random.MersenneTwister(0))
 import UUIDs
-uuid4() = repr(UUIDs.uuid4(IJulia_RNG))
+uuid4() = string(UUIDs.uuid4(IJulia_RNG))
 
 const orig_stdin  = Ref{IO}()
 const orig_stdout = Ref{IO}()
