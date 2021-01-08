@@ -15,7 +15,7 @@ mutable struct Msg
     end
 end
 
-msg_header(m::Msg, msg_type::String) = Dict("msg_id" => string(uuid4()),
+msg_header(m::Msg, msg_type::String) = Dict("msg_id" => uuid4(),
                                             "username" => m.header["username"],
                                             "session" => m.header["session"],
                                             "date" => now(),
