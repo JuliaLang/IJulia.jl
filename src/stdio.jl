@@ -23,14 +23,28 @@ Base.displaysize(io::IJuliaStdio) = displaysize(io.io)
 Base.unwrapcontext(io::IJuliaStdio) = Base.unwrapcontext(io.io)
 Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, readable)
 
-function redirect_stream(which::String)
+function redirect_stream(which::String, other::Union{IO, Nothing}=nothing)
     ssym = Symbol(which)
-    stream = eval(ssym)
+    if other !== nothing
+        stream = other
+    else
+        stream = eval(ssym)
+    end
     io = IJuliaStdio(stream, which)
     js = io[:jupyter_stream]
     js != which && throw(ArgumentError("expecting $(which) stream, got $(js)"))
     Core.eval(Base, Expr(:(=), ssym, io))
     return io
+end
+
+function redirect_stream(f::Function, which::String, other::Union{IO, Nothing}=nothing)
+    restore = eval(Symbol(which))
+    redirected = redirect_stream(which, other)
+    try
+        return f()
+    finally
+        redirect_stream(which, restore)
+    end
 end
 
 # logging in verbose mode goes to original stdio streams.  Use macros
