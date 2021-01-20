@@ -5,26 +5,25 @@
 # thread safety in Julia should not be an issue here.
 
 
-using ZMQ: libzmq
-
 function heartbeat_thread(addr)
     heartbeat = Ref{Socket}()
-    heartbeat[] = Socket(ROUTER)
+    heartbeat[] = Socket(REP)
     sock = heartbeat[]
-
     bind(sock, addr)
-    
-    ccall((:zmq_proxy,libzmq), Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
-          sock, sock, C_NULL)
+
+    while true
+        msg = recv(sock, String)
+        # println(msg)
+        send(sock, msg)
+    end
 end
 
-hb_pid = 0
 
 function start_heartbeat(addr)
-    global hb_pid = addprocs(1)[1]
-    println("hb on pid $hb_pid, $addr")
+    hb_pid = addprocs(1)[1]
+    println("heart beat on: pid = $hb_pid, addr = $addr")
     
     @everywhere @eval (!isdefined(Main, :IJulia) && using IJulia)
 
-    @spawnat hb_pid IJulia.heartbeat_thread("$addr")
+    @spawnat hb_pid IJulia.heartbeat_thread(addr)
 end
