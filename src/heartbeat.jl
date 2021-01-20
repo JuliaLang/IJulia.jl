@@ -5,18 +5,26 @@
 # thread safety in Julia should not be an issue here.
 
 
-const threadid = zeros(Int, 128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
 using ZMQ: libzmq
 
-# entry point for new thread
-function heartbeat_thread(sock::Ptr{Cvoid})
+function heartbeat_thread(addr)
+    heartbeat = Ref{Socket}()
+    heartbeat[] = Socket(ROUTER)
+    sock = heartbeat[]
+
+    bind(sock, addr)
+    
     ccall((:zmq_proxy,libzmq), Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
           sock, sock, C_NULL)
-    nothing
 end
 
-function start_heartbeat(sock)
-    heartbeat_c = @cfunction(heartbeat_thread, Cvoid, (Ptr{Cvoid},))
-    ccall(:uv_thread_create, Cint, (Ptr{Int}, Ptr{Cvoid}, Ptr{Cvoid}),
-          threadid, heartbeat_c, sock)
+hb_pid = 0
+
+function start_heartbeat(addr)
+    global hb_pid = addprocs(1)[1]
+    println("hb on pid $hb_pid, $addr")
+    
+    @everywhere @eval (!isdefined(Main, :IJulia) && using IJulia)
+
+    @spawnat hb_pid IJulia.heartbeat_thread("$addr")
 end
