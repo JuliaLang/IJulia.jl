@@ -1,8 +1,6 @@
-# Spawn a thread (using pthreads on Unix/OSX and Windows threads on Windows)
+# Spawn a new process
 # to implement the "heartbeat" message channel, which is just a ZMQ
-# socket that echoes all messages.  This is implemented with the zmq_proxy
-# call in libzmq, which simply blocks forever, so the usual lack of
-# thread safety in Julia should not be an issue here.
+# socket that echoes all messages.
 
 
 function heartbeat_thread(addr)
@@ -21,9 +19,7 @@ end
 
 function start_heartbeat(addr)
     hb_pid = addprocs(1)[1]
-    println("heart beat on: pid = $hb_pid, addr = $addr")
-    
-    @everywhere @eval (!isdefined(Main, :IJulia) && using IJulia)
-
+    #println("[heart beat] on: pid = $hb_pid, addr = $addr")
+    @everywhere eval(quote !isdefined(Main, :IJulia) && using IJulia end)
     @spawnat hb_pid IJulia.heartbeat_thread(addr)
 end
