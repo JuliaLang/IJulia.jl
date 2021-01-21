@@ -16,10 +16,3 @@ function heartbeat_thread(addr)
     end
 end
 
-
-function start_heartbeat(addr)
-    hb_pid = addprocs(1)[1]
-    #println("[heart beat] on: pid = $hb_pid, addr = $addr")
-    @everywhere eval(quote !isdefined(Main, :IJulia) && using IJulia end)
-    @spawnat hb_pid IJulia.heartbeat_thread(addr)
-end

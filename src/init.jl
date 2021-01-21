@@ -95,7 +95,7 @@ function init(args)
     end
 
     hb_addr = "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["hb_port"])"
-    start_heartbeat(hb_addr)
+    @async heartbeat_thread(hb_addr)
 
     if capture_stdout
         read_stdout[], = redirect_stdout()
