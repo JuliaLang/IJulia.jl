@@ -1,17 +1,13 @@
-# Spawn a new process
+# Spawn via @async
 # to implement the "heartbeat" message channel, which is just a ZMQ
 # socket that echoes all messages.
 
 
-function heartbeat_thread(addr)
-    heartbeat = Ref{Socket}()
-    heartbeat[] = Socket(REP)
-    sock = heartbeat[]
-    bind(sock, addr)
-
+function start_heartbeat(sock)
+    @vprintln("[hb]: got socket")
     while true
         msg = recv(sock, String)
-        # println(msg)
+        @vprintln(msg)
         send(sock, msg)
     end
 end
