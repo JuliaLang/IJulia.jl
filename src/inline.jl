@@ -149,17 +149,15 @@ function limitstringmime(mime::MIME, x)
     return String(take!(buf))
 end
 
-for mime in ipy_mime
+for mimestr in ipy_mime
+    M = MIME{Symbol(mimestr)}
     @eval begin
-        function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
-            flush_all() # so that previous stream output appears in order
-            send_ipython(publish[],
-                         msg_pub(execute_msg, "display_data",
-                                 Dict(
-                                  "metadata" => metadata(x), # optional
-                                  "data" => Dict($mime => limitstringmime(MIME($mime), x)))))
+        function display(d::InlineDisplay, ::$M, x)
+            s = limitstringmime($M(), x)
+            m = get(metadata(x), $mimestr, Dict())
+            display_data($M(), s, m)
         end
-        displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
+        displayable(d::InlineDisplay, ::$M) = true
     end
 end
 
@@ -172,28 +170,21 @@ display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("applic
 # If the user explicitly calls display("foo/bar", x), we send
 # the display message, also sending text/plain for text data.
 displayable(d::InlineDisplay, M::MIME) = istextmime(M)
+
 function display(d::InlineDisplay, M::MIME, x)
     sx = limitstringmime(M, x)
-    d = Dict(string(M) => sx)
+    bundle = Dict(string(M) => sx)
     if istextmime(M)
-        d["text/plain"] = sx # directly show text data, e.g. text/csv
+        bundle["text/plain"] = sx # directly show text data, e.g. text/csv
     end
-    flush_all() # so that previous stream output appears in order
-    send_ipython(publish[],
-                 msg_pub(execute_msg, "display_data",
-                         Dict("metadata" => metadata(x), # optional
-                              "data" => d)))
+    display_data(bundle, metadata(x))
 end
 
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
     undisplay(x) # dequeue previous redisplay(x)
-    flush_all() # so that previous stream output appears in order
-    send_ipython(publish[],
-                 msg_pub(execute_msg, "display_data",
-                         Dict("metadata" => metadata(x), # optional
-                              "data" => display_dict(x))))
+    display_data(display_dict(x), metadata(x))
 end
 
 # we overload redisplay(d, x) to add x to a queue of objects to display,
