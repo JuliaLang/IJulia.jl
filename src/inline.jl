@@ -34,9 +34,27 @@ _format_mime_key(k) = error("MIME bundle keys should be instances of String or M
 _format_mimebundle(d::Dict{String}) = d
 _format_mimebundle(d::AbstractDict) = Dict(_format_mime_key(k) => v for (k, v) in pairs(d))
 
+
+"""Create JSON content for "display_data" or "redisplay_data" message, properly formatting arguments."""
+function _display_msg(mimebundle::AbstractDict, metadata::AbstractDict, display_id::Union{Integer, AbstractString, Nothing})
+    content = Dict{String, Any}("data" => _format_mimebundle(mimebundle), "metadata" => _format_mimebundle(metadata))
+    if display_id !== nothing
+        content["transient"] = Dict("display_id" => display_id)
+    end
+    return content
+end
+
+function _display_msg(mime::String, data, metadata::AbstractDict, display_id::Union{Integer, AbstractString, Nothing})
+    bundle = Dict{String, Any}(mime => data)
+    md = Dict{String, Any}(mime => metadata)
+    mime != "text/plain" && (bundle["text/plain"] = "Unable to display data with MIME type $mime")  # Fallback
+    return _display_msg(bundle, md, display_id)
+end
+
+
 """
-    display_data(mime::Union{MIME, String}, data, metadata::AbstractDict=Dict())
-    display_data(mimebundle::AbstractDict, metadata::AbstractDict=Dict())
+    display_data(mime::Union{MIME, String}, data, metadata::AbstractDict=Dict(); display_id=nothing)
+    display_data(mimebundle::AbstractDict, metadata::AbstractDict=Dict(); display_id=nothing)
 
 Publish encoded multimedia data to be displayed all Jupyter front ends.
 
@@ -64,6 +82,11 @@ supported type to display.
 for the keys used by IPython, notable ones are `width::Int` and `height::Int` to control the size
 of displayed images. When using the second form of the function the argument should be a dictionary
 of dictionaries keyed by MIME type.
+
+`display_id` is an arbitrary integer or string which can be used to update this display at a later
+time using [`update_display_data`](@ref). This can be used to create simple animations by updating
+the display at regular intervals, or to update a display created in a different cell.
+An empty MIME bundle can be passed to initialize an empty display that can be updated later.
 
 
 # Examples
@@ -105,19 +128,50 @@ Adjust the size of the displayed image by passing a metadata dictionary:
 ```julia
 IJulia.display_data("image/png", data_enc, Dict("width" => 800, "height" => 600))
 ```
+
+Updating existing display data using the `display_id` argument and [`update_display_data`](@ref):
+
+```julia
+IJulia.display_data("text/plain", "Before update", display_id="my_id")
+
+# After some time or from a different cell:
+IJulia.update_display_data("my_id", "text/plain", "After update")
+```
 """
-function display_data(mimebundle::AbstractDict, metadata::AbstractDict=Dict())
-    content = Dict("data" => _format_mimebundle(mimebundle), "metadata" => _format_mimebundle(metadata))
+function display_data(mimebundle::AbstractDict, metadata::AbstractDict=Dict(); display_id::Union{Integer, AbstractString, Nothing}=nothing)
+    content = _display_msg(mimebundle, metadata, display_id)
     flush_all() # so that previous stream output appears in order
     send_ipython(publish[], msg_pub(execute_msg, "display_data", content))
 end
 
-function display_data(mime::Union{MIME, AbstractString}, data, metadata::AbstractDict=Dict())
-    mt = string(mime)
-    d = Dict{String, Any}(mt => data)
-    md = Dict{String, Any}(mt => metadata)
-    mt != "text/plain" && (d["text/plain"] = "Unable to display data with MIME type $mt")  # Fallback
-    display_data(d, md)
+function display_data(mime::Union{MIME, AbstractString}, data, metadata::AbstractDict=Dict(); display_id::Union{Integer, AbstractString, Nothing}=nothing)
+    content = _display_msg(string(mime), data, metadata, display_id)
+    flush_all() # so that previous stream output appears in order
+    send_ipython(publish[], msg_pub(execute_msg, "display_data", content))
+end
+
+
+"""
+    update_display_data(display_id, mime::Union{MIME, AbstractString}, data, metadata::AbstractDict=Dict())
+    update_display_data(display_id, mimebundle::AbstractDict, metadata::AbstractDict=Dict())
+
+Update multimedia data previously displayed with [`display_data`](@ref) using
+the `display_id` argument.
+
+Note that in the Jupyter notebook/lab this function need not be called from the
+same cell as the original call to `display_data`. The updated data also does
+not need to contain the same MIME types as the original.
+"""
+function update_display_data(display_id::Union{Integer, AbstractString}, mimebundle::AbstractDict, metadata::AbstractDict=Dict())
+    content = _display_msg(mimebundle, metadata, display_id)
+    flush_all()
+    send_ipython(publish[], msg_pub(execute_msg, "update_display_data", content))
+end
+
+function update_display_data(display_id::Union{Integer, AbstractString}, mime::Union{MIME, AbstractString}, data, metadata::AbstractDict=Dict())
+    content = _display_msg(string(mime), data, metadata, display_id)
+    flush_all()
+    send_ipython(publish[], msg_pub(execute_msg, "update_display_data", content))
 end
 
 

@@ -51,4 +51,5 @@ IJulia.set_max_stdio
 ## Multimedia display
 ```@docs
 IJulia.display_data
+IJulia.update_display_data
 ```
