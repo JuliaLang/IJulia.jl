@@ -159,7 +159,7 @@ function error_content(e, bt=catch_backtrace();
     evalue = try
         # Peel away one LoadError layer that comes from running include_string on the cell
         isa(e, LoadError) && (e = e.error)
-        sprint((io, e, bt) -> invokelatest(showerror_nobt, io, e, bt), e, bt)
+        sprint((io, e, bt) -> invokelatest(showerror_nobt, io, e, bt), e, bt; context=:limit=>true)
     catch
         "SYSTEM: show(lasterr) caused an error"
     end
