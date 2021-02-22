@@ -1,6 +1,5 @@
 environment:
   matrix:
-  - julia_version: 1.7
   - julia_version: nightly
 
 platform:
