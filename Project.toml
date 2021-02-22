@@ -1,6 +1,6 @@
 name = "IJulia"
 uuid = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
-version = "1.23.1"
+version = "1.23.2"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -26,4 +26,4 @@ JSON = "0.18,0.19,0.20,0.21,1"
 MbedTLS = "0.5,0.6,0.7,1"
 SoftGlobalScope = "1"
 ZMQ = "1"
-julia = "0.7,1"
+julia = "1.7"
