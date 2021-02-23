@@ -11,6 +11,14 @@ using IJulia
         flush(io)
         seek(io, 0)
         @test read(io, String) == "stdout\nprint\n"
+        if VERSION < v"1.7.0-DEV.254"
+            @test_throws ArgumentError redirect_stdout(IJulia.IJuliaStdio(io, "stderr"))
+            @test_throws ArgumentError redirect_stdout(IJulia.IJuliaStdio(io, "stdin"))
+            @test_throws ArgumentError redirect_stderr(IJulia.IJuliaStdio(io, "stdout"))
+            @test_throws ArgumentError redirect_stderr(IJulia.IJuliaStdio(io, "stdin"))
+            @test_throws ArgumentError redirect_stdin(IJulia.IJuliaStdio(io, "stdout"))
+            @test_throws ArgumentError redirect_stdin(IJulia.IJuliaStdio(io, "stderr"))
+        end
     end
 
     mktemp() do path, io
