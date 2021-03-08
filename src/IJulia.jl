@@ -38,7 +38,7 @@ import Base.invokelatest
 import Dates
 using Dates: now
 import Random
-using Base64: Base64EncodePipe
+using Base64: Base64EncodePipe, base64decode
 import REPL
 
 # InteractiveUtils is not used inside IJulia, but loaded in src/kernel.jl

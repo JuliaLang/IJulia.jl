@@ -88,14 +88,38 @@ function display(d::InlineDisplay, M::MIME, x)
                               "data" => d)))
 end
 
+
+
+# extract width and height from a PNG file header inside a base64 string
+function png_wh(img::String)
+    # PNG header is 8 bytes, 4 byte chunk size, 4 byte IHDR string, 8 bytes for w, h
+    decoded = base64decode(img[1:32])  # Base64 encodes 6 bits per character
+    if any(decoded[13:16] .!= b"IHDR")  # check if the header looks reasonable
+        return 0, 0  # unreasonable header, return zeroes. we check for this in display()
+    end
+    w, h = ntoh.(reinterpret(Int32, decoded[17:24]))  # get the 8 bytes after
+    return w, h
+end
+
+const retina = Ref(false)  # flag for setting retina-type images
+
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
     undisplay(x) # dequeue previous redisplay(x)
+
+    meta = metadata(x)
+    data = display_dict(x)
+    if retina[] && "image/png" in keys(data)  # if retina, apply metadata to halve sizes
+        w, h = png_wh(data["image/png"])
+        if w != 0 && h != 0  # avoid setting any metadata if w or h is zero
+            meta["image/png"] = Dict("width" => w/2, "height" => h/2)
+        end
+    end
     send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
-                         Dict("metadata" => metadata(x), # optional
-                              "data" => display_dict(x))))
+                         Dict("metadata" => meta, # optional
+                              "data" => data)))
 end
 
 # we overload redisplay(d, x) to add x to a queue of objects to display,
