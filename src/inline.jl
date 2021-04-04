@@ -57,6 +57,7 @@ end
 for mime in ipy_mime
     @eval begin
         function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
+            flush_all() # so that previous stream output appears in order
             send_ipython(publish[],
                          msg_pub(execute_msg, "display_data",
                                  Dict(
@@ -82,6 +83,7 @@ function display(d::InlineDisplay, M::MIME, x)
     if istextmime(M)
         d["text/plain"] = sx # directly show text data, e.g. text/csv
     end
+    flush_all() # so that previous stream output appears in order
     send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
                          Dict("metadata" => metadata(x), # optional
@@ -92,6 +94,7 @@ end
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
     undisplay(x) # dequeue previous redisplay(x)
+    flush_all() # so that previous stream output appears in order
     send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
                          Dict("metadata" => metadata(x), # optional
