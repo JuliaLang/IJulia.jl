@@ -1,87 +1,130 @@
 # Installation
 
-
 ## Installing IJulia
 
-First, [download Julia](http://julialang.org/downloads/) *version 0.7
-or later* and run the installer.  Then run the Julia application
-(double-click on it); a window with a `julia>` prompt will appear.  At
-the prompt, type:
-```julia
-using Pkg
-Pkg.add("IJulia")
-```
-to install IJulia.
+1. [Download a recent version of Julia.](http://julialang.org/downloads/)
+2. Run the installer for the downloaded version.
+3. Run the Julia application by double-clicking on the icon. This
+   will open the Julia REPL and a window with a `julia>` prompt will appear.
+4. At the `julia>` prompt, install IJulia by typing:
 
-This process installs a [kernel specification](https://jupyter-client.readthedocs.io/en/latest/kernels.html#kernelspecs) that tells Jupyter (or JupyterLab) etcetera
-how to launch Julia.
+   ```julia
+   using Pkg
+   Pkg.add("IJulia")
+   ```
 
-`Pkg.add("IJulia")` does not actually install Jupyter itself.
-You can install Jupyter if you want, but it can also be installed
-automatically when you run `IJulia.notebook()` below.  (You
-can force it to use a specific `jupyter` installation by
-setting `ENV["JUPYTER"]` to the path of the `jupyter` program
-before `Pkg.add`, or before running `Pkg.build("IJulia")`;
-your preference is remembered on subsequent updates.
+!!! info
 
+    This process installs a
+    [kernel specification](https://jupyter-client.readthedocs.io/en/latest/kernels. html#kernelspecs)
+    for IJulia. The IJulia kernelspec, shorthand for kernel specification,
+    contains the instructions for launching a Julia kernel that a notebook
+    frontend (Jupyter, JupyterLab, nteract) can use. The kernelspec does not
+    install the notebook frontend.
+
+!!! warning
+
+    The command, `Pkg.add("IJulia")`, does not install Jupyter
+    Notebook itself.
+
+    You can install Jupyter Notebook by following the Notebook's
+    installation instructions if you want. Conveniently, Jupyter
+    Notebook can also be installed automatically when you run
+    `IJulia.notebook()`. 
+    See [Running the Julia notebook](running.md#Running-the-IJulia-Notebook).
+    
+    You can direct `IJulia.notebook()` to use a specific Jupyter
+    installation by setting `ENV["JUPYTER"]` to the path of the
+    `jupyter` program executable. This environment variable should
+    be set before `Pkg.add` or before running `Pkg.build("IJulia")`,
+    and it will remember your preference for subsequent updates.
 
 ## Updating Julia and IJulia
 
 Julia is improving rapidly, so it won't be long before you want to
-update to a more recent version.  To update the packages only, keeping
-Julia itself the same, just run:
+update your packages or Julia to a more recent version.  
+
+### Update packages
+
+To update the packages only and keep the same Julia version, run
+at the Julia prompt (or in IJulia):
+
 ```julia
 Pkg.update()
 ```
-at the Julia prompt (or in IJulia).
+
+### Update Julia and packages
 
 If you download and install a new version of Julia from the Julia web
-site, you will also probably want to update the packages with
-`Pkg.update()` (in case newer versions of the packages are required
-for the most recent Julia).  In any case, if you install a new Julia
-binary (or do anything that *changes the location of Julia* on your
-computer), you *must* update the IJulia installation (to tell Jupyter
-where to find the new Julia) by running
+site, you will also probably want to update the existing packages with
+`Pkg.update()`. This step helps make sure any newer versions of the
+required packages are suitable for the most recent Julia.
+
+After you install a new Julia binary (or do anything that
+*changes the location of Julia* on your computer), you **must** update
+the IJulia installation (to tell Jupyter where to find the new Julia)
+by running at the Julia command line:
+
 ```julia
 Pkg.build("IJulia")
 ```
-at the Julia command line (**important**: not in IJulia).
 
+!!! important
 
-## Installing additional Julia kernels
+    `Pkg.build("IJulia")` **must** be run at the Julia command line.
+    It will error and fail if run within IJulia.
 
-You can also install additional Julia kernels, for example, to
+## Installing and customizing kernels
+
+!!! note
+
+    You may find it helpful to run multiple Julia kernels to support
+    different Julia executable versions and/or environment settings.
+
+### Customize with command-line arguments
+
+You can install one or more custom Julia kernels, for example, to
 pass alternative command-line arguments to the `julia` executable,
 by using the `IJulia.installkernel` function.  See the help for this
 function (`? IJulia.installkernel` in Julia) for complete details.
 
 For example, if you want to run Julia with all deprecation warnings
-disabled, you can do:
+disabled, you can create a custom IJulia kernel:
+
 ```julia
 using IJulia
 installkernel("Julia nodeps", "--depwarn=no")
 ```
-and a kernel called `Julia nodeps 0.7` (if you are using Julia 0.7)
-will be installed (will show up in your main Jupyter kernel menu) that
-lets you open notebooks with this flag.
+
+In this example, the kernel would be called `Julia nodeps 0.7` 
+(if you are using Julia 0.7), and it will be installed
+and be selectable from your main Jupyter kernel menu to use with
+notebooks.
+
+### Customize using environment variables
 
 You can also install kernels to run Julia with different environment
-variables, for example to set [`JULIA_NUM_THREADS`](https://docs.julialang.org/en/v1/manual/environment-variables/index.html#JULIA_NUM_THREADS-1) for use with Julia [multithreading](https://docs.julialang.org/en/v1/manual/parallel-computing/#Multi-Threading-(Experimental)-1):
-```
+variables, for example to set [`JULIA_NUM_THREADS`](https://docs.julialang.org/en/v1/manual/environment-variables/index.html#JULIA_NUM_THREADS-1)
+for use with Julia [multithreading](https://docs.julialang.org/en/v1/manual/parallel-computing/#Multi-Threading-(Experimental)-1):
+
+```julia
 using IJulia
 installkernel("Julia (4 threads)", env=Dict("JULIA_NUM_THREADS"=>"4"))
 ```
-The `env` keyword should be a `Dict` mapping environment variables to values.
 
-To *prevent* IJulia from installing a default kernel when the package is built, define the `IJULIA_NODEFAULTKERNEL` environment variable before adding/building IJulia.
+The `env` keyword should be a `Dict` which maps environment variables to values.
 
-## Low-level Information
+To *prevent* IJulia from installing a default kernel when the package is built,
+define the `IJULIA_NODEFAULTKERNEL` environment variable before adding or
+building IJulia.
 
-### Using older IPython versions
+## Low-level IPython Installations
 
-While we strongly recommend using IPython version 3 or later (note that this
-has nothing to do with whether you use Python version 2 or 3), we recognize
-that in the short term some users may need to continue using IPython 2.x.  You
+We recommend using IPython 7.15 or later as well as Python 3.
+
+### Using legacy IPython 2.x version
+
+We recognize that some users may need to use legacy IPython 2.x.  You
 can do this by checkout out the `ipython2` branch of the IJulia package:
 
 ```julia
@@ -116,9 +159,11 @@ On Mac and Windows systems, it is currently easiest to use the
 * You need Julia version 0.7 or later.
 
 Once IPython 3.0+ and Julia 0.7+ are installed, you can install IJulia from a Julia console by typing:
+
 ```julia
 Pkg.add("IJulia")
 ```
+
 This will download IJulia and a few other prerequisites, and will set up a
 Julia kernel for IPython.
 
