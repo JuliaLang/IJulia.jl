@@ -5,7 +5,7 @@
 
 First, [download Julia](http://julialang.org/downloads/) *version 0.7
 or later* and run the installer.  Then run the Julia application
-(double-click on it); a window with a `julia>` prompt will appear.  At
+(double-click on it); a window with a `julia>` prompt will appear.  After ensuring that you have activated the default Julia environment, at
 the prompt, type:
 ```julia
 using Pkg
