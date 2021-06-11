@@ -21,4 +21,12 @@ import IJulia, JSON
             rm(kspec, force=true, recursive=true)
         end
     end
+
+    let kspec = IJulia.installkernel("ahzAHZ019.-_ ~!@#%^&*()")
+        try
+            @test occursin("ahzahz019.-_-__________", basename(kspec))
+        finally
+            rm(kspec, force=true, recursive=true)
+        end
+    end
 end
