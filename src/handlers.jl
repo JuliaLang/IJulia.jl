@@ -7,10 +7,22 @@ using .CommManager
 parseok(s) = !Meta.isexpr(Meta.parse(s, raise=false), :error)
 function find_parsestart(code, cursorpos)
     s = firstindex(code)
+    in_macro_header = true
     while s < cursorpos
+        s_next = nextind(code, s)
+        if in_macro_header && s_next <= cursorpos && code[s:s_next] == "@@"
+            # Skip first '@' to pretend it's a normal macro for completion
+            s, s_next = s_next, nextind(code, s_next)
+        else
+            in_macro_header = false
+        end
         parseok(code[s:cursorpos]) && return s
-        s = nextind(code, s)
-        while s < cursorpos && code[s] ∉ ('\n','\r')
+        # Go to next line
+        s = s_next
+        while s < cursorpos && code[s] ∉ "\n\r"
+            s = nextind(code, s)
+        end
+        while s < cursorpos && code[s] ∈ "\n\r \t"
             s = nextind(code, s)
         end
     end
