@@ -6,9 +6,6 @@ const IJulia_RNG = seed!(Random.MersenneTwister(0))
 import UUIDs
 uuid4() = string(UUIDs.uuid4(IJulia_RNG))
 
-const orig_stdin  = Ref{IO}()
-const orig_stdout = Ref{IO}()
-const orig_stderr = Ref{IO}()
 const SOFTSCOPE = Ref{Bool}()
 function __init__()
     seed!(IJulia_RNG)
@@ -25,8 +22,6 @@ const requests = Ref{Socket}()
 const control = Ref{Socket}()
 const heartbeat = Ref{Socket}()
 const profile = Dict{String,Any}()
-const read_stdout = Ref{Base.PipeEndpoint}()
-const read_stderr = Ref{Base.PipeEndpoint}()
 const socket_locks = Dict{Socket,ReentrantLock}()
 
 # similar to Pkg.REPLMode.MiniREPL, a minimal REPL-like emulator
@@ -100,13 +95,13 @@ function init(args)
     start_heartbeat(heartbeat[])
     if capture_stdout
         read_stdout[], = redirect_stdout()
-        redirect_stdout(IJuliaStdio(stdout,"stdout"))
+        redirect_stdout(IJuliaStdio(stdout,send_callback,"stdout"))
     end
     if capture_stderr
         read_stderr[], = redirect_stderr()
-        redirect_stderr(IJuliaStdio(stderr,"stderr"))
+        redirect_stderr(IJuliaStdio(stderr,send_callback,"stderr"))
     end
-    redirect_stdin(IJuliaStdio(stdin,"stdin"))
+    redirect_stdin(IJuliaStdio(stdin,send_callback,"stdin"))
     minirepl[] = MiniREPL(TextDisplay(stdout))
 
     logger = Base.CoreLogging.SimpleLogger(Base.stderr)

@@ -7,9 +7,6 @@ import Pkg
 
 # global variable so that display can be done in the correct Msg context
 execute_msg = Msg(["julia"], Dict("username"=>"jlkernel", "session"=>uuid4()), Dict())
-# global variable tracking the number of bytes written in the current execution
-# request
-const stdio_bytes = Ref(0)
 
 import REPL: helpmode
 
