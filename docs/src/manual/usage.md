@@ -21,7 +21,7 @@ in the folder of a notebook (or in a parent folder of this notebook) will
 therefore automatically become the active project for that notebook.
 Users that don't want this behavior should install an additional IJulia
 kernel without that command line flag (see section
-[Installing additional Julia kernels](installation.md#Installing-additional-Julia-kernels)).
+[Installing additional Julia kernels](@ref)).
 
 
 ### Customizing your IJulia environment
