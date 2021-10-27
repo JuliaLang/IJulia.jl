@@ -753,19 +753,19 @@ a.has-text-danger:hover, a.has-text-danger:focus {
   font-weight: 700 !important; }
 
 .is-family-primary {
-  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important; }
+  font-family: "Lato Medium", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important; }
 
 .is-family-secondary {
-  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important; }
+  font-family: "Lato Medium", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important; }
 
 .is-family-sans-serif {
-  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important; }
+  font-family: "Lato Medium", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif !important; }
 
 .is-family-monospace {
-  font-family: "Roboto Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace !important; }
+  font-family: "JuliaMono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace !important; }
 
 .is-family-code {
-  font-family: "Roboto Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace !important; }
+  font-family: "JuliaMono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace !important; }
 
 .is-block {
   display: block !important; }
@@ -1070,9 +1070,13 @@ html.theme--documenter-dark {
  *
  * The main container is <div> that is identified by id #documenter.
  */
-  /* a11y-dark theme */
-  /* Based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css */
-  /* @author: ericwbailey */
+  /*!
+  Theme: a11y-dark
+  Author: @ericwbailey
+  Maintainer: @ericwbailey
+
+  Based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css
+*/
   /* Comment */
   /* Red */
   /* Orange */
@@ -1103,12 +1107,12 @@ html.theme--documenter-dark {
   html.theme--documenter-dark input,
   html.theme--documenter-dark select,
   html.theme--documenter-dark textarea {
-    font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif; }
+    font-family: "Lato Medium", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Helvetica", "Arial", sans-serif; }
   html.theme--documenter-dark code,
   html.theme--documenter-dark pre {
     -moz-osx-font-smoothing: auto;
     -webkit-font-smoothing: auto;
-    font-family: "Roboto Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace; }
+    font-family: "JuliaMono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "DejaVu Sans Mono", monospace; }
   html.theme--documenter-dark body {
     color: #fff;
     font-size: 1em;
@@ -1124,7 +1128,7 @@ html.theme--documenter-dark {
       color: #1dd2af; }
   html.theme--documenter-dark code {
     background-color: rgba(255, 255, 255, 0.05);
-    color: #e74c3c;
+    color: #ececec;
     font-size: 0.875em;
     font-weight: normal;
     padding: 0.1em; }
@@ -7273,12 +7277,38 @@ html.theme--documenter-dark {
         position: absolute;
         right: 0.625rem;
         bottom: 0.5rem; }
+        html.theme--documenter-dark .docstring > section > a.docs-sourcelink:focus {
+          opacity: 1 !important; }
     html.theme--documenter-dark .docstring:hover > section > a.docs-sourcelink {
+      opacity: 0.2; }
+    html.theme--documenter-dark .docstring:focus-within > section > a.docs-sourcelink {
       opacity: 0.2; }
     html.theme--documenter-dark .docstring > section:hover a.docs-sourcelink {
       opacity: 1; }
   html.theme--documenter-dark .documenter-example-output {
     background-color: #1f2424; }
+  html.theme--documenter-dark .outdated-warning-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    background-color: #282f2f;
+    border-bottom: 3px solid #9e1b0d;
+    padding: 10px 35px;
+    text-align: center;
+    font-size: 15px; }
+    html.theme--documenter-dark .outdated-warning-overlay .outdated-warning-closer {
+      position: absolute;
+      top: calc(50% - 10px);
+      right: 18px;
+      cursor: pointer;
+      width: 12px; }
+    html.theme--documenter-dark .outdated-warning-overlay a {
+      color: #1abc9c; }
+      html.theme--documenter-dark .outdated-warning-overlay a:hover {
+        color: #1dd2af; }
   html.theme--documenter-dark .content pre {
     border: 1px solid #5e6d6f; }
   html.theme--documenter-dark .content code {
@@ -7294,6 +7324,8 @@ html.theme--documenter-dark {
     overflow-x: auto; }
   html.theme--documenter-dark .content blockquote > ul:first-child, html.theme--documenter-dark .content blockquote > ol:first-child, html.theme--documenter-dark .content .admonition-body > ul:first-child, html.theme--documenter-dark .content .admonition-body > ol:first-child {
     margin-top: 0; }
+  html.theme--documenter-dark pre, html.theme--documenter-dark code {
+    font-variant-ligatures: no-contextual; }
   html.theme--documenter-dark .breadcrumb a.is-disabled {
     cursor: default;
     pointer-events: none; }
@@ -7310,10 +7342,13 @@ html.theme--documenter-dark {
   html.theme--documenter-dark html {
     -moz-osx-font-smoothing: auto;
     -webkit-font-smoothing: auto; }
+  html.theme--documenter-dark li.no-marker {
+    list-style: none; }
   html.theme--documenter-dark #documenter .docs-main > article {
     overflow-wrap: break-word; }
     html.theme--documenter-dark #documenter .docs-main > article .math-container {
-      overflow-x: auto; }
+      overflow-x: auto;
+      overflow-y: hidden; }
   @media screen and (min-width: 1056px) {
     html.theme--documenter-dark #documenter .docs-main {
       max-width: 52rem;
@@ -7448,6 +7483,8 @@ html.theme--documenter-dark {
       padding: 0.5rem 0; }
       html.theme--documenter-dark #documenter .docs-sidebar .docs-package-name .docs-autofit {
         max-width: 16.2rem; }
+      html.theme--documenter-dark #documenter .docs-sidebar .docs-package-name a, html.theme--documenter-dark #documenter .docs-sidebar .docs-package-name a:hover {
+        color: #fff; }
     html.theme--documenter-dark #documenter .docs-sidebar .docs-version-selector {
       border-top: 1px solid #5e6d6f;
       display: none;
@@ -7574,6 +7611,93 @@ html.theme--documenter-dark {
     overflow-y: scroll;
     text-rendering: optimizeLegibility;
     text-size-adjust: 100%; }
+  html.theme--documenter-dark .ansi span.sgr1 {
+    font-weight: bolder; }
+  html.theme--documenter-dark .ansi span.sgr2 {
+    font-weight: lighter; }
+  html.theme--documenter-dark .ansi span.sgr3 {
+    font-style: italic; }
+  html.theme--documenter-dark .ansi span.sgr4 {
+    text-decoration: underline; }
+  html.theme--documenter-dark .ansi span.sgr7 {
+    color: #1f2424;
+    background-color: #fff; }
+  html.theme--documenter-dark .ansi span.sgr8 {
+    color: transparent; }
+    html.theme--documenter-dark .ansi span.sgr8 span {
+      color: transparent; }
+  html.theme--documenter-dark .ansi span.sgr9 {
+    text-decoration: line-through; }
+  html.theme--documenter-dark .ansi span.sgr30 {
+    color: #242424; }
+  html.theme--documenter-dark .ansi span.sgr31 {
+    color: #f6705f; }
+  html.theme--documenter-dark .ansi span.sgr32 {
+    color: #4fb43a; }
+  html.theme--documenter-dark .ansi span.sgr33 {
+    color: #f4c72f; }
+  html.theme--documenter-dark .ansi span.sgr34 {
+    color: #7587f0; }
+  html.theme--documenter-dark .ansi span.sgr35 {
+    color: #bc89d3; }
+  html.theme--documenter-dark .ansi span.sgr36 {
+    color: #49b6ca; }
+  html.theme--documenter-dark .ansi span.sgr37 {
+    color: #b3bdbe; }
+  html.theme--documenter-dark .ansi span.sgr40 {
+    background-color: #242424; }
+  html.theme--documenter-dark .ansi span.sgr41 {
+    background-color: #f6705f; }
+  html.theme--documenter-dark .ansi span.sgr42 {
+    background-color: #4fb43a; }
+  html.theme--documenter-dark .ansi span.sgr43 {
+    background-color: #f4c72f; }
+  html.theme--documenter-dark .ansi span.sgr44 {
+    background-color: #7587f0; }
+  html.theme--documenter-dark .ansi span.sgr45 {
+    background-color: #bc89d3; }
+  html.theme--documenter-dark .ansi span.sgr46 {
+    background-color: #49b6ca; }
+  html.theme--documenter-dark .ansi span.sgr47 {
+    background-color: #b3bdbe; }
+  html.theme--documenter-dark .ansi span.sgr90 {
+    color: #92a0a2; }
+  html.theme--documenter-dark .ansi span.sgr91 {
+    color: #ff8674; }
+  html.theme--documenter-dark .ansi span.sgr92 {
+    color: #79d462; }
+  html.theme--documenter-dark .ansi span.sgr93 {
+    color: #ffe76b; }
+  html.theme--documenter-dark .ansi span.sgr94 {
+    color: #8a98ff; }
+  html.theme--documenter-dark .ansi span.sgr95 {
+    color: #d2a4e6; }
+  html.theme--documenter-dark .ansi span.sgr96 {
+    color: #6bc8db; }
+  html.theme--documenter-dark .ansi span.sgr97 {
+    color: #ecf0f1; }
+  html.theme--documenter-dark .ansi span.sgr100 {
+    background-color: #92a0a2; }
+  html.theme--documenter-dark .ansi span.sgr101 {
+    background-color: #ff8674; }
+  html.theme--documenter-dark .ansi span.sgr102 {
+    background-color: #79d462; }
+  html.theme--documenter-dark .ansi span.sgr103 {
+    background-color: #ffe76b; }
+  html.theme--documenter-dark .ansi span.sgr104 {
+    background-color: #8a98ff; }
+  html.theme--documenter-dark .ansi span.sgr105 {
+    background-color: #d2a4e6; }
+  html.theme--documenter-dark .ansi span.sgr106 {
+    background-color: #6bc8db; }
+  html.theme--documenter-dark .ansi span.sgr107 {
+    background-color: #ecf0f1; }
+  html.theme--documenter-dark code.language-julia-repl > span.hljs-meta {
+    color: #4fb43a;
+    font-weight: bolder; }
+  html.theme--documenter-dark .hljs {
+    background: #2b2b2b;
+    color: #f8f8f2; }
   html.theme--documenter-dark .hljs-comment,
   html.theme--documenter-dark .hljs-quote {
     color: #d4d0ab; }
@@ -7588,7 +7712,6 @@ html.theme--documenter-dark {
     color: #ffa07a; }
   html.theme--documenter-dark .hljs-number,
   html.theme--documenter-dark .hljs-built_in,
-  html.theme--documenter-dark .hljs-builtin-name,
   html.theme--documenter-dark .hljs-literal,
   html.theme--documenter-dark .hljs-type,
   html.theme--documenter-dark .hljs-params,
@@ -7608,12 +7731,6 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .hljs-keyword,
   html.theme--documenter-dark .hljs-selector-tag {
     color: #dcc6e0; }
-  html.theme--documenter-dark .hljs {
-    display: block;
-    overflow-x: auto;
-    background: #2b2b2b;
-    color: #f8f8f2;
-    padding: 0.5em; }
   html.theme--documenter-dark .hljs-emphasis {
     font-style: italic; }
   html.theme--documenter-dark .hljs-strong {
@@ -7622,7 +7739,6 @@ html.theme--documenter-dark {
     html.theme--documenter-dark .hljs-addition,
     html.theme--documenter-dark .hljs-attribute,
     html.theme--documenter-dark .hljs-built_in,
-    html.theme--documenter-dark .hljs-builtin-name,
     html.theme--documenter-dark .hljs-bullet,
     html.theme--documenter-dark .hljs-comment,
     html.theme--documenter-dark .hljs-link,
