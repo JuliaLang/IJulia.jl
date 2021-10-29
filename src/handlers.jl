@@ -50,6 +50,7 @@ ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
 
 import REPL: REPLCompletions
 import REPL.REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
+import FuzzyCompletions
 
 complete_type(::Type{<:Function}) = "function"
 complete_type(::Type{<:Type}) = "type"
@@ -123,8 +124,12 @@ function complete_request(socket, msg)
     end
 
     codestart = find_parsestart(code, cursorpos)
-    comps_, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1, current_module[])
-    comps = unique!(REPLCompletions.completion_text.(comps_)) # julia#26930
+    completion_mode = get(ENV, "IJULIA_COMPLETION_MODE", "repl")
+    completions, completion_text = completion_mode == "fuzzy" ? (FuzzyCompletions.completions, FuzzyCompletions.completion_text) :
+                                                                (REPLCompletions.completions,  REPLCompletions.completion_text)
+    comps_, positions = completions(code[codestart:end], cursorpos-codestart+1, current_module[])
+    completion_mode == "fuzzy" && filter!(≥(0)∘FuzzyCompletions.score, comps_) # cut off too many candidates, they would be useless in most jupyter frontends
+    comps = unique!(completion_text.(comps_)) # julia#26930
     # positions = positions .+ (codestart - 1) on Julia 0.7
     positions = (first(positions) + codestart - 1):(last(positions) + codestart - 1)
     metadata = Dict()
