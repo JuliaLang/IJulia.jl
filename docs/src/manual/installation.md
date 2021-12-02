@@ -69,7 +69,7 @@ You can also install kernels to run Julia with different environment
 variables, for example to set [`JULIA_NUM_THREADS`](https://docs.julialang.org/en/v1/manual/environment-variables/index.html#JULIA_NUM_THREADS-1) for use with Julia [multithreading](https://docs.julialang.org/en/v1/manual/parallel-computing/#Multi-Threading-(Experimental)-1):
 ```
 using IJulia
-installkernel("Julia (4 threads)", env=Dict("JULIA_NUM_THREADS"=>"4"))
+installkernel("Julia-4-threads", env=Dict("JULIA_NUM_THREADS"=>"4"))
 ```
 The `env` keyword should be a `Dict` mapping environment variables to values.
 
