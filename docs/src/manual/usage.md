@@ -23,6 +23,16 @@ Users that don't want this behavior should install an additional IJulia
 kernel without that command line flag (see section
 [Installing additional Julia kernels](@ref)).
 
+If an existing `Project.toml` file is not found then, by default, an IJulia notebook will try to run a Julia kernel
+with its active project set from the global or default environment (usually of the form `~/.julia/environments/v1.x`).
+If the IJulia package is not installed in that environment, then the Julia kernel selected by default will not be able to
+connect, and a **Connection failed** error will be displayed. In this case, users should install a additional
+Julia kernel that uses their chosen Julia environment.
+For example, if the desired environment is currently activated in the REPL then one possibility is to execute
+```julia
+IJulia.installkernel("Julia MyProjectEnv", "--project=$(Base.active_project())")
+```
+and subsequently select the kernel starting with `Julia MyProjectEnv` from _Kernel > Change Kernel_ in the menu of the Jupyter notebook.
 
 ### Customizing your IJulia environment
 
