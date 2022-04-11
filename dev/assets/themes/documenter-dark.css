@@ -6,17 +6,17 @@
   to {
     transform: rotate(359deg); } }
 
-html.theme--documenter-dark .delete, html.theme--documenter-dark .modal-close, .is-unselectable, html.theme--documenter-dark .button, html.theme--documenter-dark .file, html.theme--documenter-dark .breadcrumb, html.theme--documenter-dark .pagination-previous,
+html.theme--documenter-dark .tabs, html.theme--documenter-dark .pagination-previous,
 html.theme--documenter-dark .pagination-next,
 html.theme--documenter-dark .pagination-link,
-html.theme--documenter-dark .pagination-ellipsis, html.theme--documenter-dark .tabs {
+html.theme--documenter-dark .pagination-ellipsis, html.theme--documenter-dark .breadcrumb, html.theme--documenter-dark .file, html.theme--documenter-dark .button, .is-unselectable, html.theme--documenter-dark .modal-close, html.theme--documenter-dark .delete {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none; }
 
-html.theme--documenter-dark .select:not(.is-multiple):not(.is-loading)::after, html.theme--documenter-dark .navbar-link:not(.is-arrowless)::after {
+html.theme--documenter-dark .navbar-link:not(.is-arrowless)::after, html.theme--documenter-dark .select:not(.is-multiple):not(.is-loading)::after {
   border: 3px solid transparent;
   border-radius: 2px;
   border-right: 0;
@@ -32,11 +32,11 @@ html.theme--documenter-dark .select:not(.is-multiple):not(.is-loading)::after, h
   transform-origin: center;
   width: 0.625em; }
 
-html.theme--documenter-dark .box:not(:last-child), html.theme--documenter-dark .content:not(:last-child), html.theme--documenter-dark .notification:not(:last-child), html.theme--documenter-dark .progress:not(:last-child), html.theme--documenter-dark .table:not(:last-child), html.theme--documenter-dark .table-container:not(:last-child), html.theme--documenter-dark .title:not(:last-child),
-html.theme--documenter-dark .subtitle:not(:last-child), html.theme--documenter-dark .block:not(:last-child), html.theme--documenter-dark .highlight:not(:last-child), html.theme--documenter-dark .breadcrumb:not(:last-child), html.theme--documenter-dark .level:not(:last-child), html.theme--documenter-dark .list:not(:last-child), html.theme--documenter-dark .message:not(:last-child), html.theme--documenter-dark .tabs:not(:last-child), html.theme--documenter-dark .admonition:not(:last-child) {
+html.theme--documenter-dark .admonition:not(:last-child), html.theme--documenter-dark .tabs:not(:last-child), html.theme--documenter-dark .message:not(:last-child), html.theme--documenter-dark .list:not(:last-child), html.theme--documenter-dark .level:not(:last-child), html.theme--documenter-dark .breadcrumb:not(:last-child), html.theme--documenter-dark .highlight:not(:last-child), html.theme--documenter-dark .block:not(:last-child), html.theme--documenter-dark .title:not(:last-child),
+html.theme--documenter-dark .subtitle:not(:last-child), html.theme--documenter-dark .table-container:not(:last-child), html.theme--documenter-dark .table:not(:last-child), html.theme--documenter-dark .progress:not(:last-child), html.theme--documenter-dark .notification:not(:last-child), html.theme--documenter-dark .content:not(:last-child), html.theme--documenter-dark .box:not(:last-child) {
   margin-bottom: 1.5rem; }
 
-html.theme--documenter-dark .delete, html.theme--documenter-dark .modal-close {
+html.theme--documenter-dark .modal-close, html.theme--documenter-dark .delete {
   -moz-appearance: none;
   -webkit-appearance: none;
   background-color: rgba(10, 10, 10, 0.2);
@@ -57,7 +57,7 @@ html.theme--documenter-dark .delete, html.theme--documenter-dark .modal-close {
   position: relative;
   vertical-align: top;
   width: 20px; }
-  html.theme--documenter-dark .delete::before, html.theme--documenter-dark .modal-close::before, html.theme--documenter-dark .delete::after, html.theme--documenter-dark .modal-close::after {
+  html.theme--documenter-dark .modal-close::before, html.theme--documenter-dark .delete::before, html.theme--documenter-dark .modal-close::after, html.theme--documenter-dark .delete::after {
     background-color: white;
     content: "";
     display: block;
@@ -66,31 +66,31 @@ html.theme--documenter-dark .delete, html.theme--documenter-dark .modal-close {
     top: 50%;
     transform: translateX(-50%) translateY(-50%) rotate(45deg);
     transform-origin: center center; }
-  html.theme--documenter-dark .delete::before, html.theme--documenter-dark .modal-close::before {
+  html.theme--documenter-dark .modal-close::before, html.theme--documenter-dark .delete::before {
     height: 2px;
     width: 50%; }
-  html.theme--documenter-dark .delete::after, html.theme--documenter-dark .modal-close::after {
+  html.theme--documenter-dark .modal-close::after, html.theme--documenter-dark .delete::after {
     height: 50%;
     width: 2px; }
-  html.theme--documenter-dark .delete:hover, html.theme--documenter-dark .modal-close:hover, html.theme--documenter-dark .delete:focus, html.theme--documenter-dark .modal-close:focus {
+  html.theme--documenter-dark .modal-close:hover, html.theme--documenter-dark .delete:hover, html.theme--documenter-dark .modal-close:focus, html.theme--documenter-dark .delete:focus {
     background-color: rgba(10, 10, 10, 0.3); }
-  html.theme--documenter-dark .delete:active, html.theme--documenter-dark .modal-close:active {
+  html.theme--documenter-dark .modal-close:active, html.theme--documenter-dark .delete:active {
     background-color: rgba(10, 10, 10, 0.4); }
-  html.theme--documenter-dark .is-small.delete, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.delete, html.theme--documenter-dark .is-small.modal-close, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.modal-close {
+  html.theme--documenter-dark .is-small.modal-close, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.modal-close, html.theme--documenter-dark .is-small.delete, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.delete {
     height: 16px;
     max-height: 16px;
     max-width: 16px;
     min-height: 16px;
     min-width: 16px;
     width: 16px; }
-  html.theme--documenter-dark .is-medium.delete, html.theme--documenter-dark .is-medium.modal-close {
+  html.theme--documenter-dark .is-medium.modal-close, html.theme--documenter-dark .is-medium.delete {
     height: 24px;
     max-height: 24px;
     max-width: 24px;
     min-height: 24px;
     min-width: 24px;
     width: 24px; }
-  html.theme--documenter-dark .is-large.delete, html.theme--documenter-dark .is-large.modal-close {
+  html.theme--documenter-dark .is-large.modal-close, html.theme--documenter-dark .is-large.delete {
     height: 32px;
     max-height: 32px;
     max-width: 32px;
@@ -98,7 +98,7 @@ html.theme--documenter-dark .delete, html.theme--documenter-dark .modal-close {
     min-width: 32px;
     width: 32px; }
 
-html.theme--documenter-dark .button.is-loading::after, html.theme--documenter-dark .loader, html.theme--documenter-dark .select.is-loading::after, html.theme--documenter-dark .control.is-loading::after {
+html.theme--documenter-dark .control.is-loading::after, html.theme--documenter-dark .select.is-loading::after, html.theme--documenter-dark .loader, html.theme--documenter-dark .button.is-loading::after {
   animation: spinAround 500ms infinite linear;
   border: 2px solid #dbdee0;
   border-radius: 290486px;
@@ -110,7 +110,7 @@ html.theme--documenter-dark .button.is-loading::after, html.theme--documenter-da
   position: relative;
   width: 1em; }
 
-.is-overlay, html.theme--documenter-dark .image.is-square img, html.theme--documenter-dark #documenter .docs-sidebar .docs-logo > img.is-square img,
+html.theme--documenter-dark .hero-video, html.theme--documenter-dark .modal-background, html.theme--documenter-dark .modal, html.theme--documenter-dark .image.is-square img, html.theme--documenter-dark #documenter .docs-sidebar .docs-logo > img.is-square img,
 html.theme--documenter-dark .image.is-square .has-ratio,
 html.theme--documenter-dark #documenter .docs-sidebar .docs-logo > img.is-square .has-ratio, html.theme--documenter-dark .image.is-1by1 img, html.theme--documenter-dark #documenter .docs-sidebar .docs-logo > img.is-1by1 img,
 html.theme--documenter-dark .image.is-1by1 .has-ratio,
@@ -142,18 +142,18 @@ html.theme--documenter-dark #documenter .docs-sidebar .docs-logo > img.is-9by16 
 html.theme--documenter-dark .image.is-1by2 .has-ratio,
 html.theme--documenter-dark #documenter .docs-sidebar .docs-logo > img.is-1by2 .has-ratio, html.theme--documenter-dark .image.is-1by3 img, html.theme--documenter-dark #documenter .docs-sidebar .docs-logo > img.is-1by3 img,
 html.theme--documenter-dark .image.is-1by3 .has-ratio,
-html.theme--documenter-dark #documenter .docs-sidebar .docs-logo > img.is-1by3 .has-ratio, html.theme--documenter-dark .modal, html.theme--documenter-dark .modal-background, html.theme--documenter-dark .hero-video {
+html.theme--documenter-dark #documenter .docs-sidebar .docs-logo > img.is-1by3 .has-ratio, .is-overlay {
   bottom: 0;
   left: 0;
   position: absolute;
   right: 0;
   top: 0; }
 
-html.theme--documenter-dark .button, html.theme--documenter-dark .input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input, html.theme--documenter-dark .textarea, html.theme--documenter-dark .select select, html.theme--documenter-dark .file-cta,
-html.theme--documenter-dark .file-name, html.theme--documenter-dark .pagination-previous,
+html.theme--documenter-dark .pagination-previous,
 html.theme--documenter-dark .pagination-next,
 html.theme--documenter-dark .pagination-link,
-html.theme--documenter-dark .pagination-ellipsis {
+html.theme--documenter-dark .pagination-ellipsis, html.theme--documenter-dark .file-cta,
+html.theme--documenter-dark .file-name, html.theme--documenter-dark .select select, html.theme--documenter-dark .textarea, html.theme--documenter-dark .input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input, html.theme--documenter-dark .button {
   -moz-appearance: none;
   -webkit-appearance: none;
   align-items: center;
@@ -171,51 +171,37 @@ html.theme--documenter-dark .pagination-ellipsis {
   padding-top: calc(0.375em - 1px);
   position: relative;
   vertical-align: top; }
-  html.theme--documenter-dark .button:focus, html.theme--documenter-dark .input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:focus, html.theme--documenter-dark .textarea:focus, html.theme--documenter-dark .select select:focus, html.theme--documenter-dark .file-cta:focus,
-  html.theme--documenter-dark .file-name:focus, html.theme--documenter-dark .pagination-previous:focus,
+  html.theme--documenter-dark .pagination-previous:focus,
   html.theme--documenter-dark .pagination-next:focus,
   html.theme--documenter-dark .pagination-link:focus,
-  html.theme--documenter-dark .pagination-ellipsis:focus, html.theme--documenter-dark .is-focused.button, html.theme--documenter-dark .is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-focused.textarea, html.theme--documenter-dark .select select.is-focused, html.theme--documenter-dark .is-focused.file-cta,
-  html.theme--documenter-dark .is-focused.file-name, html.theme--documenter-dark .is-focused.pagination-previous,
+  html.theme--documenter-dark .pagination-ellipsis:focus, html.theme--documenter-dark .file-cta:focus,
+  html.theme--documenter-dark .file-name:focus, html.theme--documenter-dark .select select:focus, html.theme--documenter-dark .textarea:focus, html.theme--documenter-dark .input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:focus, html.theme--documenter-dark .button:focus, html.theme--documenter-dark .is-focused.pagination-previous,
   html.theme--documenter-dark .is-focused.pagination-next,
   html.theme--documenter-dark .is-focused.pagination-link,
-  html.theme--documenter-dark .is-focused.pagination-ellipsis, html.theme--documenter-dark .button:active, html.theme--documenter-dark .input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:active, html.theme--documenter-dark .textarea:active, html.theme--documenter-dark .select select:active, html.theme--documenter-dark .file-cta:active,
-  html.theme--documenter-dark .file-name:active, html.theme--documenter-dark .pagination-previous:active,
+  html.theme--documenter-dark .is-focused.pagination-ellipsis, html.theme--documenter-dark .is-focused.file-cta,
+  html.theme--documenter-dark .is-focused.file-name, html.theme--documenter-dark .select select.is-focused, html.theme--documenter-dark .is-focused.textarea, html.theme--documenter-dark .is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-focused.button, html.theme--documenter-dark .pagination-previous:active,
   html.theme--documenter-dark .pagination-next:active,
   html.theme--documenter-dark .pagination-link:active,
-  html.theme--documenter-dark .pagination-ellipsis:active, html.theme--documenter-dark .is-active.button, html.theme--documenter-dark .is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active, html.theme--documenter-dark .is-active.textarea, html.theme--documenter-dark .select select.is-active, html.theme--documenter-dark .is-active.file-cta,
-  html.theme--documenter-dark .is-active.file-name, html.theme--documenter-dark .is-active.pagination-previous,
+  html.theme--documenter-dark .pagination-ellipsis:active, html.theme--documenter-dark .file-cta:active,
+  html.theme--documenter-dark .file-name:active, html.theme--documenter-dark .select select:active, html.theme--documenter-dark .textarea:active, html.theme--documenter-dark .input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:active, html.theme--documenter-dark .button:active, html.theme--documenter-dark .is-active.pagination-previous,
   html.theme--documenter-dark .is-active.pagination-next,
   html.theme--documenter-dark .is-active.pagination-link,
-  html.theme--documenter-dark .is-active.pagination-ellipsis {
+  html.theme--documenter-dark .is-active.pagination-ellipsis, html.theme--documenter-dark .is-active.file-cta,
+  html.theme--documenter-dark .is-active.file-name, html.theme--documenter-dark .select select.is-active, html.theme--documenter-dark .is-active.textarea, html.theme--documenter-dark .is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active, html.theme--documenter-dark .is-active.button {
     outline: none; }
-  html.theme--documenter-dark .button[disabled], html.theme--documenter-dark .input[disabled], html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled], html.theme--documenter-dark .textarea[disabled], html.theme--documenter-dark .select select[disabled], html.theme--documenter-dark .file-cta[disabled],
-  html.theme--documenter-dark .file-name[disabled], html.theme--documenter-dark .pagination-previous[disabled],
+  html.theme--documenter-dark .pagination-previous[disabled],
   html.theme--documenter-dark .pagination-next[disabled],
   html.theme--documenter-dark .pagination-link[disabled],
-  html.theme--documenter-dark .pagination-ellipsis[disabled],
-  fieldset[disabled] html.theme--documenter-dark .button,
-  html.theme--documenter-dark fieldset[disabled] .button,
-  fieldset[disabled] html.theme--documenter-dark .input,
-  html.theme--documenter-dark fieldset[disabled] .input,
-  fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input,
-  html.theme--documenter-dark #documenter .docs-sidebar fieldset[disabled] form.docs-search > input,
-  fieldset[disabled] html.theme--documenter-dark .textarea,
-  html.theme--documenter-dark fieldset[disabled] .textarea,
-  fieldset[disabled] html.theme--documenter-dark .select select,
-  html.theme--documenter-dark .select fieldset[disabled] select,
-  fieldset[disabled] html.theme--documenter-dark .file-cta,
-  html.theme--documenter-dark fieldset[disabled] .file-cta,
-  fieldset[disabled] html.theme--documenter-dark .file-name,
-  html.theme--documenter-dark fieldset[disabled] .file-name,
-  fieldset[disabled] html.theme--documenter-dark .pagination-previous,
-  html.theme--documenter-dark fieldset[disabled] .pagination-previous,
+  html.theme--documenter-dark .pagination-ellipsis[disabled], html.theme--documenter-dark .file-cta[disabled],
+  html.theme--documenter-dark .file-name[disabled], html.theme--documenter-dark .select select[disabled], html.theme--documenter-dark .textarea[disabled], html.theme--documenter-dark .input[disabled], html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled], html.theme--documenter-dark .button[disabled], fieldset[disabled] html.theme--documenter-dark .pagination-previous, html.theme--documenter-dark fieldset[disabled] .pagination-previous,
   fieldset[disabled] html.theme--documenter-dark .pagination-next,
   html.theme--documenter-dark fieldset[disabled] .pagination-next,
   fieldset[disabled] html.theme--documenter-dark .pagination-link,
   html.theme--documenter-dark fieldset[disabled] .pagination-link,
   fieldset[disabled] html.theme--documenter-dark .pagination-ellipsis,
-  html.theme--documenter-dark fieldset[disabled] .pagination-ellipsis {
+  html.theme--documenter-dark fieldset[disabled] .pagination-ellipsis, fieldset[disabled] html.theme--documenter-dark .file-cta, html.theme--documenter-dark fieldset[disabled] .file-cta,
+  fieldset[disabled] html.theme--documenter-dark .file-name,
+  html.theme--documenter-dark fieldset[disabled] .file-name, fieldset[disabled] html.theme--documenter-dark .select select, fieldset[disabled] html.theme--documenter-dark .textarea, fieldset[disabled] html.theme--documenter-dark .input, fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input, html.theme--documenter-dark fieldset[disabled] .select select, html.theme--documenter-dark .select fieldset[disabled] select, html.theme--documenter-dark fieldset[disabled] .textarea, html.theme--documenter-dark fieldset[disabled] .input, html.theme--documenter-dark fieldset[disabled] #documenter .docs-sidebar form.docs-search > input, html.theme--documenter-dark #documenter .docs-sidebar fieldset[disabled] form.docs-search > input, fieldset[disabled] html.theme--documenter-dark .button, html.theme--documenter-dark fieldset[disabled] .button {
     cursor: not-allowed; }
 
 /*! minireset.css v0.0.4 | MIT License | github.com/jgthms/minireset.css */
@@ -1236,8 +1222,7 @@ html.theme--documenter-dark {
       html.theme--documenter-dark .button.is-text:active, html.theme--documenter-dark .button.is-text.is-active {
         background-color: #1d2122;
         color: #f2f2f2; }
-      html.theme--documenter-dark .button.is-text[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-text {
+      html.theme--documenter-dark .button.is-text[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-text {
         background-color: transparent;
         border-color: transparent;
         box-shadow: none; }
@@ -1258,8 +1243,7 @@ html.theme--documenter-dark {
         background-color: #f2f2f2;
         border-color: transparent;
         color: #0a0a0a; }
-      html.theme--documenter-dark .button.is-white[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-white {
+      html.theme--documenter-dark .button.is-white[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-white {
         background-color: white;
         border-color: transparent;
         box-shadow: none; }
@@ -1268,8 +1252,7 @@ html.theme--documenter-dark {
         color: white; }
         html.theme--documenter-dark .button.is-white.is-inverted:hover, html.theme--documenter-dark .button.is-white.is-inverted.is-hovered {
           background-color: black; }
-        html.theme--documenter-dark .button.is-white.is-inverted[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-white.is-inverted {
+        html.theme--documenter-dark .button.is-white.is-inverted[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-white.is-inverted {
           background-color: #0a0a0a;
           border-color: transparent;
           box-shadow: none;
@@ -1288,8 +1271,7 @@ html.theme--documenter-dark {
           border-color: transparent transparent white white !important; }
         html.theme--documenter-dark .button.is-white.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-white.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-white.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-white.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #0a0a0a #0a0a0a !important; }
-        html.theme--documenter-dark .button.is-white.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-white.is-outlined {
+        html.theme--documenter-dark .button.is-white.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-white.is-outlined {
           background-color: transparent;
           border-color: white;
           box-shadow: none;
@@ -1303,8 +1285,7 @@ html.theme--documenter-dark {
           color: white; }
         html.theme--documenter-dark .button.is-white.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-white.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-white.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-white.is-inverted.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent white white !important; }
-        html.theme--documenter-dark .button.is-white.is-inverted.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-white.is-inverted.is-outlined {
+        html.theme--documenter-dark .button.is-white.is-inverted.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-white.is-inverted.is-outlined {
           background-color: transparent;
           border-color: #0a0a0a;
           box-shadow: none;
@@ -1326,8 +1307,7 @@ html.theme--documenter-dark {
         background-color: black;
         border-color: transparent;
         color: white; }
-      html.theme--documenter-dark .button.is-black[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-black {
+      html.theme--documenter-dark .button.is-black[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-black {
         background-color: #0a0a0a;
         border-color: transparent;
         box-shadow: none; }
@@ -1336,8 +1316,7 @@ html.theme--documenter-dark {
         color: #0a0a0a; }
         html.theme--documenter-dark .button.is-black.is-inverted:hover, html.theme--documenter-dark .button.is-black.is-inverted.is-hovered {
           background-color: #f2f2f2; }
-        html.theme--documenter-dark .button.is-black.is-inverted[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-black.is-inverted {
+        html.theme--documenter-dark .button.is-black.is-inverted[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-black.is-inverted {
           background-color: white;
           border-color: transparent;
           box-shadow: none;
@@ -1356,8 +1335,7 @@ html.theme--documenter-dark {
           border-color: transparent transparent #0a0a0a #0a0a0a !important; }
         html.theme--documenter-dark .button.is-black.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-black.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-black.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-black.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent white white !important; }
-        html.theme--documenter-dark .button.is-black.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-black.is-outlined {
+        html.theme--documenter-dark .button.is-black.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-black.is-outlined {
           background-color: transparent;
           border-color: #0a0a0a;
           box-shadow: none;
@@ -1371,8 +1349,7 @@ html.theme--documenter-dark {
           color: #0a0a0a; }
         html.theme--documenter-dark .button.is-black.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-black.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-black.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-black.is-inverted.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #0a0a0a #0a0a0a !important; }
-        html.theme--documenter-dark .button.is-black.is-inverted.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-black.is-inverted.is-outlined {
+        html.theme--documenter-dark .button.is-black.is-inverted.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-black.is-inverted.is-outlined {
           background-color: transparent;
           border-color: white;
           box-shadow: none;
@@ -1394,8 +1371,7 @@ html.theme--documenter-dark {
         background-color: #dde4e6;
         border-color: transparent;
         color: #282f2f; }
-      html.theme--documenter-dark .button.is-light[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-light {
+      html.theme--documenter-dark .button.is-light[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-light {
         background-color: #ecf0f1;
         border-color: transparent;
         box-shadow: none; }
@@ -1404,8 +1380,7 @@ html.theme--documenter-dark {
         color: #ecf0f1; }
         html.theme--documenter-dark .button.is-light.is-inverted:hover, html.theme--documenter-dark .button.is-light.is-inverted.is-hovered {
           background-color: #1d2122; }
-        html.theme--documenter-dark .button.is-light.is-inverted[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-light.is-inverted {
+        html.theme--documenter-dark .button.is-light.is-inverted[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-light.is-inverted {
           background-color: #282f2f;
           border-color: transparent;
           box-shadow: none;
@@ -1424,8 +1399,7 @@ html.theme--documenter-dark {
           border-color: transparent transparent #ecf0f1 #ecf0f1 !important; }
         html.theme--documenter-dark .button.is-light.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-light.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-light.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-light.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #282f2f #282f2f !important; }
-        html.theme--documenter-dark .button.is-light.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-light.is-outlined {
+        html.theme--documenter-dark .button.is-light.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-light.is-outlined {
           background-color: transparent;
           border-color: #ecf0f1;
           box-shadow: none;
@@ -1439,8 +1413,7 @@ html.theme--documenter-dark {
           color: #ecf0f1; }
         html.theme--documenter-dark .button.is-light.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-light.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-light.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-light.is-inverted.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #ecf0f1 #ecf0f1 !important; }
-        html.theme--documenter-dark .button.is-light.is-inverted.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-light.is-inverted.is-outlined {
+        html.theme--documenter-dark .button.is-light.is-inverted.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-light.is-inverted.is-outlined {
           background-color: transparent;
           border-color: #282f2f;
           box-shadow: none;
@@ -1462,9 +1435,7 @@ html.theme--documenter-dark {
         background-color: #1d2122;
         border-color: transparent;
         color: #ecf0f1; }
-      html.theme--documenter-dark .button.is-dark[disabled], html.theme--documenter-dark .content kbd.button[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-dark,
-      fieldset[disabled] html.theme--documenter-dark .content kbd.button {
+      html.theme--documenter-dark .button.is-dark[disabled], html.theme--documenter-dark .content kbd.button[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-dark, fieldset[disabled] html.theme--documenter-dark .content kbd.button {
         background-color: #282f2f;
         border-color: transparent;
         box-shadow: none; }
@@ -1473,9 +1444,7 @@ html.theme--documenter-dark {
         color: #282f2f; }
         html.theme--documenter-dark .button.is-dark.is-inverted:hover, html.theme--documenter-dark .content kbd.button.is-inverted:hover, html.theme--documenter-dark .button.is-dark.is-inverted.is-hovered, html.theme--documenter-dark .content kbd.button.is-inverted.is-hovered {
           background-color: #dde4e6; }
-        html.theme--documenter-dark .button.is-dark.is-inverted[disabled], html.theme--documenter-dark .content kbd.button.is-inverted[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-dark.is-inverted,
-        fieldset[disabled] html.theme--documenter-dark .content kbd.button.is-inverted {
+        html.theme--documenter-dark .button.is-dark.is-inverted[disabled], html.theme--documenter-dark .content kbd.button.is-inverted[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-dark.is-inverted, fieldset[disabled] html.theme--documenter-dark .content kbd.button.is-inverted {
           background-color: #ecf0f1;
           border-color: transparent;
           box-shadow: none;
@@ -1494,9 +1463,7 @@ html.theme--documenter-dark {
           border-color: transparent transparent #282f2f #282f2f !important; }
         html.theme--documenter-dark .button.is-dark.is-outlined.is-loading:hover::after, html.theme--documenter-dark .content kbd.button.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-dark.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .content kbd.button.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-dark.is-outlined.is-loading:focus::after, html.theme--documenter-dark .content kbd.button.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-dark.is-outlined.is-loading.is-focused::after, html.theme--documenter-dark .content kbd.button.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #ecf0f1 #ecf0f1 !important; }
-        html.theme--documenter-dark .button.is-dark.is-outlined[disabled], html.theme--documenter-dark .content kbd.button.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-dark.is-outlined,
-        fieldset[disabled] html.theme--documenter-dark .content kbd.button.is-outlined {
+        html.theme--documenter-dark .button.is-dark.is-outlined[disabled], html.theme--documenter-dark .content kbd.button.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-dark.is-outlined, fieldset[disabled] html.theme--documenter-dark .content kbd.button.is-outlined {
           background-color: transparent;
           border-color: #282f2f;
           box-shadow: none;
@@ -1510,9 +1477,7 @@ html.theme--documenter-dark {
           color: #282f2f; }
         html.theme--documenter-dark .button.is-dark.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .content kbd.button.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-dark.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .content kbd.button.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-dark.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .content kbd.button.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-dark.is-inverted.is-outlined.is-loading.is-focused::after, html.theme--documenter-dark .content kbd.button.is-inverted.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #282f2f #282f2f !important; }
-        html.theme--documenter-dark .button.is-dark.is-inverted.is-outlined[disabled], html.theme--documenter-dark .content kbd.button.is-inverted.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-dark.is-inverted.is-outlined,
-        fieldset[disabled] html.theme--documenter-dark .content kbd.button.is-inverted.is-outlined {
+        html.theme--documenter-dark .button.is-dark.is-inverted.is-outlined[disabled], html.theme--documenter-dark .content kbd.button.is-inverted.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-dark.is-inverted.is-outlined, fieldset[disabled] html.theme--documenter-dark .content kbd.button.is-inverted.is-outlined {
           background-color: transparent;
           border-color: #ecf0f1;
           box-shadow: none;
@@ -1534,9 +1499,7 @@ html.theme--documenter-dark {
         background-color: #2f4d6d;
         border-color: transparent;
         color: #fff; }
-      html.theme--documenter-dark .button.is-primary[disabled], html.theme--documenter-dark .docstring > section > a.button.docs-sourcelink[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-primary,
-      fieldset[disabled] html.theme--documenter-dark .docstring > section > a.button.docs-sourcelink {
+      html.theme--documenter-dark .button.is-primary[disabled], html.theme--documenter-dark .docstring > section > a.button.docs-sourcelink[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-primary, fieldset[disabled] html.theme--documenter-dark .docstring > section > a.button.docs-sourcelink {
         background-color: #375a7f;
         border-color: transparent;
         box-shadow: none; }
@@ -1545,9 +1508,7 @@ html.theme--documenter-dark {
         color: #375a7f; }
         html.theme--documenter-dark .button.is-primary.is-inverted:hover, html.theme--documenter-dark .docstring > section > a.button.is-inverted.docs-sourcelink:hover, html.theme--documenter-dark .button.is-primary.is-inverted.is-hovered, html.theme--documenter-dark .docstring > section > a.button.is-inverted.is-hovered.docs-sourcelink {
           background-color: #f2f2f2; }
-        html.theme--documenter-dark .button.is-primary.is-inverted[disabled], html.theme--documenter-dark .docstring > section > a.button.is-inverted.docs-sourcelink[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-primary.is-inverted,
-        fieldset[disabled] html.theme--documenter-dark .docstring > section > a.button.is-inverted.docs-sourcelink {
+        html.theme--documenter-dark .button.is-primary.is-inverted[disabled], html.theme--documenter-dark .docstring > section > a.button.is-inverted.docs-sourcelink[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-primary.is-inverted, fieldset[disabled] html.theme--documenter-dark .docstring > section > a.button.is-inverted.docs-sourcelink {
           background-color: #fff;
           border-color: transparent;
           box-shadow: none;
@@ -1566,9 +1527,7 @@ html.theme--documenter-dark {
           border-color: transparent transparent #375a7f #375a7f !important; }
         html.theme--documenter-dark .button.is-primary.is-outlined.is-loading:hover::after, html.theme--documenter-dark .docstring > section > a.button.is-outlined.is-loading.docs-sourcelink:hover::after, html.theme--documenter-dark .button.is-primary.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .docstring > section > a.button.is-outlined.is-loading.is-hovered.docs-sourcelink::after, html.theme--documenter-dark .button.is-primary.is-outlined.is-loading:focus::after, html.theme--documenter-dark .docstring > section > a.button.is-outlined.is-loading.docs-sourcelink:focus::after, html.theme--documenter-dark .button.is-primary.is-outlined.is-loading.is-focused::after, html.theme--documenter-dark .docstring > section > a.button.is-outlined.is-loading.is-focused.docs-sourcelink::after {
           border-color: transparent transparent #fff #fff !important; }
-        html.theme--documenter-dark .button.is-primary.is-outlined[disabled], html.theme--documenter-dark .docstring > section > a.button.is-outlined.docs-sourcelink[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-primary.is-outlined,
-        fieldset[disabled] html.theme--documenter-dark .docstring > section > a.button.is-outlined.docs-sourcelink {
+        html.theme--documenter-dark .button.is-primary.is-outlined[disabled], html.theme--documenter-dark .docstring > section > a.button.is-outlined.docs-sourcelink[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-primary.is-outlined, fieldset[disabled] html.theme--documenter-dark .docstring > section > a.button.is-outlined.docs-sourcelink {
           background-color: transparent;
           border-color: #375a7f;
           box-shadow: none;
@@ -1582,9 +1541,7 @@ html.theme--documenter-dark {
           color: #375a7f; }
         html.theme--documenter-dark .button.is-primary.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .docstring > section > a.button.is-inverted.is-outlined.is-loading.docs-sourcelink:hover::after, html.theme--documenter-dark .button.is-primary.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .docstring > section > a.button.is-inverted.is-outlined.is-loading.is-hovered.docs-sourcelink::after, html.theme--documenter-dark .button.is-primary.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .docstring > section > a.button.is-inverted.is-outlined.is-loading.docs-sourcelink:focus::after, html.theme--documenter-dark .button.is-primary.is-inverted.is-outlined.is-loading.is-focused::after, html.theme--documenter-dark .docstring > section > a.button.is-inverted.is-outlined.is-loading.is-focused.docs-sourcelink::after {
           border-color: transparent transparent #375a7f #375a7f !important; }
-        html.theme--documenter-dark .button.is-primary.is-inverted.is-outlined[disabled], html.theme--documenter-dark .docstring > section > a.button.is-inverted.is-outlined.docs-sourcelink[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-primary.is-inverted.is-outlined,
-        fieldset[disabled] html.theme--documenter-dark .docstring > section > a.button.is-inverted.is-outlined.docs-sourcelink {
+        html.theme--documenter-dark .button.is-primary.is-inverted.is-outlined[disabled], html.theme--documenter-dark .docstring > section > a.button.is-inverted.is-outlined.docs-sourcelink[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-primary.is-inverted.is-outlined, fieldset[disabled] html.theme--documenter-dark .docstring > section > a.button.is-inverted.is-outlined.docs-sourcelink {
           background-color: transparent;
           border-color: #fff;
           box-shadow: none;
@@ -1606,8 +1563,7 @@ html.theme--documenter-dark {
         background-color: #17a689;
         border-color: transparent;
         color: #fff; }
-      html.theme--documenter-dark .button.is-link[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-link {
+      html.theme--documenter-dark .button.is-link[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-link {
         background-color: #1abc9c;
         border-color: transparent;
         box-shadow: none; }
@@ -1616,8 +1572,7 @@ html.theme--documenter-dark {
         color: #1abc9c; }
         html.theme--documenter-dark .button.is-link.is-inverted:hover, html.theme--documenter-dark .button.is-link.is-inverted.is-hovered {
           background-color: #f2f2f2; }
-        html.theme--documenter-dark .button.is-link.is-inverted[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-link.is-inverted {
+        html.theme--documenter-dark .button.is-link.is-inverted[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-link.is-inverted {
           background-color: #fff;
           border-color: transparent;
           box-shadow: none;
@@ -1636,8 +1591,7 @@ html.theme--documenter-dark {
           border-color: transparent transparent #1abc9c #1abc9c !important; }
         html.theme--documenter-dark .button.is-link.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-link.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-link.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-link.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #fff #fff !important; }
-        html.theme--documenter-dark .button.is-link.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-link.is-outlined {
+        html.theme--documenter-dark .button.is-link.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-link.is-outlined {
           background-color: transparent;
           border-color: #1abc9c;
           box-shadow: none;
@@ -1651,8 +1605,7 @@ html.theme--documenter-dark {
           color: #1abc9c; }
         html.theme--documenter-dark .button.is-link.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-link.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-link.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-link.is-inverted.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #1abc9c #1abc9c !important; }
-        html.theme--documenter-dark .button.is-link.is-inverted.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-link.is-inverted.is-outlined {
+        html.theme--documenter-dark .button.is-link.is-inverted.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-link.is-inverted.is-outlined {
           background-color: transparent;
           border-color: #fff;
           box-shadow: none;
@@ -1674,8 +1627,7 @@ html.theme--documenter-dark {
         background-color: #023d64;
         border-color: transparent;
         color: #fff; }
-      html.theme--documenter-dark .button.is-info[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-info {
+      html.theme--documenter-dark .button.is-info[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-info {
         background-color: #024c7d;
         border-color: transparent;
         box-shadow: none; }
@@ -1684,8 +1636,7 @@ html.theme--documenter-dark {
         color: #024c7d; }
         html.theme--documenter-dark .button.is-info.is-inverted:hover, html.theme--documenter-dark .button.is-info.is-inverted.is-hovered {
           background-color: #f2f2f2; }
-        html.theme--documenter-dark .button.is-info.is-inverted[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-info.is-inverted {
+        html.theme--documenter-dark .button.is-info.is-inverted[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-info.is-inverted {
           background-color: #fff;
           border-color: transparent;
           box-shadow: none;
@@ -1704,8 +1655,7 @@ html.theme--documenter-dark {
           border-color: transparent transparent #024c7d #024c7d !important; }
         html.theme--documenter-dark .button.is-info.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-info.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-info.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-info.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #fff #fff !important; }
-        html.theme--documenter-dark .button.is-info.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-info.is-outlined {
+        html.theme--documenter-dark .button.is-info.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-info.is-outlined {
           background-color: transparent;
           border-color: #024c7d;
           box-shadow: none;
@@ -1719,8 +1669,7 @@ html.theme--documenter-dark {
           color: #024c7d; }
         html.theme--documenter-dark .button.is-info.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-info.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-info.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-info.is-inverted.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #024c7d #024c7d !important; }
-        html.theme--documenter-dark .button.is-info.is-inverted.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-info.is-inverted.is-outlined {
+        html.theme--documenter-dark .button.is-info.is-inverted.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-info.is-inverted.is-outlined {
           background-color: transparent;
           border-color: #fff;
           box-shadow: none;
@@ -1742,8 +1691,7 @@ html.theme--documenter-dark {
         background-color: #006b2d;
         border-color: transparent;
         color: #fff; }
-      html.theme--documenter-dark .button.is-success[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-success {
+      html.theme--documenter-dark .button.is-success[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-success {
         background-color: #008438;
         border-color: transparent;
         box-shadow: none; }
@@ -1752,8 +1700,7 @@ html.theme--documenter-dark {
         color: #008438; }
         html.theme--documenter-dark .button.is-success.is-inverted:hover, html.theme--documenter-dark .button.is-success.is-inverted.is-hovered {
           background-color: #f2f2f2; }
-        html.theme--documenter-dark .button.is-success.is-inverted[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-success.is-inverted {
+        html.theme--documenter-dark .button.is-success.is-inverted[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-success.is-inverted {
           background-color: #fff;
           border-color: transparent;
           box-shadow: none;
@@ -1772,8 +1719,7 @@ html.theme--documenter-dark {
           border-color: transparent transparent #008438 #008438 !important; }
         html.theme--documenter-dark .button.is-success.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-success.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-success.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-success.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #fff #fff !important; }
-        html.theme--documenter-dark .button.is-success.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-success.is-outlined {
+        html.theme--documenter-dark .button.is-success.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-success.is-outlined {
           background-color: transparent;
           border-color: #008438;
           box-shadow: none;
@@ -1787,8 +1733,7 @@ html.theme--documenter-dark {
           color: #008438; }
         html.theme--documenter-dark .button.is-success.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-success.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-success.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-success.is-inverted.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #008438 #008438 !important; }
-        html.theme--documenter-dark .button.is-success.is-inverted.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-success.is-inverted.is-outlined {
+        html.theme--documenter-dark .button.is-success.is-inverted.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-success.is-inverted.is-outlined {
           background-color: transparent;
           border-color: #fff;
           box-shadow: none;
@@ -1810,8 +1755,7 @@ html.theme--documenter-dark {
         background-color: #946e00;
         border-color: transparent;
         color: #fff; }
-      html.theme--documenter-dark .button.is-warning[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-warning {
+      html.theme--documenter-dark .button.is-warning[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-warning {
         background-color: #ad8100;
         border-color: transparent;
         box-shadow: none; }
@@ -1820,8 +1764,7 @@ html.theme--documenter-dark {
         color: #ad8100; }
         html.theme--documenter-dark .button.is-warning.is-inverted:hover, html.theme--documenter-dark .button.is-warning.is-inverted.is-hovered {
           background-color: #f2f2f2; }
-        html.theme--documenter-dark .button.is-warning.is-inverted[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-warning.is-inverted {
+        html.theme--documenter-dark .button.is-warning.is-inverted[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-warning.is-inverted {
           background-color: #fff;
           border-color: transparent;
           box-shadow: none;
@@ -1840,8 +1783,7 @@ html.theme--documenter-dark {
           border-color: transparent transparent #ad8100 #ad8100 !important; }
         html.theme--documenter-dark .button.is-warning.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-warning.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-warning.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-warning.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #fff #fff !important; }
-        html.theme--documenter-dark .button.is-warning.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-warning.is-outlined {
+        html.theme--documenter-dark .button.is-warning.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-warning.is-outlined {
           background-color: transparent;
           border-color: #ad8100;
           box-shadow: none;
@@ -1855,8 +1797,7 @@ html.theme--documenter-dark {
           color: #ad8100; }
         html.theme--documenter-dark .button.is-warning.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-warning.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-warning.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-warning.is-inverted.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #ad8100 #ad8100 !important; }
-        html.theme--documenter-dark .button.is-warning.is-inverted.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-warning.is-inverted.is-outlined {
+        html.theme--documenter-dark .button.is-warning.is-inverted.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-warning.is-inverted.is-outlined {
           background-color: transparent;
           border-color: #fff;
           box-shadow: none;
@@ -1878,8 +1819,7 @@ html.theme--documenter-dark {
         background-color: #86170b;
         border-color: transparent;
         color: #fff; }
-      html.theme--documenter-dark .button.is-danger[disabled],
-      fieldset[disabled] html.theme--documenter-dark .button.is-danger {
+      html.theme--documenter-dark .button.is-danger[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-danger {
         background-color: #9e1b0d;
         border-color: transparent;
         box-shadow: none; }
@@ -1888,8 +1828,7 @@ html.theme--documenter-dark {
         color: #9e1b0d; }
         html.theme--documenter-dark .button.is-danger.is-inverted:hover, html.theme--documenter-dark .button.is-danger.is-inverted.is-hovered {
           background-color: #f2f2f2; }
-        html.theme--documenter-dark .button.is-danger.is-inverted[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-danger.is-inverted {
+        html.theme--documenter-dark .button.is-danger.is-inverted[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-danger.is-inverted {
           background-color: #fff;
           border-color: transparent;
           box-shadow: none;
@@ -1908,8 +1847,7 @@ html.theme--documenter-dark {
           border-color: transparent transparent #9e1b0d #9e1b0d !important; }
         html.theme--documenter-dark .button.is-danger.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-danger.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-danger.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-danger.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #fff #fff !important; }
-        html.theme--documenter-dark .button.is-danger.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-danger.is-outlined {
+        html.theme--documenter-dark .button.is-danger.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-danger.is-outlined {
           background-color: transparent;
           border-color: #9e1b0d;
           box-shadow: none;
@@ -1923,8 +1861,7 @@ html.theme--documenter-dark {
           color: #9e1b0d; }
         html.theme--documenter-dark .button.is-danger.is-inverted.is-outlined.is-loading:hover::after, html.theme--documenter-dark .button.is-danger.is-inverted.is-outlined.is-loading.is-hovered::after, html.theme--documenter-dark .button.is-danger.is-inverted.is-outlined.is-loading:focus::after, html.theme--documenter-dark .button.is-danger.is-inverted.is-outlined.is-loading.is-focused::after {
           border-color: transparent transparent #9e1b0d #9e1b0d !important; }
-        html.theme--documenter-dark .button.is-danger.is-inverted.is-outlined[disabled],
-        fieldset[disabled] html.theme--documenter-dark .button.is-danger.is-inverted.is-outlined {
+        html.theme--documenter-dark .button.is-danger.is-inverted.is-outlined[disabled], fieldset[disabled] html.theme--documenter-dark .button.is-danger.is-inverted.is-outlined {
           background-color: transparent;
           border-color: #fff;
           box-shadow: none;
@@ -1938,8 +1875,7 @@ html.theme--documenter-dark {
       font-size: 1.25rem; }
     html.theme--documenter-dark .button.is-large {
       font-size: 1.5rem; }
-    html.theme--documenter-dark .button[disabled],
-    fieldset[disabled] html.theme--documenter-dark .button {
+    html.theme--documenter-dark .button[disabled], fieldset[disabled] html.theme--documenter-dark .button {
       background-color: #8c9b9d;
       border-color: #dbdee0;
       box-shadow: none;
@@ -2090,13 +2026,13 @@ html.theme--documenter-dark {
     margin-top: 1em; }
     html.theme--documenter-dark .content ol:not([type]) {
       list-style-type: decimal; }
-      html.theme--documenter-dark .content ol:not([type]).is-lower-alpha {
+      html.theme--documenter-dark .content ol.is-lower-alpha:not([type]) {
         list-style-type: lower-alpha; }
-      html.theme--documenter-dark .content ol:not([type]).is-lower-roman {
+      html.theme--documenter-dark .content ol.is-lower-roman:not([type]) {
         list-style-type: lower-roman; }
-      html.theme--documenter-dark .content ol:not([type]).is-upper-alpha {
+      html.theme--documenter-dark .content ol.is-upper-alpha:not([type]) {
         list-style-type: upper-alpha; }
-      html.theme--documenter-dark .content ol:not([type]).is-upper-roman {
+      html.theme--documenter-dark .content ol.is-upper-roman:not([type]) {
         list-style-type: upper-roman; }
   html.theme--documenter-dark .content ul {
     list-style: disc outside;
@@ -2124,7 +2060,7 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .content pre {
     -webkit-overflow-scrolling: touch;
     overflow-x: auto;
-    padding: 0.7rem 0.5rem;
+    padding: 0;
     white-space: pre;
     word-wrap: normal; }
   html.theme--documenter-dark .content sup,
@@ -2581,39 +2517,39 @@ html.theme--documenter-dark {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start; }
-    html.theme--documenter-dark .tags .tag, html.theme--documenter-dark .tags .docstring > section > a.docs-sourcelink, html.theme--documenter-dark .tags .content kbd, html.theme--documenter-dark .content .tags kbd {
+    html.theme--documenter-dark .tags .tag, html.theme--documenter-dark .tags .content kbd, html.theme--documenter-dark .content .tags kbd, html.theme--documenter-dark .tags .docstring > section > a.docs-sourcelink {
       margin-bottom: 0.5rem; }
-      html.theme--documenter-dark .tags .tag:not(:last-child), html.theme--documenter-dark .tags .docstring > section > a.docs-sourcelink:not(:last-child), html.theme--documenter-dark .tags .content kbd:not(:last-child), html.theme--documenter-dark .content .tags kbd:not(:last-child) {
+      html.theme--documenter-dark .tags .tag:not(:last-child), html.theme--documenter-dark .tags .content kbd:not(:last-child), html.theme--documenter-dark .content .tags kbd:not(:last-child), html.theme--documenter-dark .tags .docstring > section > a.docs-sourcelink:not(:last-child) {
         margin-right: 0.5rem; }
     html.theme--documenter-dark .tags:last-child {
       margin-bottom: -0.5rem; }
     html.theme--documenter-dark .tags:not(:last-child) {
       margin-bottom: 1rem; }
-    html.theme--documenter-dark .tags.are-medium .tag:not(.is-normal):not(.is-large), html.theme--documenter-dark .tags.are-medium .docstring > section > a.docs-sourcelink:not(.is-normal):not(.is-large), html.theme--documenter-dark .tags.are-medium .content kbd:not(.is-normal):not(.is-large), html.theme--documenter-dark .content .tags.are-medium kbd:not(.is-normal):not(.is-large) {
+    html.theme--documenter-dark .tags.are-medium .tag:not(.is-normal):not(.is-large), html.theme--documenter-dark .tags.are-medium .content kbd:not(.is-normal):not(.is-large), html.theme--documenter-dark .content .tags.are-medium kbd:not(.is-normal):not(.is-large), html.theme--documenter-dark .tags.are-medium .docstring > section > a.docs-sourcelink:not(.is-normal):not(.is-large) {
       font-size: 15px; }
-    html.theme--documenter-dark .tags.are-large .tag:not(.is-normal):not(.is-medium), html.theme--documenter-dark .tags.are-large .docstring > section > a.docs-sourcelink:not(.is-normal):not(.is-medium), html.theme--documenter-dark .tags.are-large .content kbd:not(.is-normal):not(.is-medium), html.theme--documenter-dark .content .tags.are-large kbd:not(.is-normal):not(.is-medium) {
+    html.theme--documenter-dark .tags.are-large .tag:not(.is-normal):not(.is-medium), html.theme--documenter-dark .tags.are-large .content kbd:not(.is-normal):not(.is-medium), html.theme--documenter-dark .content .tags.are-large kbd:not(.is-normal):not(.is-medium), html.theme--documenter-dark .tags.are-large .docstring > section > a.docs-sourcelink:not(.is-normal):not(.is-medium) {
       font-size: 1.25rem; }
     html.theme--documenter-dark .tags.is-centered {
       justify-content: center; }
-      html.theme--documenter-dark .tags.is-centered .tag, html.theme--documenter-dark .tags.is-centered .docstring > section > a.docs-sourcelink, html.theme--documenter-dark .tags.is-centered .content kbd, html.theme--documenter-dark .content .tags.is-centered kbd {
+      html.theme--documenter-dark .tags.is-centered .tag, html.theme--documenter-dark .tags.is-centered .content kbd, html.theme--documenter-dark .content .tags.is-centered kbd, html.theme--documenter-dark .tags.is-centered .docstring > section > a.docs-sourcelink {
         margin-right: 0.25rem;
         margin-left: 0.25rem; }
     html.theme--documenter-dark .tags.is-right {
       justify-content: flex-end; }
-      html.theme--documenter-dark .tags.is-right .tag:not(:first-child), html.theme--documenter-dark .tags.is-right .docstring > section > a.docs-sourcelink:not(:first-child), html.theme--documenter-dark .tags.is-right .content kbd:not(:first-child), html.theme--documenter-dark .content .tags.is-right kbd:not(:first-child) {
+      html.theme--documenter-dark .tags.is-right .tag:not(:first-child), html.theme--documenter-dark .tags.is-right .content kbd:not(:first-child), html.theme--documenter-dark .content .tags.is-right kbd:not(:first-child), html.theme--documenter-dark .tags.is-right .docstring > section > a.docs-sourcelink:not(:first-child) {
         margin-left: 0.5rem; }
-      html.theme--documenter-dark .tags.is-right .tag:not(:last-child), html.theme--documenter-dark .tags.is-right .docstring > section > a.docs-sourcelink:not(:last-child), html.theme--documenter-dark .tags.is-right .content kbd:not(:last-child), html.theme--documenter-dark .content .tags.is-right kbd:not(:last-child) {
+      html.theme--documenter-dark .tags.is-right .tag:not(:last-child), html.theme--documenter-dark .tags.is-right .content kbd:not(:last-child), html.theme--documenter-dark .content .tags.is-right kbd:not(:last-child), html.theme--documenter-dark .tags.is-right .docstring > section > a.docs-sourcelink:not(:last-child) {
         margin-right: 0; }
-    html.theme--documenter-dark .tags.has-addons .tag, html.theme--documenter-dark .tags.has-addons .docstring > section > a.docs-sourcelink, html.theme--documenter-dark .tags.has-addons .content kbd, html.theme--documenter-dark .content .tags.has-addons kbd {
+    html.theme--documenter-dark .tags.has-addons .tag, html.theme--documenter-dark .tags.has-addons .content kbd, html.theme--documenter-dark .content .tags.has-addons kbd, html.theme--documenter-dark .tags.has-addons .docstring > section > a.docs-sourcelink {
       margin-right: 0; }
-      html.theme--documenter-dark .tags.has-addons .tag:not(:first-child), html.theme--documenter-dark .tags.has-addons .docstring > section > a.docs-sourcelink:not(:first-child), html.theme--documenter-dark .tags.has-addons .content kbd:not(:first-child), html.theme--documenter-dark .content .tags.has-addons kbd:not(:first-child) {
+      html.theme--documenter-dark .tags.has-addons .tag:not(:first-child), html.theme--documenter-dark .tags.has-addons .content kbd:not(:first-child), html.theme--documenter-dark .content .tags.has-addons kbd:not(:first-child), html.theme--documenter-dark .tags.has-addons .docstring > section > a.docs-sourcelink:not(:first-child) {
         margin-left: 0;
         border-bottom-left-radius: 0;
         border-top-left-radius: 0; }
-      html.theme--documenter-dark .tags.has-addons .tag:not(:last-child), html.theme--documenter-dark .tags.has-addons .docstring > section > a.docs-sourcelink:not(:last-child), html.theme--documenter-dark .tags.has-addons .content kbd:not(:last-child), html.theme--documenter-dark .content .tags.has-addons kbd:not(:last-child) {
+      html.theme--documenter-dark .tags.has-addons .tag:not(:last-child), html.theme--documenter-dark .tags.has-addons .content kbd:not(:last-child), html.theme--documenter-dark .content .tags.has-addons kbd:not(:last-child), html.theme--documenter-dark .tags.has-addons .docstring > section > a.docs-sourcelink:not(:last-child) {
         border-bottom-right-radius: 0;
         border-top-right-radius: 0; }
-  html.theme--documenter-dark .tag:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body), html.theme--documenter-dark .content kbd:not(body) {
+  html.theme--documenter-dark .tag:not(body), html.theme--documenter-dark .content kbd:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body) {
     align-items: center;
     background-color: #282f2f;
     border-radius: 0.4em;
@@ -2626,60 +2562,60 @@ html.theme--documenter-dark {
     padding-left: 0.75em;
     padding-right: 0.75em;
     white-space: nowrap; }
-    html.theme--documenter-dark .tag:not(body) .delete, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body) .delete, html.theme--documenter-dark .content kbd:not(body) .delete {
+    html.theme--documenter-dark .tag:not(body) .delete, html.theme--documenter-dark .content kbd:not(body) .delete, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body) .delete {
       margin-left: 0.25rem;
       margin-right: -0.375rem; }
-    html.theme--documenter-dark .tag:not(body).is-white, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-white, html.theme--documenter-dark .content kbd:not(body).is-white {
+    html.theme--documenter-dark .tag.is-white:not(body), html.theme--documenter-dark .content kbd.is-white:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-white:not(body) {
       background-color: white;
       color: #0a0a0a; }
-    html.theme--documenter-dark .tag:not(body).is-black, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-black, html.theme--documenter-dark .content kbd:not(body).is-black {
+    html.theme--documenter-dark .tag.is-black:not(body), html.theme--documenter-dark .content kbd.is-black:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-black:not(body) {
       background-color: #0a0a0a;
       color: white; }
-    html.theme--documenter-dark .tag:not(body).is-light, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-light, html.theme--documenter-dark .content kbd:not(body).is-light {
+    html.theme--documenter-dark .tag.is-light:not(body), html.theme--documenter-dark .content kbd.is-light:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-light:not(body) {
       background-color: #ecf0f1;
       color: #282f2f; }
-    html.theme--documenter-dark .tag:not(body).is-dark, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-dark, html.theme--documenter-dark .content kbd:not(body) {
+    html.theme--documenter-dark .tag.is-dark:not(body), html.theme--documenter-dark .content kbd:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-dark:not(body), html.theme--documenter-dark .content .docstring > section > kbd:not(body) {
       background-color: #282f2f;
       color: #ecf0f1; }
-    html.theme--documenter-dark .tag:not(body).is-primary, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body), html.theme--documenter-dark .content kbd:not(body).is-primary {
+    html.theme--documenter-dark .tag.is-primary:not(body), html.theme--documenter-dark .content kbd.is-primary:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body) {
       background-color: #375a7f;
       color: #fff; }
-    html.theme--documenter-dark .tag:not(body).is-link, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-link, html.theme--documenter-dark .content kbd:not(body).is-link {
+    html.theme--documenter-dark .tag.is-link:not(body), html.theme--documenter-dark .content kbd.is-link:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-link:not(body) {
       background-color: #1abc9c;
       color: #fff; }
-    html.theme--documenter-dark .tag:not(body).is-info, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-info, html.theme--documenter-dark .content kbd:not(body).is-info {
+    html.theme--documenter-dark .tag.is-info:not(body), html.theme--documenter-dark .content kbd.is-info:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-info:not(body) {
       background-color: #024c7d;
       color: #fff; }
-    html.theme--documenter-dark .tag:not(body).is-success, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-success, html.theme--documenter-dark .content kbd:not(body).is-success {
+    html.theme--documenter-dark .tag.is-success:not(body), html.theme--documenter-dark .content kbd.is-success:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-success:not(body) {
       background-color: #008438;
       color: #fff; }
-    html.theme--documenter-dark .tag:not(body).is-warning, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-warning, html.theme--documenter-dark .content kbd:not(body).is-warning {
+    html.theme--documenter-dark .tag.is-warning:not(body), html.theme--documenter-dark .content kbd.is-warning:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-warning:not(body) {
       background-color: #ad8100;
       color: #fff; }
-    html.theme--documenter-dark .tag:not(body).is-danger, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-danger, html.theme--documenter-dark .content kbd:not(body).is-danger {
+    html.theme--documenter-dark .tag.is-danger:not(body), html.theme--documenter-dark .content kbd.is-danger:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-danger:not(body) {
       background-color: #9e1b0d;
       color: #fff; }
-    html.theme--documenter-dark .tag:not(body).is-normal, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-normal, html.theme--documenter-dark .content kbd:not(body).is-normal {
+    html.theme--documenter-dark .tag.is-normal:not(body), html.theme--documenter-dark .content kbd.is-normal:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-normal:not(body) {
       font-size: 0.85em; }
-    html.theme--documenter-dark .tag:not(body).is-medium, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-medium, html.theme--documenter-dark .content kbd:not(body).is-medium {
+    html.theme--documenter-dark .tag.is-medium:not(body), html.theme--documenter-dark .content kbd.is-medium:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-medium:not(body) {
       font-size: 15px; }
-    html.theme--documenter-dark .tag:not(body).is-large, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-large, html.theme--documenter-dark .content kbd:not(body).is-large {
+    html.theme--documenter-dark .tag.is-large:not(body), html.theme--documenter-dark .content kbd.is-large:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-large:not(body) {
       font-size: 1.25rem; }
-    html.theme--documenter-dark .tag:not(body) .icon:first-child:not(:last-child), html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body) .icon:first-child:not(:last-child), html.theme--documenter-dark .content kbd:not(body) .icon:first-child:not(:last-child) {
+    html.theme--documenter-dark .tag:not(body) .icon:first-child:not(:last-child), html.theme--documenter-dark .content kbd:not(body) .icon:first-child:not(:last-child), html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body) .icon:first-child:not(:last-child) {
       margin-left: -0.375em;
       margin-right: 0.1875em; }
-    html.theme--documenter-dark .tag:not(body) .icon:last-child:not(:first-child), html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body) .icon:last-child:not(:first-child), html.theme--documenter-dark .content kbd:not(body) .icon:last-child:not(:first-child) {
+    html.theme--documenter-dark .tag:not(body) .icon:last-child:not(:first-child), html.theme--documenter-dark .content kbd:not(body) .icon:last-child:not(:first-child), html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body) .icon:last-child:not(:first-child) {
       margin-left: 0.1875em;
       margin-right: -0.375em; }
-    html.theme--documenter-dark .tag:not(body) .icon:first-child:last-child, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body) .icon:first-child:last-child, html.theme--documenter-dark .content kbd:not(body) .icon:first-child:last-child {
+    html.theme--documenter-dark .tag:not(body) .icon:first-child:last-child, html.theme--documenter-dark .content kbd:not(body) .icon:first-child:last-child, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body) .icon:first-child:last-child {
       margin-left: -0.375em;
       margin-right: -0.375em; }
-    html.theme--documenter-dark .tag:not(body).is-delete, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-delete, html.theme--documenter-dark .content kbd:not(body).is-delete {
+    html.theme--documenter-dark .tag.is-delete:not(body), html.theme--documenter-dark .content kbd.is-delete:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-delete:not(body) {
       margin-left: 1px;
       padding: 0;
       position: relative;
       width: 2em; }
-      html.theme--documenter-dark .tag:not(body).is-delete::before, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-delete::before, html.theme--documenter-dark .content kbd:not(body).is-delete::before, html.theme--documenter-dark .tag:not(body).is-delete::after, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-delete::after, html.theme--documenter-dark .content kbd:not(body).is-delete::after {
+      html.theme--documenter-dark .tag.is-delete:not(body)::before, html.theme--documenter-dark .content kbd.is-delete:not(body)::before, html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-delete:not(body)::before, html.theme--documenter-dark .tag.is-delete:not(body)::after, html.theme--documenter-dark .content kbd.is-delete:not(body)::after, html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-delete:not(body)::after {
         background-color: currentColor;
         content: "";
         display: block;
@@ -2688,17 +2624,17 @@ html.theme--documenter-dark {
         top: 50%;
         transform: translateX(-50%) translateY(-50%) rotate(45deg);
         transform-origin: center center; }
-      html.theme--documenter-dark .tag:not(body).is-delete::before, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-delete::before, html.theme--documenter-dark .content kbd:not(body).is-delete::before {
+      html.theme--documenter-dark .tag.is-delete:not(body)::before, html.theme--documenter-dark .content kbd.is-delete:not(body)::before, html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-delete:not(body)::before {
         height: 1px;
         width: 50%; }
-      html.theme--documenter-dark .tag:not(body).is-delete::after, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-delete::after, html.theme--documenter-dark .content kbd:not(body).is-delete::after {
+      html.theme--documenter-dark .tag.is-delete:not(body)::after, html.theme--documenter-dark .content kbd.is-delete:not(body)::after, html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-delete:not(body)::after {
         height: 50%;
         width: 1px; }
-      html.theme--documenter-dark .tag:not(body).is-delete:hover, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-delete:hover, html.theme--documenter-dark .content kbd:not(body).is-delete:hover, html.theme--documenter-dark .tag:not(body).is-delete:focus, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-delete:focus, html.theme--documenter-dark .content kbd:not(body).is-delete:focus {
+      html.theme--documenter-dark .tag.is-delete:not(body):hover, html.theme--documenter-dark .content kbd.is-delete:not(body):hover, html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-delete:not(body):hover, html.theme--documenter-dark .tag.is-delete:not(body):focus, html.theme--documenter-dark .content kbd.is-delete:not(body):focus, html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-delete:not(body):focus {
         background-color: #1d2122; }
-      html.theme--documenter-dark .tag:not(body).is-delete:active, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-delete:active, html.theme--documenter-dark .content kbd:not(body).is-delete:active {
+      html.theme--documenter-dark .tag.is-delete:not(body):active, html.theme--documenter-dark .content kbd.is-delete:not(body):active, html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-delete:not(body):active {
         background-color: #111414; }
-    html.theme--documenter-dark .tag:not(body).is-rounded, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:not(body).is-rounded, html.theme--documenter-dark .content kbd:not(body).is-rounded, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.tag:not(body) {
+    html.theme--documenter-dark .tag.is-rounded:not(body), html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:not(body), html.theme--documenter-dark .content kbd.is-rounded:not(body), html.theme--documenter-dark #documenter .docs-sidebar .content form.docs-search > input:not(body), html.theme--documenter-dark .docstring > section > a.docs-sourcelink.is-rounded:not(body) {
       border-radius: 290486px; }
   html.theme--documenter-dark a.tag:hover, html.theme--documenter-dark .docstring > section > a.docs-sourcelink:hover {
     text-decoration: underline; }
@@ -2716,11 +2652,11 @@ html.theme--documenter-dark {
     html.theme--documenter-dark .title sup,
     html.theme--documenter-dark .subtitle sup {
       font-size: 0.75em; }
-    html.theme--documenter-dark .title .tag, html.theme--documenter-dark .title .docstring > section > a.docs-sourcelink, html.theme--documenter-dark .title .content kbd, html.theme--documenter-dark .content .title kbd,
+    html.theme--documenter-dark .title .tag, html.theme--documenter-dark .title .content kbd, html.theme--documenter-dark .content .title kbd, html.theme--documenter-dark .title .docstring > section > a.docs-sourcelink,
     html.theme--documenter-dark .subtitle .tag,
-    html.theme--documenter-dark .subtitle .docstring > section > a.docs-sourcelink,
     html.theme--documenter-dark .subtitle .content kbd,
-    html.theme--documenter-dark .content .subtitle kbd {
+    html.theme--documenter-dark .content .subtitle kbd,
+    html.theme--documenter-dark .subtitle .docstring > section > a.docs-sourcelink {
       vertical-align: middle; }
   html.theme--documenter-dark .title {
     color: #fff;
@@ -2799,114 +2735,94 @@ html.theme--documenter-dark {
     padding: 0.25rem 0.5rem;
     text-align: center;
     vertical-align: top; }
-  html.theme--documenter-dark .input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input, html.theme--documenter-dark .textarea, html.theme--documenter-dark .select select {
+  html.theme--documenter-dark .select select, html.theme--documenter-dark .textarea, html.theme--documenter-dark .input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input {
     background-color: #1f2424;
     border-color: #5e6d6f;
     border-radius: 0.4em;
     color: #dbdee0; }
-    html.theme--documenter-dark .input::-moz-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input::-moz-placeholder, html.theme--documenter-dark .textarea::-moz-placeholder, html.theme--documenter-dark .select select::-moz-placeholder {
+    html.theme--documenter-dark .select select::-moz-placeholder, html.theme--documenter-dark .textarea::-moz-placeholder, html.theme--documenter-dark .input::-moz-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input::-moz-placeholder {
       color: rgba(219, 222, 224, 0.3); }
-    html.theme--documenter-dark .input::-webkit-input-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input::-webkit-input-placeholder, html.theme--documenter-dark .textarea::-webkit-input-placeholder, html.theme--documenter-dark .select select::-webkit-input-placeholder {
+    html.theme--documenter-dark .select select::-webkit-input-placeholder, html.theme--documenter-dark .textarea::-webkit-input-placeholder, html.theme--documenter-dark .input::-webkit-input-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input::-webkit-input-placeholder {
       color: rgba(219, 222, 224, 0.3); }
-    html.theme--documenter-dark .input:-moz-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:-moz-placeholder, html.theme--documenter-dark .textarea:-moz-placeholder, html.theme--documenter-dark .select select:-moz-placeholder {
+    html.theme--documenter-dark .select select:-moz-placeholder, html.theme--documenter-dark .textarea:-moz-placeholder, html.theme--documenter-dark .input:-moz-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:-moz-placeholder {
       color: rgba(219, 222, 224, 0.3); }
-    html.theme--documenter-dark .input:-ms-input-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:-ms-input-placeholder, html.theme--documenter-dark .textarea:-ms-input-placeholder, html.theme--documenter-dark .select select:-ms-input-placeholder {
+    html.theme--documenter-dark .select select:-ms-input-placeholder, html.theme--documenter-dark .textarea:-ms-input-placeholder, html.theme--documenter-dark .input:-ms-input-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:-ms-input-placeholder {
       color: rgba(219, 222, 224, 0.3); }
-    html.theme--documenter-dark .input:hover, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:hover, html.theme--documenter-dark .textarea:hover, html.theme--documenter-dark .select select:hover, html.theme--documenter-dark .is-hovered.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-hovered, html.theme--documenter-dark .is-hovered.textarea, html.theme--documenter-dark .select select.is-hovered {
+    html.theme--documenter-dark .select select:hover, html.theme--documenter-dark .textarea:hover, html.theme--documenter-dark .input:hover, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:hover, html.theme--documenter-dark .select select.is-hovered, html.theme--documenter-dark .is-hovered.textarea, html.theme--documenter-dark .is-hovered.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-hovered {
       border-color: #8c9b9d; }
-    html.theme--documenter-dark .input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:focus, html.theme--documenter-dark .textarea:focus, html.theme--documenter-dark .select select:focus, html.theme--documenter-dark .is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-focused.textarea, html.theme--documenter-dark .select select.is-focused, html.theme--documenter-dark .input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:active, html.theme--documenter-dark .textarea:active, html.theme--documenter-dark .select select:active, html.theme--documenter-dark .is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active, html.theme--documenter-dark .is-active.textarea, html.theme--documenter-dark .select select.is-active {
+    html.theme--documenter-dark .select select:focus, html.theme--documenter-dark .textarea:focus, html.theme--documenter-dark .input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:focus, html.theme--documenter-dark .select select.is-focused, html.theme--documenter-dark .is-focused.textarea, html.theme--documenter-dark .is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .select select:active, html.theme--documenter-dark .textarea:active, html.theme--documenter-dark .input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:active, html.theme--documenter-dark .select select.is-active, html.theme--documenter-dark .is-active.textarea, html.theme--documenter-dark .is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active {
       border-color: #1abc9c;
       box-shadow: 0 0 0 0.125em rgba(26, 188, 156, 0.25); }
-    html.theme--documenter-dark .input[disabled], html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled], html.theme--documenter-dark .textarea[disabled], html.theme--documenter-dark .select select[disabled],
-    fieldset[disabled] html.theme--documenter-dark .input,
-    fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input,
-    fieldset[disabled] html.theme--documenter-dark .textarea,
-    fieldset[disabled] html.theme--documenter-dark .select select {
+    html.theme--documenter-dark .select select[disabled], html.theme--documenter-dark .textarea[disabled], html.theme--documenter-dark .input[disabled], html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled], fieldset[disabled] html.theme--documenter-dark .select select, fieldset[disabled] html.theme--documenter-dark .textarea, fieldset[disabled] html.theme--documenter-dark .input, fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input {
       background-color: #8c9b9d;
       border-color: #282f2f;
       box-shadow: none;
       color: white; }
-      html.theme--documenter-dark .input[disabled]::-moz-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled]::-moz-placeholder, html.theme--documenter-dark .textarea[disabled]::-moz-placeholder, html.theme--documenter-dark .select select[disabled]::-moz-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .input::-moz-placeholder,
-      fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input::-moz-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .textarea::-moz-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .select select::-moz-placeholder {
+      html.theme--documenter-dark .select select[disabled]::-moz-placeholder, html.theme--documenter-dark .textarea[disabled]::-moz-placeholder, html.theme--documenter-dark .input[disabled]::-moz-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled]::-moz-placeholder, fieldset[disabled] html.theme--documenter-dark .select select::-moz-placeholder, fieldset[disabled] html.theme--documenter-dark .textarea::-moz-placeholder, fieldset[disabled] html.theme--documenter-dark .input::-moz-placeholder, fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input::-moz-placeholder {
         color: rgba(255, 255, 255, 0.3); }
-      html.theme--documenter-dark .input[disabled]::-webkit-input-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled]::-webkit-input-placeholder, html.theme--documenter-dark .textarea[disabled]::-webkit-input-placeholder, html.theme--documenter-dark .select select[disabled]::-webkit-input-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .input::-webkit-input-placeholder,
-      fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input::-webkit-input-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .textarea::-webkit-input-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .select select::-webkit-input-placeholder {
+      html.theme--documenter-dark .select select[disabled]::-webkit-input-placeholder, html.theme--documenter-dark .textarea[disabled]::-webkit-input-placeholder, html.theme--documenter-dark .input[disabled]::-webkit-input-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled]::-webkit-input-placeholder, fieldset[disabled] html.theme--documenter-dark .select select::-webkit-input-placeholder, fieldset[disabled] html.theme--documenter-dark .textarea::-webkit-input-placeholder, fieldset[disabled] html.theme--documenter-dark .input::-webkit-input-placeholder, fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input::-webkit-input-placeholder {
         color: rgba(255, 255, 255, 0.3); }
-      html.theme--documenter-dark .input[disabled]:-moz-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled]:-moz-placeholder, html.theme--documenter-dark .textarea[disabled]:-moz-placeholder, html.theme--documenter-dark .select select[disabled]:-moz-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .input:-moz-placeholder,
-      fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:-moz-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .textarea:-moz-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .select select:-moz-placeholder {
+      html.theme--documenter-dark .select select[disabled]:-moz-placeholder, html.theme--documenter-dark .textarea[disabled]:-moz-placeholder, html.theme--documenter-dark .input[disabled]:-moz-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled]:-moz-placeholder, fieldset[disabled] html.theme--documenter-dark .select select:-moz-placeholder, fieldset[disabled] html.theme--documenter-dark .textarea:-moz-placeholder, fieldset[disabled] html.theme--documenter-dark .input:-moz-placeholder, fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:-moz-placeholder {
         color: rgba(255, 255, 255, 0.3); }
-      html.theme--documenter-dark .input[disabled]:-ms-input-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled]:-ms-input-placeholder, html.theme--documenter-dark .textarea[disabled]:-ms-input-placeholder, html.theme--documenter-dark .select select[disabled]:-ms-input-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .input:-ms-input-placeholder,
-      fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:-ms-input-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .textarea:-ms-input-placeholder,
-      fieldset[disabled] html.theme--documenter-dark .select select:-ms-input-placeholder {
+      html.theme--documenter-dark .select select[disabled]:-ms-input-placeholder, html.theme--documenter-dark .textarea[disabled]:-ms-input-placeholder, html.theme--documenter-dark .input[disabled]:-ms-input-placeholder, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[disabled]:-ms-input-placeholder, fieldset[disabled] html.theme--documenter-dark .select select:-ms-input-placeholder, fieldset[disabled] html.theme--documenter-dark .textarea:-ms-input-placeholder, fieldset[disabled] html.theme--documenter-dark .input:-ms-input-placeholder, fieldset[disabled] html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input:-ms-input-placeholder {
         color: rgba(255, 255, 255, 0.3); }
-  html.theme--documenter-dark .input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input, html.theme--documenter-dark .textarea {
+  html.theme--documenter-dark .textarea, html.theme--documenter-dark .input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input {
     box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
     max-width: 100%;
     width: 100%; }
-    html.theme--documenter-dark .input[readonly], html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[readonly], html.theme--documenter-dark .textarea[readonly] {
+    html.theme--documenter-dark .textarea[readonly], html.theme--documenter-dark .input[readonly], html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input[readonly] {
       box-shadow: none; }
-    html.theme--documenter-dark .is-white.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-white, html.theme--documenter-dark .is-white.textarea {
+    html.theme--documenter-dark .is-white.textarea, html.theme--documenter-dark .is-white.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-white {
       border-color: white; }
-      html.theme--documenter-dark .is-white.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-white:focus, html.theme--documenter-dark .is-white.textarea:focus, html.theme--documenter-dark .is-white.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-white.is-focused, html.theme--documenter-dark .is-white.is-focused.textarea, html.theme--documenter-dark .is-white.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-white:active, html.theme--documenter-dark .is-white.textarea:active, html.theme--documenter-dark .is-white.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-white.is-active, html.theme--documenter-dark .is-white.is-active.textarea {
+      html.theme--documenter-dark .is-white.textarea:focus, html.theme--documenter-dark .is-white.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-white:focus, html.theme--documenter-dark .is-white.is-focused.textarea, html.theme--documenter-dark .is-white.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-white.textarea:active, html.theme--documenter-dark .is-white.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-white:active, html.theme--documenter-dark .is-white.is-active.textarea, html.theme--documenter-dark .is-white.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active {
         box-shadow: 0 0 0 0.125em rgba(255, 255, 255, 0.25); }
-    html.theme--documenter-dark .is-black.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-black, html.theme--documenter-dark .is-black.textarea {
+    html.theme--documenter-dark .is-black.textarea, html.theme--documenter-dark .is-black.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-black {
       border-color: #0a0a0a; }
-      html.theme--documenter-dark .is-black.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-black:focus, html.theme--documenter-dark .is-black.textarea:focus, html.theme--documenter-dark .is-black.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-black.is-focused, html.theme--documenter-dark .is-black.is-focused.textarea, html.theme--documenter-dark .is-black.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-black:active, html.theme--documenter-dark .is-black.textarea:active, html.theme--documenter-dark .is-black.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-black.is-active, html.theme--documenter-dark .is-black.is-active.textarea {
+      html.theme--documenter-dark .is-black.textarea:focus, html.theme--documenter-dark .is-black.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-black:focus, html.theme--documenter-dark .is-black.is-focused.textarea, html.theme--documenter-dark .is-black.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-black.textarea:active, html.theme--documenter-dark .is-black.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-black:active, html.theme--documenter-dark .is-black.is-active.textarea, html.theme--documenter-dark .is-black.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active {
         box-shadow: 0 0 0 0.125em rgba(10, 10, 10, 0.25); }
-    html.theme--documenter-dark .is-light.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-light, html.theme--documenter-dark .is-light.textarea {
+    html.theme--documenter-dark .is-light.textarea, html.theme--documenter-dark .is-light.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-light {
       border-color: #ecf0f1; }
-      html.theme--documenter-dark .is-light.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-light:focus, html.theme--documenter-dark .is-light.textarea:focus, html.theme--documenter-dark .is-light.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-light.is-focused, html.theme--documenter-dark .is-light.is-focused.textarea, html.theme--documenter-dark .is-light.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-light:active, html.theme--documenter-dark .is-light.textarea:active, html.theme--documenter-dark .is-light.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-light.is-active, html.theme--documenter-dark .is-light.is-active.textarea {
+      html.theme--documenter-dark .is-light.textarea:focus, html.theme--documenter-dark .is-light.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-light:focus, html.theme--documenter-dark .is-light.is-focused.textarea, html.theme--documenter-dark .is-light.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-light.textarea:active, html.theme--documenter-dark .is-light.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-light:active, html.theme--documenter-dark .is-light.is-active.textarea, html.theme--documenter-dark .is-light.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active {
         box-shadow: 0 0 0 0.125em rgba(236, 240, 241, 0.25); }
-    html.theme--documenter-dark .is-dark.input, html.theme--documenter-dark .content kbd.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-dark, html.theme--documenter-dark .is-dark.textarea, html.theme--documenter-dark .content kbd.textarea {
+    html.theme--documenter-dark .is-dark.textarea, html.theme--documenter-dark .content kbd.textarea, html.theme--documenter-dark .is-dark.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-dark, html.theme--documenter-dark .content kbd.input {
       border-color: #282f2f; }
-      html.theme--documenter-dark .is-dark.input:focus, html.theme--documenter-dark .content kbd.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-dark:focus, html.theme--documenter-dark .is-dark.textarea:focus, html.theme--documenter-dark .content kbd.textarea:focus, html.theme--documenter-dark .is-dark.is-focused.input, html.theme--documenter-dark .content kbd.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-dark.is-focused, html.theme--documenter-dark .is-dark.is-focused.textarea, html.theme--documenter-dark .content kbd.is-focused.textarea, html.theme--documenter-dark .is-dark.input:active, html.theme--documenter-dark .content kbd.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-dark:active, html.theme--documenter-dark .is-dark.textarea:active, html.theme--documenter-dark .content kbd.textarea:active, html.theme--documenter-dark .is-dark.is-active.input, html.theme--documenter-dark .content kbd.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-dark.is-active, html.theme--documenter-dark .is-dark.is-active.textarea, html.theme--documenter-dark .content kbd.is-active.textarea {
+      html.theme--documenter-dark .is-dark.textarea:focus, html.theme--documenter-dark .content kbd.textarea:focus, html.theme--documenter-dark .is-dark.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-dark:focus, html.theme--documenter-dark .content kbd.input:focus, html.theme--documenter-dark .is-dark.is-focused.textarea, html.theme--documenter-dark .content kbd.is-focused.textarea, html.theme--documenter-dark .is-dark.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .content kbd.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar .content form.docs-search > input.is-focused, html.theme--documenter-dark .is-dark.textarea:active, html.theme--documenter-dark .content kbd.textarea:active, html.theme--documenter-dark .is-dark.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-dark:active, html.theme--documenter-dark .content kbd.input:active, html.theme--documenter-dark .is-dark.is-active.textarea, html.theme--documenter-dark .content kbd.is-active.textarea, html.theme--documenter-dark .is-dark.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active, html.theme--documenter-dark .content kbd.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar .content form.docs-search > input.is-active {
         box-shadow: 0 0 0 0.125em rgba(40, 47, 47, 0.25); }
-    html.theme--documenter-dark .is-primary.input, html.theme--documenter-dark .docstring > section > a.input.docs-sourcelink, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-primary, html.theme--documenter-dark .is-primary.textarea, html.theme--documenter-dark .docstring > section > a.textarea.docs-sourcelink {
+    html.theme--documenter-dark .is-primary.textarea, html.theme--documenter-dark .docstring > section > a.textarea.docs-sourcelink, html.theme--documenter-dark .is-primary.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-primary, html.theme--documenter-dark .docstring > section > a.input.docs-sourcelink {
       border-color: #375a7f; }
-      html.theme--documenter-dark .is-primary.input:focus, html.theme--documenter-dark .docstring > section > a.input.docs-sourcelink:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-primary:focus, html.theme--documenter-dark .is-primary.textarea:focus, html.theme--documenter-dark .docstring > section > a.textarea.docs-sourcelink:focus, html.theme--documenter-dark .is-primary.is-focused.input, html.theme--documenter-dark .docstring > section > a.is-focused.input.docs-sourcelink, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-primary.is-focused, html.theme--documenter-dark .is-primary.is-focused.textarea, html.theme--documenter-dark .docstring > section > a.is-focused.textarea.docs-sourcelink, html.theme--documenter-dark .is-primary.input:active, html.theme--documenter-dark .docstring > section > a.input.docs-sourcelink:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-primary:active, html.theme--documenter-dark .is-primary.textarea:active, html.theme--documenter-dark .docstring > section > a.textarea.docs-sourcelink:active, html.theme--documenter-dark .is-primary.is-active.input, html.theme--documenter-dark .docstring > section > a.is-active.input.docs-sourcelink, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-primary.is-active, html.theme--documenter-dark .is-primary.is-active.textarea, html.theme--documenter-dark .docstring > section > a.is-active.textarea.docs-sourcelink {
+      html.theme--documenter-dark .is-primary.textarea:focus, html.theme--documenter-dark .docstring > section > a.textarea.docs-sourcelink:focus, html.theme--documenter-dark .is-primary.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-primary:focus, html.theme--documenter-dark .docstring > section > a.input.docs-sourcelink:focus, html.theme--documenter-dark .is-primary.is-focused.textarea, html.theme--documenter-dark .docstring > section > a.is-focused.textarea.docs-sourcelink, html.theme--documenter-dark .is-primary.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .docstring > section > a.is-focused.input.docs-sourcelink, html.theme--documenter-dark .is-primary.textarea:active, html.theme--documenter-dark .docstring > section > a.textarea.docs-sourcelink:active, html.theme--documenter-dark .is-primary.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-primary:active, html.theme--documenter-dark .docstring > section > a.input.docs-sourcelink:active, html.theme--documenter-dark .is-primary.is-active.textarea, html.theme--documenter-dark .docstring > section > a.is-active.textarea.docs-sourcelink, html.theme--documenter-dark .is-primary.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active, html.theme--documenter-dark .docstring > section > a.is-active.input.docs-sourcelink {
         box-shadow: 0 0 0 0.125em rgba(55, 90, 127, 0.25); }
-    html.theme--documenter-dark .is-link.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-link, html.theme--documenter-dark .is-link.textarea {
+    html.theme--documenter-dark .is-link.textarea, html.theme--documenter-dark .is-link.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-link {
       border-color: #1abc9c; }
-      html.theme--documenter-dark .is-link.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-link:focus, html.theme--documenter-dark .is-link.textarea:focus, html.theme--documenter-dark .is-link.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-link.is-focused, html.theme--documenter-dark .is-link.is-focused.textarea, html.theme--documenter-dark .is-link.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-link:active, html.theme--documenter-dark .is-link.textarea:active, html.theme--documenter-dark .is-link.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-link.is-active, html.theme--documenter-dark .is-link.is-active.textarea {
+      html.theme--documenter-dark .is-link.textarea:focus, html.theme--documenter-dark .is-link.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-link:focus, html.theme--documenter-dark .is-link.is-focused.textarea, html.theme--documenter-dark .is-link.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-link.textarea:active, html.theme--documenter-dark .is-link.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-link:active, html.theme--documenter-dark .is-link.is-active.textarea, html.theme--documenter-dark .is-link.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active {
         box-shadow: 0 0 0 0.125em rgba(26, 188, 156, 0.25); }
-    html.theme--documenter-dark .is-info.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-info, html.theme--documenter-dark .is-info.textarea {
+    html.theme--documenter-dark .is-info.textarea, html.theme--documenter-dark .is-info.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-info {
       border-color: #024c7d; }
-      html.theme--documenter-dark .is-info.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-info:focus, html.theme--documenter-dark .is-info.textarea:focus, html.theme--documenter-dark .is-info.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-info.is-focused, html.theme--documenter-dark .is-info.is-focused.textarea, html.theme--documenter-dark .is-info.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-info:active, html.theme--documenter-dark .is-info.textarea:active, html.theme--documenter-dark .is-info.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-info.is-active, html.theme--documenter-dark .is-info.is-active.textarea {
+      html.theme--documenter-dark .is-info.textarea:focus, html.theme--documenter-dark .is-info.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-info:focus, html.theme--documenter-dark .is-info.is-focused.textarea, html.theme--documenter-dark .is-info.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-info.textarea:active, html.theme--documenter-dark .is-info.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-info:active, html.theme--documenter-dark .is-info.is-active.textarea, html.theme--documenter-dark .is-info.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active {
         box-shadow: 0 0 0 0.125em rgba(2, 76, 125, 0.25); }
-    html.theme--documenter-dark .is-success.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-success, html.theme--documenter-dark .is-success.textarea {
+    html.theme--documenter-dark .is-success.textarea, html.theme--documenter-dark .is-success.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-success {
       border-color: #008438; }
-      html.theme--documenter-dark .is-success.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-success:focus, html.theme--documenter-dark .is-success.textarea:focus, html.theme--documenter-dark .is-success.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-success.is-focused, html.theme--documenter-dark .is-success.is-focused.textarea, html.theme--documenter-dark .is-success.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-success:active, html.theme--documenter-dark .is-success.textarea:active, html.theme--documenter-dark .is-success.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-success.is-active, html.theme--documenter-dark .is-success.is-active.textarea {
+      html.theme--documenter-dark .is-success.textarea:focus, html.theme--documenter-dark .is-success.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-success:focus, html.theme--documenter-dark .is-success.is-focused.textarea, html.theme--documenter-dark .is-success.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-success.textarea:active, html.theme--documenter-dark .is-success.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-success:active, html.theme--documenter-dark .is-success.is-active.textarea, html.theme--documenter-dark .is-success.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active {
         box-shadow: 0 0 0 0.125em rgba(0, 132, 56, 0.25); }
-    html.theme--documenter-dark .is-warning.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-warning, html.theme--documenter-dark .is-warning.textarea {
+    html.theme--documenter-dark .is-warning.textarea, html.theme--documenter-dark .is-warning.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-warning {
       border-color: #ad8100; }
-      html.theme--documenter-dark .is-warning.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-warning:focus, html.theme--documenter-dark .is-warning.textarea:focus, html.theme--documenter-dark .is-warning.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-warning.is-focused, html.theme--documenter-dark .is-warning.is-focused.textarea, html.theme--documenter-dark .is-warning.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-warning:active, html.theme--documenter-dark .is-warning.textarea:active, html.theme--documenter-dark .is-warning.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-warning.is-active, html.theme--documenter-dark .is-warning.is-active.textarea {
+      html.theme--documenter-dark .is-warning.textarea:focus, html.theme--documenter-dark .is-warning.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-warning:focus, html.theme--documenter-dark .is-warning.is-focused.textarea, html.theme--documenter-dark .is-warning.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-warning.textarea:active, html.theme--documenter-dark .is-warning.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-warning:active, html.theme--documenter-dark .is-warning.is-active.textarea, html.theme--documenter-dark .is-warning.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active {
         box-shadow: 0 0 0 0.125em rgba(173, 129, 0, 0.25); }
-    html.theme--documenter-dark .is-danger.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-danger, html.theme--documenter-dark .is-danger.textarea {
+    html.theme--documenter-dark .is-danger.textarea, html.theme--documenter-dark .is-danger.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-danger {
       border-color: #9e1b0d; }
-      html.theme--documenter-dark .is-danger.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-danger:focus, html.theme--documenter-dark .is-danger.textarea:focus, html.theme--documenter-dark .is-danger.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-danger.is-focused, html.theme--documenter-dark .is-danger.is-focused.textarea, html.theme--documenter-dark .is-danger.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-danger:active, html.theme--documenter-dark .is-danger.textarea:active, html.theme--documenter-dark .is-danger.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-danger.is-active, html.theme--documenter-dark .is-danger.is-active.textarea {
+      html.theme--documenter-dark .is-danger.textarea:focus, html.theme--documenter-dark .is-danger.input:focus, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-danger:focus, html.theme--documenter-dark .is-danger.is-focused.textarea, html.theme--documenter-dark .is-danger.is-focused.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-focused, html.theme--documenter-dark .is-danger.textarea:active, html.theme--documenter-dark .is-danger.input:active, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-danger:active, html.theme--documenter-dark .is-danger.is-active.textarea, html.theme--documenter-dark .is-danger.is-active.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-active {
         box-shadow: 0 0 0 0.125em rgba(158, 27, 13, 0.25); }
-    html.theme--documenter-dark .is-small.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input, html.theme--documenter-dark .is-small.textarea {
+    html.theme--documenter-dark .is-small.textarea, html.theme--documenter-dark .is-small.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input {
       border-radius: 3px;
       font-size: 0.85em; }
-    html.theme--documenter-dark .is-medium.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-medium, html.theme--documenter-dark .is-medium.textarea {
+    html.theme--documenter-dark .is-medium.textarea, html.theme--documenter-dark .is-medium.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-medium {
       font-size: 1.25rem; }
-    html.theme--documenter-dark .is-large.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-large, html.theme--documenter-dark .is-large.textarea {
+    html.theme--documenter-dark .is-large.textarea, html.theme--documenter-dark .is-large.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-large {
       font-size: 1.5rem; }
-    html.theme--documenter-dark .is-fullwidth.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-fullwidth, html.theme--documenter-dark .is-fullwidth.textarea {
+    html.theme--documenter-dark .is-fullwidth.textarea, html.theme--documenter-dark .is-fullwidth.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-fullwidth {
       display: block;
       width: 100%; }
-    html.theme--documenter-dark .is-inline.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-inline, html.theme--documenter-dark .is-inline.textarea {
+    html.theme--documenter-dark .is-inline.textarea, html.theme--documenter-dark .is-inline.input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-inline {
       display: inline;
       width: auto; }
   html.theme--documenter-dark .input.is-rounded, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input {
@@ -2932,18 +2848,16 @@ html.theme--documenter-dark {
       height: initial; }
     html.theme--documenter-dark .textarea.has-fixed-size {
       resize: none; }
-  html.theme--documenter-dark .checkbox, html.theme--documenter-dark .radio {
+  html.theme--documenter-dark .radio, html.theme--documenter-dark .checkbox {
     cursor: pointer;
     display: inline-block;
     line-height: 1.25;
     position: relative; }
-    html.theme--documenter-dark .checkbox input, html.theme--documenter-dark .radio input {
+    html.theme--documenter-dark .radio input, html.theme--documenter-dark .checkbox input {
       cursor: pointer; }
-    html.theme--documenter-dark .checkbox:hover, html.theme--documenter-dark .radio:hover {
+    html.theme--documenter-dark .radio:hover, html.theme--documenter-dark .checkbox:hover {
       color: #8c9b9d; }
-    html.theme--documenter-dark .checkbox[disabled], html.theme--documenter-dark .radio[disabled],
-    fieldset[disabled] html.theme--documenter-dark .checkbox,
-    fieldset[disabled] html.theme--documenter-dark .radio {
+    html.theme--documenter-dark .radio[disabled], html.theme--documenter-dark .checkbox[disabled], fieldset[disabled] html.theme--documenter-dark .radio, fieldset[disabled] html.theme--documenter-dark .checkbox {
       color: white;
       cursor: not-allowed; }
   html.theme--documenter-dark .radio + .radio {
@@ -2970,8 +2884,7 @@ html.theme--documenter-dark {
       outline: none; }
       html.theme--documenter-dark .select select::-ms-expand {
         display: none; }
-      html.theme--documenter-dark .select select[disabled]:hover,
-      fieldset[disabled] html.theme--documenter-dark .select select:hover {
+      html.theme--documenter-dark .select select[disabled]:hover, fieldset[disabled] html.theme--documenter-dark .select select:hover {
         border-color: #282f2f; }
       html.theme--documenter-dark .select select:not([multiple]) {
         padding-right: 2.5em; }
@@ -3081,7 +2994,7 @@ html.theme--documenter-dark {
       right: 0.625em;
       top: 0.625em;
       transform: none; }
-    html.theme--documenter-dark .select.is-loading.is-small:after, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.select.is-loading:after {
+    html.theme--documenter-dark .select.is-loading.is-small:after, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-loading:after {
       font-size: 0.85em; }
     html.theme--documenter-dark .select.is-loading.is-medium:after {
       font-size: 1.25rem; }
@@ -3285,7 +3198,7 @@ html.theme--documenter-dark {
       width: 1.5em; }
       html.theme--documenter-dark .file.is-boxed .file-icon .fa {
         font-size: 21px; }
-    html.theme--documenter-dark .file.is-boxed.is-small .file-icon .fa, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.file.is-boxed .file-icon .fa {
+    html.theme--documenter-dark .file.is-boxed.is-small .file-icon .fa, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-boxed .file-icon .fa {
       font-size: 14px; }
     html.theme--documenter-dark .file.is-boxed.is-medium .file-icon .fa {
       font-size: 28px; }
@@ -3429,51 +3342,51 @@ html.theme--documenter-dark {
     html.theme--documenter-dark .field.has-addons .control:last-child:not(:only-child) .select select {
       border-bottom-left-radius: 0;
       border-top-left-radius: 0; }
-    html.theme--documenter-dark .field.has-addons .control .button:not([disabled]):hover, html.theme--documenter-dark .field.has-addons .control .button:not([disabled]).is-hovered,
+    html.theme--documenter-dark .field.has-addons .control .button:not([disabled]):hover, html.theme--documenter-dark .field.has-addons .control .button.is-hovered:not([disabled]),
     html.theme--documenter-dark .field.has-addons .control .input:not([disabled]):hover,
     html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input:not([disabled]):hover,
     html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input:not([disabled]):hover,
-    html.theme--documenter-dark .field.has-addons .control .input:not([disabled]).is-hovered,
-    html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input:not([disabled]).is-hovered,
-    html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input:not([disabled]).is-hovered,
+    html.theme--documenter-dark .field.has-addons .control .input.is-hovered:not([disabled]),
+    html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input.is-hovered:not([disabled]),
+    html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input.is-hovered:not([disabled]),
     html.theme--documenter-dark .field.has-addons .control .select select:not([disabled]):hover,
-    html.theme--documenter-dark .field.has-addons .control .select select:not([disabled]).is-hovered {
+    html.theme--documenter-dark .field.has-addons .control .select select.is-hovered:not([disabled]) {
       z-index: 2; }
-    html.theme--documenter-dark .field.has-addons .control .button:not([disabled]):focus, html.theme--documenter-dark .field.has-addons .control .button:not([disabled]).is-focused, html.theme--documenter-dark .field.has-addons .control .button:not([disabled]):active, html.theme--documenter-dark .field.has-addons .control .button:not([disabled]).is-active,
+    html.theme--documenter-dark .field.has-addons .control .button:not([disabled]):focus, html.theme--documenter-dark .field.has-addons .control .button.is-focused:not([disabled]), html.theme--documenter-dark .field.has-addons .control .button:not([disabled]):active, html.theme--documenter-dark .field.has-addons .control .button.is-active:not([disabled]),
     html.theme--documenter-dark .field.has-addons .control .input:not([disabled]):focus,
     html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input:not([disabled]):focus,
     html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input:not([disabled]):focus,
-    html.theme--documenter-dark .field.has-addons .control .input:not([disabled]).is-focused,
-    html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input:not([disabled]).is-focused,
-    html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input:not([disabled]).is-focused,
+    html.theme--documenter-dark .field.has-addons .control .input.is-focused:not([disabled]),
+    html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input.is-focused:not([disabled]),
+    html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input.is-focused:not([disabled]),
     html.theme--documenter-dark .field.has-addons .control .input:not([disabled]):active,
     html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input:not([disabled]):active,
     html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input:not([disabled]):active,
-    html.theme--documenter-dark .field.has-addons .control .input:not([disabled]).is-active,
-    html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input:not([disabled]).is-active,
-    html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input:not([disabled]).is-active,
+    html.theme--documenter-dark .field.has-addons .control .input.is-active:not([disabled]),
+    html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input.is-active:not([disabled]),
+    html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input.is-active:not([disabled]),
     html.theme--documenter-dark .field.has-addons .control .select select:not([disabled]):focus,
-    html.theme--documenter-dark .field.has-addons .control .select select:not([disabled]).is-focused,
+    html.theme--documenter-dark .field.has-addons .control .select select.is-focused:not([disabled]),
     html.theme--documenter-dark .field.has-addons .control .select select:not([disabled]):active,
-    html.theme--documenter-dark .field.has-addons .control .select select:not([disabled]).is-active {
+    html.theme--documenter-dark .field.has-addons .control .select select.is-active:not([disabled]) {
       z-index: 3; }
-      html.theme--documenter-dark .field.has-addons .control .button:not([disabled]):focus:hover, html.theme--documenter-dark .field.has-addons .control .button:not([disabled]).is-focused:hover, html.theme--documenter-dark .field.has-addons .control .button:not([disabled]):active:hover, html.theme--documenter-dark .field.has-addons .control .button:not([disabled]).is-active:hover,
+      html.theme--documenter-dark .field.has-addons .control .button:not([disabled]):focus:hover, html.theme--documenter-dark .field.has-addons .control .button.is-focused:not([disabled]):hover, html.theme--documenter-dark .field.has-addons .control .button:not([disabled]):active:hover, html.theme--documenter-dark .field.has-addons .control .button.is-active:not([disabled]):hover,
       html.theme--documenter-dark .field.has-addons .control .input:not([disabled]):focus:hover,
       html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input:not([disabled]):focus:hover,
       html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input:not([disabled]):focus:hover,
-      html.theme--documenter-dark .field.has-addons .control .input:not([disabled]).is-focused:hover,
-      html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input:not([disabled]).is-focused:hover,
-      html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input:not([disabled]).is-focused:hover,
+      html.theme--documenter-dark .field.has-addons .control .input.is-focused:not([disabled]):hover,
+      html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input.is-focused:not([disabled]):hover,
+      html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input.is-focused:not([disabled]):hover,
       html.theme--documenter-dark .field.has-addons .control .input:not([disabled]):active:hover,
       html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input:not([disabled]):active:hover,
       html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input:not([disabled]):active:hover,
-      html.theme--documenter-dark .field.has-addons .control .input:not([disabled]).is-active:hover,
-      html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input:not([disabled]).is-active:hover,
-      html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input:not([disabled]).is-active:hover,
+      html.theme--documenter-dark .field.has-addons .control .input.is-active:not([disabled]):hover,
+      html.theme--documenter-dark .field.has-addons .control #documenter .docs-sidebar form.docs-search > input.is-active:not([disabled]):hover,
+      html.theme--documenter-dark #documenter .docs-sidebar .field.has-addons .control form.docs-search > input.is-active:not([disabled]):hover,
       html.theme--documenter-dark .field.has-addons .control .select select:not([disabled]):focus:hover,
-      html.theme--documenter-dark .field.has-addons .control .select select:not([disabled]).is-focused:hover,
+      html.theme--documenter-dark .field.has-addons .control .select select.is-focused:not([disabled]):hover,
       html.theme--documenter-dark .field.has-addons .control .select select:not([disabled]):active:hover,
-      html.theme--documenter-dark .field.has-addons .control .select select:not([disabled]).is-active:hover {
+      html.theme--documenter-dark .field.has-addons .control .select select.is-active:not([disabled]):hover {
         z-index: 4; }
     html.theme--documenter-dark .field.has-addons .control.is-expanded {
       flex-grow: 1;
@@ -3561,12 +3474,8 @@ html.theme--documenter-dark {
     html.theme--documenter-dark .control.has-icons-right .select:focus ~ .icon {
       color: #5e6d6f; }
     html.theme--documenter-dark .control.has-icons-left .input.is-small ~ .icon, html.theme--documenter-dark .control.has-icons-left #documenter .docs-sidebar form.docs-search > input ~ .icon, html.theme--documenter-dark #documenter .docs-sidebar .control.has-icons-left form.docs-search > input ~ .icon,
-    html.theme--documenter-dark .control.has-icons-left .select.is-small ~ .icon,
-    html.theme--documenter-dark .control.has-icons-left #documenter .docs-sidebar form.docs-search > input.select ~ .icon,
-    html.theme--documenter-dark #documenter .docs-sidebar .control.has-icons-left form.docs-search > input.select ~ .icon, html.theme--documenter-dark .control.has-icons-right .input.is-small ~ .icon, html.theme--documenter-dark .control.has-icons-right #documenter .docs-sidebar form.docs-search > input ~ .icon, html.theme--documenter-dark #documenter .docs-sidebar .control.has-icons-right form.docs-search > input ~ .icon,
-    html.theme--documenter-dark .control.has-icons-right .select.is-small ~ .icon,
-    html.theme--documenter-dark .control.has-icons-right #documenter .docs-sidebar form.docs-search > input.select ~ .icon,
-    html.theme--documenter-dark #documenter .docs-sidebar .control.has-icons-right form.docs-search > input.select ~ .icon {
+    html.theme--documenter-dark .control.has-icons-left .select.is-small ~ .icon, html.theme--documenter-dark .control.has-icons-right .input.is-small ~ .icon, html.theme--documenter-dark .control.has-icons-right #documenter .docs-sidebar form.docs-search > input ~ .icon, html.theme--documenter-dark #documenter .docs-sidebar .control.has-icons-right form.docs-search > input ~ .icon,
+    html.theme--documenter-dark .control.has-icons-right .select.is-small ~ .icon {
       font-size: 0.85em; }
     html.theme--documenter-dark .control.has-icons-left .input.is-medium ~ .icon, html.theme--documenter-dark .control.has-icons-left #documenter .docs-sidebar form.docs-search > input.is-medium ~ .icon, html.theme--documenter-dark #documenter .docs-sidebar .control.has-icons-left form.docs-search > input.is-medium ~ .icon,
     html.theme--documenter-dark .control.has-icons-left .select.is-medium ~ .icon, html.theme--documenter-dark .control.has-icons-right .input.is-medium ~ .icon, html.theme--documenter-dark .control.has-icons-right #documenter .docs-sidebar form.docs-search > input.is-medium ~ .icon, html.theme--documenter-dark #documenter .docs-sidebar .control.has-icons-right form.docs-search > input.is-medium ~ .icon,
@@ -3599,7 +3508,7 @@ html.theme--documenter-dark {
       right: 0.625em;
       top: 0.625em;
       z-index: 4; }
-    html.theme--documenter-dark .control.is-loading.is-small:after, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.control.is-loading:after {
+    html.theme--documenter-dark .control.is-loading.is-small:after, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input.is-loading:after {
       font-size: 0.85em; }
     html.theme--documenter-dark .control.is-loading.is-medium:after {
       font-size: 1.25rem; }
@@ -5287,14 +5196,14 @@ html.theme--documenter-dark {
       margin-left: 0%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-1 {
       flex: none;
-      width: 8.33333%; }
+      width: 8.3333333333%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-offset-1 {
-      margin-left: 8.33333%; }
+      margin-left: 8.3333333333%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-2 {
       flex: none;
-      width: 16.66667%; }
+      width: 16.6666666667%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-offset-2 {
-      margin-left: 16.66667%; }
+      margin-left: 16.6666666667%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-3 {
       flex: none;
       width: 25%; }
@@ -5302,14 +5211,14 @@ html.theme--documenter-dark {
       margin-left: 25%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-4 {
       flex: none;
-      width: 33.33333%; }
+      width: 33.3333333333%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-offset-4 {
-      margin-left: 33.33333%; }
+      margin-left: 33.3333333333%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-5 {
       flex: none;
-      width: 41.66667%; }
+      width: 41.6666666667%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-offset-5 {
-      margin-left: 41.66667%; }
+      margin-left: 41.6666666667%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-6 {
       flex: none;
       width: 50%; }
@@ -5317,14 +5226,14 @@ html.theme--documenter-dark {
       margin-left: 50%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-7 {
       flex: none;
-      width: 58.33333%; }
+      width: 58.3333333333%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-offset-7 {
-      margin-left: 58.33333%; }
+      margin-left: 58.3333333333%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-8 {
       flex: none;
-      width: 66.66667%; }
+      width: 66.6666666667%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-offset-8 {
-      margin-left: 66.66667%; }
+      margin-left: 66.6666666667%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-9 {
       flex: none;
       width: 75%; }
@@ -5332,14 +5241,14 @@ html.theme--documenter-dark {
       margin-left: 75%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-10 {
       flex: none;
-      width: 83.33333%; }
+      width: 83.3333333333%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-offset-10 {
-      margin-left: 83.33333%; }
+      margin-left: 83.3333333333%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-11 {
       flex: none;
-      width: 91.66667%; }
+      width: 91.6666666667%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-offset-11 {
-      margin-left: 91.66667%; }
+      margin-left: 91.6666666667%; }
     .columns.is-mobile > html.theme--documenter-dark .column.is-12 {
       flex: none;
       width: 100%; }
@@ -5403,14 +5312,14 @@ html.theme--documenter-dark {
         margin-left: 0%; }
       html.theme--documenter-dark .column.is-1-mobile {
         flex: none;
-        width: 8.33333%; }
+        width: 8.3333333333%; }
       html.theme--documenter-dark .column.is-offset-1-mobile {
-        margin-left: 8.33333%; }
+        margin-left: 8.3333333333%; }
       html.theme--documenter-dark .column.is-2-mobile {
         flex: none;
-        width: 16.66667%; }
+        width: 16.6666666667%; }
       html.theme--documenter-dark .column.is-offset-2-mobile {
-        margin-left: 16.66667%; }
+        margin-left: 16.6666666667%; }
       html.theme--documenter-dark .column.is-3-mobile {
         flex: none;
         width: 25%; }
@@ -5418,14 +5327,14 @@ html.theme--documenter-dark {
         margin-left: 25%; }
       html.theme--documenter-dark .column.is-4-mobile {
         flex: none;
-        width: 33.33333%; }
+        width: 33.3333333333%; }
       html.theme--documenter-dark .column.is-offset-4-mobile {
-        margin-left: 33.33333%; }
+        margin-left: 33.3333333333%; }
       html.theme--documenter-dark .column.is-5-mobile {
         flex: none;
-        width: 41.66667%; }
+        width: 41.6666666667%; }
       html.theme--documenter-dark .column.is-offset-5-mobile {
-        margin-left: 41.66667%; }
+        margin-left: 41.6666666667%; }
       html.theme--documenter-dark .column.is-6-mobile {
         flex: none;
         width: 50%; }
@@ -5433,14 +5342,14 @@ html.theme--documenter-dark {
         margin-left: 50%; }
       html.theme--documenter-dark .column.is-7-mobile {
         flex: none;
-        width: 58.33333%; }
+        width: 58.3333333333%; }
       html.theme--documenter-dark .column.is-offset-7-mobile {
-        margin-left: 58.33333%; }
+        margin-left: 58.3333333333%; }
       html.theme--documenter-dark .column.is-8-mobile {
         flex: none;
-        width: 66.66667%; }
+        width: 66.6666666667%; }
       html.theme--documenter-dark .column.is-offset-8-mobile {
-        margin-left: 66.66667%; }
+        margin-left: 66.6666666667%; }
       html.theme--documenter-dark .column.is-9-mobile {
         flex: none;
         width: 75%; }
@@ -5448,14 +5357,14 @@ html.theme--documenter-dark {
         margin-left: 75%; }
       html.theme--documenter-dark .column.is-10-mobile {
         flex: none;
-        width: 83.33333%; }
+        width: 83.3333333333%; }
       html.theme--documenter-dark .column.is-offset-10-mobile {
-        margin-left: 83.33333%; }
+        margin-left: 83.3333333333%; }
       html.theme--documenter-dark .column.is-11-mobile {
         flex: none;
-        width: 91.66667%; }
+        width: 91.6666666667%; }
       html.theme--documenter-dark .column.is-offset-11-mobile {
-        margin-left: 91.66667%; }
+        margin-left: 91.6666666667%; }
       html.theme--documenter-dark .column.is-12-mobile {
         flex: none;
         width: 100%; }
@@ -5519,14 +5428,14 @@ html.theme--documenter-dark {
         margin-left: 0%; }
       html.theme--documenter-dark .column.is-1, html.theme--documenter-dark .column.is-1-tablet {
         flex: none;
-        width: 8.33333%; }
+        width: 8.3333333333%; }
       html.theme--documenter-dark .column.is-offset-1, html.theme--documenter-dark .column.is-offset-1-tablet {
-        margin-left: 8.33333%; }
+        margin-left: 8.3333333333%; }
       html.theme--documenter-dark .column.is-2, html.theme--documenter-dark .column.is-2-tablet {
         flex: none;
-        width: 16.66667%; }
+        width: 16.6666666667%; }
       html.theme--documenter-dark .column.is-offset-2, html.theme--documenter-dark .column.is-offset-2-tablet {
-        margin-left: 16.66667%; }
+        margin-left: 16.6666666667%; }
       html.theme--documenter-dark .column.is-3, html.theme--documenter-dark .column.is-3-tablet {
         flex: none;
         width: 25%; }
@@ -5534,14 +5443,14 @@ html.theme--documenter-dark {
         margin-left: 25%; }
       html.theme--documenter-dark .column.is-4, html.theme--documenter-dark .column.is-4-tablet {
         flex: none;
-        width: 33.33333%; }
+        width: 33.3333333333%; }
       html.theme--documenter-dark .column.is-offset-4, html.theme--documenter-dark .column.is-offset-4-tablet {
-        margin-left: 33.33333%; }
+        margin-left: 33.3333333333%; }
       html.theme--documenter-dark .column.is-5, html.theme--documenter-dark .column.is-5-tablet {
         flex: none;
-        width: 41.66667%; }
+        width: 41.6666666667%; }
       html.theme--documenter-dark .column.is-offset-5, html.theme--documenter-dark .column.is-offset-5-tablet {
-        margin-left: 41.66667%; }
+        margin-left: 41.6666666667%; }
       html.theme--documenter-dark .column.is-6, html.theme--documenter-dark .column.is-6-tablet {
         flex: none;
         width: 50%; }
@@ -5549,14 +5458,14 @@ html.theme--documenter-dark {
         margin-left: 50%; }
       html.theme--documenter-dark .column.is-7, html.theme--documenter-dark .column.is-7-tablet {
         flex: none;
-        width: 58.33333%; }
+        width: 58.3333333333%; }
       html.theme--documenter-dark .column.is-offset-7, html.theme--documenter-dark .column.is-offset-7-tablet {
-        margin-left: 58.33333%; }
+        margin-left: 58.3333333333%; }
       html.theme--documenter-dark .column.is-8, html.theme--documenter-dark .column.is-8-tablet {
         flex: none;
-        width: 66.66667%; }
+        width: 66.6666666667%; }
       html.theme--documenter-dark .column.is-offset-8, html.theme--documenter-dark .column.is-offset-8-tablet {
-        margin-left: 66.66667%; }
+        margin-left: 66.6666666667%; }
       html.theme--documenter-dark .column.is-9, html.theme--documenter-dark .column.is-9-tablet {
         flex: none;
         width: 75%; }
@@ -5564,14 +5473,14 @@ html.theme--documenter-dark {
         margin-left: 75%; }
       html.theme--documenter-dark .column.is-10, html.theme--documenter-dark .column.is-10-tablet {
         flex: none;
-        width: 83.33333%; }
+        width: 83.3333333333%; }
       html.theme--documenter-dark .column.is-offset-10, html.theme--documenter-dark .column.is-offset-10-tablet {
-        margin-left: 83.33333%; }
+        margin-left: 83.3333333333%; }
       html.theme--documenter-dark .column.is-11, html.theme--documenter-dark .column.is-11-tablet {
         flex: none;
-        width: 91.66667%; }
+        width: 91.6666666667%; }
       html.theme--documenter-dark .column.is-offset-11, html.theme--documenter-dark .column.is-offset-11-tablet {
-        margin-left: 91.66667%; }
+        margin-left: 91.6666666667%; }
       html.theme--documenter-dark .column.is-12, html.theme--documenter-dark .column.is-12-tablet {
         flex: none;
         width: 100%; }
@@ -5635,14 +5544,14 @@ html.theme--documenter-dark {
         margin-left: 0%; }
       html.theme--documenter-dark .column.is-1-touch {
         flex: none;
-        width: 8.33333%; }
+        width: 8.3333333333%; }
       html.theme--documenter-dark .column.is-offset-1-touch {
-        margin-left: 8.33333%; }
+        margin-left: 8.3333333333%; }
       html.theme--documenter-dark .column.is-2-touch {
         flex: none;
-        width: 16.66667%; }
+        width: 16.6666666667%; }
       html.theme--documenter-dark .column.is-offset-2-touch {
-        margin-left: 16.66667%; }
+        margin-left: 16.6666666667%; }
       html.theme--documenter-dark .column.is-3-touch {
         flex: none;
         width: 25%; }
@@ -5650,14 +5559,14 @@ html.theme--documenter-dark {
         margin-left: 25%; }
       html.theme--documenter-dark .column.is-4-touch {
         flex: none;
-        width: 33.33333%; }
+        width: 33.3333333333%; }
       html.theme--documenter-dark .column.is-offset-4-touch {
-        margin-left: 33.33333%; }
+        margin-left: 33.3333333333%; }
       html.theme--documenter-dark .column.is-5-touch {
         flex: none;
-        width: 41.66667%; }
+        width: 41.6666666667%; }
       html.theme--documenter-dark .column.is-offset-5-touch {
-        margin-left: 41.66667%; }
+        margin-left: 41.6666666667%; }
       html.theme--documenter-dark .column.is-6-touch {
         flex: none;
         width: 50%; }
@@ -5665,14 +5574,14 @@ html.theme--documenter-dark {
         margin-left: 50%; }
       html.theme--documenter-dark .column.is-7-touch {
         flex: none;
-        width: 58.33333%; }
+        width: 58.3333333333%; }
       html.theme--documenter-dark .column.is-offset-7-touch {
-        margin-left: 58.33333%; }
+        margin-left: 58.3333333333%; }
       html.theme--documenter-dark .column.is-8-touch {
         flex: none;
-        width: 66.66667%; }
+        width: 66.6666666667%; }
       html.theme--documenter-dark .column.is-offset-8-touch {
-        margin-left: 66.66667%; }
+        margin-left: 66.6666666667%; }
       html.theme--documenter-dark .column.is-9-touch {
         flex: none;
         width: 75%; }
@@ -5680,14 +5589,14 @@ html.theme--documenter-dark {
         margin-left: 75%; }
       html.theme--documenter-dark .column.is-10-touch {
         flex: none;
-        width: 83.33333%; }
+        width: 83.3333333333%; }
       html.theme--documenter-dark .column.is-offset-10-touch {
-        margin-left: 83.33333%; }
+        margin-left: 83.3333333333%; }
       html.theme--documenter-dark .column.is-11-touch {
         flex: none;
-        width: 91.66667%; }
+        width: 91.6666666667%; }
       html.theme--documenter-dark .column.is-offset-11-touch {
-        margin-left: 91.66667%; }
+        margin-left: 91.6666666667%; }
       html.theme--documenter-dark .column.is-12-touch {
         flex: none;
         width: 100%; }
@@ -5751,14 +5660,14 @@ html.theme--documenter-dark {
         margin-left: 0%; }
       html.theme--documenter-dark .column.is-1-desktop {
         flex: none;
-        width: 8.33333%; }
+        width: 8.3333333333%; }
       html.theme--documenter-dark .column.is-offset-1-desktop {
-        margin-left: 8.33333%; }
+        margin-left: 8.3333333333%; }
       html.theme--documenter-dark .column.is-2-desktop {
         flex: none;
-        width: 16.66667%; }
+        width: 16.6666666667%; }
       html.theme--documenter-dark .column.is-offset-2-desktop {
-        margin-left: 16.66667%; }
+        margin-left: 16.6666666667%; }
       html.theme--documenter-dark .column.is-3-desktop {
         flex: none;
         width: 25%; }
@@ -5766,14 +5675,14 @@ html.theme--documenter-dark {
         margin-left: 25%; }
       html.theme--documenter-dark .column.is-4-desktop {
         flex: none;
-        width: 33.33333%; }
+        width: 33.3333333333%; }
       html.theme--documenter-dark .column.is-offset-4-desktop {
-        margin-left: 33.33333%; }
+        margin-left: 33.3333333333%; }
       html.theme--documenter-dark .column.is-5-desktop {
         flex: none;
-        width: 41.66667%; }
+        width: 41.6666666667%; }
       html.theme--documenter-dark .column.is-offset-5-desktop {
-        margin-left: 41.66667%; }
+        margin-left: 41.6666666667%; }
       html.theme--documenter-dark .column.is-6-desktop {
         flex: none;
         width: 50%; }
@@ -5781,14 +5690,14 @@ html.theme--documenter-dark {
         margin-left: 50%; }
       html.theme--documenter-dark .column.is-7-desktop {
         flex: none;
-        width: 58.33333%; }
+        width: 58.3333333333%; }
       html.theme--documenter-dark .column.is-offset-7-desktop {
-        margin-left: 58.33333%; }
+        margin-left: 58.3333333333%; }
       html.theme--documenter-dark .column.is-8-desktop {
         flex: none;
-        width: 66.66667%; }
+        width: 66.6666666667%; }
       html.theme--documenter-dark .column.is-offset-8-desktop {
-        margin-left: 66.66667%; }
+        margin-left: 66.6666666667%; }
       html.theme--documenter-dark .column.is-9-desktop {
         flex: none;
         width: 75%; }
@@ -5796,14 +5705,14 @@ html.theme--documenter-dark {
         margin-left: 75%; }
       html.theme--documenter-dark .column.is-10-desktop {
         flex: none;
-        width: 83.33333%; }
+        width: 83.3333333333%; }
       html.theme--documenter-dark .column.is-offset-10-desktop {
-        margin-left: 83.33333%; }
+        margin-left: 83.3333333333%; }
       html.theme--documenter-dark .column.is-11-desktop {
         flex: none;
-        width: 91.66667%; }
+        width: 91.6666666667%; }
       html.theme--documenter-dark .column.is-offset-11-desktop {
-        margin-left: 91.66667%; }
+        margin-left: 91.6666666667%; }
       html.theme--documenter-dark .column.is-12-desktop {
         flex: none;
         width: 100%; }
@@ -5867,14 +5776,14 @@ html.theme--documenter-dark {
         margin-left: 0%; }
       html.theme--documenter-dark .column.is-1-widescreen {
         flex: none;
-        width: 8.33333%; }
+        width: 8.3333333333%; }
       html.theme--documenter-dark .column.is-offset-1-widescreen {
-        margin-left: 8.33333%; }
+        margin-left: 8.3333333333%; }
       html.theme--documenter-dark .column.is-2-widescreen {
         flex: none;
-        width: 16.66667%; }
+        width: 16.6666666667%; }
       html.theme--documenter-dark .column.is-offset-2-widescreen {
-        margin-left: 16.66667%; }
+        margin-left: 16.6666666667%; }
       html.theme--documenter-dark .column.is-3-widescreen {
         flex: none;
         width: 25%; }
@@ -5882,14 +5791,14 @@ html.theme--documenter-dark {
         margin-left: 25%; }
       html.theme--documenter-dark .column.is-4-widescreen {
         flex: none;
-        width: 33.33333%; }
+        width: 33.3333333333%; }
       html.theme--documenter-dark .column.is-offset-4-widescreen {
-        margin-left: 33.33333%; }
+        margin-left: 33.3333333333%; }
       html.theme--documenter-dark .column.is-5-widescreen {
         flex: none;
-        width: 41.66667%; }
+        width: 41.6666666667%; }
       html.theme--documenter-dark .column.is-offset-5-widescreen {
-        margin-left: 41.66667%; }
+        margin-left: 41.6666666667%; }
       html.theme--documenter-dark .column.is-6-widescreen {
         flex: none;
         width: 50%; }
@@ -5897,14 +5806,14 @@ html.theme--documenter-dark {
         margin-left: 50%; }
       html.theme--documenter-dark .column.is-7-widescreen {
         flex: none;
-        width: 58.33333%; }
+        width: 58.3333333333%; }
       html.theme--documenter-dark .column.is-offset-7-widescreen {
-        margin-left: 58.33333%; }
+        margin-left: 58.3333333333%; }
       html.theme--documenter-dark .column.is-8-widescreen {
         flex: none;
-        width: 66.66667%; }
+        width: 66.6666666667%; }
       html.theme--documenter-dark .column.is-offset-8-widescreen {
-        margin-left: 66.66667%; }
+        margin-left: 66.6666666667%; }
       html.theme--documenter-dark .column.is-9-widescreen {
         flex: none;
         width: 75%; }
@@ -5912,14 +5821,14 @@ html.theme--documenter-dark {
         margin-left: 75%; }
       html.theme--documenter-dark .column.is-10-widescreen {
         flex: none;
-        width: 83.33333%; }
+        width: 83.3333333333%; }
       html.theme--documenter-dark .column.is-offset-10-widescreen {
-        margin-left: 83.33333%; }
+        margin-left: 83.3333333333%; }
       html.theme--documenter-dark .column.is-11-widescreen {
         flex: none;
-        width: 91.66667%; }
+        width: 91.6666666667%; }
       html.theme--documenter-dark .column.is-offset-11-widescreen {
-        margin-left: 91.66667%; }
+        margin-left: 91.6666666667%; }
       html.theme--documenter-dark .column.is-12-widescreen {
         flex: none;
         width: 100%; }
@@ -5983,14 +5892,14 @@ html.theme--documenter-dark {
         margin-left: 0%; }
       html.theme--documenter-dark .column.is-1-fullhd {
         flex: none;
-        width: 8.33333%; }
+        width: 8.3333333333%; }
       html.theme--documenter-dark .column.is-offset-1-fullhd {
-        margin-left: 8.33333%; }
+        margin-left: 8.3333333333%; }
       html.theme--documenter-dark .column.is-2-fullhd {
         flex: none;
-        width: 16.66667%; }
+        width: 16.6666666667%; }
       html.theme--documenter-dark .column.is-offset-2-fullhd {
-        margin-left: 16.66667%; }
+        margin-left: 16.6666666667%; }
       html.theme--documenter-dark .column.is-3-fullhd {
         flex: none;
         width: 25%; }
@@ -5998,14 +5907,14 @@ html.theme--documenter-dark {
         margin-left: 25%; }
       html.theme--documenter-dark .column.is-4-fullhd {
         flex: none;
-        width: 33.33333%; }
+        width: 33.3333333333%; }
       html.theme--documenter-dark .column.is-offset-4-fullhd {
-        margin-left: 33.33333%; }
+        margin-left: 33.3333333333%; }
       html.theme--documenter-dark .column.is-5-fullhd {
         flex: none;
-        width: 41.66667%; }
+        width: 41.6666666667%; }
       html.theme--documenter-dark .column.is-offset-5-fullhd {
-        margin-left: 41.66667%; }
+        margin-left: 41.6666666667%; }
       html.theme--documenter-dark .column.is-6-fullhd {
         flex: none;
         width: 50%; }
@@ -6013,14 +5922,14 @@ html.theme--documenter-dark {
         margin-left: 50%; }
       html.theme--documenter-dark .column.is-7-fullhd {
         flex: none;
-        width: 58.33333%; }
+        width: 58.3333333333%; }
       html.theme--documenter-dark .column.is-offset-7-fullhd {
-        margin-left: 58.33333%; }
+        margin-left: 58.3333333333%; }
       html.theme--documenter-dark .column.is-8-fullhd {
         flex: none;
-        width: 66.66667%; }
+        width: 66.6666666667%; }
       html.theme--documenter-dark .column.is-offset-8-fullhd {
-        margin-left: 66.66667%; }
+        margin-left: 66.6666666667%; }
       html.theme--documenter-dark .column.is-9-fullhd {
         flex: none;
         width: 75%; }
@@ -6028,14 +5937,14 @@ html.theme--documenter-dark {
         margin-left: 75%; }
       html.theme--documenter-dark .column.is-10-fullhd {
         flex: none;
-        width: 83.33333%; }
+        width: 83.3333333333%; }
       html.theme--documenter-dark .column.is-offset-10-fullhd {
-        margin-left: 83.33333%; }
+        margin-left: 83.3333333333%; }
       html.theme--documenter-dark .column.is-11-fullhd {
         flex: none;
-        width: 91.66667%; }
+        width: 91.6666666667%; }
       html.theme--documenter-dark .column.is-offset-11-fullhd {
-        margin-left: 91.66667%; }
+        margin-left: 91.6666666667%; }
       html.theme--documenter-dark .column.is-12-fullhd {
         flex: none;
         width: 100%; }
@@ -6370,37 +6279,37 @@ html.theme--documenter-dark {
         display: flex; }
       html.theme--documenter-dark .tile.is-1 {
         flex: none;
-        width: 8.33333%; }
+        width: 8.3333333333%; }
       html.theme--documenter-dark .tile.is-2 {
         flex: none;
-        width: 16.66667%; }
+        width: 16.6666666667%; }
       html.theme--documenter-dark .tile.is-3 {
         flex: none;
         width: 25%; }
       html.theme--documenter-dark .tile.is-4 {
         flex: none;
-        width: 33.33333%; }
+        width: 33.3333333333%; }
       html.theme--documenter-dark .tile.is-5 {
         flex: none;
-        width: 41.66667%; }
+        width: 41.6666666667%; }
       html.theme--documenter-dark .tile.is-6 {
         flex: none;
         width: 50%; }
       html.theme--documenter-dark .tile.is-7 {
         flex: none;
-        width: 58.33333%; }
+        width: 58.3333333333%; }
       html.theme--documenter-dark .tile.is-8 {
         flex: none;
-        width: 66.66667%; }
+        width: 66.6666666667%; }
       html.theme--documenter-dark .tile.is-9 {
         flex: none;
         width: 75%; }
       html.theme--documenter-dark .tile.is-10 {
         flex: none;
-        width: 83.33333%; }
+        width: 83.3333333333%; }
       html.theme--documenter-dark .tile.is-11 {
         flex: none;
-        width: 91.66667%; }
+        width: 91.6666666667%; }
       html.theme--documenter-dark .tile.is-12 {
         flex: none;
         width: 100%; } }
@@ -6453,10 +6362,10 @@ html.theme--documenter-dark {
         border-color: #0a0a0a;
         color: white; }
       html.theme--documenter-dark .hero.is-white.is-bold {
-        background-image: linear-gradient(141deg, #e6e6e6 0%, white 71%, white 100%); }
+        background-image: linear-gradient(141deg, #e8e3e4 0%, white 71%, white 100%); }
         @media screen and (max-width: 768px) {
           html.theme--documenter-dark .hero.is-white.is-bold .navbar-menu {
-            background-image: linear-gradient(141deg, #e6e6e6 0%, white 71%, white 100%); } }
+            background-image: linear-gradient(141deg, #e8e3e4 0%, white 71%, white 100%); } }
     html.theme--documenter-dark .hero.is-black {
       background-color: #0a0a0a;
       color: white; }
@@ -6585,7 +6494,7 @@ html.theme--documenter-dark {
         color: #ecf0f1; }
         html.theme--documenter-dark .hero.is-dark .tabs.is-boxed a:hover, html.theme--documenter-dark .content kbd.hero .tabs.is-boxed a:hover, html.theme--documenter-dark .hero.is-dark .tabs.is-toggle a:hover, html.theme--documenter-dark .content kbd.hero .tabs.is-toggle a:hover {
           background-color: rgba(10, 10, 10, 0.1); }
-      html.theme--documenter-dark .hero.is-dark .tabs.is-boxed li.is-active a, html.theme--documenter-dark .content kbd.hero .tabs.is-boxed li.is-active a, html.theme--documenter-dark .hero.is-dark .tabs.is-boxed li.is-active a:hover, html.theme--documenter-dark .content kbd.hero .tabs.is-boxed li.is-active a:hover, html.theme--documenter-dark .hero.is-dark .tabs.is-toggle li.is-active a, html.theme--documenter-dark .content kbd.hero .tabs.is-toggle li.is-active a, html.theme--documenter-dark .hero.is-dark .tabs.is-toggle li.is-active a:hover, html.theme--documenter-dark .content kbd.hero .tabs.is-toggle li.is-active a:hover {
+      html.theme--documenter-dark .hero.is-dark .tabs.is-boxed li.is-active a, html.theme--documenter-dark .content kbd.hero .tabs.is-boxed li.is-active a, html.theme--documenter-dark .hero.is-dark .tabs.is-boxed li.is-active a:hover, html.theme--documenter-dark .hero.is-dark .tabs.is-toggle li.is-active a, html.theme--documenter-dark .content kbd.hero .tabs.is-toggle li.is-active a, html.theme--documenter-dark .hero.is-dark .tabs.is-toggle li.is-active a:hover {
         background-color: #ecf0f1;
         border-color: #ecf0f1;
         color: #282f2f; }
@@ -6634,7 +6543,7 @@ html.theme--documenter-dark {
         color: #fff; }
         html.theme--documenter-dark .hero.is-primary .tabs.is-boxed a:hover, html.theme--documenter-dark .docstring > section > a.hero.docs-sourcelink .tabs.is-boxed a:hover, html.theme--documenter-dark .hero.is-primary .tabs.is-toggle a:hover, html.theme--documenter-dark .docstring > section > a.hero.docs-sourcelink .tabs.is-toggle a:hover {
           background-color: rgba(10, 10, 10, 0.1); }
-      html.theme--documenter-dark .hero.is-primary .tabs.is-boxed li.is-active a, html.theme--documenter-dark .docstring > section > a.hero.docs-sourcelink .tabs.is-boxed li.is-active a, html.theme--documenter-dark .hero.is-primary .tabs.is-boxed li.is-active a:hover, html.theme--documenter-dark .docstring > section > a.hero.docs-sourcelink .tabs.is-boxed li.is-active a:hover, html.theme--documenter-dark .hero.is-primary .tabs.is-toggle li.is-active a, html.theme--documenter-dark .docstring > section > a.hero.docs-sourcelink .tabs.is-toggle li.is-active a, html.theme--documenter-dark .hero.is-primary .tabs.is-toggle li.is-active a:hover, html.theme--documenter-dark .docstring > section > a.hero.docs-sourcelink .tabs.is-toggle li.is-active a:hover {
+      html.theme--documenter-dark .hero.is-primary .tabs.is-boxed li.is-active a, html.theme--documenter-dark .docstring > section > a.hero.docs-sourcelink .tabs.is-boxed li.is-active a, html.theme--documenter-dark .hero.is-primary .tabs.is-boxed li.is-active a:hover, html.theme--documenter-dark .hero.is-primary .tabs.is-toggle li.is-active a, html.theme--documenter-dark .docstring > section > a.hero.docs-sourcelink .tabs.is-toggle li.is-active a, html.theme--documenter-dark .hero.is-primary .tabs.is-toggle li.is-active a:hover {
         background-color: #fff;
         border-color: #fff;
         color: #375a7f; }
@@ -7009,9 +6918,7 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .select select,
   html.theme--documenter-dark .textarea {
     height: 2.5em; }
-  
-  html.theme--documenter-dark .input,
-  html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input,
+  html.theme--documenter-dark .input, html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input,
   html.theme--documenter-dark .textarea {
     transition: all 200ms ease;
     box-shadow: none;
@@ -7076,7 +6983,7 @@ html.theme--documenter-dark {
   html.theme--documenter-dark .notification.is-danger a:not(.button) {
     color: #fff;
     text-decoration: underline; }
-  html.theme--documenter-dark .tag, html.theme--documenter-dark .docstring > section > a.docs-sourcelink, html.theme--documenter-dark .content kbd {
+  html.theme--documenter-dark .tag, html.theme--documenter-dark .content kbd, html.theme--documenter-dark .docstring > section > a.docs-sourcelink {
     border-radius: 0.4em; }
   html.theme--documenter-dark .menu-list a {
     transition: all 300ms ease; }
@@ -7179,6 +7086,44 @@ html.theme--documenter-dark {
     visibility: visible; }
   html.theme--documenter-dark .docs-light-only {
     display: none !important; }
+  html.theme--documenter-dark pre {
+    position: relative;
+    overflow: hidden; }
+    html.theme--documenter-dark pre code, html.theme--documenter-dark pre code.hljs {
+      padding: 0 0.5rem !important;
+      overflow: auto;
+      display: block; }
+    html.theme--documenter-dark pre code:first-of-type, html.theme--documenter-dark pre code.hljs:first-of-type {
+      padding-top: 0.7rem !important; }
+    html.theme--documenter-dark pre code:last-of-type, html.theme--documenter-dark pre code.hljs:last-of-type {
+      padding-bottom: 0.7rem !important; }
+    html.theme--documenter-dark pre .copy-button {
+      opacity: 0.2;
+      transition: opacity 0.2s;
+      position: absolute;
+      right: 0em;
+      top: 0em;
+      padding: 0.5em;
+      width: 2.5em;
+      height: 2.5em;
+      background: transparent;
+      border: none;
+      font-family: "Font Awesome 5 Free";
+      color: #fff;
+      cursor: pointer;
+      text-align: center; }
+      html.theme--documenter-dark pre .copy-button:focus, html.theme--documenter-dark pre .copy-button:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.1);
+        color: #1abc9c; }
+      html.theme--documenter-dark pre .copy-button.success {
+        color: #259a12;
+        opacity: 1; }
+      html.theme--documenter-dark pre .copy-button.error {
+        color: #cb3c33;
+        opacity: 1; }
+    html.theme--documenter-dark pre:hover .copy-button {
+      opacity: 1; }
   html.theme--documenter-dark .admonition {
     background-color: #282f2f;
     border-style: solid;
@@ -7332,8 +7277,7 @@ html.theme--documenter-dark {
     html.theme--documenter-dark .breadcrumb a.is-disabled, html.theme--documenter-dark .breadcrumb a.is-disabled:hover {
       color: #f2f2f2; }
   html.theme--documenter-dark .hljs {
-    background: initial !important;
-    padding: initial !important; }
+    background: initial !important; }
   html.theme--documenter-dark .katex .katex-mathml {
     top: 0;
     right: 0; }
