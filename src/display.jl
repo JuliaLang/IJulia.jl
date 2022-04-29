@@ -25,6 +25,7 @@ const ijulia_mime_types = Vector{Union{MIME, AbstractVector{MIME}}}([
         MIME("text/html"),
     ],
     MIME("text/latex"),
+    MIME("application/pdf"),
 ])
 
 """
