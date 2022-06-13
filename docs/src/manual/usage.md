@@ -92,7 +92,7 @@ empty!(Out)
 
 When Julia displays a large data structure such as a matrix, by default
 it truncates the display to a given number of lines and columns.  In IJulia,
-this truncation is to 30 lines and 80 columns by default.   You can change
+this truncation is to 30 lines and 800 columns by default.   You can change
 this default by the `LINES` and `COLUMNS` environment variables, respectively,
 which can also be changed within IJulia via `ENV` (e.g. `ENV["LINES"] = 60`).
 (Like in the REPL, you can also display non-truncated data structures via `print(x)`.)
