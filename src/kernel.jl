@@ -19,7 +19,7 @@ end
 # the size of truncated output to show should not depend on the terminal
 # where the kernel is launched, since the display is elsewhere
 ENV["LINES"] = get(ENV, "LINES", 30)
-ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
+ENV["COLUMNS"] = get(ENV, "COLUMNS", 800)
 
 IJulia.init(ARGS)
 
