@@ -1,4 +1,5 @@
 import Random: seed!
+import Logging: ConsoleLogger
 
 # use our own random seed for msg_id so that we
 # don't alter the user-visible random state (issue #336)
@@ -109,7 +110,7 @@ function init(args)
     redirect_stdin(IJuliaStdio(stdin,"stdin"))
     minirepl[] = MiniREPL(TextDisplay(stdout))
 
-    logger = Base.CoreLogging.SimpleLogger(Base.stderr)
+    logger = ConsoleLogger(Base.stderr)
     Base.CoreLogging.global_logger(logger)
 
     send_status("starting")
