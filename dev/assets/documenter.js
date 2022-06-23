@@ -283,6 +283,12 @@ require(['jquery'], function($) {
 
 // update the version selector with info from the siteinfo.js and ../versions.js files
 $(document).ready(function() {
+  // If the version selector is disabled with DOCUMENTER_VERSION_SELECTOR_DISABLED in the
+  // siteinfo.js file, we just return immediately and not display the version selector.
+  if (typeof DOCUMENTER_VERSION_SELECTOR_DISABLED === 'boolean' && DOCUMENTER_VERSION_SELECTOR_DISABLED) {
+    return;
+  }
+
   var version_selector = $("#documenter .docs-version-selector");
   var version_selector_select = $("#documenter .docs-version-selector select");
 

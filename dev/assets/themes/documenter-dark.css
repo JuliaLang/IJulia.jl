@@ -3598,7 +3598,7 @@ html.theme--documenter-dark {
     position: relative; }
   html.theme--documenter-dark .card-content {
     background-color: transparent;
-    padding: 1rem 1.25rem; }
+    padding: 1.5rem; }
   html.theme--documenter-dark .card-footer {
     background-color: transparent;
     border-top: 1px solid #5e6d6f;
@@ -3938,7 +3938,7 @@ html.theme--documenter-dark {
     font-weight: 700;
     justify-content: space-between;
     line-height: 1.25;
-    padding: 0.75em;
+    padding: 0.75em 1em;
     position: relative; }
     html.theme--documenter-dark .message-header .delete {
       flex-grow: 0;
@@ -3954,7 +3954,7 @@ html.theme--documenter-dark {
     border-style: solid;
     border-width: 0 0 0 4px;
     color: #fff;
-    padding: 1em 1.25em; }
+    padding: 1.25em 1.5em; }
     html.theme--documenter-dark .message-body code,
     html.theme--documenter-dark .message-body pre {
       background-color: white; }
@@ -7090,13 +7090,13 @@ html.theme--documenter-dark {
     position: relative;
     overflow: hidden; }
     html.theme--documenter-dark pre code, html.theme--documenter-dark pre code.hljs {
-      padding: 0 0.5rem !important;
+      padding: 0 0.75rem !important;
       overflow: auto;
       display: block; }
     html.theme--documenter-dark pre code:first-of-type, html.theme--documenter-dark pre code.hljs:first-of-type {
-      padding-top: 0.7rem !important; }
+      padding-top: 0.5rem !important; }
     html.theme--documenter-dark pre code:last-of-type, html.theme--documenter-dark pre code.hljs:last-of-type {
-      padding-bottom: 0.7rem !important; }
+      padding-bottom: 0.5rem !important; }
     html.theme--documenter-dark pre .copy-button {
       opacity: 0.2;
       transition: opacity 0.2s;
@@ -7175,16 +7175,16 @@ html.theme--documenter-dark {
     font-weight: 700;
     justify-content: space-between;
     line-height: 1.25;
-    padding: 0.75em;
+    padding: 0.5rem 0.75rem;
     position: relative; }
     html.theme--documenter-dark .admonition-header:before {
       font-family: "Font Awesome 5 Free";
       font-weight: 900;
-      margin-right: 0.75em;
+      margin-right: 0.75rem;
       content: "\f06a"; }
   html.theme--documenter-dark .admonition-body {
     color: #fff;
-    padding: 1em 1.25em; }
+    padding: 0.5rem 0.75rem; }
     html.theme--documenter-dark .admonition-body pre {
       background-color: #282f2f; }
     html.theme--documenter-dark .admonition-body code {
@@ -7199,7 +7199,7 @@ html.theme--documenter-dark {
       display: flex;
       flex-grow: 1;
       align-items: stretch;
-      padding: 0.75rem;
+      padding: 0.5rem 0.75rem;
       background-color: #282f2f;
       box-shadow: 0 1px 2px rgba(10, 10, 10, 0.1);
       box-shadow: none;
@@ -7212,7 +7212,7 @@ html.theme--documenter-dark {
         margin-left: 0.3em; }
     html.theme--documenter-dark .docstring > section {
       position: relative;
-      padding: 1rem 1.25rem;
+      padding: 0.75rem 0.75rem;
       border-bottom: 1px solid #5e6d6f; }
       html.theme--documenter-dark .docstring > section:last-child {
         border-bottom: none; }
@@ -7220,8 +7220,8 @@ html.theme--documenter-dark {
         transition: opacity 0.3s;
         opacity: 0;
         position: absolute;
-        right: 0.625rem;
-        bottom: 0.5rem; }
+        right: 0.375rem;
+        bottom: 0.375rem; }
         html.theme--documenter-dark .docstring > section > a.docs-sourcelink:focus {
           opacity: 1 !important; }
     html.theme--documenter-dark .docstring:hover > section > a.docs-sourcelink {
