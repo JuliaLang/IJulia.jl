@@ -36,6 +36,15 @@ end
 
 kerneldir() = joinpath(jupyter_data_dir(), "kernels")
 
+# Since kernelspecs show up in URLs and other places, a kernelspec is required
+# to have a simple name, only containing ASCII letters, ASCII numbers, and the
+# simple separators: - hyphen, . period, _ underscore. According to
+#       https://jupyter-client.readthedocs.io/en/stable/kernels.html
+function kernelspec_name(name::AbstractString)
+    name = replace(lowercase(name), " "=>"-")
+    replace(name, r"[^0-9a-z_\-\.]" => s"_")
+end
+
 if Sys.iswindows()
     exe(s::AbstractString) = endswith(s, ".exe") ? s : "$s.exe"
     exe(s::AbstractString, e::AbstractString) =
@@ -62,9 +71,11 @@ kernelpath = installkernel("Julia O3", "-O3", env=Dict("FOO"=>"yes"))
 creates a new Julia kernel in which `julia` is launched with the `-O3`
 optimization flag and `FOO=yes` is included in the environment variables.
 
-The returned `kernelpath` is the path of the installed kernel directory, something like `/...somepath.../kernels/julia-O3-1.0`
-(in Julia 1.0).  The `specname` argument can be passed to alter the name of this
-directory (which defaults to `name` with spaces replaced by hyphens).
+The returned `kernelpath` is the path of the installed kernel directory,
+something like `/...somepath.../kernels/julia-o3-1.6` (in Julia 1.6).  The
+`specname` argument can be passed to alter the name of this directory (which
+defaults to `name` with spaces replaced by hyphens, and special characters
+other than `-` hyphen, `.` period and `_` underscore replaced by `_` underscores).
 
 You can uninstall the kernel by calling `rm(kernelpath, recursive=true)`.
 
@@ -84,7 +95,7 @@ installkernel(
 """
 function installkernel(name::AbstractString, julia_options::AbstractString...;
                    julia::Cmd = `$(joinpath(Sys.BINDIR,exe("julia")))`,
-                   specname::AbstractString = replace(lowercase(name), " "=>"-"),
+                   specname::AbstractString = kernelspec_name(name),
                    env::Dict{<:AbstractString}=Dict{String,Any}())
     # Is IJulia being built from a debug build? If so, add "debug" to the description.
     debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
