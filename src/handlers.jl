@@ -174,7 +174,7 @@ function kernel_info_request(socket, msg)
                                                          Dict("text"=>"Julia Documentation",
                                                               "url"=>"http://docs.julialang.org/"),
                                                          Dict("text"=>"Julia Packages",
-                                                              "url"=>"http://pkg.julialang.org/")
+                                                              "url"=>"https://juliahub.com/ui/Packages")
                                                         ],
                                         "status" => "ok")))
 end
