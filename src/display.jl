@@ -148,7 +148,7 @@ showerror_nobt(io, e, bt) = showerror(io, e, bt, backtrace=false)
 
 # return the content of a pyerr message for exception e
 function error_content(e, bt=catch_backtrace();
-                       backtrace_top::Symbol=SOFTSCOPE[] ? :softscope_include_string : :include_string,
+                       backtrace_top::Symbol=SOFTSCOPE[] && VERSION < v"1.5.0-DEV.263" ? :softscope_include_string : :include_string,
                        msg::AbstractString="")
     tb = map(String, split(sprint(show_bt,
                                         backtrace_top,
