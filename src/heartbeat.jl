@@ -11,6 +11,14 @@ const zmq_proxy = Ref(C_NULL)
 
 # entry point for new thread
 function heartbeat_thread(sock::Ptr{Cvoid})
+    @static if VERSION ≥ v"1.9.0-DEV.1588" # julia#46609
+        # julia automatically "adopts" this thread because
+        # we entered a Julia cfunction.  We then have to enable
+        # a GC "safe" region to prevent us from grabbing the
+        # GC lock with the call to zmq_proxy, which never returns.
+        # (see julia#47196)
+        ccall(:jl_gc_safe_enter, Int8, ())
+    end
     ccall(zmq_proxy[], Cint, (Ptr{Cvoid}, Ptr{Cvoid}, Ptr{Cvoid}),
           sock, sock, C_NULL)
     nothing
