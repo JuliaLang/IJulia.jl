@@ -6,3 +6,5 @@
 /deps/JUPYTER
 /deps/julia-*
 *.jl.*.cov
+/docs/src/assets/logo.svg
+/docs/src/assets/favicon.ico
