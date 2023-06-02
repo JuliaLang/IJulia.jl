@@ -71,7 +71,7 @@ function execute_request(socket, msg)
 
         if silent
             result = nothing
-        elseif result !== nothing
+        elseif (result !== nothing) && (result !== Out)
             if store_history
                 Out[n] = result
             end
