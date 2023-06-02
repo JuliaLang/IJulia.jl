@@ -34,9 +34,9 @@ InlineIOContext(io, KVs::Pair...) = IOContext(
 
 # convert x to a string of type mime, making sure to use an
 # IOContext that tells the underlying show function to limit output
-function limitstringmime(mime::MIME, x)
+function limitstringmime(mime::MIME, x, forcetext=false)
     buf = IOBuffer()
-    if istextmime(mime)
+    if forcetext || istextmime(mime)
         if israwtext(mime, x)
             return String(x)
         else
