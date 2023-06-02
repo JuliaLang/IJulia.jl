@@ -87,7 +87,7 @@ function display_mimejson(mime_array::Vector{MIME}, x)
     error("No displayable MIME types in mime array.")
 end
 
-display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x)))
+display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x, true)))
 
 """
 Generate a dictionary of `mime_type => data` pairs for all registered MIME
