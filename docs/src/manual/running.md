@@ -26,11 +26,8 @@ in the background that will persist even when you quit Julia.
 This is also useful if you want to keep using the current Julia
 session instead of opening a new one.
 
-```julia
-julia> using IJulia; notebook(detached=true)
-Process(`'C:\Users\JuliaUser\.julia\v0.7\Conda\deps\usr\Scripts\jupyter' notebook`, ProcessRunning)
-
-julia>
+```@repl
+using IJulia; notebook(detached=true)
 ```
 
 By default, the notebook "dashboard" opens in your
