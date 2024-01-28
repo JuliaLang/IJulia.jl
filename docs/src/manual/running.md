@@ -67,7 +67,7 @@ other Julia file (including another notebook) via the [NBInclude](https://github
 
 Instead of running the classic notebook interface, you can use the IDE-like JupyterLab. If you are comfortable managing your own JupyterLab installation, you can just run `jupyter lab` yourself in a terminal.   To simplify installation, however, you can alternatively type the following in Julia, at the `julia>` prompt:
 
-```jl
+```julia
 using IJulia
 jupyterlab()
 ```

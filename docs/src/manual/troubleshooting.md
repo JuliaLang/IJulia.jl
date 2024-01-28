@@ -21,7 +21,7 @@ If IJulia is crashing (e.g. it gives you a "kernel appears to have
 died" message), you can modify it to print more descriptive error
 messages to the terminal by doing:
 
-```jl
+```julia
 ENV["IJULIA_DEBUG"]=true
 Pkg.build("IJulia")
 ```
