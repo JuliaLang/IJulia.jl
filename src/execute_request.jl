@@ -1,4 +1,4 @@
-# Handers for execute_request and related messages, which are
+# Handlers for execute_request and related messages, which are
 # the core of the Jupyter protocol: execution of Julia code and
 # returning results.
 
