@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaLang.github.io/IJulia.jl/stable)
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaLang.github.io/IJulia.jl/dev)
-[![Build Status](https://github.com/JuliaLang/IJulia.jl/workflows/CI/badge.svg)](https://github.com/JuliaLang/IJulia.jl/actions?query=workflow%3ACI+branch%3Amaster)
+[![Build Status](https://github.com/JuliaLang/IJulia.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaLang/IJulia.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 
 # IJulia
 
