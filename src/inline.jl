@@ -102,7 +102,7 @@ function display(d::InlineDisplay, x)
 end
 
 # we overload redisplay(d, x) to add x to a queue of objects to display,
-# with the actual display occuring when display() is called or when
+# with the actual display occurring when display() is called or when
 # an input cell has finished executing.
 
 function redisplay(d::InlineDisplay, x)
