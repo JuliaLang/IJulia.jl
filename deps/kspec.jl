@@ -65,7 +65,7 @@ executable, the user-visible kernel name is given by `name` followed by the
 Julia version, and the `env` dictionary is added to the environment.
 
 The new kernel name is returned by `installkernel`.  For example:
-```
+```julia
 kernelpath = installkernel("Julia O3", "-O3", env=Dict("FOO"=>"yes"))
 ```
 creates a new Julia kernel in which `julia` is launched with the `-O3`
@@ -84,7 +84,7 @@ You can specify a custom command to execute Julia via keyword argument
 in a Docker container (but Jupyter will run outside of it), by calling
 `installkernel` from within such a container instance like this (or similar):
 
-```
+```julia
 installkernel(
     "Julia via Docker",
     julia = `docker run --rm --net=host

@@ -197,7 +197,7 @@ prun_magic_help(magic::AbstractString, args::AbstractString) = md"""
     `@profile statement`, which runs the
     [Julia profiler](http://docs.julialang.org/en/latest/manual/profile/).
     The analogue of `%%prun ...code...` is
-    ```
+    ```julia
     @profile begin
         ...code...
     end
@@ -242,7 +242,7 @@ run_magic_help(magic::AbstractString, args::AbstractString) = md"""
 
 save_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%save filename n1-n2 n3-n4` is
-    ```
+    ```julia
     open("filename","w") do io
         for i in [n1:n2; n3:n4]
             println(get(In,i,""))
@@ -268,7 +268,7 @@ Markdown.parse("""
 time_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%time statement` (also `%timeit`) in Julia is
     `@time statement`.  The analogue of `%%time ...code...` is
-    ```
+    ```julia
     @time begin
         ...code...
     end
@@ -294,7 +294,7 @@ who_magic_help(magic::AbstractString, args::AbstractString) = md"""
 
 html_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%%html` is
-    ```
+    ```julia
     HTML(""\"
     ...html text...
     ""\")
@@ -304,12 +304,12 @@ html_magic_help(magic::AbstractString, args::AbstractString) = md"""
 javascript_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%%javascript ...code...` in Julia can be
     constructed by first evaluating
-    ```
+    ```julia
     macro javascript_str(s) display("text/javascript", s); end
     ```
     to define the `javascript"...."` [string macro](http://docs.julialang.org/en/latest/manual/strings/#non-standard-string-literals)
     in Julia.  Subsequently, you can simply do:
-    ```
+    ```julia
     javascript""\"
     ...code...
     ""\"
@@ -318,7 +318,7 @@ javascript_magic_help(magic::AbstractString, args::AbstractString) = md"""
 
 latex_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%%latex` is
-    ```
+    ```julia
     display("text/latex", ""\"
     ...latex text...
     ""\")
@@ -344,12 +344,12 @@ function pipe_magic_help(magic::AbstractString, args::AbstractString)
     Markdown.parse("""
     The analogue of IPython's `$magic ...code...` in Julia can be
     constructed by first evaluating
-    ```
+    ```julia
     macro $(cmd)_str(s) open(`$cmd`,"w",stdout) do io; print(io, s); end; end
     ```
     to define the `$cmd"...."` [string macro](http://docs.julialang.org/en/latest/manual/strings/#non-standard-string-literals)
     in Julia.  Subsequently, you can simply do:
-    ```
+    ```julia
     $cmd""\"
     ...code...
     ""\"
@@ -359,18 +359,18 @@ end
 
 svg_magic_help(magic::AbstractString, args::AbstractString) = md"""
     The analogue of IPython's `%%svg` is
-    ```
+    ```julia
     display("image/svg+xml", ""\"
     ...svg text...
     ""\")
     ```
     in Julia. To be even nicer, you can define
-    ```
+    ```julia
     macro svg_str(s) display("image/svg+xml", s); end
     ```
     to define the `svg"...."` [string macro](http://docs.julialang.org/en/latest/manual/strings/#non-standard-string-literals)
     in Julia.  Subsequently, you can simply do:
-    ```
+    ```julia
     svg""\"
     ...svg text...
     ""\"

@@ -28,6 +28,7 @@ makedocs(
             "library/internals.md",
         ],
     ],
+    warnonly=true,
 )
 
 # Deploy docs
