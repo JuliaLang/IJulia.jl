@@ -274,6 +274,10 @@ function interrupt_request(socket, msg)
     send_ipython(requests[], msg_reply(msg, "interrupt_reply", Dict()))
 end
 
+function unknown_request(socket, msg)
+    @vprintln("UNKNOWN MESSAGE TYPE $(msg.header["msg_type"])")
+end
+
 const handlers = Dict{String,Function}(
     "execute_request" => execute_request,
     "complete_request" => complete_request,
