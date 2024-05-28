@@ -5,7 +5,7 @@ function eventloop(socket)
             msg = recv_ipython(socket)
             try
                 send_status("busy", msg)
-                invokelatest(handlers[msg.header["msg_type"]], socket, msg)
+                invokelatest(get(handlers, msg.header["msg_type"], unknown_request), socket, msg)
             catch e
                 # Try to keep going if we get an exception, but
                 # send the exception traceback to the front-ends.
