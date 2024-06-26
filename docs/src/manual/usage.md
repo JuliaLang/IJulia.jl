@@ -93,7 +93,7 @@ old inputs and outputs, simply index into them, e.g. `In[1]` or `Out[5]`. Someti
 may find themselves outputting large matrices or other datastructures which
 will be stored in `Out` and hence not garbage collected, possibly hogging memory.
 If you find that IJulia is using too much memory after generating large outputs, empty this output dictionary:
-```
+```julia
 empty!(Out)
 ```
 
