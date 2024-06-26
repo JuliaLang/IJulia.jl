@@ -1,10 +1,11 @@
 import Random: seed!
+import Logging: ConsoleLogger
 
 # use our own random seed for msg_id so that we
 # don't alter the user-visible random state (issue #336)
 const IJulia_RNG = seed!(Random.MersenneTwister(0))
 import UUIDs
-uuid4() = repr(UUIDs.uuid4(IJulia_RNG))
+uuid4() = string(UUIDs.uuid4(IJulia_RNG))
 
 const orig_stdin  = Ref{IO}()
 const orig_stdout = Ref{IO}()
@@ -109,7 +110,7 @@ function init(args)
     redirect_stdin(IJuliaStdio(stdin,"stdin"))
     minirepl[] = MiniREPL(TextDisplay(stdout))
 
-    logger = Base.CoreLogging.SimpleLogger(Base.stderr)
+    logger = ConsoleLogger(Base.stderr)
     Base.CoreLogging.global_logger(logger)
 
     send_status("starting")

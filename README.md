@@ -1,9 +1,8 @@
 <div align="center"><img src="deps/ijulialogo.png" alt="IJulia logo" width="150"/></div>
 
-[![Build Status](https://api.travis-ci.org/JuliaLang/IJulia.jl.svg)](https://travis-ci.org/JuliaLang/IJulia.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/aaw818ykpducu6ue?svg=true)](https://ci.appveyor.com/project/StevenGJohnson/ijulia-jl)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaLang.github.io/IJulia.jl/stable)
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaLang.github.io/IJulia.jl/dev)
+[![Run tests](https://github.com/JuliaLang/IJulia.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaLang/IJulia.jl/actions/workflows/CI.yml)
 
 # IJulia
 

@@ -23,13 +23,15 @@ Base.displaysize(io::IJuliaStdio) = displaysize(io.io)
 Base.unwrapcontext(io::IJuliaStdio) = Base.unwrapcontext(io.io)
 Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, readable)
 
-for s in ("stdout", "stderr", "stdin")
-    f = Symbol("redirect_", s)
-    sq = QuoteNode(Symbol(s))
-    @eval function Base.$f(io::IJuliaStdio)
-        io[:jupyter_stream] != $s && throw(ArgumentError(string("expecting ", $s, " stream")))
-        Core.eval(Base, Expr(:(=), $sq, io))
-        return io
+if VERSION < v"1.7.0-DEV.254"
+    for s in ("stdout", "stderr", "stdin")
+        f = Symbol("redirect_", s)
+        sq = QuoteNode(Symbol(s))
+        @eval function Base.$f(io::IJuliaStdio)
+            io[:jupyter_stream] != $s && throw(ArgumentError(string("expecting ", $s, " stream")))
+            Core.eval(Base, Expr(:(=), $sq, io))
+            return io
+        end
     end
 end
 

@@ -123,7 +123,7 @@ function complete_request(socket, msg)
     end
 
     codestart = find_parsestart(code, cursorpos)
-    comps_, positions = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1, current_module[])
+    comps_, positions, should_complete = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1, current_module[])
     comps = unique!(REPLCompletions.completion_text.(comps_)) # julia#26930
     # positions = positions .+ (codestart - 1) on Julia 0.7
     positions = (first(positions) + codestart - 1):(last(positions) + codestart - 1)
@@ -137,7 +137,13 @@ function complete_request(socket, msg)
     else
         cursor_start = ind2chr(msg, code, prevind(code, first(positions)))
         cursor_end = ind2chr(msg, code, last(positions))
-        metadata["_jupyter_types_experimental"] = complete_types(comps)
+        if should_complete
+            metadata["_jupyter_types_experimental"] = complete_types(comps)
+        else
+            # should_complete is false for cases where we only want to show
+            # a list of possible completions but not complete, e.g. foo(\t
+            pushfirst!(comps, code[positions])
+        end
     end
     send_ipython(requests[], msg_reply(msg, "complete_reply",
                                      Dict("status" => "ok",
@@ -168,7 +174,7 @@ function kernel_info_request(socket, msg)
                                                          Dict("text"=>"Julia Documentation",
                                                               "url"=>"http://docs.julialang.org/"),
                                                          Dict("text"=>"Julia Packages",
-                                                              "url"=>"http://pkg.julialang.org/")
+                                                              "url"=>"https://juliahub.com/ui/Packages")
                                                         ],
                                         "status" => "ok")))
 end
@@ -266,6 +272,10 @@ end
 function interrupt_request(socket, msg)
     @async Base.throwto(requests_task[], InterruptException())
     send_ipython(requests[], msg_reply(msg, "interrupt_reply", Dict()))
+end
+
+function unknown_request(socket, msg)
+    @vprintln("UNKNOWN MESSAGE TYPE $(msg.header["msg_type"])")
 end
 
 const handlers = Dict{String,Function}(

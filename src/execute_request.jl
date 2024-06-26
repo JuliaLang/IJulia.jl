@@ -1,4 +1,4 @@
-# Handers for execute_request and related messages, which are
+# Handlers for execute_request and related messages, which are
 # the core of the Jupyter protocol: execution of Julia code and
 # returning results.
 
@@ -71,7 +71,7 @@ function execute_request(socket, msg)
 
         if silent
             result = nothing
-        elseif result !== nothing
+        elseif (result !== nothing) && (result !== Out)
             if store_history
                 Out[n] = result
             end

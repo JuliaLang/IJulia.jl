@@ -34,9 +34,9 @@ InlineIOContext(io, KVs::Pair...) = IOContext(
 
 # convert x to a string of type mime, making sure to use an
 # IOContext that tells the underlying show function to limit output
-function limitstringmime(mime::MIME, x)
+function limitstringmime(mime::MIME, x, forcetext=false)
     buf = IOBuffer()
-    if istextmime(mime)
+    if forcetext || istextmime(mime)
         if israwtext(mime, x)
             return String(x)
         else
@@ -57,6 +57,7 @@ end
 for mime in ipy_mime
     @eval begin
         function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
+            flush_all() # so that previous stream output appears in order
             send_ipython(publish[],
                          msg_pub(execute_msg, "display_data",
                                  Dict(
@@ -82,6 +83,7 @@ function display(d::InlineDisplay, M::MIME, x)
     if istextmime(M)
         d["text/plain"] = sx # directly show text data, e.g. text/csv
     end
+    flush_all() # so that previous stream output appears in order
     send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
                          Dict("metadata" => metadata(x), # optional
@@ -92,6 +94,7 @@ end
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
     undisplay(x) # dequeue previous redisplay(x)
+    flush_all() # so that previous stream output appears in order
     send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
                          Dict("metadata" => metadata(x), # optional
@@ -99,7 +102,7 @@ function display(d::InlineDisplay, x)
 end
 
 # we overload redisplay(d, x) to add x to a queue of objects to display,
-# with the actual display occuring when display() is called or when
+# with the actual display occurring when display() is called or when
 # an input cell has finished executing.
 
 function redisplay(d::InlineDisplay, x)

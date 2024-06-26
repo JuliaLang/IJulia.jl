@@ -87,7 +87,7 @@ function display_mimejson(mime_array::Vector{MIME}, x)
     error("No displayable MIME types in mime array.")
 end
 
-display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x)))
+display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x, true)))
 
 """
 Generate a dictionary of `mime_type => data` pairs for all registered MIME
@@ -148,7 +148,7 @@ showerror_nobt(io, e, bt) = showerror(io, e, bt, backtrace=false)
 
 # return the content of a pyerr message for exception e
 function error_content(e, bt=catch_backtrace();
-                       backtrace_top::Symbol=SOFTSCOPE[] ? :softscope_include_string : :include_string,
+                       backtrace_top::Symbol=SOFTSCOPE[] && VERSION < v"1.5.0-DEV.263" ? :softscope_include_string : :include_string,
                        msg::AbstractString="")
     tb = map(String, split(sprint(show_bt,
                                         backtrace_top,
@@ -159,7 +159,7 @@ function error_content(e, bt=catch_backtrace();
     evalue = try
         # Peel away one LoadError layer that comes from running include_string on the cell
         isa(e, LoadError) && (e = e.error)
-        sprint((io, e, bt) -> invokelatest(showerror_nobt, io, e, bt), e, bt)
+        sprint((io, e, bt) -> invokelatest(showerror_nobt, io, e, bt), e, bt; context=InlineIOContext(stderr))
     catch
         "SYSTEM: show(lasterr) caused an error"
     end
