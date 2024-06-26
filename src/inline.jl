@@ -22,7 +22,7 @@ const ipy_mime = [
 # need special handling for showing a string as a textmime
 # type, since in that case the string is assumed to be
 # raw data unless it is text/plain
-israwtext(::MIME, x::AbstractString) = true
+israwtext(m::MIME, x::AbstractString) = !showable(m, x)
 israwtext(::MIME"text/plain", x::AbstractString) = false
 israwtext(::MIME, x) = false
 
