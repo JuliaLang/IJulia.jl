@@ -18,12 +18,15 @@ jobs:
           - os: macOS-latest
             julia-arch: aarch64
             julia-version: '1'
+          - os: ubuntu-latest
+            julia-arch: x86
+            julia-version: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.julia-arch }}
-      - uses: julia-actions/cache@v1
+      - uses: julia-actions/cache@v4
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
