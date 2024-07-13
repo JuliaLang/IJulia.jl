@@ -9,7 +9,7 @@ import Conda
 
 isyes(s) = isempty(s) || lowercase(strip(s)) in ("y", "yes")
 
-function find_jupyter_subcommand(subcommand::AbstractString)
+function find_jupyter_subcommand(subcommand::AbstractString, port::Union{Nothing,Int}=nothing)
     jupyter = JUPYTER
     if jupyter == "jupyter" || jupyter == "jupyter.exe" # look in PATH
         jupyter = Sys.which(exe("jupyter"))
@@ -26,7 +26,8 @@ function find_jupyter_subcommand(subcommand::AbstractString)
         end
     end
 
-    cmd = `$jupyter $subcommand`
+    port_flag = !isnothing(port) ? `--port=$(port)` : ``
+    cmd = `$(jupyter) $(subcommand) $(port_flag)`
 
     # fails in Windows if jupyter directory is not in PATH (jupyter/jupyter_core#62)
     pathsep = Sys.iswindows() ? ';' : ':'
@@ -69,7 +70,7 @@ function launch(cmd, dir, detached)
 end
 
 """
-    notebook(; dir=homedir(), detached=false)
+    notebook(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing)
 
 The `notebook()` function launches the Jupyter notebook, and is
 equivalent to running `jupyter notebook` at the operating-system
@@ -90,22 +91,28 @@ the `jupyter notebook` will launch in the background, and will
 continue running even after you quit Julia.  (The only way to
 stop Jupyter will then be to kill it in your operating system's
 process manager.)
+
+When the optional keyword `port` is not `nothing`, open the notebook on the
+given port number.
+
+For launching a JupyterLab instance, see [`IJulia.jupyterlab()`](@ref).
 """
-function notebook(; dir=homedir(), detached=false)
+function notebook(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing)
     inited && error("IJulia is already running")
-    notebook = find_jupyter_subcommand("notebook")
+    notebook = find_jupyter_subcommand("notebook", port)
+    @show notebook
     return launch(notebook, dir, detached)
 end
 
 """
-    jupyterlab(; dir=homedir(), detached=false)
+    jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing)
 
-Similar to `IJulia.notebook()` but launches JupyterLab instead
+Similar to [`IJulia.notebook()`](@ref) but launches JupyterLab instead
 of the Jupyter notebook.
 """
-function jupyterlab(; dir=homedir(), detached=false)
+function jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing)
     inited && error("IJulia is already running")
-    lab = find_jupyter_subcommand("lab")
+    lab = find_jupyter_subcommand("lab", port)
     jupyter = first(lab)
     if dirname(jupyter) == abspath(Conda.SCRIPTDIR) &&
        !Sys.isexecutable(exe(jupyter, "-lab")) &&
