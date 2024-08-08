@@ -216,11 +216,11 @@ function get_token(code, pos)
         end
     end
     endpos = startpos
-    while startpos >= firstindex(code) && (is_id_char(code[startpos]) || code[startpos] == '.')
+    while startpos >= firstindex(code) && (is_id_char(code[startpos]) || code[startpos] == '.' || code[startpos] == '@')
         startpos = prevind(code, startpos)
     end
     startpos = startpos < pos ? nextind(code, startpos) : pos
-    if !is_id_start_char(code[startpos])
+    if (!is_id_start_char(code[startpos]) && code[startpos] != '@')
         return ""
     end
     while endpos < lastindex(code) && is_id_char(code[endpos])
