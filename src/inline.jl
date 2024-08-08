@@ -26,6 +26,155 @@ israwtext(m::MIME, x::AbstractString) = !showable(m, x)
 israwtext(::MIME"text/plain", x::AbstractString) = false
 israwtext(::MIME, x) = false
 
+
+# Check mime bundle dict key type and convert to string keys for JSON
+_format_mime_key(k::String) = k
+_format_mime_key(k::MIME) = string(k)
+_format_mime_key(k) = error("MIME bundle keys should be instances of String or MIME")
+_format_mimebundle(d::Dict{String}) = d
+_format_mimebundle(d::AbstractDict) = Dict(_format_mime_key(k) => v for (k, v) in pairs(d))
+
+
+"""Create JSON content for "display_data" or "redisplay_data" message, properly formatting arguments."""
+function _display_msg(mimebundle::AbstractDict, metadata::AbstractDict, display_id::Union{Integer, AbstractString, Nothing})
+    content = Dict{String, Any}("data" => _format_mimebundle(mimebundle), "metadata" => _format_mimebundle(metadata))
+    if display_id !== nothing
+        content["transient"] = Dict("display_id" => display_id)
+    end
+    return content
+end
+
+function _display_msg(mime::String, data, metadata::AbstractDict, display_id::Union{Integer, AbstractString, Nothing})
+    bundle = Dict{String, Any}(mime => data)
+    md = Dict{String, Any}(mime => metadata)
+    mime != "text/plain" && (bundle["text/plain"] = "Unable to display data with MIME type $mime")  # Fallback
+    return _display_msg(bundle, md, display_id)
+end
+
+
+"""
+    display_data(mime::Union{MIME, String}, data, metadata::AbstractDict=Dict(); display_id=nothing)
+    display_data(mimebundle::AbstractDict, metadata::AbstractDict=Dict(); display_id=nothing)
+
+Publish encoded multimedia data to be displayed all Jupyter front ends.
+
+This is a low-level function which acts as a direct interface to Jupyter's display system. It does
+not perform any additional processing on the input data, use `display(::IJulia.InlineDisplay, x)` to
+calculate and display the multimedia representation of an arbitrary object `x`.
+
+In the Jupyter notebook/lab the data will be displayed in the output area of the cell being executed.
+This will appear in addition to the display of the cell's execution result, if any. Multiple calls
+to this function within the same cell will result in multiple displays within the same output area.
+
+The first form of the function takes a single MIME type `mime` and encoded data `data`, which should
+be one of the following:
+
+* A string containing text data (e.g. for MIME types `text/html` or `application/javascript`) or
+  base64-encoded binary data (e.g. for `image/png`).
+* Any other value which can be converted to a JSON string by `JSON.json`, including `JSON.JSONText`.
+
+The second form of the function takes a MIME bundle, which is a dictionary containing multiple
+representations of the data keyed by MIME type. The front end will automatically select the richest
+supported type to display.
+
+`metadata` is an additional JSON dictionary describing the output. See the
+[jupyter client documentation](https://jupyter-client.readthedocs.io/en/latest/messaging.html#display-data)
+for the keys used by IPython, notable ones are `width::Int` and `height::Int` to control the size
+of displayed images. When using the second form of the function the argument should be a dictionary
+of dictionaries keyed by MIME type.
+
+`display_id` is an arbitrary integer or string which can be used to update this display at a later
+time using [`update_display_data`](@ref). This can be used to create simple animations by updating
+the display at regular intervals, or to update a display created in a different cell.
+An empty MIME bundle can be passed to initialize an empty display that can be updated later.
+
+
+# Examples
+
+Displaying a MIME bundle containing rich text in three different formats (the front end
+will select only the richest type to display):
+
+```julia
+bundle = Dict(
+    "text/plain" => "text/plain: foo bar baz",
+    "text/html" => "<code>text/html</code>: foo <strong>bar</strong> <em>baz</em>",
+    "text/markdown" => "`text/markdown`: foo **bar** *baz*",
+)
+
+IJulia.display_data(bundle)
+```
+
+Display each of these types individually:
+
+```julia
+for (mime, data) in pairs(bundle)
+    IJulia.display_data(mime, data)
+end
+```
+
+Displaying base64-encoded PNG image data:
+
+```julia
+using Base64
+
+data = open(read, "example.png")  # Array{UInt8}
+data_enc = base64encode(data)  # String
+
+IJulia.display_data("image/png", data_enc)
+```
+
+Adjust the size of the displayed image by passing a metadata dictionary:
+
+```julia
+IJulia.display_data("image/png", data_enc, Dict("width" => 800, "height" => 600))
+```
+
+Updating existing display data using the `display_id` argument and [`update_display_data`](@ref):
+
+```julia
+IJulia.display_data("text/plain", "Before update", display_id="my_id")
+
+# After some time or from a different cell:
+IJulia.update_display_data("my_id", "text/plain", "After update")
+```
+"""
+function display_data(mimebundle::AbstractDict, metadata::AbstractDict=Dict(); display_id::Union{Integer, AbstractString, Nothing}=nothing)
+    content = _display_msg(mimebundle, metadata, display_id)
+    flush_all() # so that previous stream output appears in order
+    send_ipython(publish[], msg_pub(execute_msg, "display_data", content))
+end
+
+function display_data(mime::Union{MIME, AbstractString}, data, metadata::AbstractDict=Dict(); display_id::Union{Integer, AbstractString, Nothing}=nothing)
+    content = _display_msg(string(mime), data, metadata, display_id)
+    flush_all() # so that previous stream output appears in order
+    send_ipython(publish[], msg_pub(execute_msg, "display_data", content))
+end
+
+
+"""
+    update_display_data(display_id, mime::Union{MIME, AbstractString}, data, metadata::AbstractDict=Dict())
+    update_display_data(display_id, mimebundle::AbstractDict, metadata::AbstractDict=Dict())
+
+Update multimedia data previously displayed with [`display_data`](@ref) using
+the `display_id` argument.
+
+Note that in the Jupyter notebook/lab this function need not be called from the
+same cell as the original call to `display_data`. The updated data also does
+not need to contain the same MIME types as the original.
+"""
+function update_display_data(display_id::Union{Integer, AbstractString}, mimebundle::AbstractDict, metadata::AbstractDict=Dict())
+    content = _display_msg(mimebundle, metadata, display_id)
+    flush_all()
+    send_ipython(publish[], msg_pub(execute_msg, "update_display_data", content))
+end
+
+function update_display_data(display_id::Union{Integer, AbstractString}, mime::Union{MIME, AbstractString}, data, metadata::AbstractDict=Dict())
+    content = _display_msg(string(mime), data, metadata, display_id)
+    flush_all()
+    send_ipython(publish[], msg_pub(execute_msg, "update_display_data", content))
+end
+
+
 InlineIOContext(io, KVs::Pair...) = IOContext(
     io,
     :limit=>true, :color=>true, :jupyter=>true,
@@ -54,17 +203,15 @@ function limitstringmime(mime::MIME, x, forcetext=false)
     return String(take!(buf))
 end
 
-for mime in ipy_mime
+for mimestr in ipy_mime
+    M = MIME{Symbol(mimestr)}
     @eval begin
-        function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
-            flush_all() # so that previous stream output appears in order
-            send_ipython(publish[],
-                         msg_pub(execute_msg, "display_data",
-                                 Dict(
-                                  "metadata" => metadata(x), # optional
-                                  "data" => Dict($mime => limitstringmime(MIME($mime), x)))))
+        function display(d::InlineDisplay, ::$M, x)
+            s = limitstringmime($M(), x)
+            m = get(metadata(x), $mimestr, Dict())
+            display_data($M(), s, m)
         end
-        displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
+        displayable(d::InlineDisplay, ::$M) = true
     end
 end
 
@@ -77,28 +224,21 @@ display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("applic
 # If the user explicitly calls display("foo/bar", x), we send
 # the display message, also sending text/plain for text data.
 displayable(d::InlineDisplay, M::MIME) = istextmime(M)
+
 function display(d::InlineDisplay, M::MIME, x)
     sx = limitstringmime(M, x)
-    d = Dict(string(M) => sx)
+    bundle = Dict(string(M) => sx)
     if istextmime(M)
-        d["text/plain"] = sx # directly show text data, e.g. text/csv
+        bundle["text/plain"] = sx # directly show text data, e.g. text/csv
     end
-    flush_all() # so that previous stream output appears in order
-    send_ipython(publish[],
-                 msg_pub(execute_msg, "display_data",
-                         Dict("metadata" => metadata(x), # optional
-                              "data" => d)))
+    display_data(bundle, metadata(x))
 end
 
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
     undisplay(x) # dequeue previous redisplay(x)
-    flush_all() # so that previous stream output appears in order
-    send_ipython(publish[],
-                 msg_pub(execute_msg, "display_data",
-                         Dict("metadata" => metadata(x), # optional
-                              "data" => display_dict(x))))
+    display_data(display_dict(x), metadata(x))
 end
 
 # we overload redisplay(d, x) to add x to a queue of objects to display,
