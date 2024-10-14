@@ -30,16 +30,19 @@ const read_stdout = Ref{Base.PipeEndpoint}()
 const read_stderr = Ref{Base.PipeEndpoint}()
 const socket_locks = Dict{Socket,ReentrantLock}()
 
-# similar to Pkg.REPLMode.MiniREPL, a minimal REPL-like emulator
-# for use with Pkg.do_cmd.  We have to roll our own to
-# make sure it uses the redirected stdout, and because
-# we don't have terminal support.
-import REPL
-struct MiniREPL <: REPL.AbstractREPL
-    display::TextDisplay
+# needed for executing pkg commands on earlier Julia versions
+@static if VERSION < v"1.11"
+    # similar to Pkg.REPLMode.MiniREPL, a minimal REPL-like emulator
+    # for use with Pkg.do_cmd.  We have to roll our own to
+    # make sure it uses the redirected stdout, and because
+    # we don't have terminal support.
+    import REPL
+    struct MiniREPL <: REPL.AbstractREPL
+        display::TextDisplay
+    end
+    REPL.REPLDisplay(repl::MiniREPL) = repl.display
+    const minirepl = Ref{MiniREPL}()
 end
-REPL.REPLDisplay(repl::MiniREPL) = repl.display
-const minirepl = Ref{MiniREPL}()
 
 function init(args)
     inited && error("IJulia is already running")
@@ -108,7 +111,9 @@ function init(args)
         redirect_stderr(IJuliaStdio(stderr,"stderr"))
     end
     redirect_stdin(IJuliaStdio(stdin,"stdin"))
-    minirepl[] = MiniREPL(TextDisplay(stdout))
+    @static if VERSION < v"1.11"
+        minirepl[] = MiniREPL(TextDisplay(stdout))
+    end
 
     logger = ConsoleLogger(Base.stderr)
     Base.CoreLogging.global_logger(logger)

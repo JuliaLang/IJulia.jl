@@ -3,7 +3,15 @@
 # returning results.
 
 import Base.Libc: flush_cstdio
+
 import Pkg
+if VERSION < v"1.11"
+    do_pkg_cmd(cmd::AbstractString) =
+        Pkg.REPLMode.do_cmd(minirepl[], cmd; do_rethrow=true)
+else # Pkg.jl#3777
+    do_pkg_cmd(cmd::AbstractString) =
+        Pkg.REPLMode.do_cmds(cmd, stdout)
+end
 
 # global variable so that display can be done in the correct Msg context
 execute_msg = Msg(["julia"], Dict("username"=>"jlkernel", "session"=>uuid4()), Dict())
@@ -47,8 +55,7 @@ function execute_request(socket, msg)
 
     # "] ..." cells are interpreted as pkg shell commands
     if occursin(r"^\].*$", code)
-        code = "IJulia.Pkg.REPLMode.do_cmd(IJulia.minirepl[], \"" *
-            escape_string(code[2:end]) * "\"; do_rethrow=true)"
+        code = "IJulia.do_pkg_cmd(\"" * escape_string(code[2:end]) * "\")"
     end
 
     # a cell beginning with "? ..." is interpreted as a help request
