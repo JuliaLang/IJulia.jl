@@ -4,7 +4,7 @@
 ## General troubleshooting tips
 
 * If you ran into a problem with the above steps, after fixing the
-problem you can type `Pkg.build()` to try to rerun the install scripts.
+  problem you can type `Pkg.build()` to try to rerun the install scripts.
 * If you tried it a while ago, try running `Pkg.update()` and try again:
   this will fetch the latest versions of the Julia packages in case
   the problem you saw was fixed.  Run `Pkg.build("IJulia")` if your Julia version may have changed.  If this doesn't work, you could try just deleting the whole `.julia/conda` directory in your home directory (on Windows, it is called `Users\USERNAME\.julia\conda` in your home directory) via `rm(abspath(first(DEPOT_PATH), "conda"),recursive=true)` in Julia and re-adding the packages. 
