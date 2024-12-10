@@ -271,6 +271,7 @@ end
 
 function interrupt_request(socket, msg)
     @async Base.throwto(requests_task[], InterruptException())
+    @async Base.throwto(iopub_task[], InterruptException())
     send_ipython(requests[], msg_reply(msg, "interrupt_reply", Dict()))
 end
 
@@ -291,5 +292,11 @@ const handlers = Dict{String,Function}(
     "comm_open" => comm_open,
     "comm_info_request" => comm_info_request,
     "comm_msg" => comm_msg,
-    "comm_close" => comm_close
+    "comm_close" => comm_close,
+)
+
+const iopub_handlers = Dict{String,Function}(
+    "comm_open" => comm_open,
+    "comm_msg" => comm_msg,
+    "comm_close" => comm_close,
 )
