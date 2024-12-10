@@ -133,7 +133,8 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     connection_file::Union{String, Nothing} = nothing
     read_stdout::RefValue{Base.PipeEndpoint} = Ref{Base.PipeEndpoint}()
     read_stderr::RefValue{Base.PipeEndpoint} = Ref{Base.PipeEndpoint}()
-    socket_locks::Dict{Socket, ReentrantLock} = Dict{Socket, ReentrantLock}()
+    socket_send_locks::Dict{Socket, ReentrantLock} = Dict{Socket, ReentrantLock}()
+    socket_recv_locks::Dict{Socket, ReentrantLock} = Dict{Socket, ReentrantLock}()
     sha_ctx::RefValue{SHA.SHA_CTX} = Ref{SHA.SHA_CTX}()
     hmac_key::Vector{UInt8} = UInt8[]
 
