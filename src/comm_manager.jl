@@ -106,7 +106,7 @@ function comm_open(sock, msg)
                 msg.content["data"] = Dict()
             end
             comm = Comm(target, comm_id, false)
-            register_comm(comm, msg)
+            invokelatest(register_comm, comm, msg)
             comms[comm_id] = comm
         else
             # Tear down comm to maintain consistency
