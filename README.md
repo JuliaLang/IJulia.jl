@@ -36,6 +36,9 @@ If you already have Python/Jupyter installed on your machine, this process will 
 that tells Jupyter how to launch Julia. You can then launch the notebook server the usual
 way by running `jupyter notebook` in the terminal.
 
+Note that `IJulia` should generally be installed in Julia's global package environment, unless you
+install a custom kernel that specifies a particular environment.
+
 Alternatively, you can have IJulia create and manage its own Python/Jupyter installation.
 To do this, type the following in Julia, at the `julia>` prompt:
 
