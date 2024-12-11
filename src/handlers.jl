@@ -189,6 +189,9 @@ function connect_request(socket, msg)
 end
 
 function shutdown_request(socket, msg)
+    # stop heartbeat thread by closing the context
+    close(zmq_proxy_context[])
+
     send_ipython(requests[], msg_reply(msg, "shutdown_reply",
                                      msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
