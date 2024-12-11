@@ -612,175 +612,193 @@ function worker_function(documenterSearchIndex, documenterBaseURL, filters) {
   };
 }
 
-// `worker = Threads.@spawn worker_function(documenterSearchIndex)`, but in JavaScript!
-const filters = [
-  ...new Set(documenterSearchIndex["docs"].map((x) => x.category)),
-];
-const worker_str =
-  "(" +
-  worker_function.toString() +
-  ")(" +
-  JSON.stringify(documenterSearchIndex["docs"]) +
-  "," +
-  JSON.stringify(documenterBaseURL) +
-  "," +
-  JSON.stringify(filters) +
-  ")";
-const worker_blob = new Blob([worker_str], { type: "text/javascript" });
-const worker = new Worker(URL.createObjectURL(worker_blob));
-
 /////// SEARCH MAIN ///////
 
-// Whether the worker is currently handling a search. This is a boolean
-// as the worker only ever handles 1 or 0 searches at a time.
-var worker_is_running = false;
+function runSearchMainCode() {
+  // `worker = Threads.@spawn worker_function(documenterSearchIndex)`, but in JavaScript!
+  const filters = [
+    ...new Set(documenterSearchIndex["docs"].map((x) => x.category)),
+  ];
+  const worker_str =
+    "(" +
+    worker_function.toString() +
+    ")(" +
+    JSON.stringify(documenterSearchIndex["docs"]) +
+    "," +
+    JSON.stringify(documenterBaseURL) +
+    "," +
+    JSON.stringify(filters) +
+    ")";
+  const worker_blob = new Blob([worker_str], { type: "text/javascript" });
+  const worker = new Worker(URL.createObjectURL(worker_blob));
 
-// The last search text that was sent to the worker. This is used to determine
-// if the worker should be launched again when it reports back results.
-var last_search_text = "";
+  // Whether the worker is currently handling a search. This is a boolean
+  // as the worker only ever handles 1 or 0 searches at a time.
+  var worker_is_running = false;
 
-// The results of the last search. This, in combination with the state of the filters
-// in the DOM, is used compute the results to display on calls to update_search.
-var unfiltered_results = [];
+  // The last search text that was sent to the worker. This is used to determine
+  // if the worker should be launched again when it reports back results.
+  var last_search_text = "";
 
-// Which filter is currently selected
-var selected_filter = "";
+  // The results of the last search. This, in combination with the state of the filters
+  // in the DOM, is used compute the results to display on calls to update_search.
+  var unfiltered_results = [];
 
-$(document).on("input", ".documenter-search-input", function (event) {
-  if (!worker_is_running) {
-    launch_search();
+  // Which filter is currently selected
+  var selected_filter = "";
+
+  $(document).on("input", ".documenter-search-input", function (event) {
+    if (!worker_is_running) {
+      launch_search();
+    }
+  });
+
+  function launch_search() {
+    worker_is_running = true;
+    last_search_text = $(".documenter-search-input").val();
+    worker.postMessage(last_search_text);
   }
-});
 
-function launch_search() {
-  worker_is_running = true;
-  last_search_text = $(".documenter-search-input").val();
-  worker.postMessage(last_search_text);
-}
-
-worker.onmessage = function (e) {
-  if (last_search_text !== $(".documenter-search-input").val()) {
-    launch_search();
-  } else {
-    worker_is_running = false;
-  }
-
-  unfiltered_results = e.data;
-  update_search();
-};
-
-$(document).on("click", ".search-filter", function () {
-  if ($(this).hasClass("search-filter-selected")) {
-    selected_filter = "";
-  } else {
-    selected_filter = $(this).text().toLowerCase();
-  }
-
-  // This updates search results and toggles classes for UI:
-  update_search();
-});
-
-/**
- * Make/Update the search component
- */
-function update_search() {
-  let querystring = $(".documenter-search-input").val();
-
-  if (querystring.trim()) {
-    if (selected_filter == "") {
-      results = unfiltered_results;
+  worker.onmessage = function (e) {
+    if (last_search_text !== $(".documenter-search-input").val()) {
+      launch_search();
     } else {
-      results = unfiltered_results.filter((result) => {
-        return selected_filter == result.category.toLowerCase();
-      });
+      worker_is_running = false;
     }
 
-    let search_result_container = ``;
-    let modal_filters = make_modal_body_filters();
-    let search_divider = `<div class="search-divider w-100"></div>`;
+    unfiltered_results = e.data;
+    update_search();
+  };
 
-    if (results.length) {
-      let links = [];
-      let count = 0;
-      let search_results = "";
+  $(document).on("click", ".search-filter", function () {
+    if ($(this).hasClass("search-filter-selected")) {
+      selected_filter = "";
+    } else {
+      selected_filter = $(this).text().toLowerCase();
+    }
 
-      for (var i = 0, n = results.length; i < n && count < 200; ++i) {
-        let result = results[i];
-        if (result.location && !links.includes(result.location)) {
-          search_results += result.div;
-          count++;
-          links.push(result.location);
-        }
-      }
+    // This updates search results and toggles classes for UI:
+    update_search();
+  });
 
-      if (count == 1) {
-        count_str = "1 result";
-      } else if (count == 200) {
-        count_str = "200+ results";
+  /**
+   * Make/Update the search component
+   */
+  function update_search() {
+    let querystring = $(".documenter-search-input").val();
+
+    if (querystring.trim()) {
+      if (selected_filter == "") {
+        results = unfiltered_results;
       } else {
-        count_str = count + " results";
+        results = unfiltered_results.filter((result) => {
+          return selected_filter == result.category.toLowerCase();
+        });
       }
-      let result_count = `<div class="is-size-6">${count_str}</div>`;
 
-      search_result_container = `
+      let search_result_container = ``;
+      let modal_filters = make_modal_body_filters();
+      let search_divider = `<div class="search-divider w-100"></div>`;
+
+      if (results.length) {
+        let links = [];
+        let count = 0;
+        let search_results = "";
+
+        for (var i = 0, n = results.length; i < n && count < 200; ++i) {
+          let result = results[i];
+          if (result.location && !links.includes(result.location)) {
+            search_results += result.div;
+            count++;
+            links.push(result.location);
+          }
+        }
+
+        if (count == 1) {
+          count_str = "1 result";
+        } else if (count == 200) {
+          count_str = "200+ results";
+        } else {
+          count_str = count + " results";
+        }
+        let result_count = `<div class="is-size-6">${count_str}</div>`;
+
+        search_result_container = `
+              <div class="is-flex is-flex-direction-column gap-2 is-align-items-flex-start">
+                  ${modal_filters}
+                  ${search_divider}
+                  ${result_count}
+                  <div class="is-clipped w-100 is-flex is-flex-direction-column gap-2 is-align-items-flex-start has-text-justified mt-1">
+                    ${search_results}
+                  </div>
+              </div>
+          `;
+      } else {
+        search_result_container = `
             <div class="is-flex is-flex-direction-column gap-2 is-align-items-flex-start">
                 ${modal_filters}
                 ${search_divider}
-                ${result_count}
-                <div class="is-clipped w-100 is-flex is-flex-direction-column gap-2 is-align-items-flex-start has-text-justified mt-1">
-                  ${search_results}
-                </div>
-            </div>
+                <div class="is-size-6">0 result(s)</div>
+              </div>
+              <div class="has-text-centered my-5 py-5">No result found!</div>
         `;
+      }
+
+      if ($(".search-modal-card-body").hasClass("is-justify-content-center")) {
+        $(".search-modal-card-body").removeClass("is-justify-content-center");
+      }
+
+      $(".search-modal-card-body").html(search_result_container);
     } else {
-      search_result_container = `
-           <div class="is-flex is-flex-direction-column gap-2 is-align-items-flex-start">
-               ${modal_filters}
-               ${search_divider}
-               <div class="is-size-6">0 result(s)</div>
-            </div>
-            <div class="has-text-centered my-5 py-5">No result found!</div>
-       `;
-    }
+      if (!$(".search-modal-card-body").hasClass("is-justify-content-center")) {
+        $(".search-modal-card-body").addClass("is-justify-content-center");
+      }
 
-    if ($(".search-modal-card-body").hasClass("is-justify-content-center")) {
-      $(".search-modal-card-body").removeClass("is-justify-content-center");
+      $(".search-modal-card-body").html(`
+        <div class="has-text-centered my-5 py-5">Type something to get started!</div>
+      `);
     }
+  }
 
-    $(".search-modal-card-body").html(search_result_container);
-  } else {
-    if (!$(".search-modal-card-body").hasClass("is-justify-content-center")) {
-      $(".search-modal-card-body").addClass("is-justify-content-center");
-    }
+  /**
+   * Make the modal filter html
+   *
+   * @returns string
+   */
+  function make_modal_body_filters() {
+    let str = filters
+      .map((val) => {
+        if (selected_filter == val.toLowerCase()) {
+          return `<a href="javascript:;" class="search-filter search-filter-selected"><span>${val}</span></a>`;
+        } else {
+          return `<a href="javascript:;" class="search-filter"><span>${val}</span></a>`;
+        }
+      })
+      .join("");
 
-    $(".search-modal-card-body").html(`
-      <div class="has-text-centered my-5 py-5">Type something to get started!</div>
-    `);
+    return `
+          <div class="is-flex gap-2 is-flex-wrap-wrap is-justify-content-flex-start is-align-items-center search-filters">
+              <span class="is-size-6">Filters:</span>
+              ${str}
+          </div>`;
   }
 }
 
-/**
- * Make the modal filter html
- *
- * @returns string
- */
-function make_modal_body_filters() {
-  let str = filters
-    .map((val) => {
-      if (selected_filter == val.toLowerCase()) {
-        return `<a href="javascript:;" class="search-filter search-filter-selected"><span>${val}</span></a>`;
-      } else {
-        return `<a href="javascript:;" class="search-filter"><span>${val}</span></a>`;
-      }
-    })
-    .join("");
-
-  return `
-        <div class="is-flex gap-2 is-flex-wrap-wrap is-justify-content-flex-start is-align-items-center search-filters">
-            <span class="is-size-6">Filters:</span>
-            ${str}
-        </div>`;
+function waitUntilSearchIndexAvailable() {
+  // It is possible that the documenter.js script runs before the page
+  // has finished loading and documenterSearchIndex gets defined.
+  // So we need to wait until the search index actually loads before setting
+  // up all the search-related stuff.
+  if (typeof documenterSearchIndex !== "undefined") {
+    runSearchMainCode();
+  } else {
+    console.warn("Search Index not available, waiting");
+    setTimeout(waitUntilSearchIndexAvailable, 1000);
+  }
 }
+
+// The actual entry point to the search code
+waitUntilSearchIndexAvailable();
 
 })
 ////////////////////////////////////////////////////////////////////////////////
