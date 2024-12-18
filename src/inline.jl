@@ -62,6 +62,7 @@ for mime in ipy_mime
                          msg_pub(execute_msg, "display_data",
                                  Dict(
                                   "metadata" => metadata(x), # optional
+                                  "transient" => transient(x), # optional
                                   "data" => Dict($mime => limitstringmime(MIME($mime), x)))))
         end
         displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
@@ -87,6 +88,7 @@ function display(d::InlineDisplay, M::MIME, x)
     send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
                          Dict("metadata" => metadata(x), # optional
+                              "transient" => transient(x), # optional
                               "data" => d)))
 end
 
@@ -98,6 +100,7 @@ function display(d::InlineDisplay, x)
     send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
                          Dict("metadata" => metadata(x), # optional
+                              "transient" => transient(x), # optional
                               "data" => display_dict(x))))
 end
 
