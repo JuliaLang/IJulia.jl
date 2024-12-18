@@ -158,7 +158,7 @@ function kernel_info_request(socket, msg)
                  msg_reply(msg, "kernel_info_reply",
                            Dict("protocol_version" => "5.0",
                                         "implementation" => "ijulia",
-                                        # TODO: "implementation_version" => IJulia version string from Pkg
+                                        "implementation_version" => pkgversion(@__MODULE__),
                                         "language_info" =>
                                         Dict("name" => "julia",
                                              "version" =>
