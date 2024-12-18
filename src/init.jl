@@ -25,6 +25,7 @@ const raw_input = Ref{Socket}()
 const requests = Ref{Socket}()
 const control = Ref{Socket}()
 const heartbeat = Ref{Socket}()
+const heartbeat_context = Ref{Context}()
 const profile = Dict{String,Any}()
 const read_stdout = Ref{Base.PipeEndpoint}()
 const read_stderr = Ref{Base.PipeEndpoint}()
@@ -87,7 +88,8 @@ function init(args)
     raw_input[] = Socket(ROUTER)
     requests[] = Socket(ROUTER)
     control[] = Socket(ROUTER)
-    heartbeat[] = Socket(ROUTER)
+    heartbeat_context[] = Context()
+    heartbeat = Socket(heartbeat_context[], ROUTER)
     sep = profile["transport"]=="ipc" ? "-" : ":"
     bind(publish[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["iopub_port"])")
     bind(requests[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["shell_port"])")
@@ -97,7 +99,7 @@ function init(args)
 
     # associate a lock with each socket so that multi-part messages
     # on a given socket don't get inter-mingled between tasks.
-    for s in (publish[], raw_input[], requests[], control[], heartbeat[])
+    for s in (publish[], raw_input[], requests[], control[])
         socket_locks[s] = ReentrantLock()
     end
 
