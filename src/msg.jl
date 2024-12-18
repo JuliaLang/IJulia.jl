@@ -32,7 +32,7 @@ msg_pub(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
       msg_header(m, msg_type), content, m.header, metadata)
 
 msg_reply(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
-  Msg(m.idents, msg_header(m, msg_type), content, m.header, metadata)
+  Msg(m.idents, msg_header(m, msg_type), merge(Dict("status" => "ok"), content), m.header, metadata)
 
 function show(io::IO, msg::Msg)
     print(io, "IPython Msg [ idents ")
