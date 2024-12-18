@@ -190,7 +190,7 @@ end
 
 function shutdown_request(socket, msg)
     # stop heartbeat thread by closing the context
-    close(zmq_proxy_context[])
+    close(heartbeat_context[])
 
     send_ipython(requests[], msg_reply(msg, "shutdown_reply",
                                      msg.content))

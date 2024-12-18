@@ -24,6 +24,8 @@ const publish = Ref{Socket}()
 const raw_input = Ref{Socket}()
 const requests = Ref{Socket}()
 const control = Ref{Socket}()
+const heartbeat = Ref{Socket}()
+const heartbeat_context = Ref{Context}()
 const profile = Dict{String,Any}()
 const read_stdout = Ref{Base.PipeEndpoint}()
 const read_stderr = Ref{Base.PipeEndpoint}()
@@ -86,12 +88,14 @@ function init(args)
     raw_input[] = Socket(ROUTER)
     requests[] = Socket(ROUTER)
     control[] = Socket(ROUTER)
+    heartbeat_context[] = Context()
+    heartbeat = Socket(heartbeat_context[], ROUTER)
     sep = profile["transport"]=="ipc" ? "-" : ":"
     bind(publish[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["iopub_port"])")
     bind(requests[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["shell_port"])")
     bind(control[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["control_port"])")
     bind(raw_input[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["stdin_port"])")
-    start_heartbeat("$(profile["transport"])://$(profile["ip"])$(sep)$(profile["hb_port"])")
+    bind(heartbeat[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["hb_port"])")
 
     # associate a lock with each socket so that multi-part messages
     # on a given socket don't get inter-mingled between tasks.
@@ -99,6 +103,7 @@ function init(args)
         socket_locks[s] = ReentrantLock()
     end
 
+    start_heartbeat(heartbeat[])
     if capture_stdout
         read_stdout[], = redirect_stdout()
         redirect_stdout(IJuliaStdio(stdout,"stdout"))
