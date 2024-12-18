@@ -154,9 +154,9 @@ function complete_request(socket, msg)
 end
 
 function kernel_info_request(socket, msg)
-    send_ipython(requests[],
+    send_ipython(socket,
                  msg_reply(msg, "kernel_info_reply",
-                           Dict("protocol_version" => "5.0",
+                           Dict("protocol_version" => "5.4",
                                         "implementation" => "ijulia",
                                         "implementation_version" => pkgversion(@__MODULE__),
                                         "language_info" =>
@@ -189,7 +189,7 @@ function connect_request(socket, msg)
 end
 
 function shutdown_request(socket, msg)
-    send_ipython(requests[], msg_reply(msg, "shutdown_reply",
+    send_ipython(socket, msg_reply(msg, "shutdown_reply",
                                      msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
     exit()
@@ -271,7 +271,7 @@ end
 
 function interrupt_request(socket, msg)
     @async Base.throwto(requests_task[], InterruptException())
-    send_ipython(requests[], msg_reply(msg, "interrupt_reply", Dict()))
+    send_ipython(socket, msg_reply(msg, "interrupt_reply", Dict()))
 end
 
 function unknown_request(socket, msg)

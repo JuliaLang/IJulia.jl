@@ -59,7 +59,7 @@ function comm_info_request(sock, msg)
     end
     content = Dict(:comms => _comms)
 
-    send_ipython(IJulia.publish[],
+    send_ipython(sock,
                  msg_reply(msg, "comm_info_reply", content))
 end
 
