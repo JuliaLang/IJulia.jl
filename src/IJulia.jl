@@ -285,7 +285,7 @@ function clear_output(wait=false)
     # flush pending stdio
     flush_all()
     empty!(displayqueue) # discard pending display requests
-    send_ipython(publish[], msg_reply(execute_msg::Msg, "clear_output",
+    send_ipython(publish[], msg_pub(execute_msg::Msg, "clear_output",
                                     Dict("wait" => wait)))
     stdio_bytes[] = 0 # reset output throttling
 end

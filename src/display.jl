@@ -48,6 +48,7 @@ register_jsonmime(x::AbstractVector{<:MIME}) = push!(ijulia_jsonmime_types, Vect
 # return a String=>Any dictionary to attach as metadata
 # in Jupyter display_data and pyout messages
 metadata(x) = Dict()
+transient(x) = Dict()
 
 """
 Generate the preferred MIME representation of x.
