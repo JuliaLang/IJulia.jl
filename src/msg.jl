@@ -18,7 +18,7 @@ end
 msg_header(m::Msg, msg_type::String) = Dict("msg_id" => uuid4(),
                                             "username" => m.header["username"],
                                             "session" => m.header["session"],
-                                            "date" => now(),
+                                            "date" => format(now(UTC), ISODateTimeFormat)*"Z",
                                             "msg_type" => msg_type,
                                             "version" => "5.4")
 

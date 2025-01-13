@@ -36,7 +36,7 @@ export notebook, jupyterlab, installkernel
 using ZMQ, JSON, SoftGlobalScope
 import Base.invokelatest
 import Dates
-using Dates: now
+using Dates: now, format, UTC, ISODateTimeFormat
 import Random
 using Base64: Base64EncodePipe
 import REPL
