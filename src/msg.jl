@@ -41,8 +41,7 @@ function show(io::IO, msg::Msg)
 end
 
 function send_ipython(socket, m::Msg)
-    lock(socket_locks[socket])
-    try
+    @lock socket_locks_send[socket] begin
         @vprintln("SENDING ", m)
         for i in m.idents
             send(socket, i, more=true)
@@ -57,14 +56,11 @@ function send_ipython(socket, m::Msg)
         send(socket, parent_header, more=true)
         send(socket, metadata, more=true)
         send(socket, content)
-    finally
-        unlock(socket_locks[socket])
     end
 end
 
 function recv_ipython(socket)
-    lock(socket_locks[socket])
-    try
+    @lock socket_locks_recv[socket] begin
         idents = String[]
         s = recv(socket, String)
         @vprintln("got msg part $s")
@@ -85,8 +81,6 @@ function recv_ipython(socket)
         m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
         @vprintln("RECEIVED $m")
         return m
-    finally
-        unlock(socket_locks[socket])
     end
 end
 

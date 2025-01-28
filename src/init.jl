@@ -28,7 +28,8 @@ const heartbeat = Ref{Socket}()
 const profile = Dict{String,Any}()
 const read_stdout = Ref{Base.PipeEndpoint}()
 const read_stderr = Ref{Base.PipeEndpoint}()
-const socket_locks = Dict{Socket,ReentrantLock}()
+const socket_locks_recv = Dict{Socket,ReentrantLock}()
+const socket_locks_send = Dict{Socket,ReentrantLock}()
 
 # needed for executing pkg commands on earlier Julia versions
 @static if VERSION < v"1.11"
@@ -97,8 +98,9 @@ function init(args)
 
     # associate a lock with each socket so that multi-part messages
     # on a given socket don't get inter-mingled between tasks.
-    for s in (publish[], raw_input[], requests[], control[], heartbeat[])
-        socket_locks[s] = ReentrantLock()
+    for s in (publish[], raw_input[], requests[], control[])
+        socket_locks_send[s] = ReentrantLock()
+        socket_locks_recv[s] = ReentrantLock()
     end
 
     start_heartbeat(heartbeat[])
