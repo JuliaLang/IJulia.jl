@@ -22,9 +22,13 @@ import IJulia, JSON
         end
     end
 
-    let kspec = IJulia.installkernel("ahzAHZ019.-_ ~!@#%^&*()")
+    let kspec = IJulia.installkernel("ahzAHZ019.-_ ~!@#%^&*()"; displayname="foo")
         try
             @test occursin("ahzahz019.-_-__________", basename(kspec))
+
+            let k = open(JSON.parse, joinpath(kspec, "kernel.json"))
+                @test k["display_name"] == "foo"
+            end
         finally
             rm(kspec, force=true, recursive=true)
         end
