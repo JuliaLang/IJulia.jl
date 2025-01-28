@@ -1,9 +1,10 @@
 # IJulia redirects stdout and stderr into "stream" messages sent to the
 # Jupyter front-end.
 
-# create a wrapper type around redirected stdio streams,
-# both for overloading things like `flush` and so that we
-# can set properties like `color`.
+"""
+Wrapper type around redirected stdio streams, both for overloading things like
+`flush` and so that we can set properties like `color`.
+"""
 struct IJuliaStdio{IO_t <: IO} <: Base.AbstractPipe
     io::IOContext{IO_t}
 end
@@ -70,10 +71,12 @@ const max_bytes = 10*1024
 const max_output_per_request = Ref(1 << 19)
 
 """
+    watch_stream(rd::IO, name::AbstractString)
+
 Continually read from (size limited) Libuv/OS buffer into an `IObuffer` to avoid problems when
 the Libuv/OS buffer gets full (https://github.com/JuliaLang/julia/issues/8789). Send data immediately
 when buffer contains more than `max_bytes` bytes. Otherwise, if data is available it will be sent every
-`stream_interval` seconds (see the Timers set up in watch_stdio). Truncate the output to `max_output_per_request`
+`stream_interval` seconds (see the `Timer`'s set up in `watch_stdio`). Truncate the output to `max_output_per_request`
 bytes per execution request since excessive output can bring browsers to a grinding halt.
 """
 function watch_stream(rd::IO, name::AbstractString)

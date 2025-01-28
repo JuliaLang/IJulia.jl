@@ -40,8 +40,21 @@ const ijulia_jsonmime_types = Vector{Union{MIME, Vector{MIME}}}([
     MIME("application/vnd.dataresource+json"), MIME("application/vnd.plotly.v1+json")
 ])
 
-register_mime(x::Union{MIME, Vector{MIME}})= push!(ijulia_mime_types, x)
+"""
+    register_mime(x::Union{MIME, Vector{MIME}})
+    register_mime(x::AbstractVector{<:MIME})
+
+Register a new MIME type.
+"""
+register_mime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_mime_types, x)
 register_mime(x::AbstractVector{<:MIME}) = push!(ijulia_mime_types, Vector{Mime}(x))
+
+"""
+    register_jsonmime(x::Union{MIME, Vector{MIME}})
+    register_jsonmime(x::AbstractVector{<:MIME})
+
+Register a new JSON MIME type.
+"""
 register_jsonmime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_jsonmime_types, x)
 register_jsonmime(x::AbstractVector{<:MIME}) = push!(ijulia_jsonmime_types, Vector{Mime}(x))
 
@@ -92,8 +105,8 @@ display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x, true)))
 
 """
 Generate a dictionary of `mime_type => data` pairs for all registered MIME
-types. This is the format that Jupyter expects in display_data and
-execute_result messages.
+types. This is the format that Jupyter expects in `display_data` and
+`execute_result` messages.
 """
 function display_dict(x)
     data = Dict{String, Union{String, JSONText}}()

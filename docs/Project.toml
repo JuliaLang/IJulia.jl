@@ -4,3 +4,6 @@ IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
 
 [compat]
 Documenter = "1"
+
+[sources]
+IJulia = {path = ".."}

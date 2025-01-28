@@ -75,15 +75,19 @@ whether you are in an IJulia notebook, therefore, you can check
 """
 inited = false
 
-# set this to false for debugging, to disable stderr redirection
-"""
+const _capture_docstring = """
 The IJulia kernel captures all [stdout and stderr](https://en.wikipedia.org/wiki/Standard_streams)
 output and redirects it to the notebook.   When debugging IJulia problems,
 however, it can be more convenient to *not* capture stdout and stderr output
 (since the notebook may not be functioning). This can be done by editing
 `IJulia.jl` to set `capture_stderr` and/or `capture_stdout` to `false`.
 """
+
+@doc _capture_docstring
 const capture_stdout = true
+
+# set this to false for debugging, to disable stderr redirection
+@doc _capture_docstring
 const capture_stderr = !IJULIA_DEBUG
 
 set_current_module(m::Module) = current_module[] = m
