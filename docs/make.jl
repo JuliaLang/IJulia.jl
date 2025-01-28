@@ -1,8 +1,17 @@
+import Changelog
 using Documenter, IJulia
 
+# Build the changelog
+Changelog.generate(
+    Changelog.Documenter(),
+    joinpath(@__DIR__, "src/_changelog.md"),
+    joinpath(@__DIR__, "src/changelog.md"),
+    repo="JuliaLang/IJulia.jl"
+)
 
 # Make docs to `docs/build` directory
-makedocs(
+makedocs(;
+    repo=Remotes.GitHub("JuliaLang", "IJulia.jl"),
     modules=[IJulia],
     sitename="IJulia",
     format=Documenter.HTML(;
@@ -21,7 +30,8 @@ makedocs(
             "library/public.md",
             "library/internals.md",
         ],
-    ],
+        "changelog.md"
+    ]
 )
 
 # Deploy docs
