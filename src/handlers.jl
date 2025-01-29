@@ -189,7 +189,10 @@ function connect_request(socket, msg)
 end
 
 function shutdown_request(socket, msg)
-    send_ipython(socket, msg_reply(msg, "shutdown_reply",
+    # stop heartbeat thread by closing the context
+    close(heartbeat_context[])
+
+    send_ipython(requests[], msg_reply(msg, "shutdown_reply",
                                      msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
     exit()
