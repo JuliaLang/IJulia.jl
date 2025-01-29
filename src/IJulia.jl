@@ -36,7 +36,7 @@ export notebook, jupyterlab, installkernel
 using ZMQ, JSON, SoftGlobalScope
 import Base.invokelatest
 import Dates
-using Dates: now
+using Dates: now, format, UTC, ISODateTimeFormat
 import Random
 using Base64: Base64EncodePipe
 import REPL
@@ -285,7 +285,7 @@ function clear_output(wait=false)
     # flush pending stdio
     flush_all()
     empty!(displayqueue) # discard pending display requests
-    send_ipython(publish[], msg_reply(execute_msg::Msg, "clear_output",
+    send_ipython(publish[], msg_pub(execute_msg::Msg, "clear_output",
                                     Dict("wait" => wait)))
     stdio_bytes[] = 0 # reset output throttling
 end

@@ -18,9 +18,9 @@ end
 msg_header(m::Msg, msg_type::String) = Dict("msg_id" => uuid4(),
                                             "username" => m.header["username"],
                                             "session" => m.header["session"],
-                                            "date" => now(),
+                                            "date" => format(now(UTC), ISODateTimeFormat)*"Z",
                                             "msg_type" => msg_type,
-                                            "version" => "5.3")
+                                            "version" => "5.4")
 
 # PUB/broadcast messages use the msg_type as the ident, except for
 # stream messages which use the stream name (e.g. "stdout").
@@ -32,7 +32,7 @@ msg_pub(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
       msg_header(m, msg_type), content, m.header, metadata)
 
 msg_reply(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
-  Msg(m.idents, msg_header(m, msg_type), content, m.header, metadata)
+  Msg(m.idents, msg_header(m, msg_type), merge(Dict("status" => "ok"), content), m.header, metadata)
 
 function show(io::IO, msg::Msg)
     print(io, "IPython Msg [ idents ")
