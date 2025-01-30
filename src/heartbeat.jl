@@ -4,8 +4,6 @@
 # call in libzmq, which simply blocks forever, so the usual lack of
 # thread safety in Julia should not be an issue here.
 
-import Libdl
-
 const threadid = zeros(Int, 128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
 
 # entry point for new thread
