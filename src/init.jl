@@ -89,7 +89,7 @@ function init(args)
     requests[] = Socket(ROUTER)
     control[] = Socket(ROUTER)
     heartbeat_context[] = Context()
-    heartbeat = Socket(heartbeat_context[], ROUTER)
+    heartbeat[] = Socket(heartbeat_context[], ROUTER)
     sep = profile["transport"]=="ipc" ? "-" : ":"
     bind(publish[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["iopub_port"])")
     bind(requests[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["shell_port"])")
