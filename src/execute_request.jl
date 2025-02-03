@@ -24,6 +24,97 @@ import REPL: helpmode
 # use a global array to accumulate "payloads" for the execute_reply message
 const execute_payloads = Dict[]
 
+# An array of macros to run on the contents of each cell
+const cell_macros = []
+
+function run_cell_code(code)
+    do_auto_macros = true
+
+    # Check for cell macros
+    cell_macro_calls = []
+    line_no = 1
+    if startswith(code, "@@")
+        lines = split(code, '\n')
+        for line in lines
+            line = strip(line)
+            if length(line) <= 0
+                line_no += 1
+                continue
+            end
+            startswith(line, "@@") || break
+            mac_call = Meta.parse(line[nextind("abc", 0, 2):end])
+            @assert Meta.isexpr(mac_call, :macrocall)
+            if mac_call.args[1] == Symbol("@noauto")
+                do_auto_macros = false
+            else
+                push!(cell_macro_calls, mac_call)
+            end
+            line_no += 1
+        end
+        code = join((@view lines[line_no:end]), '\n')
+    end
+
+    # Apply macros to ast
+    mod = current_module[]
+    file = "In[$n]"
+
+    ast = parse_file(code, file, false)
+    # More compatible?
+    #ast = Meta.parse("begin\n$(code)\nend", raise=false)
+    ## Make block top level
+    #if Meta.isexpr(ast, :block)
+    #    ast.head = :toplevel
+    #    line_node = LineNumberNode(line_no, file)
+    #    push!(ast.args, 1, line_node)
+    #end
+
+    for mac_call in Iterators.reverse(cell_macro_calls)
+        push!(mac_call.args, ast)
+        ast = macroexpand(mod, mac_call, recursive=false)
+    end
+    if do_auto_macros
+        if SOFTSCOPE[]
+            ast = _apply_macro(var"@softscope", ast, mod)
+        end
+        for mac in Iterators.reverse(cell_macros)
+            ast = _apply_macro(mac, ast, mod)
+        end
+    end
+
+    # Run
+    Base.eval(mod, ast)
+end
+
+function _apply_macro(mac, ast, mod)
+    macro_expr = :(@macro_placehoder $ast)
+    @assert Meta.isexpr(macro_expr, :macrocall)
+    macro_expr.args[1] = mac
+    macroexpand(mod, macro_expr, recursive=false)
+end
+
+"""
+    parse_file(content, fname; raise=true, depwarn=true)
+
+Parse the entire string as a file, reading multiple expressions.  Equivalent to
+`Meta.parse()` but for more than one expression.
+"""
+function parse_file(content::AbstractString, fname::AbstractString,
+                    raise::Bool=true, depwarn::Bool=true)
+    # returns (expr, end_pos). expr is () in case of parse error.
+    bcontent = String(content)
+    bfname = String(fname)
+    # For now, assume all parser warnings are depwarns
+    ex = Meta.with_logger(depwarn ? Meta.current_logger() : Meta.NullLogger()) do
+        ccall(:jl_parse_all, Any,
+              (Ptr{UInt8}, Csize_t, Ptr{UInt8}, Csize_t),
+              bcontent, sizeof(bcontent), fname, sizeof(fname))
+    end
+    if raise && Meta.isexpr(ex, :error)
+        throw(ParseError(ex.args[1]))
+    end
+    ex
+end
+
 function execute_request(socket, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
@@ -72,8 +163,7 @@ function execute_request(socket, msg)
         else
             #run the code!
             occursin(magics_regex, code) && match(magics_regex, code).offset == 1 ? magics_help(code) :
-                SOFTSCOPE[] ? softscope_include_string(current_module[], code, "In[$n]") :
-                include_string(current_module[], code, "In[$n]")
+                run_cell_code(code)
         end
 
         if silent
