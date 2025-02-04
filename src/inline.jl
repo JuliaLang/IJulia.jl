@@ -1,9 +1,14 @@
 import Base: display, redisplay
 
+"""
+Struct to dispatch on for inline display.
+"""
 struct InlineDisplay <: AbstractDisplay end
 
-# supported MIME types for inline display in IPython, in descending order
-# of preference (descending "richness")
+"""
+Supported MIME types for inline display in IPython, in descending order
+of preference (descending "richness").
+"""
 const ipy_mime = [
     "application/vnd.dataresource+json",
     ["application/vnd.vegalite.v$n+json" for n in 4:-1:2]...,
@@ -19,21 +24,31 @@ const ipy_mime = [
     "application/javascript"
 ]
 
-# need special handling for showing a string as a textmime
-# type, since in that case the string is assumed to be
-# raw data unless it is text/plain
+"""
+Need special handling for showing a string as a textmime type, since in that
+case the string is assumed to be raw data unless it is text/plain.
+"""
 israwtext(m::MIME, x::AbstractString) = !showable(m, x)
 israwtext(::MIME"text/plain", x::AbstractString) = false
 israwtext(::MIME, x) = false
 
+"""
+    InlineIOContext(io, KVs::Pair...)
+
+Create an `IOContext` for inline display.
+"""
 InlineIOContext(io, KVs::Pair...) = IOContext(
     io,
     :limit=>true, :color=>true, :jupyter=>true,
     KVs...
 )
 
-# convert x to a string of type mime, making sure to use an
-# IOContext that tells the underlying show function to limit output
+"""
+    limitstringmime(mime::MIME, x, forcetext=false)
+
+Convert x to a string of type mime, making sure to use an IOContext that tells
+the underlying show function to limit output.
+"""
 function limitstringmime(mime::MIME, x, forcetext=false)
     buf = IOBuffer()
     if forcetext || istextmime(mime)

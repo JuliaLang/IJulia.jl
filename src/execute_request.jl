@@ -24,6 +24,13 @@ import REPL: helpmode
 # use a global array to accumulate "payloads" for the execute_reply message
 const execute_payloads = Dict[]
 
+"""
+    execute_request(socket, msg)
+
+Handle a [execute
+request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#execute).
+This will execute Julia code, along with Pkg and shell commands.
+"""
 function execute_request(socket, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)

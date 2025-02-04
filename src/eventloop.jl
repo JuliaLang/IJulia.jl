@@ -1,3 +1,9 @@
+"""
+    eventloop(socket)
+
+Generic event loop for one of the [kernel
+sockets](https://jupyter-client.readthedocs.io/en/latest/messaging.html#introduction).
+"""
 function eventloop(socket)
     task_local_storage(:IJulia_task, "write task")
     try
@@ -33,6 +39,13 @@ function eventloop(socket)
 end
 
 const requests_task = Ref{Task}()
+
+"""
+    waitloop()
+
+Main loop of a kernel. Runs the event loops for the control and shell sockets
+(note: in IJulia the shell socket is called `requests`).
+"""
 function waitloop()
     @async eventloop(control[])
     requests_task[] = @async eventloop(requests[])

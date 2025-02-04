@@ -2,7 +2,9 @@ import Base.show
 
 export Msg, msg_pub, msg_reply, send_status, send_ipython
 
-# IPython message structure
+"""
+IPython message struct.
+"""
 mutable struct Msg
     idents::Vector{String}
     header::Dict
@@ -15,6 +17,11 @@ mutable struct Msg
     end
 end
 
+"""
+    msg_header(m::Msg, msg_type::String)
+
+Create a header for a [`Msg`](@ref).
+"""
 msg_header(m::Msg, msg_type::String) = Dict("msg_id" => uuid4(),
                                             "username" => m.header["username"],
                                             "session" => m.header["session"],
@@ -40,6 +47,11 @@ function show(io::IO, msg::Msg)
     print(io, " ] {\n  parent_header = $(msg.parent_header),\n  header = $(msg.header),\n  metadata = $(msg.metadata),\n  content = $(msg.content)\n}")
 end
 
+"""
+    send_ipython(socket, m::Msg)
+
+Send a message `m`. This will lock `socket`.
+"""
 function send_ipython(socket, m::Msg)
     lock(socket_locks[socket])
     try
@@ -62,6 +74,11 @@ function send_ipython(socket, m::Msg)
     end
 end
 
+"""
+    recv_ipython(socket)
+
+Wait for and get a message. This will lock `socket`.
+"""
 function recv_ipython(socket)
     lock(socket_locks[socket])
     try
@@ -90,6 +107,11 @@ function recv_ipython(socket)
     end
 end
 
+"""
+    send_status(state::AbstractString, parent_msg::Msg=execute_msg)
+
+Publish a status message.
+"""
 function send_status(state::AbstractString, parent_msg::Msg=execute_msg)
     send_ipython(publish[], Msg([ "status" ], msg_header(parent_msg, "status"),
                                 Dict("execution_state" => state), parent_msg.header))

@@ -1,14 +1,17 @@
+import Changelog
 using Documenter, IJulia
 
-# Copy assets from `deps` directory
-path_assets = joinpath(@__DIR__, "src/assets")
-path_deps = joinpath(@__DIR__, "../deps")
-mkpath(path_assets)
-cp(joinpath(path_deps, "ijuliafavicon.ico"), joinpath(path_assets, "favicon.ico"), force=true)
-cp(joinpath(path_deps, "ijulialogo.svg"), joinpath(path_assets, "logo.svg"), force=true)
+# Build the changelog
+Changelog.generate(
+    Changelog.Documenter(),
+    joinpath(@__DIR__, "src/_changelog.md"),
+    joinpath(@__DIR__, "src/changelog.md"),
+    repo="JuliaLang/IJulia.jl"
+)
 
 # Make docs to `docs/build` directory
-makedocs(
+makedocs(;
+    repo=Remotes.GitHub("JuliaLang", "IJulia.jl"),
     modules=[IJulia],
     sitename="IJulia",
     format=Documenter.HTML(;
@@ -27,8 +30,8 @@ makedocs(
             "library/public.md",
             "library/internals.md",
         ],
-    ],
-    warnonly=true,
+        "changelog.md"
+    ]
 )
 
 # Deploy docs

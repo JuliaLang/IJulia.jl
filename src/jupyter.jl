@@ -9,6 +9,12 @@ import Conda
 
 isyes(s) = isempty(s) || lowercase(strip(s)) in ("y", "yes")
 
+"""
+    find_jupyter_subcommand(subcommand::AbstractString, port::Union{Nothing,Int}=nothing)
+
+Return a `Cmd` for the program `subcommand`. If the program is `jupyter` or
+`jupyterlab` it may prompt the user to install it.
+"""
 function find_jupyter_subcommand(subcommand::AbstractString, port::Union{Nothing,Int}=nothing)
     jupyter = JUPYTER
     if jupyter == "jupyter" || jupyter == "jupyter.exe" # look in PATH
@@ -45,6 +51,12 @@ end
 
 ##################################################################
 
+"""
+    launch(cmd, dir, detached)
+
+Run `cmd` in `dir`. If `detached` is `false` it will not wait for the command to
+finish.
+"""
 function launch(cmd, dir, detached)
     @info("running $cmd")
     if Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
@@ -122,6 +134,12 @@ function jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=no
     return launch(lab, dir, detached)
 end
 
+"""
+    qtconsole()
+
+Launches [qtconsole](https://qtconsole.readthedocs.io) for the current
+kernel. IJulia must be initialized already.
+"""
 function qtconsole()
     qtconsole = find_jupyter_subcommand("qtconsole")
     if inited

@@ -45,6 +45,13 @@ const socket_locks = Dict{Socket,ReentrantLock}()
     const minirepl = Ref{MiniREPL}()
 end
 
+"""
+    init(args)
+
+Initialize a kernel. `args` may either be empty or have one element containing
+the path to an existing connection file. If `args` is empty a connection file
+will be generated.
+"""
 function init(args)
     inited && error("IJulia is already running")
     if length(args) > 0

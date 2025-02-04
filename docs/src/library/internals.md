@@ -35,7 +35,6 @@ IJulia.send_status
 ## Request handlers
 
 ```@docs
-IJulia.handlers
 IJulia.connect_request
 IJulia.execute_request
 IJulia.shutdown_request

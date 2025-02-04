@@ -108,6 +108,12 @@ function complete_types(comps)
     return typeMap
 end
 
+"""
+    complete_request(socket, msg)
+
+Handle a [completion
+request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#completion).
+"""
 function complete_request(socket, msg)
     code = msg.content["code"]
     cursor_chr = msg.content["cursor_pos"]
@@ -153,6 +159,12 @@ function complete_request(socket, msg)
                                                   "cursor_end" => cursor_end)))
 end
 
+"""
+    kernel_info_request(socket, msg)
+
+Handle a [kernel info
+request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-info).
+"""
 function kernel_info_request(socket, msg)
     send_ipython(socket,
                  msg_reply(msg, "kernel_info_reply",
@@ -179,21 +191,34 @@ function kernel_info_request(socket, msg)
                                         "status" => "ok")))
 end
 
+"""
+    connect_request(socket, msg)
+
+Handle a [connect
+request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#connect).
+"""
 function connect_request(socket, msg)
     send_ipython(requests[],
                  msg_reply(msg, "connect_reply",
                            Dict("shell_port" => profile["shell_port"],
-                                        "iopub_port" => profile["iopub_port"],
-                                        "stdin_port" => profile["stdin_port"],
-                                        "hb_port" => profile["hb_port"])))
+                                "iopub_port" => profile["iopub_port"],
+                                "stdin_port" => profile["stdin_port"],
+                                "hb_port" => profile["hb_port"])))
 end
 
+"""
+    shutdown_request(socket, msg)
+
+Handle a [shutdown
+request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-shutdown). After
+sending the reply this will exit the process.
+"""
 function shutdown_request(socket, msg)
     # stop heartbeat thread by closing the context
     close(heartbeat_context[])
 
     send_ipython(requests[], msg_reply(msg, "shutdown_reply",
-                                     msg.content))
+                                       msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
     exit()
 end
@@ -235,6 +260,12 @@ function get_token(code, pos)
     return code[startpos:endpos]
 end
 
+"""
+    inspect_request(socket, msg)
+
+Handle a [introspection
+request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#introspection).
+"""
 function inspect_request(socket, msg)
     try
         code = msg.content["code"]
@@ -256,6 +287,13 @@ function inspect_request(socket, msg)
     end
 end
 
+"""
+    history_request(socket, msg)
+
+Handle a [history
+request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#history). This
+is currently only a dummy implementation that doesn't actually do anything.
+"""
 function history_request(socket, msg)
     # we will just send back empty history for now, pending clarification
     # as requested in ipython/ipython#3806
@@ -264,6 +302,12 @@ function history_request(socket, msg)
                            Dict("history" => [])))
 end
 
+"""
+    is_complete_request(socket, msg)
+
+Handle a [completeness
+request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#code-completeness).
+"""
 function is_complete_request(socket, msg)
     ex = Meta.parse(msg.content["code"], raise=false)
     status = Meta.isexpr(ex, :incomplete) ? "incomplete" : Meta.isexpr(ex, :error) ? "invalid" : "complete"
@@ -272,6 +316,13 @@ function is_complete_request(socket, msg)
                            Dict("status"=>status, "indent"=>"")))
 end
 
+"""
+    interrupt_request(socket, msg)
+
+Handle a [interrupt
+request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-interrupt). This
+will throw an `InterruptException` to the currently executing request handler.
+"""
 function interrupt_request(socket, msg)
     @async Base.throwto(requests_task[], InterruptException())
     send_ipython(socket, msg_reply(msg, "interrupt_reply", Dict()))
