@@ -2,16 +2,18 @@ using Test
 import IJulia: Comm, comm_target
 
 @testset "comm" begin
+    kernel = IJulia.Kernel()
+
     target = :notarget
     comm_id = "6BA197D8A67A455196279A59EB2FE844"
-    comm = Comm(target, comm_id, false)
+    comm = Comm(target, comm_id, false; kernel)
     @test :notarget == comm_target(comm)
     @test !comm.primary
 
 
     # comm_info_request in comm_manager.jl
     comms = Dict{String, Comm}(
-        "id" => Comm(Symbol("jupyter.widget"), "id", false)
+        "id" => Comm(Symbol("jupyter.widget"), "id", false; kernel)
     )
     msg_content = Dict("target_name" => "jupyter.widget")
     reply = if haskey(msg_content, "target_name")
