@@ -4,8 +4,6 @@
 # call in libzmq, which simply blocks forever, so the usual lack of
 # thread safety in Julia should not be an issue here.
 
-const threadid = zeros(Int, 128) # sizeof(uv_thread_t) <= 8 on Linux, OSX, Win
-
 # entry point for new thread
 function heartbeat_thread(heartbeat::Ptr{Cvoid})
     @static if VERSION ≥ v"1.9.0-DEV.1588" # julia#46609
@@ -24,8 +22,8 @@ function heartbeat_thread(heartbeat::Ptr{Cvoid})
     return ret
 end
 
-function start_heartbeat(heartbeat)
+function start_heartbeat(heartbeat, kernel)
     heartbeat_c = @cfunction(heartbeat_thread, Cint, (Ptr{Cvoid},))
     ccall(:uv_thread_create, Cint, (Ptr{Int}, Ptr{Cvoid}, Ptr{Cvoid}),
-          threadid, heartbeat_c, heartbeat)
+          kernel.heartbeat_threadid, heartbeat_c, heartbeat)
 end
