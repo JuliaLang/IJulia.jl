@@ -117,12 +117,12 @@ function complete_types(comps)
 end
 
 """
-    complete_request(socket, msg)
+    complete_request(socket, kernel, msg)
 
 Handle a [completion
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#completion).
 """
-function complete_request(socket, msg)
+function complete_request(socket, kernel, msg)
     code = msg.content["code"]
     cursor_chr = msg.content["cursor_pos"]
     cursorpos = chr2ind(msg, code, cursor_chr)
@@ -131,7 +131,7 @@ function complete_request(socket, msg)
     cursorpos = min(cursorpos, lastindex(code))
 
     if all(isspace, code[1:cursorpos])
-        send_ipython(requests[], msg_reply(msg, "complete_reply",
+        send_ipython(kernel.requests[], kernel, msg_reply(msg, "complete_reply",
                                  Dict("status" => "ok",
                                               "metadata" => Dict(),
                                               "matches" => String[],
@@ -141,7 +141,7 @@ function complete_request(socket, msg)
     end
 
     codestart = find_parsestart(code, cursorpos)
-    comps_, positions, should_complete = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1, current_module[])
+    comps_, positions, should_complete = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1, kernel.current_module)
     comps = unique!(repl_completion_text.(comps_))
     # positions = positions .+ (codestart - 1) on Julia 0.7
     positions = (first(positions) + codestart - 1):(last(positions) + codestart - 1)
@@ -163,7 +163,7 @@ function complete_request(socket, msg)
             pushfirst!(comps, code[positions])
         end
     end
-    send_ipython(requests[], msg_reply(msg, "complete_reply",
+    send_ipython(kernel.requests[], kernel, msg_reply(msg, "complete_reply",
                                      Dict("status" => "ok",
                                                   "matches" => comps,
                                                   "metadata" => metadata,
@@ -172,13 +172,13 @@ function complete_request(socket, msg)
 end
 
 """
-    kernel_info_request(socket, msg)
+    kernel_info_request(socket, kernel, msg)
 
 Handle a [kernel info
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-info).
 """
-function kernel_info_request(socket, msg)
-    send_ipython(socket,
+function kernel_info_request(socket, kernel, msg)
+    send_ipython(socket, kernel,
                  msg_reply(msg, "kernel_info_reply",
                            Dict("protocol_version" => "5.4",
                                         "implementation" => "ijulia",
@@ -204,13 +204,13 @@ function kernel_info_request(socket, msg)
 end
 
 """
-    connect_request(socket, msg)
+    connect_request(socket, kernel, msg)
 
 Handle a [connect
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#connect).
 """
-function connect_request(socket, msg)
-    send_ipython(requests[],
+function connect_request(socket, kernel, msg)
+    send_ipython(kernel.requests[], kernel,
                  msg_reply(msg, "connect_reply",
                            Dict("shell_port" => profile["shell_port"],
                                 "iopub_port" => profile["iopub_port"],
@@ -219,15 +219,15 @@ function connect_request(socket, msg)
 end
 
 """
-    shutdown_request(socket, msg)
+    shutdown_request(socket, kernel, msg)
 
 Handle a [shutdown
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-shutdown). After
 sending the reply this will exit the process.
 """
-function shutdown_request(socket, msg)
+function shutdown_request(socket, kernel, msg)
     # stop heartbeat thread
-    stop_heartbeat(heartbeat[], heartbeat_context[])
+    stop_heartbeat(kernel)
 
     # Shutdown the `requests` socket handler before sending any messages. This
     # is necessary because otherwise the event loop will be calling
@@ -235,12 +235,12 @@ function shutdown_request(socket, msg)
     # deadlock when we try to send a message to it from the `control` socket
     # handler.
     global _shutting_down[] = true
-    @async Base.throwto(requests_task[], InterruptException())
+    @async Base.throwto(kernel.requests_task[], InterruptException())
 
-    send_ipython(requests[], msg_reply(msg, "shutdown_reply",
-                                       msg.content))
+    send_ipython(kernel.requests[], kernel,
+                 msg_reply(msg, "shutdown_reply", msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
-    exit()
+    kernel.shutdown()
 end
 
 docdict(s::AbstractString) = display_dict(Core.eval(Main, helpmode(devnull, s)))
@@ -375,12 +375,12 @@ function get_token(code, pos)
 end
 
 """
-    inspect_request(socket, msg)
+    inspect_request(socket, kernel, msg)
 
 Handle a [introspection
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#introspection).
 """
-function inspect_request(socket, msg)
+function inspect_request(socket, kernel, msg)
     try
         code = msg.content["code"]
         s = get_token(code, chr2ind(msg, code, msg.content["cursor_pos"]))
@@ -392,57 +392,57 @@ function inspect_request(socket, msg)
                            "found" => !isempty(d),
                            "data" => d)
         end
-        send_ipython(requests[], msg_reply(msg, "inspect_reply", content))
+        send_ipython(kernel.requests[], kernel, msg_reply(msg, "inspect_reply", content))
     catch e
         content = error_content(e, backtrace_top=:inspect_request);
         content["status"] = "error"
-        send_ipython(requests[],
+        send_ipython(kernel.requests[], kernel,
                      msg_reply(msg, "inspect_reply", content))
     end
 end
 
 """
-    history_request(socket, msg)
+    history_request(socket, kernel, msg)
 
 Handle a [history
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#history). This
 is currently only a dummy implementation that doesn't actually do anything.
 """
-function history_request(socket, msg)
+function history_request(socket, kernel, msg)
     # we will just send back empty history for now, pending clarification
     # as requested in ipython/ipython#3806
-    send_ipython(requests[],
+    send_ipython(kernel.requests[], kernel,
                  msg_reply(msg, "history_reply",
                            Dict("history" => [])))
 end
 
 """
-    is_complete_request(socket, msg)
+    is_complete_request(socket, kernel, msg)
 
 Handle a [completeness
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#code-completeness).
 """
-function is_complete_request(socket, msg)
+function is_complete_request(socket, kernel, msg)
     ex = Meta.parse(msg.content["code"], raise=false)
     status = Meta.isexpr(ex, :incomplete) ? "incomplete" : Meta.isexpr(ex, :error) ? "invalid" : "complete"
-    send_ipython(requests[],
+    send_ipython(kernel.requests[], kernel,
                  msg_reply(msg, "is_complete_reply",
                            Dict("status"=>status, "indent"=>"")))
 end
 
 """
-    interrupt_request(socket, msg)
+    interrupt_request(socket, kernel, msg)
 
 Handle a [interrupt
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-interrupt). This
 will throw an `InterruptException` to the currently executing request handler.
 """
-function interrupt_request(socket, msg)
-    @async Base.throwto(requests_task[], InterruptException())
-    send_ipython(socket, msg_reply(msg, "interrupt_reply", Dict()))
+function interrupt_request(socket, kernel, msg)
+    @async Base.throwto(kernel.requests_task[], InterruptException())
+    send_ipython(socket, kernel, msg_reply(msg, "interrupt_reply", Dict()))
 end
 
-function unknown_request(socket, msg)
+function unknown_request(socket, kernel, msg)
     @vprintln("UNKNOWN MESSAGE TYPE $(msg.header["msg_type"])")
 end
 

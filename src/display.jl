@@ -137,13 +137,10 @@ function display_dict(x)
 
 end
 
-# queue of objects to display at end of cell execution
-const displayqueue = Any[]
-
 # remove x from the display queue
-function undisplay(x)
-    i = findfirst(isequal(x), displayqueue)
-    i !== nothing && splice!(displayqueue, i)
+function undisplay(x, kernel)
+    i = findfirst(isequal(x), kernel.displayqueue)
+    i !== nothing && splice!(kernel.displayqueue, i)
     return x
 end
 

@@ -72,9 +72,10 @@ end
 for mime in ipy_mime
     @eval begin
         function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
+            kernel = _default_kernel
             flush_all() # so that previous stream output appears in order
-            send_ipython(publish[],
-                         msg_pub(execute_msg, "display_data",
+            send_ipython(kernel.publish[], kernel,
+                         msg_pub(kernel.execute_msg, "display_data",
                                  Dict(
                                   "metadata" => metadata(x), # optional
                                   "transient" => transient(x), # optional
@@ -94,13 +95,14 @@ display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("applic
 # the display message, also sending text/plain for text data.
 displayable(d::InlineDisplay, M::MIME) = istextmime(M)
 function display(d::InlineDisplay, M::MIME, x)
+    kernel = _default_kernel
     sx = limitstringmime(M, x)
     d = Dict(string(M) => sx)
     if istextmime(M)
         d["text/plain"] = sx # directly show text data, e.g. text/csv
     end
     flush_all() # so that previous stream output appears in order
-    send_ipython(publish[],
+    send_ipython(kernel.publish[], kernel,
                  msg_pub(execute_msg, "display_data",
                          Dict("metadata" => metadata(x), # optional
                               "transient" => transient(x), # optional
@@ -110,10 +112,11 @@ end
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
-    undisplay(x) # dequeue previous redisplay(x)
+    kernel = _default_kernel
+    undisplay(x, kernel) # dequeue previous redisplay(x)
     flush_all() # so that previous stream output appears in order
-    send_ipython(publish[],
-                 msg_pub(execute_msg, "display_data",
+    send_ipython(kernel.publish[], kernel,
+                 msg_pub(kernel.execute_msg, "display_data",
                          Dict("metadata" => metadata(x), # optional
                               "transient" => transient(x), # optional
                               "data" => display_dict(x))))
@@ -124,15 +127,16 @@ end
 # an input cell has finished executing.
 
 function redisplay(d::InlineDisplay, x)
-    if !in(x,displayqueue)
-        push!(displayqueue, x)
+    kernel = _default_kernel
+    if !in(x, kernel.displayqueue)
+        push!(kernel.displayqueue, x)
     end
 end
 
-function display()
-    q = copy(displayqueue)
-    empty!(displayqueue) # so that undisplay in display(x) is no-op
+function display(kernel::Kernel)
+    q = copy(kernel.displayqueue)
+    empty!(kernel.displayqueue) # so that undisplay in display(x) is no-op
     for x in q
-        display(x)
+        display(x, kernel)
     end
 end

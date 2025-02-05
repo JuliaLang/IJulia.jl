@@ -7,7 +7,8 @@ function run_kernel()
     ENV["LINES"] = get(ENV, "LINES", 30)
     ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
 
-    IJulia.init(ARGS)
+    println(IJulia.orig_stdout[], "Starting kernel event loops.")
+    IJulia.init(ARGS, IJulia.Kernel())
 
     let startupfile = !isempty(DEPOT_PATH) ? abspath(DEPOT_PATH[1], "config", "startup_ijulia.jl") : ""
         isfile(startupfile) && Base.JLOptions().startupfile != 2 && Base.include(Main, startupfile)
@@ -16,11 +17,6 @@ function run_kernel()
     # import things that we want visible in IJulia but not in REPL's using IJulia
     @eval Main import IJulia: ans, In, Out, clear_history
 
-    pushdisplay(IJulia.InlineDisplay())
-
-    println(IJulia.orig_stdout[], "Starting kernel event loops.")
-    IJulia.watch_stdio()
-
     # check whether Revise is running and as needed configure it to run before every prompt
     if isdefined(Main, :Revise)
         let mode = get(ENV, "JULIA_REVISE", "auto")
@@ -28,5 +24,5 @@ function run_kernel()
         end
     end
 
-    IJulia.waitloop()
+    wait(IJulia._default_kernel)
 end

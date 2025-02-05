@@ -3,21 +3,6 @@ import Base.show
 export Msg, msg_pub, msg_reply, send_status, send_ipython
 
 """
-IPython message struct.
-"""
-mutable struct Msg
-    idents::Vector{String}
-    header::Dict
-    content::Dict
-    parent_header::Dict
-    metadata::Dict
-    function Msg(idents, header::Dict, content::Dict,
-                 parent_header=Dict{String,Any}(), metadata=Dict{String,Any}())
-        new(idents,header,content,parent_header,metadata)
-    end
-end
-
-"""
     msg_header(m::Msg, msg_type::String)
 
 Create a header for a [`Msg`](@ref).
@@ -48,12 +33,12 @@ function show(io::IO, msg::Msg)
 end
 
 """
-    send_ipython(socket, m::Msg)
+    send_ipython(socket, kernel, m::Msg)
 
 Send a message `m`. This will lock `socket`.
 """
-function send_ipython(socket, m::Msg)
-    lock(socket_locks[socket])
+function send_ipython(socket, kernel, m::Msg)
+    lock(kernel.socket_locks[socket])
     try
         @vprintln("SENDING ", m)
         for i in m.idents
@@ -64,23 +49,23 @@ function send_ipython(socket, m::Msg)
         parent_header = json(m.parent_header)
         metadata = json(m.metadata)
         content = json(m.content)
-        send(socket, hmac(header, parent_header, metadata, content), more=true)
+        send(socket, hmac(header, parent_header, metadata, content, kernel), more=true)
         send(socket, header, more=true)
         send(socket, parent_header, more=true)
         send(socket, metadata, more=true)
         send(socket, content)
     finally
-        unlock(socket_locks[socket])
+        unlock(kernel.socket_locks[socket])
     end
 end
 
 """
-    recv_ipython(socket)
+    recv_ipython(socket, kernel)
 
 Wait for and get a message. This will lock `socket`.
 """
-function recv_ipython(socket)
-    lock(socket_locks[socket])
+function recv_ipython(socket, kernel)
+    lock(kernel.socket_locks[socket])
     try
         idents = String[]
         s = recv(socket, String)
@@ -96,23 +81,24 @@ function recv_ipython(socket)
         parent_header = recv(socket, String)
         metadata = recv(socket, String)
         content = recv(socket, String)
-        if signature != hmac(header, parent_header, metadata, content)
+        if signature != hmac(header, parent_header, metadata, content, kernel)
             error("Invalid HMAC signature") # What should we do here?
         end
         m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
         @vprintln("RECEIVED $m")
         return m
     finally
-        unlock(socket_locks[socket])
+        unlock(kernel.socket_locks[socket])
     end
 end
 
 """
-    send_status(state::AbstractString, parent_msg::Msg=execute_msg)
+    send_status(state::AbstractString, kernel, parent_msg::Msg=execute_msg)
 
 Publish a status message.
 """
-function send_status(state::AbstractString, parent_msg::Msg=execute_msg)
-    send_ipython(publish[], Msg([ "status" ], msg_header(parent_msg, "status"),
-                                Dict("execution_state" => state), parent_msg.header))
+function send_status(state::AbstractString, kernel, parent_msg::Msg=kernel.execute_msg)
+    send_ipython(kernel.publish[], kernel,
+                 Msg([ "status" ], msg_header(parent_msg, "status"),
+                     Dict("execution_state" => state), parent_msg.header))
 end

@@ -2,27 +2,13 @@ module CommManager
 
 using IJulia
 
-import IJulia: Msg, uuid4, send_ipython, msg_pub
+import IJulia: Msg, uuid4, send_ipython, msg_pub, Comm
 
-export Comm, comm_target, msg_comm, send_comm, close_comm,
+export comm_target, msg_comm, send_comm, close_comm,
        register_comm, comm_msg, comm_open, comm_close, comm_info_request
 
-mutable struct Comm{target}
-    id::String
-    primary::Bool
-    on_msg::Function
-    on_close::Function
-    function (::Type{Comm{target}})(id, primary, on_msg, on_close) where {target}
-        comm = new{target}(id, primary, on_msg, on_close)
-        comms[id] = comm
-        return comm
-    end
-end
-
-# This dict holds a map from CommID to Comm so that we can
-# pick out the right Comm object when messages arrive
-# from the front-end.
-const comms = Dict{String, Comm}()
+# Global variable kept around for backwards compatibility
+comms::Dict{String, CommManager.Comm} = Dict{String, CommManager.Comm}()
 
 noop_callback(msg) = nothing
 function Comm(target,
@@ -30,13 +16,14 @@ function Comm(target,
               primary=true,
               on_msg=noop_callback,
               on_close=noop_callback;
+              kernel=IJulia._default_kernel,
               data=Dict(),
               metadata=Dict())
-    comm = Comm{Symbol(target)}(id, primary, on_msg, on_close)
+    comm = Comm{Symbol(target)}(id, primary, on_msg, on_close; kernel)
     if primary
         # Request a secondary object be created at the front end
-        send_ipython(IJulia.publish[],
-                     msg_comm(comm, IJulia.execute_msg, "comm_open",
+        send_ipython(kernel.publish[], kernel,
+                     msg_comm(comm, kernel.execute_msg, "comm_open",
                               data, metadata, target_name=string(target)))
     end
     return comm
@@ -44,13 +31,13 @@ end
 
 comm_target(comm :: Comm{target}) where {target} = target
 
-function comm_info_request(sock, msg)
+function comm_info_request(sock, kernel, msg)
     reply = if haskey(msg.content, "target_name")
         t = Symbol(msg.content["target_name"])
-        filter(kv -> comm_target(kv.second) == t, comms)
+        filter(kv -> comm_target(kv.second) == t, kernel.comms)
     else
         # reply with all comms.
-        comms
+        kernel.comms
     end
 
     _comms = Dict{String, Dict{Symbol,Symbol}}()
@@ -59,7 +46,7 @@ function comm_info_request(sock, msg)
     end
     content = Dict(:comms => _comms)
 
-    send_ipython(sock,
+    send_ipython(sock, kernel,
                  msg_reply(msg, "comm_info_reply", content))
 end
 
@@ -76,17 +63,17 @@ function msg_comm(comm::Comm, m::IJulia.Msg, msg_type,
 end
 
 function send_comm(comm::Comm, data::Dict,
-                   metadata::Dict = Dict(); kwargs...)
-    msg = msg_comm(comm, IJulia.execute_msg, "comm_msg", data,
+                   metadata::Dict = Dict(); kernel=IJulia._default_kernel, kwargs...)
+    msg = msg_comm(comm, kernel.execute_msg, "comm_msg", data,
                    metadata; kwargs...)
-    send_ipython(IJulia.publish[], msg)
+    send_ipython(kernel.publish[], kernel, msg)
 end
 
 function close_comm(comm::Comm, data::Dict = Dict(),
-                    metadata::Dict = Dict(); kwargs...)
-    msg = msg_comm(comm, IJulia.execute_msg, "comm_close", data,
+                    metadata::Dict = Dict(); kernel=IJulia._default_kernel, kwargs...)
+    msg = msg_comm(comm, kernel.execute_msg, "comm_close", data,
                    metadata; kwargs...)
-    send_ipython(IJulia.publish[], msg)
+    send_ipython(kernel.publish[], kernel, msg)
 end
 
 function register_comm(comm::Comm, data)
@@ -97,7 +84,7 @@ end
 
 # handlers for incoming comm_* messages
 
-function comm_open(sock, msg)
+function comm_open(sock, kernel, msg)
     if haskey(msg.content, "comm_id")
         comm_id = msg.content["comm_id"]
         if haskey(msg.content, "target_name")
@@ -105,24 +92,24 @@ function comm_open(sock, msg)
             if !haskey(msg.content, "data")
                 msg.content["data"] = Dict()
             end
-            comm = Comm(target, comm_id, false)
+            comm = Comm(target, comm_id, false; kernel)
             invokelatest(register_comm, comm, msg)
-            comms[comm_id] = comm
+            kernel.comms[comm_id] = comm
         else
             # Tear down comm to maintain consistency
             # if a target_name is not present
-            send_ipython(IJulia.publish[],
-                         msg_comm(Comm(:notarget, comm_id),
+            send_ipython(kernel.publish[], kernel,
+                         msg_comm(Comm(:notarget, comm_id, false; kernel),
                                   msg, "comm_close"))
         end
     end
 end
 
-function comm_msg(sock, msg)
+function comm_msg(sock, kernel, msg)
     if haskey(msg.content, "comm_id")
         comm_id = msg.content["comm_id"]
-        if haskey(comms, comm_id)
-            comm = comms[comm_id]
+        if haskey(kernel.comms, comm_id)
+            comm = kernel.comms[comm_id]
         else
             # We don't have that comm open
             return
@@ -135,17 +122,17 @@ function comm_msg(sock, msg)
     end
 end
 
-function comm_close(sock, msg)
+function comm_close(sock, kernel, msg)
     if haskey(msg.content, "comm_id")
         comm_id = msg.content["comm_id"]
-        comm = comms[comm_id]
+        comm = kernel.comms[comm_id]
 
         if !haskey(msg.content, "data")
             msg.content["data"] = Dict()
         end
         comm.on_close(msg)
 
-        delete!(comms, comm.id)
+        delete!(kernel.comms, comm.id)
     end
 end
 

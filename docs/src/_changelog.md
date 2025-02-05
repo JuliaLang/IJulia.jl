@@ -7,6 +7,16 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## Unreleased
+
+### Changed
+- IJulia was completely refactored to minimize global state ([#1145]). This
+  allows for better testing (for the first time we can test kernel execution)
+  and for executing precompilation workloads. We've tried to avoid any breaking
+  changes but it's possible that some packages may be relying on internals that
+  have changed. If you have any problems with this release please open an issue
+  on Github so we can help.
+
 ## [v1.29.2] - 2025-07-29
 
 ### Fixed

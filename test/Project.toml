@@ -1,6 +1,12 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
+ImageShow = "4e3cecfd-b093-5904-9786-8bbb286a6a31"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
