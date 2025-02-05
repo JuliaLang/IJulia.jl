@@ -1,16 +1,13 @@
-using MbedTLS
-const hmacstate = Ref{MbedTLS.MD{true}}()
-
-function hmac(s1,s2,s3,s4)
-    if !isdefined(hmacstate, :x)
+function hmac(s1,s2,s3,s4, kernel)
+    if !isassigned(kernel.hmacstate)
         return ""
     else
-        MbedTLS.reset!(hmacstate[])
+        MbedTLS.reset!(kernel.hmacstate[])
         for s in (s1, s2, s3, s4)
-            write(hmacstate[], s)
+            write(kernel.hmacstate[], s)
         end
         # Take the digest (returned as a byte array) and convert it to hex string representation
-        digest = MbedTLS.finish!(hmacstate[])
+        digest = MbedTLS.finish!(kernel.hmacstate[])
         hexdigest = Vector{UInt8}(undef, length(digest)*2)
         for i = 1:length(digest)
             b = digest[i]
