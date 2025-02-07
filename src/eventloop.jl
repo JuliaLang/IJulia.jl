@@ -43,6 +43,9 @@ function eventloop(socket, kernel)
         # chooses to interrupt the kernel; don't crash on this
         if isa(e, InterruptException)
             eventloop(socket, kernel)
+        elseif isa(e, ZMQ.StateError)
+            # This is almost certainly because of a closed socket
+            return
         else
             rethrow()
         end
