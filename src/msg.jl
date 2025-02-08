@@ -14,6 +14,8 @@ msg_header(m::Msg, msg_type::String) = Dict("msg_id" => uuid4(),
                                             "msg_type" => msg_type,
                                             "version" => "5.4")
 
+Base.VersionNumber(m::Msg) = VersionNumber(m.header["version"])
+
 # PUB/broadcast messages use the msg_type as the ident, except for
 # stream messages which use the stream name (e.g. "stdout").
 # [According to minrk, "this isn't well defined, or even really part

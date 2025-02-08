@@ -237,7 +237,9 @@ function shutdown_request(socket, kernel, msg)
     global _shutting_down[] = true
     @async Base.throwto(kernel.requests_task[], InterruptException())
 
-    send_ipython(kernel.requests[], kernel,
+    # In protocol 5.4 the shutdown reply moved to the control socket
+    shutdown_socket = VersionNumber(msg) >= v"5.4" ? kernel.control[] : kernel.requests[]
+    send_ipython(shutdown_socket, kernel,
                  msg_reply(msg, "shutdown_reply", msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
     kernel.shutdown()
