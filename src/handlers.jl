@@ -392,7 +392,8 @@ function inspect_request(socket, kernel, msg)
             d = docdict(s)
             content = Dict("status" => "ok",
                            "found" => !isempty(d),
-                           "data" => d)
+                           "data" => d,
+                           "metadata" => Dict())
         end
         send_ipython(kernel.requests[], kernel, msg_reply(msg, "inspect_reply", content))
     catch e
