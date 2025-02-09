@@ -108,6 +108,13 @@ function execute_request(socket, kernel, msg)
 
         # flush pending stdio
         flush_all()
+        yield()
+        if haskey(kernel.bufs, "stdout")
+            send_stdout(kernel)
+        end
+        if haskey(kernel.bufs, "stderr")
+            send_stderr(kernel)
+        end
 
         undisplay(result, kernel) # dequeue if needed, since we display result in pyout
         @invokelatest display(kernel) # flush pending display requests
