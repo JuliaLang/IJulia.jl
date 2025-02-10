@@ -351,7 +351,7 @@ clear_history
 function history(io::IO, indices::AbstractVector{<:Integer}; kernel=_default_kernel)
     for n in intersect(indices, 1:kernel.n)
       if haskey(kernel.In, n)
-        print(io, kernel.In[n])
+        println(io, kernel.In[n])
       end
     end
 end
