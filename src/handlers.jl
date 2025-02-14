@@ -222,8 +222,8 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-s
 sending the reply this will exit the process.
 """
 function shutdown_request(socket, kernel, msg)
-    # stop heartbeat thread by closing the context
-    close(kernel.heartbeat_context[])
+    # stop heartbeat thread
+    stop_heartbeat(kernel)
 
     # In protocol 5.4 the shutdown reply moved to the control socket
     shutdown_socket = VersionNumber(msg) >= v"5.4" ? kernel.control[] : kernel.requests[]

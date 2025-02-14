@@ -194,11 +194,13 @@ function Base.close(kernel::Kernel)
     popdisplay()
 
     # Close all sockets
-    close(kernel.publish[])
-    close(kernel.raw_input[])
     close(kernel.requests[])
     close(kernel.control[])
-    close(kernel.heartbeat_context[])
+    close(kernel.publish[])
+    close(kernel.raw_input[])
+
+    # Wait for the heartbeat thread
+    stop_heartbeat(kernel)
 
     # The waitloop should now be ready to exit
     kernel.inited = false
