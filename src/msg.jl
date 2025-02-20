@@ -86,6 +86,16 @@ function recv_ipython(socket, kernel)
         if signature != hmac(header, parent_header, metadata, content, kernel)
             error("Invalid HMAC signature") # What should we do here?
         end
+
+        # Note: don't remove these lines, they're useful for creating a
+        # precompilation workload.
+        # @show idents
+        # @show signature
+        # @show header
+        # @show parent_header
+        # @show metadata
+        # @show content
+
         m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
         @vprintln("RECEIVED $m")
         return m

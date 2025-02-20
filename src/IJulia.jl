@@ -99,6 +99,7 @@ end
 
     capture_stdout::Bool = true
     capture_stderr::Bool = !IJULIA_DEBUG
+    capture_stdin::Bool = true
 
     # This dict holds a map from CommID to Comm so that we can
     # pick out the right Comm object when messages arrive
@@ -188,10 +189,15 @@ function Base.close(kernel::Kernel)
         close(kernel.read_stderr[])
         wait(kernel.watch_stderr_task[])
     end
-    redirect_stdin(orig_stdin[])
+    if kernel.capture_stdin
+        redirect_stdin(orig_stdin[])
+    end
 
     # Reset the logger so that @log statements work and pop the InlineDisplay
-    Logging.global_logger(orig_logger[])
+    if isassigned(orig_logger)
+        # orig_logger seems to not be set during precompilation
+        Logging.global_logger(orig_logger[])
+    end
     popdisplay()
 
     # Close all sockets
@@ -479,5 +485,6 @@ include("handlers.jl")
 include("heartbeat.jl")
 include("inline.jl")
 include("kernel.jl")
+include("precompile.jl")
 
 end # IJulia
