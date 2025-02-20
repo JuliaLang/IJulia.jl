@@ -14,6 +14,7 @@ using Test
 import Sockets
 import Sockets: listenany
 
+import ZMQ
 import PythonCall
 import PythonCall: Py, pyimport, pyconvert, pytype, pystr
 
@@ -30,35 +31,6 @@ import IJulia: Kernel
 # module-global variables.
 import IJulia: ans, In, Out
 
-
-function getports(port_hint, n)
-    ports = Int[]
-
-    for i in 1:n
-        port, server = listenany(Sockets.localhost, port_hint)
-        close(server)
-        push!(ports, port)
-        port_hint = port + 1
-    end
-
-    return ports
-end
-
-function create_profile(port_hint=8080)
-    ports = getports(port_hint, 5)
-
-    Dict(
-        "transport" => "tcp",
-        "ip" => "127.0.0.1",
-        "control_port" => ports[1],
-        "shell_port" => ports[2],
-        "stdin_port" => ports[3],
-        "hb_port" => ports[4],
-        "iopub_port" => ports[5],
-        "signature_scheme" => "hmac-sha256",
-        "key" => "a0436f6c-1916-498b-8eb9-e81ab9368e84"
-    )
-end
 
 function test_py_get!(get_func, result)
     try
@@ -160,7 +132,7 @@ function jupyter_client(f, profile)
 end
 
 @testset "Kernel" begin
-    profile = create_profile()
+    profile = IJulia.create_profile(; key=IJulia._TEST_KEY)
     profile_kwargs = Dict([Symbol(key) => value for (key, value) in profile])
     profile_kwargs[:key] = pystr(profile_kwargs[:key]).encode()
 
