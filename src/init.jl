@@ -1,4 +1,5 @@
 import Random: seed!
+import Sockets
 import Logging
 import Logging: AbstractLogger, ConsoleLogger
 
@@ -30,6 +31,35 @@ end
     const minirepl = Ref{MiniREPL}()
 end
 
+function getports(port_hint, n)
+    ports = Int[]
+
+    for i in 1:n
+        port, server = Sockets.listenany(Sockets.localhost, port_hint)
+        close(server)
+        push!(ports, port)
+        port_hint = port + 1
+    end
+
+    return ports
+end
+
+function create_profile(port_hint=8080; key=uuid4())
+    ports = getports(port_hint, 5)
+
+    Dict(
+        "transport" => "tcp",
+        "ip" => "127.0.0.1",
+        "control_port" => ports[1],
+        "shell_port" => ports[2],
+        "stdin_port" => ports[3],
+        "hb_port" => ports[4],
+        "iopub_port" => ports[5],
+        "signature_scheme" => "hmac-sha256",
+        "key" => key
+    )
+end
+
 """
     init(args, kernel)
 
@@ -48,16 +78,7 @@ function init(args, kernel, profile=nothing)
     else
         # generate profile and save
         let port0 = 5678
-            merge!(kernel.profile, Dict{String,Any}(
-                "ip" => "127.0.0.1",
-                "transport" => "tcp",
-                "stdin_port" => port0,
-                "control_port" => port0+1,
-                "hb_port" => port0+2,
-                "shell_port" => port0+3,
-                "iopub_port" => port0+4,
-                "key" => uuid4()
-            ))
+            merge!(kernel.profile, create_profile(port0))
             fname = "profile-$(getpid()).json"
             kernel.connection_file = "$(pwd())/$fname"
             println("connect ipython with --existing $(kernel.connection_file)")
@@ -111,7 +132,10 @@ function init(args, kernel, profile=nothing)
         kernel.read_stderr[], = redirect_stderr()
         redirect_stderr(IJuliaStdio(stderr, kernel, "stderr"))
     end
-    redirect_stdin(IJuliaStdio(stdin, kernel, "stdin"))
+    if kernel.capture_stdin
+        redirect_stdin(IJuliaStdio(stdin, kernel, "stdin"))
+    end
+
     @static if VERSION < v"1.11"
         minirepl[] = MiniREPL(TextDisplay(stdout))
     end
