@@ -51,6 +51,14 @@ ind2chr(m::Msg, str::String, i::Integer) = i == 0 ? 0 :
 import REPL: REPLCompletions
 import REPL.REPLCompletions: sorted_keywords, emoji_symbols, latex_symbols
 
+if isdefined(REPLCompletions, :named_completion)
+    # julia#54800 (julia 1.12)
+    repl_completion_text(c) = REPLCompletions.named_completion(c).completion::String
+else
+    # julia#26930
+    repl_completion_text(c) = REPLCompletions.completion_text(c)
+end
+
 complete_type(::Type{<:Function}) = "function"
 complete_type(::Type{<:Type}) = "type"
 complete_type(::Type{<:Tuple}) = "tuple"
@@ -130,7 +138,7 @@ function complete_request(socket, msg)
 
     codestart = find_parsestart(code, cursorpos)
     comps_, positions, should_complete = REPLCompletions.completions(code[codestart:end], cursorpos-codestart+1, current_module[])
-    comps = unique!(REPLCompletions.completion_text.(comps_)) # julia#26930
+    comps = unique!(repl_completion_text.(comps_))
     # positions = positions .+ (codestart - 1) on Julia 0.7
     positions = (first(positions) + codestart - 1):(last(positions) + codestart - 1)
     metadata = Dict()
