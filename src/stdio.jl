@@ -78,7 +78,7 @@ function watch_stream(rd::IO, name::AbstractString, kernel)
                     read(rd, nb) # read from libuv/os buffer and discard
                     if kernel.stdio_bytes[] - nb < kernel.max_output_per_request[]
                         send_ipython(kernel.publish[], kernel, msg_pub(execute_msg, "stream",
-                                     Dict("name" => "stderr", "text" => "Excessive output truncated after $(stdio_bytes[]) bytes.")))
+                                     Dict("name" => "stderr", "text" => "Excessive output truncated after $(kernel.stdio_bytes[]) bytes.")))
                     end
                 else
                     write(buf, read(rd, nb))
