@@ -21,7 +21,8 @@ end
 ENV["LINES"] = get(ENV, "LINES", 30)
 ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
 
-IJulia.init(ARGS)
+println("Starting kernel event loops.")
+IJulia.init(ARGS, IJulia.Kernel())
 
 let startupfile = !isempty(DEPOT_PATH) ? abspath(DEPOT_PATH[1], "config", "startup_ijulia.jl") : ""
     isfile(startupfile) && Base.JLOptions().startupfile != 2 && Base.include(Main, startupfile)
@@ -30,12 +31,7 @@ end
 # import things that we want visible in IJulia but not in REPL's using IJulia
 import IJulia: ans, In, Out, clear_history
 
-pushdisplay(IJulia.InlineDisplay())
-
 ccall(:jl_exit_on_sigint, Cvoid, (Cint,), 0)
-
-println(IJulia.orig_stdout[], "Starting kernel event loops.")
-IJulia.watch_stdio()
 
 # workaround JuliaLang/julia#4259
 delete!(task_local_storage(),:SOURCE_PATH)
@@ -50,4 +46,4 @@ if isdefined(Main, :Revise)
     end
 end
 
-IJulia.waitloop()
+wait(IJulia._default_kernel)
