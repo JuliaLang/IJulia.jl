@@ -63,7 +63,8 @@ macro verror_show(e, bt)
 end
 
 #name=>iobuffer for each stream ("stdout","stderr") so they can be sent in flush
-const bufs = Dict{String,IOBuffer}()
+const bufs = Dict{String, IOBuffer}()
+const bufs_locks = Dict{String, ReentrantLock}()
 const stream_interval = 0.1
 # maximum number of bytes in libuv/os buffer before emptying
 const max_bytes = 10*1024
@@ -84,6 +85,7 @@ function watch_stream(rd::IO, name::AbstractString)
     try
         buf = IOBuffer()
         bufs[name] = buf
+        bufs_locks[name] = ReentrantLock()
         while !eof(rd) # blocks until something is available
             nb = bytesavailable(rd)
             if nb > 0
@@ -96,10 +98,10 @@ function watch_stream(rd::IO, name::AbstractString)
                                      Dict("name" => "stderr", "text" => "Excessive output truncated after $(stdio_bytes[]) bytes.")))
                     end
                 else
-                    write(buf, read(rd, nb))
+                    @lock bufs_locks[name] write(buf, read(rd, nb))
                 end
             end
-            if buf.size > 0
+            @lock bufs_locks[name] if buf.size > 0
                 if buf.size >= max_bytes
                     #send immediately
                     send_stream(name)
@@ -143,7 +145,8 @@ end
 
 function send_stream(name::AbstractString)
     buf = bufs[name]
-    if buf.size > 0
+
+    @lock bufs_locks[name] if buf.size > 0
         d = take!(buf)
         n = num_utf8_trailing(d)
         dextra = d[end-(n-1):end]

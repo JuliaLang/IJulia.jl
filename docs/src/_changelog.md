@@ -17,3 +17,5 @@ Changelog](https://keepachangelog.com).
 - The internal heartbeat thread will now shut down cleanly ([#1135],
   [#1144]). This should prevent segfaults upon exit.
 - Various fixes to the messaging code to be compliant with Jupyter ([#1138]).
+- Improved threadsafety of the IO-handling code so that it should be safe to
+  call `flush()` concurrently ([#1149]).
