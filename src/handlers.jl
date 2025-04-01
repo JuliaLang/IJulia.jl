@@ -178,7 +178,7 @@ function kernel_info_request(socket, msg)
                  msg_reply(msg, "kernel_info_reply",
                            Dict("protocol_version" => "5.4",
                                         "implementation" => "ijulia",
-                                        "implementation_version" => pkgversion(@__MODULE__),
+                                        "implementation_version" => string(pkgversion(@__MODULE__)),
                                         "language_info" =>
                                         Dict("name" => "julia",
                                              "version" =>
@@ -222,8 +222,8 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-s
 sending the reply this will exit the process.
 """
 function shutdown_request(socket, msg)
-    # stop heartbeat thread by closing the context
-    close(heartbeat_context[])
+    # stop heartbeat thread
+    stop_heartbeat(heartbeat[], heartbeat_context[])
 
     send_ipython(requests[], msg_reply(msg, "shutdown_reply",
                                        msg.content))
