@@ -9,6 +9,11 @@ Changelog](https://keepachangelog.com).
 
 ## Unreleased
 
+### Added
+- [`notebook()`](@ref) and [`jupyterlab()`](@ref) now support a `verbose`
+  keyword argument to echo output from Jupyter to the terminal, which can be
+  useful when debugging kernels ([#1157]).
+
 ### Fixed
 
 - The Julia major and minor version are no longer appended to a custom
