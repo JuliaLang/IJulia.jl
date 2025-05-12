@@ -5,6 +5,7 @@ import IJulia, JSON
     let kspec = IJulia.installkernel("ijuliatest", "-O3", "-p2",
                     env=Dict("FOO"=>"yes"), specname="Yef1rLr4kXKxq9rbEh3m")
         try
+            @test basename(kspec) == "Yef1rLr4kXKxq9rbEh3m"  # should not contain Julia version suffix
             @test dirname(kspec) == IJulia.kerneldir()
             @test isfile(joinpath(kspec, "kernel.json"))
             @test isfile(joinpath(kspec, "logo-32x32.png"))

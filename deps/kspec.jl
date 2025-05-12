@@ -41,8 +41,10 @@ kerneldir() = joinpath(jupyter_data_dir(), "kernels")
 # simple separators: - hyphen, . period, _ underscore. According to
 #       https://jupyter-client.readthedocs.io/en/stable/kernels.html
 function kernelspec_name(name::AbstractString)
+    debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
     name = replace(lowercase(name), " "=>"-")
-    replace(name, r"[^0-9a-z_\-\.]" => s"_")
+    name = replace(name, r"[^0-9a-z_\-\.]" => s"_")
+    return  name * "-$(VERSION.major).$(VERSION.minor)$debugdesc"
 end
 
 if Sys.iswindows()
@@ -84,7 +86,8 @@ The returned `kernelpath` is the path of the installed kernel directory,
 something like `/...somepath.../kernels/julia-o3-1.6` (in Julia 1.6).  The
 `specname` argument can be passed to alter the name of this directory (which
 defaults to `name` with spaces replaced by hyphens, and special characters
-other than `-` hyphen, `.` period and `_` underscore replaced by `_` underscores).
+other than `-` hyphen, `.` period and `_` underscore replaced by `_` underscores,
+and the Julia major and minor version appended).
 
 You can uninstall the kernel by calling `rm(kernelpath, recursive=true)`.
 
@@ -107,12 +110,14 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
                    specname::AbstractString = kernelspec_name(name),
                    displayname::AbstractString = display_name(name),
                    env::Dict{<:AbstractString}=Dict{String,Any}())
-    # Is IJulia being built from a debug build? If so, add "debug" to the description.
-    debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
+
+    if isnothing(match(r"^[a-zA-Z0-9._-]+$", specname))
+        error("Invalid specname=$(repr(specname)): Must contain only ASCII letters, ASCII numbers, and the simple separators: - hyphen, . period, _ underscore")
+    end
 
     # path of the Jupyter kernelspec directory to install
-    juliakspec = joinpath(kerneldir(), "$specname-$(VERSION.major).$(VERSION.minor)$debugdesc")
-    @info("Installing $name kernelspec in $juliakspec")
+    juliakspec = joinpath(kerneldir(), specname)
+    @info("Installing '$displayname' kernelspec in $juliakspec")
     rm(juliakspec, force=true, recursive=true)
     try
         kernelcmd_array = String[julia.exec..., "-i", "--color=yes"]

@@ -7,6 +7,14 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## Unreleased
+
+### Fixed
+
+- The Julia major and minor version are no longer appended to a custom
+  `specname` in [`installkernel()`](@ref). The default `specname` that derives
+  from `name` and appends the Julia version remains unchanged ([#1154]).
+
 ## [v1.27.0]
 
 ### Added
