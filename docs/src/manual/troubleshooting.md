@@ -15,6 +15,49 @@
 * You can try setting `ENV["JUPYTER"]=""; Pkg.build("IJulia")` to force IJulia to go back to its own Conda-based Jupyter version (if you previously tried a different `jupyter`).
 
 
+## Inspecting and fixing Jupyter kernels
+
+Jupyter notebooks run code by connecting to a [kernel](https://docs.jupyter.org/en/stable/projects/kernels.html). That's exactly what the `IJulia` package provides. Jupyter knows about available kernels through [kernel specs](https://jupyter-client.readthedocs.io/en/stable/kernels.html#kernel-specs), which are `kernel.json` files inside [Jupyter's data paths](https://docs.jupyter.org/en/stable/use/jupyter-directories.html#data-files). You can list the available kernel specs on the command line with
+
+```sh
+jupyter kernelspec list
+```
+
+Or, explore the data directory relevant to your system, e.g., `~/.local/share/jupyter/kernels`.
+
+Make sure that you can find a Julia kernel. If you can't, run [`IJulia.installkernel`](@ref), e.g., as `import IJulia; IJulia.installkernel("Julia", "--project=@.")` in the Julia REPL.
+
+The `kernel.json` file for the `IJulia` kernel should look something like this:
+
+
+```json
+{
+  "display_name": "Julia 1.11.5",
+  "argv": [
+    "/home/user/.julia/juliaup/julia-1.11.5+0.aarch64.apple.darwin14/bin/julia",
+    "-i",
+    "--color=yes",
+    "--project=@.",
+    "/home/user/.julia/packages/IJulia/XF6bn/src/kernel.jl",
+    "{connection_file}"
+  ],
+  "language": "julia",
+  "env": {},
+  "interrupt_mode": "signal"
+}
+```
+
+Note the reference to the `julia` executable in line 4, and the reference to the `kernel.jl` file in line 8. There isn't much magical about kernels. All that happens when Jupyter starts the kernel based on a specific kernel spec is that it runs the process given by `argv`. That is, it runs `julia` with the given command line arguments. It then expects that it can talk to the resulting process with a specific [messaging protocol](https://jupyter-client.readthedocs.io/en/latest/messaging.html#messaging). Here, the code in `kernel.jl` exposes the implementation of that protocol.
+
+Fundamentally, if the `IJulia` kernel fails to connect, it might be due to any of the following issues:
+
+* The `julia` executable no longer exists (maybe you updated your installed Julia versions).
+* The environment that the `julia` executable runs in does not have the `IJulia` package installed. This is a common error. In general, the `IJulia` package should be installed in the base environment of your Julia installation (what you get when you type `] activate` into the REPL without any further options, or when you simply start the Julia REPL without any options). Note that the `--project=@.` option in the above `kernel.json` falls back to the base environment, so it should generally be safe. If you like to use [shared environments](https://pkgdocs.julialang.org/v1/environments/#Shared-environments), you may want to have a `--project` flag that references that shared environment, and make sure that `IJulia` is installed in that environment.
+* The path to the `kernel.jl` file may no longer be valid (maybe due to installing an update of the `IJulia` package).
+
+You can edit the `kernel.json` file to fix any issues. Or, delete the entire folder containing the `kernel.json` file to start from scratch. This is entirely safe to do, or you could also use `jupyter kernelspec uninstall <name>` from the command line, see `jupyter kernelspec --help`. After deleting an old kernel, simply create a new one, using [`IJulia.installkernel`](@ref) from the Julia REPL.
+
+
 ## Debugging IJulia problems
 
 If IJulia is crashing (e.g. it gives you a "kernel appears to have
