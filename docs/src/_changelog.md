@@ -14,6 +14,12 @@ Changelog](https://keepachangelog.com).
   keyword argument to echo output from Jupyter to the terminal, which can be
   useful when debugging kernels ([#1157]).
 
+### Changed
+- IJulia no longer uses a standalone `kernel.jl` file to launch the kernel, it
+  instead calls a function inside the IJulia module. This means that kernel
+  specs don't use absolute paths anymore and it's not necessary to rebuild
+  IJulia after updating the package ([#1158]).
+
 ### Fixed
 
 - The Julia major and minor version are no longer appended to a custom

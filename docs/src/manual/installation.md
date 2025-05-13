@@ -37,10 +37,10 @@ at the Julia prompt (or in IJulia).
 If you download and install a new version of Julia from the Julia web
 site, you will also probably want to update the packages with
 `Pkg.update()` (in case newer versions of the packages are required
-for the most recent Julia).  In any case, if you install a new Julia
-binary (or do anything that *changes the location of Julia* on your
-computer), you *must* update the IJulia installation (to tell Jupyter
-where to find the new Julia) by running
+for the most recent Julia).  In any case, if you're using the default kernel and
+you install a new Julia binary (or do anything that *changes the location of
+Julia* on your computer), you *must* update the IJulia installation (to tell
+Jupyter where to find the new Julia) by running:
 ```julia
 Pkg.build("IJulia")
 ```
