@@ -52,20 +52,21 @@ end
 ##################################################################
 
 """
-    launch(cmd, dir, detached)
+    launch(cmd, dir, detached, verbose)
 
 Run `cmd` in `dir`. If `detached` is `false` it will not wait for the command to
-finish.
+finish. If `verbose` is `true` then the stdout/stderr from the `cmd` process
+will be echoed to stdout/stderr.
 """
-function launch(cmd, dir, detached)
+function launch(cmd, dir, detached, verbose)
     @info("running $cmd")
-    if Sys.isapple() # issue #551 workaround, remove after macOS 10.12.6 release?
-        withenv("BROWSER"=>"open") do
-            p = run(Cmd(cmd, detach=true, dir=dir); wait=false)
-        end
-    else
-        p = run(Cmd(cmd, detach=true, dir=dir); wait=false)
+
+    cmd = Cmd(cmd, detach=true, dir=dir)
+    if verbose
+        cmd = pipeline(cmd; stdout, stderr)
     end
+    p = run(cmd; wait=false)
+
     if !detached
         try
             wait(p)
@@ -82,7 +83,7 @@ function launch(cmd, dir, detached)
 end
 
 """
-    notebook(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing)
+    notebook(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
 
 The `notebook()` function launches the Jupyter notebook, and is
 equivalent to running `jupyter notebook` at the operating-system
@@ -107,22 +108,26 @@ process manager.)
 When the optional keyword `port` is not `nothing`, open the notebook on the
 given port number.
 
+If `verbose=true` then the stdout/stderr from Jupyter will be echoed to the
+terminal. Try enabling this if you're having problems connecting to a kernel to
+see if there's any useful error messages from Jupyter.
+
 For launching a JupyterLab instance, see [`IJulia.jupyterlab()`](@ref).
 """
-function notebook(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing)
+function notebook(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
     inited && error("IJulia is already running")
     notebook = find_jupyter_subcommand("notebook", port)
     @show notebook
-    return launch(notebook, dir, detached)
+    return launch(notebook, dir, detached, verbose)
 end
 
 """
-    jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing)
+    jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
 
 Similar to [`IJulia.notebook()`](@ref) but launches JupyterLab instead
 of the Jupyter notebook.
 """
-function jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing)
+function jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
     inited && error("IJulia is already running")
     lab = find_jupyter_subcommand("lab", port)
     jupyter = first(lab)
@@ -131,7 +136,7 @@ function jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=no
        isyes(Base.prompt("install JupyterLab via Conda, y/n? [y]"))
         Conda.add("jupyterlab")
     end
-    return launch(lab, dir, detached)
+    return launch(lab, dir, detached, verbose)
 end
 
 """
