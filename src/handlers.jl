@@ -126,6 +126,10 @@ function complete_request(socket, msg)
     code = msg.content["code"]
     cursor_chr = msg.content["cursor_pos"]
     cursorpos = chr2ind(msg, code, cursor_chr)
+    # Ensure that `cursorpos` is within bounds, Jupyter may send a position out
+    # of bounds when autocompletion is enabled.
+    cursorpos = min(cursorpos, lastindex(code))
+
     if all(isspace, code[1:cursorpos])
         send_ipython(requests[], msg_reply(msg, "complete_reply",
                                  Dict("status" => "ok",
