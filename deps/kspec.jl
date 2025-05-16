@@ -123,7 +123,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
         kernelcmd_array = String[julia.exec..., "-i", "--color=yes"]
         append!(kernelcmd_array, julia_options)
         ijulia_dir = get(ENV, "IJULIA_DIR", dirname(@__DIR__)) # support non-Pkg IJulia installs
-        append!(kernelcmd_array, [joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
+        append!(kernelcmd_array, ["-e", "import IJulia; IJulia.run_kernel()", "{connection_file}"])
 
         ks = Dict(
             "argv" => kernelcmd_array,

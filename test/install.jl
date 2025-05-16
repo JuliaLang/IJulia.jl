@@ -14,7 +14,7 @@ import IJulia, JSON
                 debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
                 @test k["display_name"] == "ijuliatest" * " " * Base.VERSION_STRING * debugdesc
                 @test k["argv"][end] == "{connection_file}"
-                @test k["argv"][end-3:end-2] == ["-O3", "-p2"]
+                @test k["argv"][end-4:end-3] == ["-O3", "-p2"]
                 @test k["language"] == "julia"
                 @test k["env"]["FOO"] == "yes"
             end

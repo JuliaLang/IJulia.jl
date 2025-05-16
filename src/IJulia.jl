@@ -321,5 +321,6 @@ include("execute_request.jl")
 include("handlers.jl")
 include("heartbeat.jl")
 include("inline.jl")
+include("kernel.jl")
 
 end # IJulia
