@@ -243,6 +243,11 @@ function get_token(code, pos)
     #   3) if nothing found, do return empty string
     # TODO: detect operators?
 
+    # When autocompletion is enabled and the user is going down the list of the
+    # completions, `pos` may become out of bounds. In this case we set it back
+    # to the last valid index.
+    pos = min(pos, lastindex(code))
+
     startpos = pos
     while startpos > firstindex(code)
         if is_id_char(code[startpos])
