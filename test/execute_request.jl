@@ -2,14 +2,17 @@ using Test
 using Base64, JSON
 
 import IJulia
-import IJulia: helpmode, error_content, docdict
+import IJulia: helpmode, error_content, docdict, get_token
 
 @testset "errors" begin
     content = error_content(UndefVarError(:a))
     @test "UndefVarError" == content["ename"]
 end
 
-@testset "docdict" begin
+@testset "Inspection" begin
+    @test get_token(" rand ", 4) == "rand"
+    @test get_token("rand", 10) == "rand"
+
     @test haskey(docdict("import"), "text/plain")
     @test haskey(docdict("sum"), "text/plain")
 end
