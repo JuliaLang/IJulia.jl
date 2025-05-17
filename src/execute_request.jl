@@ -62,7 +62,7 @@ function execute_request(socket, msg)
 
     # "] ..." cells are interpreted as pkg shell commands
     if occursin(r"^\].*$", code)
-        code = "IJulia.do_pkg_cmd(\"" * escape_string(code[2:end]) * "\")"
+        code = "IJulia.do_pkg_cmd(\"" * escape_string(strip(code[2:end])) * "\")"
     end
 
     # a cell beginning with "? ..." is interpreted as a help request
