@@ -25,6 +25,7 @@ Changelog](https://keepachangelog.com).
 - The Julia major and minor version are no longer appended to a custom
   `specname` in [`installkernel()`](@ref). The default `specname` that derives
   from `name` and appends the Julia version remains unchanged ([#1154]).
+- Fixed adding multiple packages in Pkg mode ([#1160]).
 
 ## [v1.27.0]
 
