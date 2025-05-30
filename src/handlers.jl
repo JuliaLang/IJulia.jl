@@ -126,6 +126,10 @@ function complete_request(socket, msg)
     code = msg.content["code"]
     cursor_chr = msg.content["cursor_pos"]
     cursorpos = chr2ind(msg, code, cursor_chr)
+    # Ensure that `cursorpos` is within bounds, Jupyter may send a position out
+    # of bounds when autocompletion is enabled.
+    cursorpos = min(cursorpos, lastindex(code))
+
     if all(isspace, code[1:cursorpos])
         send_ipython(requests[], msg_reply(msg, "complete_reply",
                                  Dict("status" => "ok",
@@ -242,6 +246,11 @@ function get_token(code, pos)
     #   2) search backwards to find the biggest identifier (including .)
     #   3) if nothing found, do return empty string
     # TODO: detect operators?
+
+    # When autocompletion is enabled and the user is going down the list of the
+    # completions, `pos` may become out of bounds. In this case we set it back
+    # to the last valid index.
+    pos = min(pos, lastindex(code))
 
     startpos = pos
     while startpos > firstindex(code)
