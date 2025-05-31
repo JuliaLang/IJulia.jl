@@ -43,7 +43,7 @@ Fundamentally, if the `IJulia` kernel fails to connect, it is most likely due to
 
 You can edit the `kernel.json` file to fix any issues. Or, delete the entire folder containing the `kernel.json` file to start from scratch. This is entirely safe to do, or you could also use `jupyter kernelspec uninstall <name>` from the command line, see `jupyter kernelspec --help`. After deleting an old kernel, simply create a new one, using [`IJulia.installkernel`](@ref) from the Julia REPL.
 
-For further insight into kernel connection issues, look at the error messages emitted by Jupyter. If you started `jupyter lab` / `jupyter notebook` in the terminal, messages will be printed there, not in the web interface that you access via the browser. For more details, you can pass the `--debug` command line flag to `jupyter`. If you started Jupyter via `IJulia.jupyterlab()` / `IJulia.notebook()`, you must also pass `verbose=true` to see any of the output emitted by `jupyter`, including error messages about connection failures.
+For further insight into kernel connection issues, look at the error messages emitted by Jupyter. If you started `jupyter lab` / `jupyter notebook` in the terminal, messages will be printed there, not in the web interface that you access via the browser. For more details, you can pass the `--debug` command line flag to `jupyter`. If you started Jupyter via `IJulia.jupyterlab()` / `IJulia.notebook()`, you must also pass `verbose=true` to see any of the output emitted by `jupyter`, including error messages about connection failures; cf. [Debugging IJulia problems](@ref), below.
 
 
 
