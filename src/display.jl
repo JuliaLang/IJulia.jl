@@ -166,7 +166,7 @@ function error_content(e, bt=catch_backtrace();
                        msg::AbstractString="")
     tb = map(String, split(sprint(show_bt,
                                         backtrace_top,
-                                        bt, 1:typemax(Int)),
+                                        bt, 1:typemax(Int); context=:color => true),
                                   "\n", keepempty=true))
 
     ename = string(typeof(e))

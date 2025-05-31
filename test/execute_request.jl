@@ -5,8 +5,11 @@ import IJulia
 import IJulia: helpmode, error_content, docdict, get_token
 
 @testset "errors" begin
-    content = error_content(UndefVarError(:a))
+    content = error_content(UndefVarError(:a), backtrace())
     @test "UndefVarError" == content["ename"]
+
+    # Test that ANSI escape codes appear in the traceback for colored output
+    @test occursin("\e[90m", join(content["traceback"], "\n"))
 end
 
 @testset "Inspection" begin
