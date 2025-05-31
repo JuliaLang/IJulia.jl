@@ -117,7 +117,6 @@ For launching a JupyterLab instance, see [`IJulia.jupyterlab()`](@ref).
 function notebook(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
     inited && error("IJulia is already running")
     notebook = find_jupyter_subcommand("notebook", port)
-    @show notebook
     return launch(notebook, dir, detached, verbose)
 end
 
