@@ -7,7 +7,7 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
-## Unreleased
+## [v1.28.0]
 
 ### Added
 - [`notebook()`](@ref) and [`jupyterlab()`](@ref) now support a `verbose`
