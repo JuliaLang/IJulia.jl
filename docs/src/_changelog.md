@@ -19,6 +19,7 @@ Changelog](https://keepachangelog.com).
   instead calls a function inside the IJulia module. This means that kernel
   specs don't use absolute paths anymore and it's not necessary to rebuild
   IJulia after updating the package ([#1158]).
+- Colors in stacktraces are now displayed properly in Jupyter ([#1161]).
 
 ### Fixed
 
