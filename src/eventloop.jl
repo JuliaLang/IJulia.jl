@@ -13,11 +13,14 @@ function eventloop(socket)
                 send_status("busy", msg)
                 invokelatest(get(handlers, msg.header["msg_type"], unknown_request), socket, msg)
             catch e
-                # Try to keep going if we get an exception, but
-                # send the exception traceback to the front-ends.
-                # (Ignore SIGINT since this may just be a user-requested
-                #  kernel interruption to interrupt long calculations.)
-                if !isa(e, InterruptException)
+                if e isa InterruptException && _shutting_down[]
+                    # If we're shutting down, just return immediately
+                    return
+                elseif !isa(e, InterruptException)
+                    # Try to keep going if we get an exception, but
+                    # send the exception traceback to the front-ends.
+                    # (Ignore SIGINT since this may just be a user-requested
+                    #  kernel interruption to interrupt long calculations.)
                     content = error_content(e, msg="KERNEL EXCEPTION")
                     map(s -> println(orig_stderr[], s), content["traceback"])
                     send_ipython(publish[], msg_pub(execute_msg, "error", content))
@@ -28,6 +31,10 @@ function eventloop(socket)
             end
         end
     catch e
+        if _shutting_down[]
+            return
+        end
+
         # the Jupyter manager may send us a SIGINT if the user
         # chooses to interrupt the kernel; don't crash on this
         if isa(e, InterruptException)
