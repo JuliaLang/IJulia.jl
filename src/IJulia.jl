@@ -93,6 +93,8 @@ const capture_stderr = !IJULIA_DEBUG
 set_current_module(m::Module) = current_module[] = m
 const current_module = Ref{Module}(Main)
 
+_shutting_down::Threads.Atomic{Bool} = Threads.Atomic{Bool}(false)
+
 #######################################################################
 include("jupyter.jl")
 #######################################################################

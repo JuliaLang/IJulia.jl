@@ -229,6 +229,14 @@ function shutdown_request(socket, msg)
     # stop heartbeat thread
     stop_heartbeat(heartbeat[], heartbeat_context[])
 
+    # Shutdown the `requests` socket handler before sending any messages. This
+    # is necessary because otherwise the event loop will be calling
+    # `recv_ipython()` and holding a lock on `requests`, which will cause a
+    # deadlock when we try to send a message to it from the `control` socket
+    # handler.
+    global _shutting_down[] = true
+    @async Base.throwto(requests_task[], InterruptException())
+
     send_ipython(requests[], msg_reply(msg, "shutdown_reply",
                                        msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent

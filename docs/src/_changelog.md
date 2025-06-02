@@ -7,6 +7,13 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## [v1.28.1]
+
+### Fixed
+
+- Fixed a deadlock in the `shutdown_request` handler that would cause the kernel
+  to hang when exiting ([#1163]).
+
 ## [v1.28.0]
 
 ### Added
