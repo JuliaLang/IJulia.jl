@@ -58,7 +58,8 @@ Run `cmd` in `dir`. If `detached` is `false` it will not wait for the command to
 finish. If `verbose` is `true` then the stdout/stderr from the `cmd` process
 will be echoed to stdout/stderr.
 """
-function launch(cmd, dir, detached, verbose)
+function launch(cmd, args, dir, detached, verbose)
+    cmd = `$cmd $args`
     @info("running $cmd")
 
     cmd = Cmd(cmd, detach=true, dir=dir)
@@ -88,7 +89,7 @@ function launch(cmd, dir, detached, verbose)
 end
 
 """
-    notebook(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+    notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
 
 The `notebook()` function launches the Jupyter notebook, and is
 equivalent to running `jupyter notebook` at the operating-system
@@ -96,10 +97,11 @@ command-line.    The advantage of launching the notebook from Julia
 is that, depending on how Jupyter was installed, the user may not
 know where to find the `jupyter` executable.
 
-By default, the notebook server is launched in the user's home directory,
-but this location can be changed by passing the desired path in the
-`dir` keyword argument.  e.g. `notebook(dir=pwd())` to use the current
-directory.
+Extra arguments can be passed with the `args` argument,
+e.g. ```notebook(`--help`; verbose=true)``` to see the command help. By default,
+the notebook server is launched in the user's home directory, but this location
+can be changed by passing the desired path in the `dir` keyword argument.
+e.g. `notebook(dir=pwd())` to use the current directory.
 
 By default, `notebook()` does not return; you must hit ctrl-c
 or quit Julia to interrupt it, which halts Jupyter.  So, you
@@ -119,19 +121,19 @@ see if there's any useful error messages from Jupyter.
 
 For launching a JupyterLab instance, see [`IJulia.jupyterlab()`](@ref).
 """
-function notebook(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+function notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
     inited && error("IJulia is already running")
     notebook = find_jupyter_subcommand("notebook", port)
-    return launch(notebook, dir, detached, verbose)
+    return launch(notebook, args, dir, detached, verbose)
 end
 
 """
-    jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+    jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
 
 Similar to [`IJulia.notebook()`](@ref) but launches JupyterLab instead
 of the Jupyter notebook.
 """
-function jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+function jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
     inited && error("IJulia is already running")
     lab = find_jupyter_subcommand("lab", port)
     jupyter = first(lab)
@@ -140,7 +142,7 @@ function jupyterlab(; dir=homedir(), detached=false, port::Union{Nothing,Int}=no
        isyes(Base.prompt("install JupyterLab via Conda, y/n? [y]"))
         Conda.add("jupyterlab")
     end
-    return launch(lab, dir, detached, verbose)
+    return launch(lab, args, dir, detached, verbose)
 end
 
 """

@@ -9,6 +9,10 @@ Changelog](https://keepachangelog.com).
 
 ## Unreleased
 
+### Added
+- Added an `args` argument to [`notebook()`](@ref) and [`jupyterlab()`](@ref) to
+  allow passing custom arguments to the underlying commands ([#1164]).
+
 ### Fixed
 - Fixed handling of the Jupyter process in [`notebook()`](@ref) and
   [`jupyterlab()`](@ref) when Ctrl + C'ing to shutdown the server, now any
