@@ -7,6 +7,13 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## Unreleased
+
+### Fixed
+- Fixed handling of the Jupyter process in [`notebook()`](@ref) and
+  [`jupyterlab()`](@ref) when Ctrl + C'ing to shutdown the server, now any
+  running kernels will be cleanly shutdown as well ([#1165]).
+
 ## [v1.28.1]
 
 ### Fixed

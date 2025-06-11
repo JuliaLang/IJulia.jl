@@ -71,10 +71,15 @@ function launch(cmd, dir, detached, verbose)
         try
             wait(p)
         catch e
+            # SIGTERM will shutdown the server cleanly in a non-interactive
+            # session. SIGINT will just raise an internal exception and not do
+            # any cleanup if the session isn't interactive (i.e. no stdin or
+            # TTY).
+            kill(p)
+
             if isa(e, InterruptException)
-                kill(p, 2) # SIGINT
+                wait(p)
             else
-                kill(p) # SIGTERM
                 rethrow()
             end
         end
