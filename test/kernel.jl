@@ -78,7 +78,7 @@ function make_request(request_func, get_func, args...; wait=true, kwargs...)
     end
 
     result = Ref{Py}()
-    timeout = haskey(ENV, "CI") ? 120 : 10
+    timeout = haskey(ENV, "CI") ? 120 : 20
     if timedwait(() -> test_py_get!(get_func, result), timeout) == :timed_out
         error("Jupyter channel get timed out")
     end

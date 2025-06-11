@@ -204,7 +204,7 @@ function Base.close(kernel::Kernel)
     close(kernel.raw_input[])
     close(kernel.requests[])
     close(kernel.control[])
-    close(kernel.heartbeat_context[])
+    stop_heartbeat(kernel)
 
     # The waitloop should now be ready to exit
     kernel.inited = false
