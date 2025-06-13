@@ -7,7 +7,7 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
-## Unreleased
+## [v1.29.0] - 2025-06-13
 
 ### Added
 - Added an `args` argument to [`notebook()`](@ref) and [`jupyterlab()`](@ref) to
@@ -18,14 +18,14 @@ Changelog](https://keepachangelog.com).
   [`jupyterlab()`](@ref) when Ctrl + C'ing to shutdown the server, now any
   running kernels will be cleanly shutdown as well ([#1165]).
 
-## [v1.28.1]
+## [v1.28.1] - 2025-06-02
 
 ### Fixed
 
 - Fixed a deadlock in the `shutdown_request` handler that would cause the kernel
   to hang when exiting ([#1163]).
 
-## [v1.28.0]
+## [v1.28.0] - 2025-06-01
 
 ### Added
 - [`notebook()`](@ref) and [`jupyterlab()`](@ref) now support a `verbose`
@@ -48,7 +48,7 @@ Changelog](https://keepachangelog.com).
 - Fixed an edge-case in inspection requests that would cause autocompletion to
   not work properly ([#1159]).
 
-## [v1.27.0]
+## [v1.27.0] - 2025-04-01
 
 ### Added
 - [`installkernel()`](@ref) now supports a `displayname` argument to customize
