@@ -26,7 +26,7 @@ in the background that will persist even when you quit Julia.
 This is also useful if you want to keep using the current Julia
 session instead of opening a new one.
 
-```@repl
+```julia
 using IJulia; notebook(detached=true)
 ```
 
