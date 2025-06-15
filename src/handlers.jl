@@ -246,22 +246,39 @@ end
 docdict(s::AbstractString) = display_dict(Core.eval(Main, helpmode(devnull, s)))
 
 import Base: is_id_char, is_id_start_char
-function get_token(code, pos)
-    # given a string and a cursor position, find substring to request
-    # help on by:
-    #   1) searching backwards, skipping invalid identifier chars
-    #        ... search forward for end of identifier
-    #   2) search backwards to find the biggest identifier (including .)
-    #   3) if nothing found, do return empty string
-    # TODO: detect operators?
 
-    # When autocompletion is enabled and the user is going down the list of the
-    # completions, `pos` may become out of bounds. In this case we set it back
-    # to the last valid index.
-    pos = min(pos, lastindex(code))
+"""
+    get_previous_token(code, pos, crossed_parentheses)
 
+Given a string and a cursor position, find substring corresponding to previous token.
+`crossed_parentheses:Int` keeps track of how many parentheses have been crossed.
+A pair of parentheses yields 0 crossing; a '(' add 1; a ')' subtracts 1.
+
+Returns `(startpos, endpos, crossed_parentheses, stop)`
+
+- `startpos` is the start position of the closest potential token before `pos`.
+- `endpos` is end position if said token is can be valid identifier, or `-1` otherwise
+- `crossed_parentheses` is the new count for parentheses.
+- `stop` is true if ';' is hit, denoting the beginning of a clause.
+"""
+function get_previous_token(code, pos, crossed_parentheses)
     startpos = pos
+    separator = false
+    stop = false
     while startpos > firstindex(code)
+        c = code[startpos]
+        if c == '('
+            crossed_parentheses += 1
+            selarator = false
+        elseif c == ')'
+            crossed_parentheses -= 1
+            separator = false
+        elseif c == ';'
+            stop = true
+        elseif !is_id_char(c) && !isspace(c) && !separator
+            separator = true
+            crossed_parentheses = max(0, crossed_parentheses - 1)
+        end
         if is_id_char(code[startpos])
             break
         else
@@ -274,7 +291,7 @@ function get_token(code, pos)
     end
     startpos = startpos < pos ? nextind(code, startpos) : pos
     if !is_id_start_char(code[startpos])
-        return ""
+        return startpos, -1, crossed_parentheses, stop
     end
     while endpos < lastindex(code) && is_id_char(code[endpos])
         endpos = nextind(code, endpos)
@@ -282,7 +299,79 @@ function get_token(code, pos)
     if !is_id_char(code[endpos])
         endpos = prevind(code, endpos)
     end
-    return code[startpos:endpos]
+    return startpos, endpos, crossed_parentheses, stop
+end
+
+"""
+    get_token(code, pos)
+
+Given a string and a cursor position, find substring to request
+help on by:
+
+1. Searching backwards for the closest token (may be invalid)
+2. Keep searching backwards until we find an token before an unbalanced '('
+    a. If (1) is not valid, store the first valid token
+    b. We assume a token before an unbalanced '(' is a function
+3. If we find a possible function token, return this token.
+4. Otherwise, return the last valid token
+
+# Important Note
+
+Tokens are chosen following several empirical observations instead of rigorous rules.
+We assume that the first valid token before left-imbalanced (more '(' than ')') parentheses is the function "closest" to cursor.
+The following examples use '|' to denote cursor, showing observations on parentheses.
+
+- `f()|` has balanced parentheses with nothing within, thus `f` is the desired token.
+- `f(|)` has imbalanced parentheses, thus `f` is the desired token.
+- `f(x|, y)` gives tokens `x` and `f`. `x` has balanced parentheses, while `f` is left-imbalanced. `f` is desired.
+- `f(x)|` returns `f`
+- `f(x, y)|` returns `f`.
+- `f((x|))` returns `f`, as expected
+- `f(x, (|y))` returns `f`. **This is a hack**, as I deduct `crossed_parentheses` whenever a separator is encountered, clamped to 0!
+    Otherwise, `x` would be returned.
+- `f(x, (y|))`, `f(x, (y)|)`, and `f(x, (y))|` all behave as above. Arbitrary nesting of tuples should not cause misbehavior.
+- `expr1 ; expr2`, cursor in `expr2` never causes search in `expr1`
+
+TODO: detect operators? More robust parsing using the Julia parser instead of string hacks?
+"""
+function get_token(code, pos)
+    # Keep cursor in code range
+    pos = max(1, pos)
+    pos = min(pos, lastindex(code))
+
+    crossed_parentheses = 0
+    prev_startpos, prev_endpos, crossed_parentheses, stop =
+        get_previous_token(code, pos, crossed_parentheses)
+    startpos = prev_startpos
+    endpos = prev_endpos # Does not matter
+    last_valid_start = startpos
+    last_valid_end = -1
+    while !stop && startpos > firstindex(code) && crossed_parentheses <= 0
+        pos = prevind(code, startpos)
+        startpos, endpos, crossed_parentheses, stop = get_previous_token(code, pos, crossed_parentheses)
+        if endpos != -1 && last_valid_end == -1
+            last_valid_start = startpos
+            last_valid_end = endpos
+        end
+    end
+
+    token = ""
+    if crossed_parentheses > 0 # Potential function token
+        if endpos != -1 # Function token valid
+            token = code[startpos:endpos]
+        elseif prev_endpos != -1 # Closest token valid
+            token = code[prev_startpos:prev_endpos]
+        elseif last_valid_end != -1 # Another, farther token valid
+            token = code[last_valid_start:last_valid_end]
+        end
+    else # No function token found
+        if prev_endpos != -1 # Closest token valid
+            token = code[prev_startpos:prev_endpos]
+        elseif last_valid_end != -1 # Another, farther token valid
+            token = code[last_valid_start:last_valid_end]
+        end
+    end
+    return token
 end
 
 """

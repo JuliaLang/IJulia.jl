@@ -102,4 +102,6 @@ IJulia.set_verbose
 
 ```@docs
 IJulia.num_utf8_trailing
+IJulia.get_token
+IJulia.get_previous_token
 ```
