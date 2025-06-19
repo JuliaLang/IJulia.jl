@@ -21,7 +21,7 @@ in the folder of a notebook (or in a parent folder of this notebook) will
 therefore automatically become the active project for that notebook.
 Users that don't want this behavior should install an additional IJulia
 kernel without that command line flag (see section
-[Installing additional Julia kernels](@ref)).
+[Installing and customizing kernels](@ref)).
 
 If an existing `Project.toml` file is not found then, by default, an IJulia notebook will try to run a Julia kernel
 with its active project set from the global or default environment (usually of the form `~/.julia/environments/v1.x`).
