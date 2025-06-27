@@ -87,7 +87,7 @@ function complete_type(T::DataType)
 end
 
 #Get typeMap for Jupyter completions
-function complete_types(comps)
+function complete_types(comps, kernel=_default_kernel)
     typeMap = []
     for c in comps
         ctype = ""
@@ -102,7 +102,7 @@ function complete_types(comps)
             expr = Meta.parse(c, raise=false)
             if typeof(expr) == Symbol
                 try
-                    ctype = complete_type(Core.eval(current_module[], :(typeof($expr))))
+                    ctype = complete_type(Core.eval(kernel.current_module, :(typeof($expr))))
                 catch
                 end
             elseif !isa(expr, Expr)
@@ -156,7 +156,7 @@ function complete_request(socket, kernel, msg)
         cursor_start = ind2chr(msg, code, prevind(code, first(positions)))
         cursor_end = ind2chr(msg, code, last(positions))
         if should_complete
-            metadata["_jupyter_types_experimental"] = complete_types(comps)
+            metadata["_jupyter_types_experimental"] = complete_types(comps, kernel)
         else
             # should_complete is false for cases where we only want to show
             # a list of possible completions but not complete, e.g. foo(\t
@@ -212,10 +212,10 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#connect)
 function connect_request(socket, kernel, msg)
     send_ipython(kernel.requests[], kernel,
                  msg_reply(msg, "connect_reply",
-                           Dict("shell_port" => profile["shell_port"],
-                                "iopub_port" => profile["iopub_port"],
-                                "stdin_port" => profile["stdin_port"],
-                                "hb_port" => profile["hb_port"])))
+                           Dict("shell_port" => kernel.profile["shell_port"],
+                                "iopub_port" => kernel.profile["iopub_port"],
+                                "stdin_port" => kernel.profile["stdin_port"],
+                                "hb_port" => kernel.profile["hb_port"])))
 end
 
 """

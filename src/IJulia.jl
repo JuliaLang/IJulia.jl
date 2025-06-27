@@ -78,7 +78,7 @@ mutable struct Comm{target}
     primary::Bool
     on_msg::Function
     on_close::Function
-    function (::Type{Comm{target}})(id, primary, on_msg, on_close; kernel=_default_kernel) where {target}
+    function (::Type{Comm{target}})(id, primary, on_msg, on_close, kernel) where {target}
         comm = new{target}(id, primary, on_msg, on_close)
         kernel.comms[id] = comm
         return comm
@@ -243,6 +243,10 @@ This consists of log messages printed to the terminal window where
 or received by the kernel.   Used for debugging IJulia.
 """
 function set_verbose(v::Bool=true, kernel=_default_kernel)
+    if isnothing(kernel)
+        error("Kernel has not been initialized, cannot set its verbosity.")
+    end
+
     kernel.verbose = v
 end
 
@@ -254,7 +258,13 @@ whether you are in an IJulia notebook, therefore, you can check
 """
 inited::Bool = false
 
-set_current_module(m::Module; kernel=_default_kernel) = kernel.current_module = m
+function set_current_module(m::Module; kernel=_default_kernel)
+    if isnothing(kernel)
+        error("Kernel has not been initialized, cannot set the current module.")
+    end
+
+    kernel.current_module = m
+end
 
 _shutting_down::Threads.Atomic{Bool} = Threads.Atomic{Bool}(false)
 
@@ -386,6 +396,15 @@ history
 # executing an input cell, e.g. to "close" the current plot in Pylab.
 # Modules should only use these if isdefined(Main, IJulia) is true.
 
+function _pop_hook!(f, hooks)
+    hook_idx = findlast(isequal(f), hooks)
+    if isnothing(hook_idx)
+        error("Could not find hook: $(f)")
+    else
+        splice!(hooks, hook_idx)
+    end
+end
+
 """
     push_postexecute_hook(f::Function)
 
@@ -399,8 +418,7 @@ push_postexecute_hook(f::Function; kernel=_default_kernel) = push!(kernel.postex
 Remove a function `f()` from the list of functions to
 execute after executing any notebook cell.
 """
-pop_postexecute_hook(f::Function; kernel=_default_kernel) =
-    splice!(kernel.postexecute_hooks, findlast(isequal(f), kernel.postexecute_hooks))
+pop_postexecute_hook(f::Function; kernel=_default_kernel) = _pop_hook!(f, kernel.postexecute_hooks)
 
 """
     push_preexecute_hook(f::Function)
@@ -415,8 +433,7 @@ push_preexecute_hook(f::Function; kernel=_default_kernel) = push!(kernel.preexec
 Remove a function `f()` from the list of functions to
 execute before executing any notebook cell.
 """
-pop_preexecute_hook(f::Function; kernel=_default_kernel) =
-    splice!(kernel.preexecute_hooks, findlast(isequal(f), kernel.preexecute_hooks))
+pop_preexecute_hook(f::Function; kernel=_default_kernel) = _pop_hook!(f, kernel.preexecute_hooks)
 
 # similar, but called after an error (e.g. to reset plotting state)
 """
@@ -432,8 +449,7 @@ push_posterror_hook(f::Function; kernel=_default_kernel) = push!(kernel.posterro
 Remove a function `f()` from the list of functions to
 execute after an error occurs when a notebook cell is evaluated.
 """
-pop_posterror_hook(f::Function; kernel=_default_kernel) =
-    splice!(kernel.posterror_hooks, findlast(isequal(f), kernel.posterror_hooks))
+pop_posterror_hook(f::Function; kernel=_default_kernel) = _pop_hook!(f, kernel.posterror_hooks)
 
 #######################################################################
 

@@ -19,7 +19,7 @@ function Comm(target,
               kernel=IJulia._default_kernel,
               data=Dict(),
               metadata=Dict())
-    comm = Comm{Symbol(target)}(id, primary, on_msg, on_close; kernel)
+    comm = Comm{Symbol(target)}(id, primary, on_msg, on_close, kernel)
     if primary
         # Request a secondary object be created at the front end
         send_ipython(kernel.publish[], kernel,
