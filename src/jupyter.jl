@@ -151,10 +151,14 @@ end
 Launches [qtconsole](https://qtconsole.readthedocs.io) for the current
 kernel. IJulia must be initialized already.
 """
-function qtconsole()
+function qtconsole(kernel=_default_kernel)
+    if isnothing(kernel)
+        error("IJulia has not been started, cannot run qtconsole")
+    end
+
     qtconsole = find_jupyter_subcommand("qtconsole")
     if inited
-        run(`$qtconsole --existing $connection_file`; wait=false)
+        run(`$qtconsole --existing $(kernel.connection_file)`; wait=false)
     else
         error("IJulia is not running. qtconsole must be called from an IJulia session.")
     end

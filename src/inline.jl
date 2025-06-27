@@ -103,7 +103,7 @@ function display(d::InlineDisplay, M::MIME, x)
     end
     flush_all() # so that previous stream output appears in order
     send_ipython(kernel.publish[], kernel,
-                 msg_pub(execute_msg, "display_data",
+                 msg_pub(kernel.execute_msg, "display_data",
                          Dict("metadata" => metadata(x), # optional
                               "transient" => transient(x), # optional
                               "data" => d)))

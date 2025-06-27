@@ -24,5 +24,5 @@ function run_kernel()
         end
     end
 
-    wait(IJulia._default_kernel)
+    wait(IJulia._default_kernel::Kernel)
 end

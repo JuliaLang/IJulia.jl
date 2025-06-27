@@ -47,7 +47,7 @@ const ijulia_jsonmime_types = Vector{Union{MIME, Vector{MIME}}}([
 Register a new MIME type.
 """
 register_mime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_mime_types, x)
-register_mime(x::AbstractVector{<:MIME}) = push!(ijulia_mime_types, Vector{Mime}(x))
+register_mime(x::AbstractVector{<:MIME}) = push!(ijulia_mime_types, Vector{MIME}(x))
 
 """
     register_jsonmime(x::Union{MIME, Vector{MIME}})
@@ -56,7 +56,7 @@ register_mime(x::AbstractVector{<:MIME}) = push!(ijulia_mime_types, Vector{Mime}
 Register a new JSON MIME type.
 """
 register_jsonmime(x::Union{MIME, Vector{MIME}}) = push!(ijulia_jsonmime_types, x)
-register_jsonmime(x::AbstractVector{<:MIME}) = push!(ijulia_jsonmime_types, Vector{Mime}(x))
+register_jsonmime(x::AbstractVector{<:MIME}) = push!(ijulia_jsonmime_types, Vector{MIME}(x))
 
 # return a String=>Any dictionary to attach as metadata
 # in Jupyter display_data and pyout messages
@@ -178,8 +178,11 @@ function error_content(e, bt=catch_backtrace();
     if !isempty(msg)
         pushfirst!(tb, msg)
     end
-    Dict("ename" => ename, "evalue" => evalue,
-                 "traceback" => tb)
+
+    # Specify the value type as Any because types other than String may be in
+    # the returned JSON.
+    Dict{String, Any}("ename" => ename, "evalue" => evalue,
+                      "traceback" => tb)
 end
 
 #######################################################################
