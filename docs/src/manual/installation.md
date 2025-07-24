@@ -22,6 +22,11 @@
     frontend (Jupyter, JupyterLab, nteract) can use. The kernelspec does not
     install the notebook frontend.
 
+    IJulia respects the standard
+    [`JUPYTER_DATA_DIR`](https://docs.jupyter.org/en/stable/use/jupyter-directories.html#data-files)
+    environment variable, so you can set that before installation if you want
+    the kernel to be installed in a specific location.
+
 !!! warning
     The command, `Pkg.add("IJulia")`, does not install Jupyter
     Notebook itself.
