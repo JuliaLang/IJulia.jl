@@ -10,15 +10,17 @@ notebook()
 ```
 to launch the IJulia notebook in your browser.
 
-The first time you run `notebook()`, it will prompt you
-for whether it should install Jupyter.  Hit enter to
-have it use the [Conda.jl](https://github.com/Luthaf/Conda.jl)
-package to install a minimal Python+Jupyter distribution (via
+The first time you run `notebook()`, it will prompt you for whether it should
+install Jupyter.  Hit enter to have it use the
+[Conda.jl](https://github.com/Luthaf/Conda.jl) package to install a minimal
+Python+Jupyter distribution (via
 [Miniconda](https://www.anaconda.com/docs/getting-started/miniconda/install#quickstart-install-instructions))
-that is private to Julia (not in your `PATH`).
-On Linux, it defaults to looking for `jupyter` in your `PATH` first,
-and only asks to installs the Conda Jupyter if that fails; you can force
-it to use Conda on Linux by setting `ENV["JUPYTER"]=""` during installation (see above).  (In a Debian or Ubuntu  GNU/Linux system, install the package `jupyter-client` to install the system `jupyter`.)
+that is private to Julia (not in your `PATH`).  On Linux, it defaults to looking
+for `jupyter` in your `PATH` first, and only asks to installs the Conda Jupyter
+if that fails; you can force `notebook()` to use an existing environment on
+Linux by setting `ENV["JUPYTER"] = "/path/to/jupyter"` during the installation of
+IJulia (see above).  (In a Debian or Ubuntu GNU/Linux system, install the
+package `jupyter-client` to install the system `jupyter`.)
 
 You can
 use `notebook(detached=true)` to launch a notebook server
