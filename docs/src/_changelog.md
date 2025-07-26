@@ -7,7 +7,7 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
-## Unreleased
+## [v1.29.1] - 2025-07-26
 
 ### Changed
 - Improved the token-finding functionality to return more accurate tooltips when
