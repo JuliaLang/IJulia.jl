@@ -33,6 +33,7 @@ The `IJulia` module is used in three ways
 module IJulia
 export notebook, jupyterlab, installkernel
 
+import SHA
 using ZMQ, JSON, SoftGlobalScope
 import Base.invokelatest
 import Dates
