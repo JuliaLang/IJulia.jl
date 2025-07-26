@@ -12,6 +12,9 @@ Changelog](https://keepachangelog.com).
 ### Changed
 - Improved the token-finding functionality to return more accurate tooltips when
   Shift + Tab is pressed ([#847]).
+- IJulia switched from using MbedTLS.jl to the SHA.jl stdlib. This should not
+  change anything for users except that now only SHA message digests are
+  supported instead of e.g. MD5, and Jupyter uses SHA256 by default ([#1170]).
 
 ## [v1.29.0] - 2025-06-13
 

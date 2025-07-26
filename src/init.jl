@@ -85,10 +85,13 @@ function init(args)
         isempty(signature_scheme) && (signature_scheme = "hmac-sha256")
         sigschm = split(signature_scheme, "-")
         if sigschm[1] != "hmac" || length(sigschm) != 2
-            error("unrecognized signature_scheme $signature_scheme")
+            error("Unrecognized signature_scheme: $(signature_scheme)")
+        elseif !startswith(sigschm[2], "sha")
+            error("Signature schemes other than SHA are not supported on IJulia anymore, requested signature_scheme is: $(signature_scheme)")
         end
-        hmacstate[] = MbedTLS.MD(getfield(MbedTLS, Symbol("MD_", uppercase(sigschm[2]))),
-                                 profile["key"])
+
+        global sha_ctx[] = getproperty(SHA, Symbol(uppercase(sigschm[2]), "_CTX"))()
+        global hmac_key[] = collect(UInt8, profile["key"])
     end
 
     publish[] = Socket(PUB)
