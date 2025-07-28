@@ -39,4 +39,7 @@ using IJulia
         end
     end
 
+    kernel.stdio_bytes = 42
+    IJulia.reset_stdio_count(kernel)
+    @test kernel.stdio_bytes == 0
 end

@@ -45,4 +45,5 @@ IJulia.load_string
 ```@docs
 IJulia.readprompt
 IJulia.set_max_stdio
+IJulia.reset_stdio_count
 ```

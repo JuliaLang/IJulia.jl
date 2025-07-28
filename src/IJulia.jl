@@ -485,6 +485,15 @@ function set_max_stdio(max_output::Integer; kernel)
     kernel.max_output_per_request[] = max_output
 end
 
+"""
+    reset_stdio_count()
+
+Reset the count of the number of bytes written to stdout/stderr. See
+[`set_max_stdio`](@ref) for more details.
+"""
+function reset_stdio_count(kernel=_default_kernel)
+    kernel.stdio_bytes = 0
+end
 
 #######################################################################
 

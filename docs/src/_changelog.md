@@ -9,6 +9,10 @@ Changelog](https://keepachangelog.com).
 
 ## Unreleased
 
+### Added
+- Implemented [`reset_stdio_count()`](@ref) to provide a public API for
+  resetting the stdio count ([#1145]).
+
 ### Changed
 - IJulia was completely refactored to minimize global state ([#1145]). This
   allows for better testing (for the first time we can test kernel execution)
