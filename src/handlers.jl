@@ -269,7 +269,7 @@ function get_previous_token(code, pos, crossed_parentheses)
         c = code[startpos]
         if c == '('
             crossed_parentheses += 1
-            selarator = false
+            separator = false
         elseif c == ')'
             crossed_parentheses -= 1
             separator = false
