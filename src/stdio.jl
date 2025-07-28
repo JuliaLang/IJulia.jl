@@ -75,13 +75,13 @@ function watch_stream(rd::IO, name::AbstractString, kernel)
         while !eof(rd) # blocks until something is available
             nb = bytesavailable(rd)
             if nb > 0
-                kernel.stdio_bytes[] += nb
+                kernel.stdio_bytes += nb
                 # if this stream has surpassed the maximum output limit then ignore future bytes
-                if kernel.stdio_bytes[] >= kernel.max_output_per_request[]
+                if kernel.stdio_bytes >= kernel.max_output_per_request[]
                     read(rd, nb) # read from libuv/os buffer and discard
-                    if kernel.stdio_bytes[] - nb < kernel.max_output_per_request[]
+                    if kernel.stdio_bytes - nb < kernel.max_output_per_request[]
                         send_ipython(kernel.publish[], kernel, msg_pub(kernel.execute_msg, "stream",
-                                     Dict("name" => "stderr", "text" => "Excessive output truncated after $(kernel.stdio_bytes[]) bytes.")))
+                                     Dict("name" => "stderr", "text" => "Excessive output truncated after $(kernel.stdio_bytes) bytes.")))
                     end
                 else
                     @lock buf_lock write(buf, read(rd, nb))

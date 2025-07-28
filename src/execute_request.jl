@@ -27,7 +27,7 @@ function execute_request(socket, kernel, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
     kernel.execute_msg = msg
-    kernel.stdio_bytes[] = 0
+    kernel.stdio_bytes = 0
     silent = msg.content["silent"]
     store_history = get(msg.content, "store_history", !silent)
     empty!(kernel.execute_payloads)

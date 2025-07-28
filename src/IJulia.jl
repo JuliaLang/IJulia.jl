@@ -144,7 +144,7 @@ end
     # Variable so that display can be done in the correct Msg context
     execute_msg::Msg = Msg(["julia"], Dict("username"=>"jlkernel", "session"=>uuid4()), Dict())
     # Variable tracking the number of bytes written in the current execution request
-    stdio_bytes::RefValue{Int} = Ref(0)
+    stdio_bytes::Int = 0
     # Use an array to accumulate "payloads" for the execute_reply message
     execute_payloads::Vector{Dict} = Dict[]
 
@@ -467,7 +467,7 @@ function clear_output(wait=false, kernel=_default_kernel)
     empty!(kernel.displayqueue) # discard pending display requests
     send_ipython(kernel.publish[], kernel, msg_pub(kernel.execute_msg::Msg, "clear_output",
                                            Dict("wait" => wait)))
-    kernel.stdio_bytes[] = 0 # reset output throttling
+    kernel.stdio_bytes = 0 # reset output throttling
     return nothing
 end
 
