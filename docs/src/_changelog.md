@@ -7,6 +7,11 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## [v1.29.2] - 2025-07-29
+
+### Fixed
+- Fixed a typo in the tooltip lookup code ([#1171]).
+
 ## [v1.29.1] - 2025-07-26
 
 ### Changed
