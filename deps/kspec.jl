@@ -3,7 +3,7 @@ import JSON
 #######################################################################
 # Install Jupyter kernel-spec files.
 
-copy_config(src, dest) = cp(src, joinpath(dest, basename(src)), force=true)
+copy_config(src::AbstractString, dest::AbstractString) = cp(src, joinpath(dest, basename(src)), force=true)
 
 # return the user kernelspec directory, according to
 #     https://jupyter-client.readthedocs.io/en/latest/kernels.html#kernelspecs

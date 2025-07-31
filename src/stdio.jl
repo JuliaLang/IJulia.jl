@@ -7,11 +7,12 @@ Wrapper type around redirected stdio streams, both for overloading things like
 """
 struct IJuliaStdio{IO_t <: IO} <: Base.AbstractPipe
     io::IOContext{IO_t}
+    kernel::Kernel
 end
-IJuliaStdio(io::IO, stream::AbstractString="unknown") =
+IJuliaStdio(io::IO, kernel::Kernel, stream::AbstractString="unknown") =
     IJuliaStdio{typeof(io)}(IOContext(io, :color=>Base.have_color,
                             :jupyter_stream=>stream,
-                            :displaysize=>displaysize()))
+                            :displaysize=>displaysize()), kernel)
 Base.pipe_reader(io::IJuliaStdio) = io.io.io
 Base.pipe_writer(io::IJuliaStdio) = io.io.io
 Base.lock(io::IJuliaStdio) = lock(io.io.io)
@@ -23,18 +24,6 @@ Base.get(io::IJuliaStdio, key, default) = get(io.io, key, default)
 Base.displaysize(io::IJuliaStdio) = displaysize(io.io)
 Base.unwrapcontext(io::IJuliaStdio) = Base.unwrapcontext(io.io)
 Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, readable)
-
-if VERSION < v"1.7.0-DEV.254"
-    for s in ("stdout", "stderr", "stdin")
-        f = Symbol("redirect_", s)
-        sq = QuoteNode(Symbol(s))
-        @eval function Base.$f(io::IJuliaStdio)
-            io[:jupyter_stream] != $s && throw(ArgumentError(string("expecting ", $s, " stream")))
-            Core.eval(Base, Expr(:(=), $sq, io))
-            return io
-        end
-    end
-end
 
 # logging in verbose mode goes to original stdio streams.  Use macros
 # so that we do not even evaluate the arguments in no-verbose modes
@@ -48,7 +37,7 @@ end
 
 macro vprintln(x...)
     quote
-        if verbose::Bool
+        if _default_kernel.verbose
             println(orig_stdout[], get_log_preface(), $(map(esc, x)...))
         end
     end
@@ -56,20 +45,15 @@ end
 
 macro verror_show(e, bt)
     quote
-        if verbose::Bool
+        if _default_kernel.verbose
             showerror(orig_stderr[], $(esc(e)), $(esc(bt)))
         end
     end
 end
 
-#name=>iobuffer for each stream ("stdout","stderr") so they can be sent in flush
-const bufs = Dict{String, IOBuffer}()
-const bufs_locks = Dict{String, ReentrantLock}()
 const stream_interval = 0.1
 # maximum number of bytes in libuv/os buffer before emptying
 const max_bytes = 10*1024
-# max output per code cell is 512 kb by default
-const max_output_per_request = Ref(1 << 19)
 
 """
     watch_stream(rd::IO, name::AbstractString)
@@ -80,31 +64,33 @@ when buffer contains more than `max_bytes` bytes. Otherwise, if data is availabl
 `stream_interval` seconds (see the `Timer`'s set up in `watch_stdio`). Truncate the output to `max_output_per_request`
 bytes per execution request since excessive output can bring browsers to a grinding halt.
 """
-function watch_stream(rd::IO, name::AbstractString)
+function watch_stream(rd::IO, name::AbstractString, kernel)
     task_local_storage(:IJulia_task, "read $name task")
     try
         buf = IOBuffer()
-        bufs[name] = buf
-        bufs_locks[name] = ReentrantLock()
+        buf_lock = ReentrantLock()
+        kernel.bufs[name] = buf
+        kernel.bufs_locks[name] = buf_lock
+
         while !eof(rd) # blocks until something is available
             nb = bytesavailable(rd)
             if nb > 0
-                stdio_bytes[] += nb
+                kernel.stdio_bytes += nb
                 # if this stream has surpassed the maximum output limit then ignore future bytes
-                if stdio_bytes[] >= max_output_per_request[]
+                if kernel.stdio_bytes >= kernel.max_output_per_request[]
                     read(rd, nb) # read from libuv/os buffer and discard
-                    if stdio_bytes[] - nb < max_output_per_request[]
-                        send_ipython(publish[], msg_pub(execute_msg, "stream",
-                                     Dict("name" => "stderr", "text" => "Excessive output truncated after $(stdio_bytes[]) bytes.")))
+                    if kernel.stdio_bytes - nb < kernel.max_output_per_request[]
+                        send_ipython(kernel.publish[], kernel, msg_pub(kernel.execute_msg, "stream",
+                                     Dict("name" => "stderr", "text" => "Excessive output truncated after $(kernel.stdio_bytes) bytes.")))
                     end
                 else
-                    @lock bufs_locks[name] write(buf, read(rd, nb))
+                    @lock buf_lock write(buf, read(rd, nb))
                 end
             end
-            @lock bufs_locks[name] if buf.size > 0
+            @lock buf_lock if buf.size > 0
                 if buf.size >= max_bytes
                     #send immediately
-                    send_stream(name)
+                    send_stream(name, kernel)
                 end
             end
         end
@@ -112,22 +98,22 @@ function watch_stream(rd::IO, name::AbstractString)
         # the IPython manager may send us a SIGINT if the user
         # chooses to interrupt the kernel; don't crash on this
         if isa(e, InterruptException)
-            watch_stream(rd, name)
+            watch_stream(rd, name, kernel)
         else
             rethrow()
         end
     end
 end
 
-function send_stdio(name)
-    if verbose::Bool && !haskey(task_local_storage(), :IJulia_task)
+function send_stdio(name, kernel)
+    if kernel.verbose && !haskey(task_local_storage(), :IJulia_task)
         task_local_storage(:IJulia_task, "send $name task")
     end
-    send_stream(name)
+    send_stream(name, kernel)
 end
 
-send_stdout(t::Timer) = send_stdio("stdout")
-send_stderr(t::Timer) = send_stdio("stderr")
+send_stdout(kernel) = send_stdio("stdout", kernel)
+send_stderr(kernel) = send_stdio("stderr", kernel)
 
 """
 Jupyter associates cells with message headers. Once a cell's execution state has
@@ -139,14 +125,15 @@ is updating Signal graph state, it's execution state is busy, meaning Jupyter
 will not drop stream messages if Interact can set the header message under which
 the stream messages will be sent. Hence the need for this function.
 """
-function set_cur_msg(msg)
-    global execute_msg = msg
+function set_cur_msg(msg, kernel)
+    kernel.execute_msg = msg
 end
 
-function send_stream(name::AbstractString)
-    buf = bufs[name]
+function send_stream(name::AbstractString, kernel)
+    buf = kernel.bufs[name]
+    buf_lock = kernel.bufs_locks[name]
 
-    @lock bufs_locks[name] if buf.size > 0
+    @lock buf_lock if buf.size > 0
         d = take!(buf)
         n = num_utf8_trailing(d)
         dextra = d[end-(n-1):end]
@@ -166,8 +153,8 @@ function send_stream(name::AbstractString)
             print(sbuf, '\n')
             s = String(take!(sbuf))
         end
-        send_ipython(publish[],
-             msg_pub(execute_msg, "stream",
+        send_ipython(kernel.publish[], kernel,
+             msg_pub(kernel.execute_msg, "stream",
                      Dict("name" => name, "text" => s)))
     end
 end
@@ -197,15 +184,15 @@ Display the `prompt` string, request user input,
 and return the string entered by the user.  If `password`
 is `true`, the user's input is not displayed during typing.
 """
-function readprompt(prompt::AbstractString; password::Bool=false)
-    if !execute_msg.content["allow_stdin"]
+function readprompt(prompt::AbstractString; kernel=_default_kernel, password::Bool=false)
+    if !kernel.execute_msg.content["allow_stdin"]
         error("IJulia: this front-end does not implement stdin")
     end
-    send_ipython(raw_input[],
-                 msg_reply(execute_msg, "input_request",
+    send_ipython(kernel.raw_input[], kernel,
+                 msg_reply(kernel.execute_msg, "input_request",
                            Dict("prompt"=>prompt, "password"=>password)))
     while true
-        msg = recv_ipython(raw_input[])
+        msg = recv_ipython(kernel.raw_input[], kernel)
         if msg.header["msg_type"] == "input_reply"
             return msg.content["value"]
         else
@@ -246,17 +233,19 @@ function readline(io::IJuliaStdio)
     end
 end
 
-function watch_stdio()
+function watch_stdio(kernel)
     task_local_storage(:IJulia_task, "init task")
-    if capture_stdout
-        read_task = @async watch_stream(read_stdout[], "stdout")
+    if kernel.capture_stdout
+        kernel.watch_stdout_task[] = @async watch_stream(kernel.read_stdout[], "stdout", kernel)
+        errormonitor(kernel.watch_stdout_task[])
         #send stdout stream msgs every stream_interval secs (if there is output to send)
-        Timer(send_stdout, stream_interval, interval=stream_interval)
+        kernel.watch_stdout_timer[] = Timer(_ -> send_stdout(kernel), stream_interval, interval=stream_interval)
     end
-    if capture_stderr
-        readerr_task = @async watch_stream(read_stderr[], "stderr")
+    if kernel.capture_stderr
+        kernel.watch_stderr_task[] = @async watch_stream(kernel.read_stderr[], "stderr", kernel)
+        errormonitor(kernel.watch_stderr_task[])
         #send STDERR stream msgs every stream_interval secs (if there is output to send)
-        Timer(send_stderr, stream_interval, interval=stream_interval)
+        kernel.watch_stderr_timer[] = Timer(_ -> send_stderr(kernel), stream_interval, interval=stream_interval)
     end
 end
 
@@ -280,5 +269,5 @@ import Base.flush
 function flush(io::IJuliaStdio)
     flush(io.io)
     oslibuv_flush()
-    send_stream(get(io,:jupyter_stream,"unknown"))
+    send_stream(get(io,:jupyter_stream,"unknown"), io.kernel)
 end
