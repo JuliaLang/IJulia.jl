@@ -24,12 +24,12 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#execute)
 This will execute Julia code, along with Pkg and shell commands.
 """
 function execute_request(socket, kernel, msg)
-    code = msg.content["code"]
+    code = msg.content["code"]::String
     @vprintln("EXECUTING ", code)
     kernel.execute_msg = msg
     kernel.stdio_bytes = 0
-    silent = msg.content["silent"]
-    store_history = get(msg.content, "store_history", !silent)
+    silent = msg.content["silent"]::Bool
+    store_history = get(msg.content, "store_history", !silent)::Bool
     empty!(kernel.execute_payloads)
 
     if !silent
@@ -60,10 +60,7 @@ function execute_request(socket, kernel, msg)
     hcode = replace(code, r"^\s*\?" => "")
 
     try
-        for hook in kernel.preexecute_hooks
-            invokelatest(hook)
-        end
-
+        foreach(invokelatest, kernel.preexecute_hooks)
 
         kernel.ans = result = if hcode != code # help request
             Core.eval(Main, helpmode(hcode))
@@ -83,7 +80,7 @@ function execute_request(socket, kernel, msg)
         end
 
         user_expressions = Dict()
-        for (v,ex) in msg.content["user_expressions"]
+        for (v::String, ex::String) in msg.content["user_expressions"]
             try
                 value = include_string(kernel.current_module, ex)
                 # Like the IPython reference implementation, we return
@@ -102,9 +99,7 @@ function execute_request(socket, kernel, msg)
             end
         end
 
-        for hook in kernel.postexecute_hooks
-            invokelatest(hook)
-        end
+        foreach(invokelatest, kernel.postexecute_hooks)
 
         # flush pending stdio
         flush_all()
@@ -141,16 +136,14 @@ function execute_request(socket, kernel, msg)
         try
             # flush pending stdio
             flush_all()
-            for hook in kernel.posterror_hooks
-                invokelatest(hook)
-            end
+            foreach(invokelatest, kernel.posterror_hooks)
         catch
         end
         empty!(kernel.displayqueue) # discard pending display requests on an error
         content = error_content(e,bt)
         send_ipython(kernel.publish[], kernel, msg_pub(msg, "error", content))
         content["status"] = "error"
-        content["execution_count"] = n
+        content["execution_count"] = kernel.n
         send_ipython(kernel.requests[], kernel, msg_reply(msg, "execute_reply", content))
     end
 end

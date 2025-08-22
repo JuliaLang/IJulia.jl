@@ -123,8 +123,8 @@ Handle a [completion
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#completion).
 """
 function complete_request(socket, kernel, msg)
-    code = msg.content["code"]
-    cursor_chr = msg.content["cursor_pos"]
+    code = msg.content["code"]::String
+    cursor_chr = msg.content["cursor_pos"]::Int
     cursorpos = chr2ind(msg, code, cursor_chr)
     # Ensure that `cursorpos` is within bounds, Jupyter may send a position out
     # of bounds when autocompletion is enabled.
@@ -234,7 +234,7 @@ function shutdown_request(socket, kernel, msg)
     # `recv_ipython()` and holding a lock on `requests`, which will cause a
     # deadlock when we try to send a message to it from the `control` socket
     # handler.
-    global _shutting_down[] = true
+    IJulia._shutting_down[] = true
     @async Base.throwto(kernel.requests_task[], InterruptException())
 
     # In protocol 5.4 the shutdown reply moved to the control socket
@@ -243,6 +243,8 @@ function shutdown_request(socket, kernel, msg)
                  msg_reply(msg, "shutdown_reply", msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
     kernel.shutdown()
+
+    nothing
 end
 
 docdict(s::AbstractString) = display_dict(Core.eval(Main, helpmode(devnull, s)))
@@ -384,8 +386,9 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#introspe
 """
 function inspect_request(socket, kernel, msg)
     try
-        code = msg.content["code"]
-        s = get_token(code, chr2ind(msg, code, msg.content["cursor_pos"]))
+        code = msg.content["code"]::String
+        cursor_pos = msg.content["cursor_pos"]::Int
+        s = get_token(code, chr2ind(msg, code, cursor_pos))
         if isempty(s)
             content = Dict("status" => "ok", "found" => false)
         else
@@ -426,7 +429,7 @@ Handle a [completeness
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#code-completeness).
 """
 function is_complete_request(socket, kernel, msg)
-    ex = Meta.parse(msg.content["code"], raise=false)
+    ex = Meta.parse(msg.content["code"]::String, raise=false)
     status = Meta.isexpr(ex, :incomplete) ? "incomplete" : Meta.isexpr(ex, :error) ? "invalid" : "complete"
     send_ipython(kernel.requests[], kernel,
                  msg_reply(msg, "is_complete_reply",

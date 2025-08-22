@@ -104,7 +104,7 @@ end
     # This dict holds a map from CommID to Comm so that we can
     # pick out the right Comm object when messages arrive
     # from the front-end.
-    comms = Dict{String, CommManager.Comm}()
+    comms::Dict{String, Comm} = Dict{String, Comm}()
 
     postexecute_hooks::Vector{Function} = Function[]
     preexecute_hooks::Vector{Function} = Function[]
@@ -122,7 +122,7 @@ end
     connection_file::Union{String, Nothing} = nothing
     read_stdout::RefValue{Base.PipeEndpoint} = Ref{Base.PipeEndpoint}()
     read_stderr::RefValue{Base.PipeEndpoint} = Ref{Base.PipeEndpoint}()
-    socket_locks = Dict{Socket, ReentrantLock}()
+    socket_locks::Dict{Socket, ReentrantLock} = Dict{Socket, ReentrantLock}()
     sha_ctx::RefValue{SHA.SHA_CTX} = Ref{SHA.SHA_CTX}()
     hmac_key::Vector{UInt8} = UInt8[]
 
@@ -220,9 +220,13 @@ function Base.close(kernel::Kernel)
     IJulia.profile = Dict{String, Any}()
 end
 
-function Kernel(f::Function, profile; kwargs...)
+function Kernel(f::Function, profile::Union{String, Dict}; kwargs...)
     kernel = Kernel(; kwargs...)
-    init([], kernel, profile)
+    if profile isa Dict
+        init([], kernel, profile)
+    else
+        init([profile], kernel)
+    end
 
     try
         f(kernel)

@@ -50,6 +50,11 @@ function getports(port_hint, n)
 end
 
 function create_profile(port_hint=8080; key=uuid4())
+    # Disable constprop here because SnoopCompile shows that it significantly
+    # reduces inference time. It's fine if inference is bad for this function
+    # because in practice it's only used in tests and the precompile workload.
+    Base.@constprop :none
+
     ports = getports(port_hint, 5)
 
     Dict(
@@ -73,7 +78,7 @@ the path to an existing connection file. If `args` is empty a connection file
 will be generated.
 """
 function init(args, kernel, profile=nothing)
-    !isnothing(_default_kernel) && error("IJulia is already running")
+    !isnothing(IJulia._default_kernel) && error("IJulia is already running")
     if length(args) > 0
         merge!(kernel.profile, open(JSON.parse,args[1]))
         kernel.verbose && println("PROFILE = $profile")
@@ -96,7 +101,7 @@ function init(args, kernel, profile=nothing)
     profile = kernel.profile
 
     if !isempty(profile["key"])
-        signature_scheme = get(profile, "signature_scheme", "hmac-sha256")
+        signature_scheme = get(profile, "signature_scheme", "hmac-sha256")::String
         isempty(signature_scheme) && (signature_scheme = "hmac-sha256")
         sigschm = split(signature_scheme, "-")
         if sigschm[1] != "hmac" || length(sigschm) != 2
