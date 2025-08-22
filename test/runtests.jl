@@ -11,4 +11,11 @@ for file in TEST_FILES
     include(file)
 end
 
-Aqua.test_all(IJulia; piracies=(; broken=true))
+# MicroMamba (and thus CondaPkg and PythonCall) are not supported on 32bit
+if Sys.WORD_SIZE != 32
+    include("kernel.jl")
+else
+    @warn "Skipping the Kernel tests on 32bit"
+end
+
+Aqua.test_all(IJulia)

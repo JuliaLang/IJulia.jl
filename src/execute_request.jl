@@ -13,45 +13,36 @@ else # Pkg.jl#3777
         Pkg.REPLMode.do_cmds(cmd, stdout)
 end
 
-# global variable so that display can be done in the correct Msg context
-execute_msg = Msg(["julia"], Dict("username"=>"jlkernel", "session"=>uuid4()), Dict())
-# global variable tracking the number of bytes written in the current execution
-# request
-const stdio_bytes = Ref(0)
-
 import REPL: helpmode
 
-# use a global array to accumulate "payloads" for the execute_reply message
-const execute_payloads = Dict[]
 
 """
-    execute_request(socket, msg)
+    execute_request(socket, kernel, msg)
 
 Handle a [execute
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#execute).
 This will execute Julia code, along with Pkg and shell commands.
 """
-function execute_request(socket, msg)
+function execute_request(socket, kernel, msg)
     code = msg.content["code"]
     @vprintln("EXECUTING ", code)
-    global execute_msg = msg
-    global n, In, Out, ans
-    stdio_bytes[] = 0
+    kernel.execute_msg = msg
+    kernel.stdio_bytes = 0
     silent = msg.content["silent"]
     store_history = get(msg.content, "store_history", !silent)
-    empty!(execute_payloads)
+    empty!(kernel.execute_payloads)
 
     if !silent
-        n += 1
-        send_ipython(publish[],
+        kernel.n += 1
+        send_ipython(kernel.publish[], kernel,
                      msg_pub(msg, "execute_input",
-                             Dict("execution_count" => n,
+                             Dict("execution_count" => kernel.n,
                                           "code" => code)))
     end
 
     silent = silent || REPL.ends_with_semicolon(code)
     if store_history
-        In[n] = code
+        kernel.In[kernel.n] = code
     end
 
     # "; ..." cells are interpreted as shell commands for run
@@ -69,32 +60,32 @@ function execute_request(socket, msg)
     hcode = replace(code, r"^\s*\?" => "")
 
     try
-        for hook in preexecute_hooks
+        for hook in kernel.preexecute_hooks
             invokelatest(hook)
         end
 
 
-        ans = result = if hcode != code # help request
+        kernel.ans = result = if hcode != code # help request
             Core.eval(Main, helpmode(hcode))
         else
             #run the code!
             occursin(magics_regex, code) && match(magics_regex, code).offset == 1 ? magics_help(code) :
-                SOFTSCOPE[] ? softscope_include_string(current_module[], code, "In[$n]") :
-                include_string(current_module[], code, "In[$n]")
+                SOFTSCOPE[] ? softscope_include_string(kernel.current_module, code, "In[$(kernel.n)]") :
+                include_string(kernel.current_module, code, "In[$(kernel.n)]")
         end
 
         if silent
             result = nothing
-        elseif (result !== nothing) && (result !== Out)
+        elseif (result !== nothing) && (result !== kernel.Out)
             if store_history
-                Out[n] = result
+                kernel.Out[kernel.n] = result
             end
         end
 
         user_expressions = Dict()
         for (v,ex) in msg.content["user_expressions"]
             try
-                value = include_string(current_module[], ex)
+                value = include_string(kernel.current_module, ex)
                 # Like the IPython reference implementation, we return
                 # something that looks like a `display_data` but also has a
                 # `status` field:
@@ -111,48 +102,55 @@ function execute_request(socket, msg)
             end
         end
 
-        for hook in postexecute_hooks
+        for hook in kernel.postexecute_hooks
             invokelatest(hook)
         end
 
         # flush pending stdio
         flush_all()
+        yield()
+        if haskey(kernel.bufs, "stdout")
+            send_stdout(kernel)
+        end
+        if haskey(kernel.bufs, "stderr")
+            send_stderr(kernel)
+        end
 
-        undisplay(result) # dequeue if needed, since we display result in pyout
-        invokelatest(display) # flush pending display requests
+        undisplay(result, kernel) # dequeue if needed, since we display result in pyout
+        @invokelatest display(kernel) # flush pending display requests
 
         if result !== nothing
             result_metadata = invokelatest(metadata, result)
             result_data = invokelatest(display_dict, result)
-            send_ipython(publish[],
+            send_ipython(kernel.publish[], kernel,
                          msg_pub(msg, "execute_result",
-                                 Dict("execution_count" => n,
-                                              "metadata" => result_metadata,
-                                              "data" => result_data)))
+                                 Dict("execution_count" => kernel.n,
+                                      "metadata" => result_metadata,
+                                      "data" => result_data)))
 
         end
-        send_ipython(requests[],
+        send_ipython(kernel.requests[], kernel,
                      msg_reply(msg, "execute_reply",
                                Dict("status" => "ok",
-                                            "payload" => execute_payloads,
-                                            "execution_count" => n,
-                                            "user_expressions" => user_expressions)))
-        empty!(execute_payloads)
+                                    "payload" => kernel.execute_payloads,
+                                    "execution_count" => kernel.n,
+                                    "user_expressions" => user_expressions)))
+        empty!(kernel.execute_payloads)
     catch e
         bt = catch_backtrace()
         try
             # flush pending stdio
             flush_all()
-            for hook in posterror_hooks
+            for hook in kernel.posterror_hooks
                 invokelatest(hook)
             end
         catch
         end
-        empty!(displayqueue) # discard pending display requests on an error
+        empty!(kernel.displayqueue) # discard pending display requests on an error
         content = error_content(e,bt)
-        send_ipython(publish[], msg_pub(msg, "error", content))
+        send_ipython(kernel.publish[], kernel, msg_pub(msg, "error", content))
         content["status"] = "error"
         content["execution_count"] = n
-        send_ipython(requests[], msg_reply(msg, "execute_reply", content))
+        send_ipython(kernel.requests[], kernel, msg_reply(msg, "execute_reply", content))
     end
 end

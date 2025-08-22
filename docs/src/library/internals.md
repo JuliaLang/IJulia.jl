@@ -59,8 +59,6 @@ IJulia.waitloop
 
 ```@docs
 IJulia.IJuliaStdio
-IJulia.capture_stdout
-IJulia.capture_stderr
 IJulia.watch_stream
 ```
 

@@ -1,0 +1,3 @@
+[deps]
+jupyter_client = ""
+jupyter_kernel_test = ""
