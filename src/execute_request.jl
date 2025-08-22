@@ -67,7 +67,7 @@ function execute_request(socket, kernel, msg)
         else
             #run the code!
             occursin(magics_regex, code) && match(magics_regex, code).offset == 1 ? magics_help(code) :
-                SOFTSCOPE[] ? softscope_include_string(kernel.current_module, code, "In[$(kernel.n)]") :
+                SOFTSCOPE[] ? include_string(REPL.softscope, kernel.current_module, code, "In[$(kernel.n)]") :
                 include_string(kernel.current_module, code, "In[$(kernel.n)]")
         end
 

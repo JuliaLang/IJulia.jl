@@ -34,7 +34,7 @@ module IJulia
 export notebook, jupyterlab, installkernel
 
 import SHA
-using ZMQ, JSON, SoftGlobalScope
+using ZMQ, JSON
 import Base: invokelatest, RefValue
 import Dates
 using Dates: now, format, UTC, ISODateTimeFormat
