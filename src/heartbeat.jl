@@ -6,19 +6,15 @@
 
 # entry point for new thread
 function heartbeat_thread(heartbeat::Ptr{Cvoid})
-    @static if VERSION ≥ v"1.9.0-DEV.1588" # julia#46609
-        # julia automatically "adopts" this thread because
-        # we entered a Julia cfunction.  We then have to enable
-        # a GC "safe" region to prevent us from grabbing the
-        # GC lock with the call to zmq_proxy, which never returns.
-        # (see julia#47196)
-        ccall(:jl_gc_safe_enter, Int8, ())
-    end
+    # Julia automatically "adopts" this thread because
+    # we entered a Julia cfunction.  We then have to enable
+    # a GC "safe" region to prevent us from grabbing the
+    # GC lock with the call to zmq_proxy, which never returns.
+    # (see julia#47196, julia#46609)
+    ccall(:jl_gc_safe_enter, Int8, ())
     ret = ZMQ.lib.zmq_proxy(heartbeat, heartbeat, C_NULL)
-    @static if VERSION ≥ v"1.9.0-DEV.1588" # julia#46609
-        # leave safe region if zmq_proxy returns (when context is closed)
-        ccall(:jl_gc_safe_leave, Int8, ())
-    end
+    # leave safe region if zmq_proxy returns (when context is closed)
+    ccall(:jl_gc_safe_leave, Int8, ())
     return ret
 end
 
