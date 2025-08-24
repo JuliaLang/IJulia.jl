@@ -7,19 +7,21 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
-## Unreleased
+## [v1.30.0] - 2025-08-24
 
 ### Added
 - Implemented [`reset_stdio_count()`](@ref) to provide a public API for
   resetting the stdio count ([#1145]).
+- A precompilation workload was added to improve TTFX ([#1145], [#1174]).
 
 ### Changed
 - IJulia was completely refactored to minimize global state ([#1145]). This
   allows for better testing (for the first time we can test kernel execution)
   and for executing precompilation workloads. We've tried to avoid any breaking
   changes but it's possible that some packages may be relying on internals that
-  have changed. If you have any problems with this release please open an issue
-  on Github so we can help.
+  have changed. If you have any problems with this release please [open an issue
+  on Github](https://github.com/JuliaLang/IJulia.jl/issues/new) so we can help.
+- [`history()`](@ref) now prints each entry on a new line ([#1145]).
 
 ## [v1.29.2] - 2025-07-29
 
