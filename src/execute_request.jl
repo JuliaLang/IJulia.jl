@@ -4,17 +4,32 @@
 
 import Base.Libc: flush_cstdio
 
-import Pkg
-if VERSION < v"1.11"
-    do_pkg_cmd(cmd::AbstractString) =
-        Pkg.REPLMode.do_cmd(IJulia._default_kernel.minirepl::MiniREPL, cmd; do_rethrow=true)
-else # Pkg.jl#3777
-    do_pkg_cmd(cmd::AbstractString) =
-        Pkg.REPLMode.do_cmds(cmd, stdout)
-end
-
 import REPL: helpmode
 
+
+# Pkg is a rather heavy dependency so we go to some effort to load it lazily
+const Pkg_pkgid = Base.PkgId(Base.UUID("44cfe95a-1eb2-52ea-b672-e2afdf69b78f"), "Pkg")
+
+function load_Pkg()
+    if !haskey(Base.loaded_modules, Pkg_pkgid)
+        @eval import Pkg
+    end
+end
+
+function _do_pkg_cmd(cmd::AbstractString)
+    Pkg = Base.loaded_modules[Pkg_pkgid]
+
+    @static if VERSION < v"1.11"
+        Pkg.REPLMode.do_cmd(IJulia._default_kernel.minirepl::MiniREPL, cmd; do_rethrow=true)
+    else # Pkg.jl#3777
+        Pkg.REPLMode.do_cmds(cmd, stdout)
+    end
+end
+
+function do_pkg_cmd(cmd::AbstractString)
+    load_Pkg()
+    @invokelatest _do_pkg_cmd(cmd)
+end
 
 """
     execute_request(socket, kernel, msg)

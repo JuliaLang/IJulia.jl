@@ -19,7 +19,10 @@ else
     @warn "Skipping the Kernel tests on 32bit"
 end
 
-Aqua.test_all(IJulia)
+@testset "Aqua.jl" begin
+    # Note that Pkg is loaded lazily
+    Aqua.test_all(IJulia; stale_deps=(; ignore=[:Pkg]))
+end
 
 @testset "JET.jl" begin
     JET.test_package(IJulia; target_defined_modules=true)

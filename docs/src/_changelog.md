@@ -7,10 +7,19 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## [v1.30.2] - 2025-08-29
+
+### Changed
+- Implemented lazy loading for Pkg.jl ([#1177]), which significantly cuts down
+  the load time (~0.75s to ~0.25s on Julia 1.11). Also made various other
+  improvements to precompilation and inference to improve TTFX.
+
 ## [v1.30.1] - 2025-08-27
 
-### Added
-- Added the default value `kernel=_default_kernel` to the function `set_max_stdio`, which fixes a breaking change introduced in v1.30.0 ([#1178])
+### Fixed
+- Added the default value `kernel=_default_kernel` to the function
+  `set_max_stdio`, which fixes a breaking change introduced in v1.30.0
+  ([#1178]).
 
 ## [v1.30.0] - 2025-08-24
 
