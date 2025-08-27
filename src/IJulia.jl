@@ -485,7 +485,7 @@ Sets the maximum number of bytes, `max_output`, that can be written to stdout an
 stderr before getting truncated. A large value here allows a lot of output to be
 displayed in the notebook, potentially bogging down the browser.
 """
-function set_max_stdio(max_output::Integer; kernel)
+function set_max_stdio(max_output::Integer; kernel=_default_kernel)
     kernel.max_output_per_request[] = max_output
 end
 
