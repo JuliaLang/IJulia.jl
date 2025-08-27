@@ -7,6 +7,11 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## [v1.30.1] - 2025-08-27
+
+### Added
+- Added the default value `kernel=_default_kernel` to the function `set_max_stdio`, which fixes a breaking change introduced in v1.30.0 ([#1178])
+
 ## [v1.30.0] - 2025-08-24
 
 ### Added
