@@ -96,6 +96,10 @@ display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("applic
 displayable(d::InlineDisplay, M::MIME) = istextmime(M)
 function display(d::InlineDisplay, M::MIME, x)
     kernel = _default_kernel
+    if isnothing(kernel)
+        error("Kernel has not been initialized, cannot set its verbosity.")
+    end
+
     sx = limitstringmime(M, x)
     d = Dict(string(M) => sx)
     if istextmime(M)
@@ -113,6 +117,10 @@ end
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
     kernel = _default_kernel
+    if isnothing(kernel)
+        error("Kernel has not been initialized, cannot set its verbosity.")
+    end
+
     undisplay(x, kernel) # dequeue previous redisplay(x)
     flush_all() # so that previous stream output appears in order
     send_ipython(kernel.publish[], kernel,

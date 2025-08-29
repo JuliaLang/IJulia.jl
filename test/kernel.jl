@@ -136,6 +136,18 @@ end
     profile_kwargs = Dict([Symbol(key) => value for (key, value) in profile])
     profile_kwargs[:key] = pystr(profile_kwargs[:key]).encode()
 
+    @testset "Pkg integration" begin
+        Kernel(profile; capture_stdout=false, capture_stderr=false) do kernel
+            stdout_pipe = Pipe()
+            redirect_stdout(stdout_pipe) do
+                IJulia.do_pkg_cmd("st")
+            end
+            close(stdout_pipe.in)
+            stdout_str = read(stdout_pipe, String)
+            @test contains(stdout_str, r"Status `.+Project.toml`")
+        end
+    end
+
     @testset "getproperty()/setproperty!()" begin
         kernel = Kernel()
 
