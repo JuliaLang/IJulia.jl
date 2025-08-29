@@ -7,7 +7,7 @@ import Base.Libc: flush_cstdio
 import Pkg
 if VERSION < v"1.11"
     do_pkg_cmd(cmd::AbstractString) =
-        Pkg.REPLMode.do_cmd(minirepl[], cmd; do_rethrow=true)
+        Pkg.REPLMode.do_cmd(IJulia._default_kernel.minirepl::MiniREPL, cmd; do_rethrow=true)
 else # Pkg.jl#3777
     do_pkg_cmd(cmd::AbstractString) =
         Pkg.REPLMode.do_cmds(cmd, stdout)

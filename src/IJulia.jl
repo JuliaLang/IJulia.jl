@@ -85,6 +85,15 @@ mutable struct Comm{target}
     end
 end
 
+# similar to Pkg.REPLMode.MiniREPL, a minimal REPL-like emulator
+# for use with Pkg.do_cmd.  We have to roll our own to
+# make sure it uses the redirected stdout, and because
+# we don't have terminal support.
+struct MiniREPL <: REPL.AbstractREPL
+    display::TextDisplay
+end
+REPL.REPLDisplay(repl::MiniREPL) = repl.display
+
 @kwdef mutable struct Kernel
     verbose::Bool = IJULIA_DEBUG
     inited::Bool = false
@@ -100,6 +109,8 @@ end
     capture_stdout::Bool = true
     capture_stderr::Bool = !IJULIA_DEBUG
     capture_stdin::Bool = true
+
+    minirepl::Union{MiniREPL, Nothing} = nothing
 
     # This dict holds a map from CommID to Comm so that we can
     # pick out the right Comm object when messages arrive

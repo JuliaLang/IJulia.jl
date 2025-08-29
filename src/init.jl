@@ -22,20 +22,6 @@ function __init__()
     SOFTSCOPE[] = lowercase(get(ENV, "IJULIA_SOFTSCOPE", "yes")) in ("yes", "true")
 end
 
-# needed for executing pkg commands on earlier Julia versions
-@static if VERSION < v"1.11"
-    # similar to Pkg.REPLMode.MiniREPL, a minimal REPL-like emulator
-    # for use with Pkg.do_cmd.  We have to roll our own to
-    # make sure it uses the redirected stdout, and because
-    # we don't have terminal support.
-    import REPL
-    struct MiniREPL <: REPL.AbstractREPL
-        display::TextDisplay
-    end
-    REPL.REPLDisplay(repl::MiniREPL) = repl.display
-    const minirepl = Ref{MiniREPL}()
-end
-
 function getports(port_hint, n)
     ports = Int[]
 
@@ -147,7 +133,7 @@ function init(args, kernel, profile=nothing)
     end
 
     @static if VERSION < v"1.11"
-        minirepl[] = MiniREPL(TextDisplay(stdout))
+        kernel.minirepl = MiniREPL(TextDisplay(stdout))
     end
 
     watch_stdio(kernel)
