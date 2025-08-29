@@ -12,8 +12,13 @@ copy_config(src::AbstractString, dest::AbstractString) = cp(src, joinpath(dest, 
         path = zeros(UInt16, 300)
         CSIDL_APPDATA = 0x001a
         result = ccall((:SHGetFolderPathW,:shell32), stdcall, Cint,
-            (Ptr{Cvoid},Cint,Ptr{Cvoid},Cint,Ptr{UInt16}),C_NULL,CSIDL_APPDATA,C_NULL,0,path)
-        return result == 0 ? transcode(String, resize!(path, findfirst(iszero, path)-1)) : get(ENV, "APPDATA", "")
+                       (Ptr{Cvoid},Cint,Ptr{Cvoid},Cint,Ptr{UInt16}),C_NULL,CSIDL_APPDATA,C_NULL,0,path)
+        null_terminator_idx = findfirst(iszero, path)
+        if isnothing(null_terminator_idx)
+            error("Could not find null terminator from call to SHGetFolderPathW")
+        end
+
+        return result == 0 ? transcode(String, resize!(path, null_terminator_idx - 1)) : get(ENV, "APPDATA", "")
     end
     function default_jupyter_data_dir()
         APPDATA = appdata()

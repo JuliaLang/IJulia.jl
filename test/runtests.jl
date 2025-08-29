@@ -1,3 +1,4 @@
+import JET
 import Aqua
 import IJulia
 
@@ -19,3 +20,7 @@ else
 end
 
 Aqua.test_all(IJulia)
+
+@testset "JET.jl" begin
+    JET.test_package(IJulia; target_defined_modules=true)
+end
