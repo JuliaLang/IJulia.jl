@@ -4,10 +4,10 @@ function run_kernel()
 
     # the size of truncated output to show should not depend on the terminal
     # where the kernel is launched, since the display is elsewhere
-    ENV["LINES"] = get(ENV, "LINES", 30)
-    ENV["COLUMNS"] = get(ENV, "COLUMNS", 80)
+    ENV["LINES"] = get(ENV, "LINES", "30")
+    ENV["COLUMNS"] = get(ENV, "COLUMNS", "80")
 
-    println(IJulia.orig_stdout[], "Starting kernel event loops.")
+    println(Core.stdout, "Starting kernel event loops.")
     IJulia.init(ARGS, IJulia.Kernel())
 
     let startupfile = !isempty(DEPOT_PATH) ? abspath(DEPOT_PATH[1], "config", "startup_ijulia.jl") : ""

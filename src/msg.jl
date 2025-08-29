@@ -39,7 +39,7 @@ end
 
 Send a message `m`. This will lock `socket`.
 """
-function send_ipython(socket, kernel, m::Msg)
+function send_ipython(socket::ZMQ.Socket, kernel::Kernel, m::Msg)
     lock(kernel.socket_locks[socket])
     try
         @vprintln("SENDING ", m)
@@ -66,7 +66,7 @@ end
 
 Wait for and get a message. This will lock `socket`.
 """
-function recv_ipython(socket, kernel)
+function recv_ipython(socket::ZMQ.Socket, kernel::Kernel)
     lock(kernel.socket_locks[socket])
     try
         idents = String[]
@@ -109,7 +109,7 @@ end
 
 Publish a status message.
 """
-function send_status(state::AbstractString, kernel, parent_msg::Msg=kernel.execute_msg)
+function send_status(state::AbstractString, kernel::Kernel, parent_msg::Msg=kernel.execute_msg)
     send_ipython(kernel.publish[], kernel,
                  Msg([ "status" ], msg_header(parent_msg, "status"),
                      Dict("execution_state" => state), parent_msg.header))
