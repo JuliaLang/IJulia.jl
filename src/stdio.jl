@@ -7,12 +7,11 @@ Wrapper type around redirected stdio streams, both for overloading things like
 """
 struct IJuliaStdio{IO_t <: IO} <: Base.AbstractPipe
     io::IOContext{IO_t}
-    kernel::Kernel
 end
-IJuliaStdio(io::IO, kernel::Kernel, stream::AbstractString="unknown") =
+IJuliaStdio(io::IO, stream::AbstractString="unknown") =
     IJuliaStdio{typeof(io)}(IOContext(io, :color=>Base.have_color,
                             :jupyter_stream=>stream,
-                            :displaysize=>displaysize()), kernel)
+                            :displaysize=>displaysize()))
 Base.pipe_reader(io::IJuliaStdio) = io.io.io
 Base.pipe_writer(io::IJuliaStdio) = io.io.io
 Base.lock(io::IJuliaStdio) = lock(io.io.io)
@@ -269,5 +268,5 @@ import Base.flush
 function flush(io::IJuliaStdio)
     flush(io.io)
     oslibuv_flush()
-    send_stream(get(io,:jupyter_stream,"unknown"), io.kernel)
+    send_stream(get(io,:jupyter_stream,"unknown"), IJulia._default_kernel)
 end

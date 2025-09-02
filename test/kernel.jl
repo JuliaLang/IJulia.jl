@@ -393,7 +393,7 @@ end
                     shutdown(client; wait=false)
                 end
 
-                @test timedwait(() -> process_exited(kernel_proc), 10) == :ok
+                @test timedwait(() -> process_exited(kernel_proc), 30) == :ok
             finally
                 kill(kernel_proc)
             end

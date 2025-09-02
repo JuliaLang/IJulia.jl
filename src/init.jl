@@ -122,14 +122,14 @@ function init(args, kernel, profile=nothing)
     start_heartbeat(kernel)
     if kernel.capture_stdout
         kernel.read_stdout[], = redirect_stdout()
-        redirect_stdout(IJuliaStdio(stdout, kernel, "stdout"))
+        redirect_stdout(IJuliaStdio(stdout, "stdout"))
     end
     if kernel.capture_stderr
         kernel.read_stderr[], = redirect_stderr()
-        redirect_stderr(IJuliaStdio(stderr, kernel, "stderr"))
+        redirect_stderr(IJuliaStdio(stderr, "stderr"))
     end
     if kernel.capture_stdin
-        redirect_stdin(IJuliaStdio(stdin, kernel, "stdin"))
+        redirect_stdin(IJuliaStdio(stdin, "stdin"))
     end
 
     @static if VERSION < v"1.11"
