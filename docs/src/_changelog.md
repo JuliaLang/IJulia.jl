@@ -7,6 +7,12 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## [v1.30.3] - 2025-09-02
+
+### Fixed
+- Modified the internal `IJuliaStdio` struct to be deepcopy-able, which was
+  inadvertently broken in v1.30.0 ([#1180]).
+
 ## [v1.30.2] - 2025-08-29
 
 ### Changed
