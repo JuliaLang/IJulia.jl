@@ -149,19 +149,32 @@ end
     end
 
     @testset "getproperty()/setproperty!()" begin
-        kernel = Kernel()
-
         # Test setting special fields that should be mirrored to global variables
-        for field in (:n, :ans, :inited)
-            # Save the old value so we can restore them afterwards
-            old_value = getproperty(kernel, field)
+        Kernel(profile; capture_stdout=false, capture_stderr=false) do kernel
+            # Check that init() set Out/In appropriately
+            @test In === kernel.In
+            @test Out === kernel.Out
 
-            test_value = field === :inited ? true : 10
-            setproperty!(kernel, field, test_value)
-            @test getproperty(IJulia, field) == test_value
-            @test getproperty(kernel, field) == test_value
+            for field in (:ans, :n, :In, :Out, :inited,)
+                test_value = if field === :inited
+                    true
+                elseif field === :In
+                    Dict{Int, String}()
+                elseif field === :Out
+                    Dict{Int, Any}()
+                else
+                    10
+                end
 
-            setproperty!(kernel, field, old_value)
+                setproperty!(kernel, field, test_value)
+                @test getproperty(IJulia, field) === test_value
+                @test getproperty(kernel, field) === test_value
+
+                # Sanity check that these fields are mirrored to Main correctly
+                if field ∈ (:ans, :In, :Out)
+                    @test getproperty(kernel.current_module, field) === test_value
+                end
+            end
         end
     end
 
@@ -169,13 +182,14 @@ end
         # Some of these tests have their own kernel instance to avoid
         # interfering with the state of other tests.
 
-        # Test clear_history()
+        # Test clear_history() and In/Out
         Kernel(profile; capture_stdout=false, capture_stderr=false) do kernel
             jupyter_client(profile) do client
                 for i in 1:10
                     @test msg_ok(execute(client, "$(i)"))
                 end
-                @test length(kernel.In) == 10
+                @test length(In) == 10
+                @test length(Out) == 10
                 @test msg_ok(execute(client, "IJulia.clear_history(-1:5)"))
                 @test Set(keys(kernel.In)) == Set(6:11) # The 11th entry is the call to clear_history()
                 @test msg_ok(execute(client, "IJulia.clear_history()"))
