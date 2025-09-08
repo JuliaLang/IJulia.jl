@@ -169,12 +169,6 @@ function Base.setproperty!(kernel::Kernel, name::Symbol, x)
     # These fields need to be assigned explicitly to their global counterparts
     if name ∈ (:ans, :n, :In, :Out, :inited)
         setproperty!(IJulia, name, x)
-
-        if name ∈ (:ans, :In, :Out)
-            if hasproperty(kernel.current_module, name)
-                setproperty!(kernel.current_module, name, x)
-            end
-        end
     end
 
     setfield!(kernel, name, x)
@@ -224,8 +218,10 @@ function Base.close(kernel::Kernel)
     wait(kernel)
 
     # Reset global variables
-    IJulia.ans = nothing
     IJulia.n = 0
+    IJulia.ans = nothing
+    IJulia.In = Dict{Int, String}()
+    IJulia.Out = Dict{Int, Any}()
     IJulia._default_kernel = nothing
     IJulia.CommManager.comms = Dict{String, CommManager.Comm}()
     IJulia.profile = Dict{String, Any}()
@@ -322,13 +318,13 @@ load(filename::AbstractString, replace::Bool=false, kernel=_default_kernel) =
 returns the string for input cell `n` of the notebook (as it was
 when it was *last evaluated*).
 """
-In::Dict{String, Any} = Dict{String, Any}()
+In::Dict{Int, String} = Dict{Int, String}()
 """
 `Out` is a global dictionary of output values, where `Out[n]`
 returns the output from the last evaluation of cell `n` in the
 notebook.
 """
-Out::Dict{String, Any} = Dict{String, Any}()
+Out::Dict{Int, Any} = Dict{Int, Any}()
 """
 `ans` is a global variable giving the value returned by the last
 notebook cell evaluated.

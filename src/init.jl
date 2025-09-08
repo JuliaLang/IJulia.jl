@@ -148,5 +148,11 @@ function init(args, kernel, profile=nothing)
     send_status("starting", kernel)
     kernel.inited = true
 
+    # Explicitly initialize these fields so that setproperty!(::Kernel) is
+    # called and assigns them to their corresponding global variables. This is
+    # not done by the @kwdef constructor.
+    kernel.In = Dict{Int, String}()
+    kernel.Out = Dict{Int, Any}()
+
     kernel.waitloop_task[] = @async waitloop(kernel)
 end

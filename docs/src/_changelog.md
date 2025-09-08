@@ -7,6 +7,13 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## [v1.30.4] - 2025-09-08
+
+### Fixed
+- Fixed usage of [`In`](@ref) and [`Out`](@ref) so that they actually contain
+  the cell history instead of just being empty ([#1182]). This was accidentally
+  broken in v1.30.0.
+
 ## [v1.30.3] - 2025-09-02
 
 ### Fixed
@@ -24,7 +31,7 @@ Changelog](https://keepachangelog.com).
 
 ### Fixed
 - Added the default value `kernel=_default_kernel` to the function
-  `set_max_stdio`, which fixes a breaking change introduced in v1.30.0
+  [`set_max_stdio`](@ref), which fixes a breaking change introduced in v1.30.0
   ([#1178]).
 
 ## [v1.30.0] - 2025-08-24
