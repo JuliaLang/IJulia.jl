@@ -142,6 +142,7 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     waitloop_task::RefValue{Task} = Ref{Task}()
 
     requests_task::RefValue{Task} = Ref{Task}()
+    iopub_task::RefValue{Task} = Ref{Task}()
     watch_stdout_task::RefValue{Task} = Ref{Task}()
     watch_stderr_task::RefValue{Task} = Ref{Task}()
     watch_stdout_timer::RefValue{Timer} = Ref{Timer}()

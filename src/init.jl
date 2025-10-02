@@ -155,5 +155,5 @@ function init(args, kernel, profile=nothing)
     kernel.In = Dict{Int, String}()
     kernel.Out = Dict{Int, Any}()
 
-    kernel.waitloop_task[] = @async waitloop(kernel)
+    kernel.waitloop_task[] = Threads.@spawn :interactive waitloop(kernel)
 end
