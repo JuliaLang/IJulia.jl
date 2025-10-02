@@ -151,6 +151,7 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     completion_precompile_task::RefValue{Task} = Ref{Task}()
 
     requests_task::RefValue{Task} = Ref{Task}()
+    iopub_task::RefValue{Task} = Ref{Task}()
     watch_stdout_task::RefValue{Task} = Ref{Task}()
     watch_stderr_task::RefValue{Task} = Ref{Task}()
     flush_stdout_task::RefValue{Task} = Ref{Task}()

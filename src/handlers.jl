@@ -229,6 +229,10 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-s
 sending the reply this will exit the process.
 """
 function shutdown_request(socket, kernel, msg)
+    kernel.shutting_down[] = true
+    @async Base.throwto(kernel.requests_task[], InterruptException())
+    @async Base.throwto(kernel.iopub_task[], InterruptException())
+
     send_ipython(socket, kernel,
                  msg_reply(msg, "shutdown_reply", msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
@@ -436,6 +440,7 @@ will throw an `InterruptException` to the currently executing request handler.
 """
 function interrupt_request(socket, kernel, msg)
     @async Base.throwto(kernel.requests_task[], InterruptException())
+    @async Base.throwto(kernel.iopub_task[], InterruptException())
     send_ipython(socket, kernel, msg_reply(msg, "interrupt_reply", Dict()))
 end
 
@@ -456,5 +461,11 @@ const handlers = Dict{String,Function}(
     "comm_open" => comm_open,
     "comm_info_request" => comm_info_request,
     "comm_msg" => comm_msg,
-    "comm_close" => comm_close
+    "comm_close" => comm_close,
+)
+
+const iopub_handlers = Dict{String,Function}(
+    "comm_open" => comm_open,
+    "comm_msg" => comm_msg,
+    "comm_close" => comm_close,
 )
