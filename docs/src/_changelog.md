@@ -7,6 +7,13 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## [v1.30.5] - 2025-10-03
+
+### Fixed
+- Fixed a major performance regression in message hashing from the switch to
+  SHA.jl in v1.29.1, which particularly affected things like plot/dataframe
+  outputs ([#1185]).
+
 ## [v1.30.4] - 2025-09-08
 
 ### Fixed

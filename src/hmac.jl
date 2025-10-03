@@ -4,7 +4,7 @@ function hmac(s1, s2, s3, s4, kernel)
     else
         hmac = SHA.HMAC_CTX(copy(kernel.sha_ctx[]), kernel.hmac_key)
         for s in (s1, s2, s3, s4)
-            SHA.update!(hmac, codeunits(s))
+            GC.@preserve s SHA.update!(hmac, unsafe_wrap(Vector{UInt8}, s))
         end
 
         digest = SHA.digest!(hmac)
