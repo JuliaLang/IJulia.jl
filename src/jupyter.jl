@@ -5,7 +5,16 @@ include(joinpath("..","deps","kspec.jl"))
 
 ##################################################################
 
-import Conda
+# Conda is a rather heavy dependency so we go to some effort to load it lazily
+const Conda_pkgid = Base.PkgId(Base.UUID("8f4d0f93-b110-5947-807f-2305c1781a2d"), "Conda")
+
+function get_Conda(f::Function)
+    if !haskey(Base.loaded_modules, Conda_pkgid)
+        @eval import Conda
+    end
+
+    @invokelatest f(Base.loaded_modules[Conda_pkgid])
+end
 
 isyes(s) = isempty(s) || lowercase(strip(s)) in ("y", "yes")
 
@@ -17,16 +26,21 @@ Return a `Cmd` for the program `subcommand`. If the program is `jupyter` or
 """
 function find_jupyter_subcommand(subcommand::AbstractString, port::Union{Nothing,Int}=nothing)
     jupyter = JUPYTER
+    scriptdir = get_Conda() do Conda
+        Conda.SCRIPTDIR
+    end
     if jupyter == "jupyter" || jupyter == "jupyter.exe" # look in PATH
         jupyter = Sys.which(exe("jupyter"))
         if jupyter === nothing
-            jupyter = joinpath(Conda.SCRIPTDIR, exe("jupyter"))
+            jupyter = joinpath(scriptdir, exe("jupyter"))
         end
     end
-    isconda = dirname(jupyter) == abspath(Conda.SCRIPTDIR)
+    isconda = dirname(jupyter) == abspath(scriptdir)
     if !Sys.isexecutable(jupyter)
         if isconda && isyes(Base.prompt("install Jupyter via Conda, y/n? [y]"))
-           Conda.add(subcommand == "lab" ? "jupyterlab" : "jupyter")
+            get_Conda() do Conda
+                Conda.add(subcommand == "lab" ? "jupyterlab" : "jupyter")
+            end
         else
             error("$jupyter is not installed, cannot run $subcommand")
         end
@@ -40,7 +54,9 @@ function find_jupyter_subcommand(subcommand::AbstractString, port::Union{Nothing
     withenv("PATH" => dirname(jupyter) * pathsep * get(ENV, "PATH", "")) do
         if isconda
             # sets PATH and other environment variables for Julia's Conda environment
-            cmd = Conda._set_conda_env(cmd)
+            cmd = get_Conda() do Conda
+                Conda._set_conda_env(cmd)
+            end
         else
             setenv(cmd, ENV)
         end
@@ -137,10 +153,16 @@ function jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,
     inited && error("IJulia is already running")
     lab = find_jupyter_subcommand("lab", port)
     jupyter = first(lab)
-    if dirname(jupyter) == abspath(Conda.SCRIPTDIR) &&
+    scriptdir = get_Conda() do Conda
+        Conda.SCRIPTDIR
+    end
+
+    if dirname(jupyter) == abspath(scriptdir) &&
        !Sys.isexecutable(exe(jupyter, "-lab")) &&
        isyes(Base.prompt("install JupyterLab via Conda, y/n? [y]"))
-        Conda.add("jupyterlab")
+        get_Conda() do Conda
+            Conda.add("jupyterlab")
+        end
     end
     return launch(lab, args, dir, detached, verbose)
 end
