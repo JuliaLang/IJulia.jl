@@ -7,6 +7,12 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## Unreleased
+
+### Changed
+- Implemented lazy loading for Conda.jl ([#1187]), which shaves off about 60% of
+  the load time (~0.21s to ~0.08s on Julia 1.12).
+
 ## [v1.30.5] - 2025-10-03
 
 ### Fixed
