@@ -40,8 +40,7 @@ end
 Send a message `m`. This will lock `socket`.
 """
 function send_ipython(socket::ZMQ.Socket, kernel::Kernel, m::Msg)
-    lock(kernel.socket_locks[socket])
-    try
+    @lock kernel.socket_send_locks[socket] begin
         @vprintln("SENDING ", m)
         for i in m.idents
             send(socket, i, more=true)
@@ -56,8 +55,6 @@ function send_ipython(socket::ZMQ.Socket, kernel::Kernel, m::Msg)
         send(socket, parent_header, more=true)
         send(socket, metadata, more=true)
         send(socket, content)
-    finally
-        unlock(kernel.socket_locks[socket])
     end
 end
 
@@ -67,8 +64,7 @@ end
 Wait for and get a message. This will lock `socket`.
 """
 function recv_ipython(socket::ZMQ.Socket, kernel::Kernel)
-    lock(kernel.socket_locks[socket])
-    try
+    @lock kernel.socket_recv_locks[socket] begin
         idents = String[]
         s = recv(socket, String)
         @vprintln("got msg part $s")
@@ -99,8 +95,6 @@ function recv_ipython(socket::ZMQ.Socket, kernel::Kernel)
         m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
         @vprintln("RECEIVED $m")
         return m
-    finally
-        unlock(kernel.socket_locks[socket])
     end
 end
 

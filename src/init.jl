@@ -116,7 +116,8 @@ function init(args, kernel, profile=nothing)
     # associate a lock with each socket so that multi-part messages
     # on a given socket don't get inter-mingled between tasks.
     for s in (kernel.publish[], kernel.raw_input[], kernel.requests[], kernel.control[])
-        kernel.socket_locks[s] = ReentrantLock()
+        kernel.socket_send_locks[s] = ReentrantLock()
+        kernel.socket_recv_locks[s] = ReentrantLock()
     end
 
     start_heartbeat(kernel)
@@ -154,5 +155,5 @@ function init(args, kernel, profile=nothing)
     kernel.In = Dict{Int, String}()
     kernel.Out = Dict{Int, Any}()
 
-    kernel.waitloop_task[] = @async waitloop(kernel)
+    kernel.waitloop_task[] = Threads.@spawn :interactive waitloop(kernel)
 end
