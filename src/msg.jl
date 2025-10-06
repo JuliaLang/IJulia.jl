@@ -21,9 +21,9 @@ Base.VersionNumber(m::Msg) = VersionNumber(m.header["version"])::VersionNumber
 # [According to minrk, "this isn't well defined, or even really part
 # of the spec yet" and is in practice currently ignored since "all
 # subscribers currently subscribe to all topics".]
-msg_pub(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
+msg_pub(m::Msg, msg_type, content, metadata=Dict{String,Any}(), buffers=Vector{UInt8}[]) =
   Msg([ msg_type == "stream" ? content["name"] : msg_type ],
-      msg_header(m, msg_type), content, m.header, metadata)
+      msg_header(m, msg_type), content, m.header, metadata, buffers)
 
 msg_reply(m::Msg, msg_type, content, metadata=Dict{String,Any}()) =
   Msg(m.idents, msg_header(m, msg_type), merge(Dict("status" => "ok"), content), m.header, metadata)
@@ -55,7 +55,8 @@ function send_ipython(socket::ZMQ.Socket, kernel::Kernel, m::Msg)
         send(socket, header, more=true)
         send(socket, parent_header, more=true)
         send(socket, metadata, more=true)
-        send(socket, content)
+        send(socket, content, more=!isempty(m.buffers))
+        ZMQ.send_multipart(socket, m.buffers)
     finally
         unlock(kernel.socket_locks[socket])
     end
@@ -78,11 +79,16 @@ function recv_ipython(socket::ZMQ.Socket, kernel::Kernel)
             @vprintln("got msg part $s")
         end
         signature = recv(socket, String)
-        request = Dict{String,Any}()
         header = recv(socket, String)
         parent_header = recv(socket, String)
         metadata = recv(socket, String)
         content = recv(socket, String)
+
+        buffers = Vector{UInt8}[]
+        while socket.rcvmore
+            push!(buffers, recv(socket, Vector{UInt8}))
+        end
+
         if signature != hmac(header, parent_header, metadata, content, kernel)
             error("Invalid HMAC signature") # What should we do here?
         end
@@ -96,7 +102,7 @@ function recv_ipython(socket::ZMQ.Socket, kernel::Kernel)
         # @show metadata
         # @show content
 
-        m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata))
+        m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata), buffers)
         @vprintln("RECEIVED $m")
         return m
     finally

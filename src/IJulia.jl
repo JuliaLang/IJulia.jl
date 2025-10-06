@@ -67,9 +67,12 @@ mutable struct Msg
     content::Dict
     parent_header::Dict
     metadata::Dict
+    buffers::Vector{Vector{UInt8}}
+
     function Msg(idents, header::Dict, content::Dict,
-                 parent_header=Dict{String,Any}(), metadata=Dict{String,Any}())
-        new(idents,header,content,parent_header,metadata)
+                 parent_header=Dict{String,Any}(), metadata=Dict{String,Any}(),
+                 buffers=Vector{UInt8}[])
+        new(idents, header, content, parent_header, metadata, buffers)
     end
 end
 

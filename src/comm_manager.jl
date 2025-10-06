@@ -18,13 +18,14 @@ function Comm(target,
               on_close=noop_callback;
               kernel=IJulia._default_kernel,
               data=Dict(),
-              metadata=Dict())
+              metadata=Dict(),
+              buffers=Vector{UInt8}[])
     comm = Comm{Symbol(target)}(id, primary, on_msg, on_close, kernel)
     if primary
         # Request a secondary object be created at the front end
         send_ipython(kernel.publish[], kernel,
                      msg_comm(comm, kernel.execute_msg, "comm_open",
-                              data, metadata, target_name=string(target)))
+                              data, metadata; target_name=string(target), buffers))
     end
     return comm
 end
@@ -52,20 +53,21 @@ end
 
 function msg_comm(comm::Comm, m::IJulia.Msg, msg_type,
                   data=Dict{String,Any}(),
-                  metadata=Dict{String, Any}(); kwargs...)
+                  metadata=Dict{String, Any}(),
+                  buffers=Vector{UInt8}[]; kwargs...)
     content = Dict("comm_id"=>comm.id, "data"=>data)
 
     for (k, v) in kwargs
         content[string(k)] = v
     end
 
-    return msg_pub(m, msg_type, content, metadata)
+    return msg_pub(m, msg_type, content, metadata, buffers)
 end
 
 function send_comm(comm::Comm, data::Dict,
-                   metadata::Dict = Dict(); kernel=IJulia._default_kernel, kwargs...)
+                   metadata::Dict = Dict(), buffers=Vector{UInt8}[]; kernel=IJulia._default_kernel, kwargs...)
     msg = msg_comm(comm, kernel.execute_msg, "comm_msg", data,
-                   metadata; kwargs...)
+                   metadata, buffers; kwargs...)
     send_ipython(kernel.publish[], kernel, msg)
 end
 
