@@ -28,7 +28,7 @@ const _TEST_KEY = "a0436f6c-1916-498b-8eb9-e81ab9368e84"
     __init__()
 
     mktemp() do path, io
-        JSON.print(io, profile)
+        write(io, JSONX.json(profile))
         flush(io)
 
         Kernel(path; capture_stdout=true, capture_stderr=false, capture_stdin=false) do kernel

@@ -101,7 +101,7 @@ function display_mimejson(mime_array::Vector{MIME}, x)
     error("No displayable MIME types in mime array.")
 end
 
-display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x, true)))
+display_mimejson(m::MIME, x) = (m, JSONX.JSONText(limitstringmime(m, x, true)))
 
 """
 Generate a dictionary of `mime_type => data` pairs for all registered MIME
@@ -109,7 +109,7 @@ types. This is the format that Jupyter expects in `display_data` and
 `execute_result` messages.
 """
 function display_dict(x)
-    data = Dict{String, Union{String, JSONText}}()
+    data = Dict{String, Union{String, JSONX.JSONText}}()
     for m in ijulia_mime_types
         try
             if _showable(m, x)

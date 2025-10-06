@@ -4,7 +4,7 @@ import IJulia
 
 const TEST_FILES = [
     "install.jl", "comm.jl", "msg.jl", "execute_request.jl", "stdio.jl",
-    "inline.jl", "completion.jl"
+    "inline.jl", "completion.jl", "jsonx.jl"
 ]
 
 for file in TEST_FILES
