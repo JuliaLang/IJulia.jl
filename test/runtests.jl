@@ -20,8 +20,8 @@ else
 end
 
 @testset "Aqua.jl" begin
-    # Note that Pkg is loaded lazily
-    Aqua.test_all(IJulia; stale_deps=(; ignore=[:Pkg]))
+    # Note that Pkg and Conda are loaded lazily
+    Aqua.test_all(IJulia; stale_deps=(; ignore=[:Pkg, :Conda]))
 end
 
 @testset "JET.jl" begin
