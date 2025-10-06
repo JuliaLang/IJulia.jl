@@ -117,9 +117,6 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     # from the front-end.
     comms::Dict{String, Comm} = Dict{String, Comm}()
 
-    postexecute_hooks::Vector{Function} = Function[]
-    preexecute_hooks::Vector{Function} = Function[]
-    posterror_hooks::Vector{Function} = Function[]
     shutdown::Function = exit
 
     # the following constants need to be initialized in init().
@@ -405,7 +402,10 @@ history
 # Similar to the ipython kernel, we provide a mechanism by
 # which modules can register thunk functions to be called after
 # executing an input cell, e.g. to "close" the current plot in Pylab.
-# Modules should only use these if isdefined(Main, IJulia) is true.
+
+const _preexecute_hooks = Function[]
+const _postexecute_hooks = Function[]
+const _posterror_hooks = Function[]
 
 function _pop_hook!(f, hooks)
     hook_idx = findlast(isequal(f), hooks)
@@ -422,14 +422,15 @@ end
 Push a function `f()` onto the end of a list of functions to
 execute after executing any notebook cell.
 """
-push_postexecute_hook(f::Function; kernel=_default_kernel) = push!(kernel.postexecute_hooks, f)
+push_postexecute_hook(f::Function) = push!(IJulia._postexecute_hooks, f)
+
 """
     pop_postexecute_hook(f::Function)
 
 Remove a function `f()` from the list of functions to
 execute after executing any notebook cell.
 """
-pop_postexecute_hook(f::Function; kernel=_default_kernel) = _pop_hook!(f, kernel.postexecute_hooks)
+pop_postexecute_hook(f::Function) = _pop_hook!(f, IJulia._postexecute_hooks)
 
 """
     push_preexecute_hook(f::Function)
@@ -437,14 +438,15 @@ pop_postexecute_hook(f::Function; kernel=_default_kernel) = _pop_hook!(f, kernel
 Push a function `f()` onto the end of a list of functions to
 execute before executing any notebook cell.
 """
-push_preexecute_hook(f::Function; kernel=_default_kernel) = push!(kernel.preexecute_hooks, f)
+push_preexecute_hook(f::Function) = push!(IJulia._preexecute_hooks, f)
+
 """
     pop_preexecute_hook(f::Function)
 
 Remove a function `f()` from the list of functions to
 execute before executing any notebook cell.
 """
-pop_preexecute_hook(f::Function; kernel=_default_kernel) = _pop_hook!(f, kernel.preexecute_hooks)
+pop_preexecute_hook(f::Function) = _pop_hook!(f, IJulia._preexecute_hooks)
 
 # similar, but called after an error (e.g. to reset plotting state)
 """
@@ -453,14 +455,15 @@ pop_preexecute_hook(f::Function; kernel=_default_kernel) = _pop_hook!(f, kernel.
 Remove a function `f()` from the list of functions to
 execute after an error occurs when a notebook cell is evaluated.
 """
-push_posterror_hook(f::Function; kernel=_default_kernel) = push!(kernel.posterror_hooks, f)
+push_posterror_hook(f::Function) = push!(IJulia._posterror_hooks, f)
+
 """
     pop_posterror_hook(f::Function)
 
 Remove a function `f()` from the list of functions to
 execute after an error occurs when a notebook cell is evaluated.
 """
-pop_posterror_hook(f::Function; kernel=_default_kernel) = _pop_hook!(f, kernel.posterror_hooks)
+pop_posterror_hook(f::Function) = _pop_hook!(f, IJulia._posterror_hooks)
 
 #######################################################################
 

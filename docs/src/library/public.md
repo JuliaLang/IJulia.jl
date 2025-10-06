@@ -47,3 +47,14 @@ IJulia.readprompt
 IJulia.set_max_stdio
 IJulia.reset_stdio_count
 ```
+
+## Cell execution hooks
+
+```@docs
+IJulia.push_preexecute_hook
+IJulia.pop_preexecute_hook
+IJulia.push_postexecute_hook
+IJulia.pop_postexecute_hook
+IJulia.push_posterror_hook
+IJulia.pop_posterror_hook
+```
