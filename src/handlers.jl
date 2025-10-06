@@ -229,13 +229,9 @@ function shutdown_request(socket, kernel, msg)
     # stop heartbeat thread
     stop_heartbeat(kernel)
 
-    # Shutdown the `requests` socket handler before sending any messages. This
-    # is necessary because otherwise the event loop will be calling
-    # `recv_ipython()` and holding a lock on `requests`, which will cause a
-    # deadlock when we try to send a message to it from the `control` socket
-    # handler.
     IJulia._shutting_down[] = true
     @async Base.throwto(kernel.requests_task[], InterruptException())
+    @async Base.throwto(kernel.iopub_task[], InterruptException())
 
     # In protocol 5.4 the shutdown reply moved to the control socket
     shutdown_socket = VersionNumber(msg) >= v"5.4" ? kernel.control[] : kernel.requests[]
@@ -445,6 +441,7 @@ will throw an `InterruptException` to the currently executing request handler.
 """
 function interrupt_request(socket, kernel, msg)
     @async Base.throwto(kernel.requests_task[], InterruptException())
+    @async Base.throwto(kernel.iopub_task[], InterruptException())
     send_ipython(socket, kernel, msg_reply(msg, "interrupt_reply", Dict()))
 end
 
@@ -465,5 +462,11 @@ const handlers = Dict{String,Function}(
     "comm_open" => comm_open,
     "comm_info_request" => comm_info_request,
     "comm_msg" => comm_msg,
-    "comm_close" => comm_close
+    "comm_close" => comm_close,
+)
+
+const iopub_handlers = Dict{String,Function}(
+    "comm_open" => comm_open,
+    "comm_msg" => comm_msg,
+    "comm_close" => comm_close,
 )
