@@ -1,8 +1,8 @@
 using Test
-using Base64, JSON
+using Base64
 
 import IJulia
-import IJulia: helpmode, error_content, docdict, get_token
+import IJulia: JSONX, helpmode, error_content, docdict, get_token
 
 @testset "errors" begin
     content = error_content(UndefVarError(:a), backtrace())
@@ -42,7 +42,7 @@ end
     JSON_MIME_TYPE = MIME"application/vnd.ijulia.friendly-json"
     JSON_MIME = JSON_MIME_TYPE()
     Base.Multimedia.istextmime(::JSON_MIME_TYPE) = true
-    Base.show(io, ::JSON_MIME_TYPE, x::FriendlyData) = write(io, JSON.json(Dict("name" => x.name)))
+    Base.show(io, ::JSON_MIME_TYPE, x::FriendlyData) = write(io, JSONX.json(Dict("name" => x.name)))
     IJulia.register_jsonmime(JSON_MIME)
 
     FRIENDLY_MIME_TYPE_1 = MIME"application/vnd.ijulia.friendly-text-1"
@@ -56,7 +56,7 @@ end
 
     # We stringify then re-parse the dict so that JSONText's are parsed as
     # actual JSON objects and we can index into them.
-    data = IJulia.parsejson(JSON.json(IJulia.display_dict(friend)))
+    data = JSONX.parse(JSONX.json(IJulia.display_dict(friend)))
     @test data[string(FRIENDLY_MIME)] == "Hello, world!"
     @test data[string(BINARY_MIME)] == base64encode("Hello, world!")
     @test data[string(JSON_MIME)]["name"] == "world"

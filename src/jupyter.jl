@@ -1,10 +1,6 @@
 # Code to launch and interact with Jupyter, not via messaging protocol
 ##################################################################
 
-include(joinpath("..","deps","kspec.jl"))
-
-##################################################################
-
 # Conda is a rather heavy dependency so we go to some effort to load it lazily
 const Conda_pkgid = Base.PkgId(Base.UUID("8f4d0f93-b110-5947-807f-2305c1781a2d"), "Conda")
 

@@ -47,10 +47,10 @@ function send_ipython(socket::ZMQ.Socket, kernel::Kernel, m::Msg)
             send(socket, i, more=true)
         end
         send(socket, "<IDS|MSG>", more=true)
-        header = json(m.header)
-        parent_header = json(m.parent_header)
-        metadata = json(m.metadata)
-        content = json(m.content)
+        header = JSONX.json(m.header)
+        parent_header = JSONX.json(m.parent_header)
+        metadata = JSONX.json(m.metadata)
+        content = JSONX.json(m.content)
         send(socket, hmac(header, parent_header, metadata, content, kernel), more=true)
         send(socket, header, more=true)
         send(socket, parent_header, more=true)
@@ -102,7 +102,7 @@ function recv_ipython(socket::ZMQ.Socket, kernel::Kernel)
         # @show metadata
         # @show content
 
-        m = Msg(idents, parsejson(header), parsejson(content), parsejson(parent_header), parsejson(metadata), buffers)
+        m = Msg(idents, JSONX.parse(header), JSONX.parse(content), JSONX.parse(parent_header), JSONX.parse(metadata), buffers)
         @vprintln("RECEIVED $m")
         return m
     finally
