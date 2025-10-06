@@ -75,7 +75,7 @@ function execute_request(socket, kernel, msg)
     hcode = replace(code, r"^\s*\?" => "")
 
     try
-        foreach(invokelatest, kernel.preexecute_hooks)
+        foreach(invokelatest, IJulia._preexecute_hooks)
 
         kernel.ans = result = if hcode != code # help request
             Core.eval(Main, helpmode(hcode))
@@ -114,7 +114,7 @@ function execute_request(socket, kernel, msg)
             end
         end
 
-        foreach(invokelatest, kernel.postexecute_hooks)
+        foreach(invokelatest, IJulia._postexecute_hooks)
 
         # flush pending stdio
         flush_all()
@@ -151,7 +151,7 @@ function execute_request(socket, kernel, msg)
         try
             # flush pending stdio
             flush_all()
-            foreach(invokelatest, kernel.posterror_hooks)
+            foreach(invokelatest, IJulia._posterror_hooks)
         catch
         end
         empty!(kernel.displayqueue) # discard pending display requests on an error

@@ -7,19 +7,6 @@
 IJulia.init
 ```
 
-
-## Cell execution hooks
-
-```@docs
-IJulia.pop_posterror_hook
-IJulia.pop_postexecute_hook
-IJulia.pop_preexecute_hook
-IJulia.push_posterror_hook
-IJulia.push_postexecute_hook
-IJulia.push_preexecute_hook
-```
-
-
 ## Messaging
 
 ```@docs

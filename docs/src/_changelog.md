@@ -7,7 +7,11 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
-## Unreleased
+## [v1.30.6] - 2025-10-06
+
+### Fixed
+- It's now possible to register hooks at any time, even if an IJulia kernel is
+  not running ([#1188]). This was accidentally broken in v1.30.
 
 ### Changed
 - Implemented lazy loading for Conda.jl ([#1187]), which shaves off about 60% of
