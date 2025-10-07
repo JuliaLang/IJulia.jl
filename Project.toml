@@ -20,6 +20,12 @@ Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 ZMQ = "c2297ded-f4af-51ae-bb23-16f91089e4e1"
 
+[weakdeps]
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+
+[extensions]
+PythonCallExt = "PythonCall"
+
 [compat]
 Base64 = "1"
 Conda = "1"
@@ -31,6 +37,7 @@ Markdown = "1"
 Pkg = "1"
 PrecompileTools = "1.2.1"
 Printf = "1"
+PythonCall = "0.9"
 REPL = "1"
 Random = "1"
 SHA = "0.7, 1"

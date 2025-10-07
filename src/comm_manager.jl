@@ -10,12 +10,11 @@ export comm_target, msg_comm, send_comm, close_comm,
 # Global variable kept around for backwards compatibility
 comms::Dict{String, CommManager.Comm} = Dict{String, CommManager.Comm}()
 
-noop_callback(msg) = nothing
 function Comm(target,
               id=uuid4(),
               primary=true,
-              on_msg=noop_callback,
-              on_close=noop_callback;
+              on_msg=Returns(nothing),
+              on_close=Returns(nothing);
               kernel=IJulia._default_kernel,
               data=Dict(),
               metadata=Dict(),

@@ -514,6 +514,31 @@ end
 
 #######################################################################
 
+# These are stubs for the PythonCall extension
+
+"""
+    init_ipywidgets()
+
+Initialize the integration with ipywidgets by setting up the right hooks to
+allow ipywidgets to use IJulia comms.
+"""
+function init_ipywidgets end
+
+"""
+    init_ipython()
+
+Initialize the integration with IPython by overriding its display system to call
+Julia's `display()` instead.
+"""
+function init_ipython end
+
+"""
+    init_matplotlib()
+
+Initialize the integration with matplotlib.
+"""
+function init_matplotlib end
+
 include("init.jl")
 include("hmac.jl")
 include("eventloop.jl")

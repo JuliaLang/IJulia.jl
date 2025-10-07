@@ -20,6 +20,14 @@ function __init__()
     orig_stderr[] = stderr
     orig_logger[] = Logging.global_logger()
     SOFTSCOPE[] = lowercase(get(ENV, "IJULIA_SOFTSCOPE", "yes")) in ("yes", "true")
+
+    Base.Experimental.register_error_hint(MethodError) do io, exc, argtypes, kwargs
+        if exc.f === IJulia.init_ipywidgets || exc.f === IJulia.init_matplotlib || exc.f === IJulia.init_ipython
+            if isempty(methods(exc.f))
+                print(io, "\nIJulia.$(nameof(exc.f))() cannot be called yet, you must load PythonCall first for the extension to be loaded.")
+            end
+        end
+    end
 end
 
 function getports(port_hint, n)

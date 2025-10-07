@@ -1,5 +1,4 @@
 ENV["JULIA_CONDAPKG_ENV"] = "@ijulia-tests"
-ENV["JULIA_CONDAPKG_BACKEND"] = "MicroMamba"
 ENV["JULIA_CONDAPKG_VERBOSITY"] = -1
 
 # If you're running the tests locally you could uncomment the two environment
@@ -412,5 +411,45 @@ end
                 kill(kernel_proc)
             end
         end
+    end
+end
+
+@testset "Python integration" begin
+    profile = IJulia.create_profile(; key=IJulia._TEST_KEY)
+
+    # These are mostly just smoke tests
+    Kernel(profile; capture_stdout=false, capture_stderr=false) do kernel
+        jupyter_client(profile) do client
+            # Test ipywidgets
+            @test msg_ok(execute(client, """
+                    using PythonCall
+                    IJulia.init_matplotlib()
+
+                    ipywidgets = pyimport("ipywidgets")
+                    slider = ipywidgets.IntSlider(value=5)
+            """))
+
+            # Check that we've registered some comms
+            @test length(methods(IJulia.CommManager.register_comm)) == 3
+
+            # Test matplotlib
+            @test msg_ok(execute(client, """
+                    plt = pyimport("matplotlib.pyplot")
+                    plt.figure()
+                    plt.plot([1, 2, 3], [1, 4, 2])
+            """))
+        end
+    end
+
+    @testset "Utilities" begin
+        ext = Base.get_extension(IJulia, :PythonCallExt)
+
+        x = Dict(1 => Dict{Int, Any}(2 => [1, 2]), "foo" => "bar")
+        ext.arrays_to_pylist!(x)
+        @test x[1][2] isa Py
+        @test x["foo"] == "bar"
+
+        @test_logs (:error, r"has not been implemented") ext.PyComm.open(1)
+        @test_logs (:error, r"has not been implemented") ext.PyCommManager.unregister_target(1)
     end
 end

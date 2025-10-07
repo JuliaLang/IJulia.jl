@@ -7,6 +7,13 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## Unreleased
+
+### Added
+- Implemented a [PythonCall.jl extension](manual/usage.md#Python-integration) to
+  support interactive ipywidgets and matplotlib widgets in Julia ([#1190]).
+- Added support for buffers in the Jupyter messaging protocol ([#1190]).
+
 ## [v1.30.6] - 2025-10-06
 
 ### Fixed

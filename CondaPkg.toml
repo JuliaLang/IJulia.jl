@@ -1,3 +1,10 @@
 [deps]
-jupyter_client = ""
+ipython = ""
 jupyter_kernel_test = ""
+ipywidgets = ""
+matplotlib = ""
+jupyter_client = ""
+ipympl = ""
+comm = ""
+# Python 3.14 segfaults something awful
+python = "3.13.*"
