@@ -181,26 +181,26 @@ function kernel_info_request(socket, kernel, msg)
     send_ipython(socket, kernel,
                  msg_reply(msg, "kernel_info_reply",
                            Dict("protocol_version" => "5.4",
-                                        "implementation" => "ijulia",
-                                        "implementation_version" => string(pkgversion(@__MODULE__)),
-                                        "language_info" =>
-                                        Dict("name" => "julia",
-                                             "version" =>
+                                "implementation" => "ijulia",
+                                "implementation_version" => string(pkgversion(@__MODULE__)),
+                                "language_info" =>
+                                    Dict("name" => "julia",
+                                         "version" =>
                                              string(VERSION.major, '.',
                                                     VERSION.minor, '.',
                                                     VERSION.patch),
-                                             "mimetype" => "application/julia",
-                                             "file_extension" => ".jl"),
-                                        "banner" => "Julia: A fresh approach to technical computing.",
-                                        "help_links" => [
-                                                         Dict("text"=>"Julia Home Page",
-                                                              "url"=>"http://julialang.org/"),
-                                                         Dict("text"=>"Julia Documentation",
-                                                              "url"=>"http://docs.julialang.org/"),
-                                                         Dict("text"=>"Julia Packages",
-                                                              "url"=>"https://juliahub.com/ui/Packages")
-                                                        ],
-                                        "status" => "ok")))
+                                         "mimetype" => "application/julia",
+                                         "file_extension" => ".jl"),
+                                "banner" => "Julia: A fresh approach to technical computing.",
+                                "help_links" => [
+                                    Dict("text"=>"Julia Home Page",
+                                         "url"=>"http://julialang.org/"),
+                                    Dict("text"=>"Julia Documentation",
+                                         "url"=>"http://docs.julialang.org/"),
+                                    Dict("text"=>"Julia Packages",
+                                         "url"=>"https://juliahub.com/ui/Packages")
+                                ],
+                                "status" => "ok")))
 end
 
 """
@@ -226,23 +226,11 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-s
 sending the reply this will exit the process.
 """
 function shutdown_request(socket, kernel, msg)
-    # stop heartbeat thread
-    stop_heartbeat(kernel)
-
-    # Shutdown the `requests` socket handler before sending any messages. This
-    # is necessary because otherwise the event loop will be calling
-    # `recv_ipython()` and holding a lock on `requests`, which will cause a
-    # deadlock when we try to send a message to it from the `control` socket
-    # handler.
-    IJulia._shutting_down[] = true
-    @async Base.throwto(kernel.requests_task[], InterruptException())
-
-    # In protocol 5.4 the shutdown reply moved to the control socket
-    shutdown_socket = VersionNumber(msg) >= v"5.4" ? kernel.control[] : kernel.requests[]
-    send_ipython(shutdown_socket, kernel,
+    send_ipython(kernel.control[], kernel,
                  msg_reply(msg, "shutdown_reply", msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
-    kernel.shutdown()
+
+    kernel.shutdown(kernel)
 
     nothing
 end

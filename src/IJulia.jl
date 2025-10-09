@@ -120,7 +120,7 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     # from the front-end.
     comms::Dict{String, Comm} = Dict{String, Comm}()
 
-    shutdown::Function = exit
+    shutdown::Function = start_shutdown
 
     # the following constants need to be initialized in init().
     publish::RefValue{Socket} = Ref{Socket}()
@@ -128,7 +128,7 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     requests::RefValue{Socket} = Ref{Socket}()
     control::RefValue{Socket} = Ref{Socket}()
     heartbeat::RefValue{Socket} = Ref{Socket}()
-    heartbeat_context::RefValue{Context} = Ref{Context}()
+    zmq_context::RefValue{Context} = Ref{Context}()
     profile::Dict{String, Any} = Dict{String, Any}()
     connection_file::Union{String, Nothing} = nothing
     read_stdout::RefValue{Base.PipeEndpoint} = Ref{Base.PipeEndpoint}()
@@ -180,6 +180,24 @@ function Base.wait(kernel::Kernel)
     end
 end
 
+function start_shutdown(kernel::Kernel)
+    IJulia._shutting_down[] = true
+    kernel.inited = false
+
+    # First we call zmq_ctx_shutdown() to close the context and stop all sockets
+    # from working. We don't call ZMQ.close(::Context) directly because that
+    # currently isn't threadsafe:
+    # https://github.com/JuliaInterop/ZMQ.jl/issues/256
+    ZMQ.lib.zmq_ctx_shutdown(kernel.zmq_context[])
+
+    # Wait for the heartbeat thread to stop
+    @ccall uv_thread_join(kernel.heartbeat_threadid::Ptr{Int})::Cint
+
+    # Now all the sockets should have been cancelled and the eventloop tasks
+    # should be ready to shutdown.
+    notify(kernel.stop_event)
+end
+
 function Base.close(kernel::Kernel)
     # Reset the IO streams first so that any later errors get printed
     if kernel.capture_stdout
@@ -205,17 +223,16 @@ function Base.close(kernel::Kernel)
     end
     popdisplay()
 
+    start_shutdown(kernel)
+    wait(kernel)
+
     # Close all sockets
     close(kernel.publish[])
     close(kernel.raw_input[])
     close(kernel.requests[])
     close(kernel.control[])
-    stop_heartbeat(kernel)
-
-    # The waitloop should now be ready to exit
-    kernel.inited = false
-    notify(kernel.stop_event)
-    wait(kernel)
+    close(kernel.heartbeat[])
+    close(kernel.zmq_context[])
 
     # Reset global variables
     IJulia.n = 0

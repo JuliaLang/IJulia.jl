@@ -25,23 +25,3 @@ function start_heartbeat(kernel)
     ccall(:uv_thread_create, Cint, (Ptr{Int}, Ptr{Cvoid}, Ptr{Cvoid}),
           kernel.heartbeat_threadid, heartbeat_c, heartbeat)
 end
-
-function stop_heartbeat(kernel)
-    if !isopen(kernel.heartbeat_context[])
-        # Do nothing if it has already been stopped (which can happen in the tests)
-        return
-    end
-
-    # First we call zmq_ctx_shutdown() to ensure that the zmq_proxy() call
-    # returns. We don't call ZMQ.close(::Context) directly because that
-    # currently isn't threadsafe:
-    # https://github.com/JuliaInterop/ZMQ.jl/issues/256
-    ZMQ.lib.zmq_ctx_shutdown(kernel.heartbeat_context[])
-    @ccall uv_thread_join(kernel.heartbeat_threadid::Ptr{Int})::Cint
-
-    # Now that the heartbeat thread has joined and its guaranteed to no longer
-    # be working on the heartbeat socket, we can safely close it and then the
-    # context.
-    close(kernel.heartbeat[])
-    close(kernel.heartbeat_context[])
-end

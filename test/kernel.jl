@@ -217,7 +217,7 @@ end
         end
 
         shutdown_called = false
-        Kernel(profile; capture_stdout=false, capture_stderr=false, shutdown=() -> shutdown_called = true) do kernel
+        Kernel(profile; capture_stdout=false, capture_stderr=false, shutdown=(_) -> shutdown_called = true) do kernel
             jupyter_client(profile) do client
                 @testset "Comms" begin
                     # Try opening a Comm without a target_name, which should
