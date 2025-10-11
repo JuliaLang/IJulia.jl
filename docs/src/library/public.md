@@ -58,3 +58,14 @@ IJulia.pop_postexecute_hook
 IJulia.push_posterror_hook
 IJulia.pop_posterror_hook
 ```
+
+## Python initializers
+
+See the [Python integration](../manual/usage.md#Python-integration) docs for
+more details.
+
+```@docs
+IJulia.init_matplotlib
+IJulia.init_ipywidgets
+IJulia.init_ipython
+```

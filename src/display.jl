@@ -1,4 +1,3 @@
-
 # define our own method to avoid type piracy with Base.showable
 _showable(a::AbstractVector{<:MIME}, x) = any(m -> showable(m, x), a)
 _showable(m, x) = showable(m, x)
@@ -103,12 +102,7 @@ end
 
 display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x, true)))
 
-"""
-Generate a dictionary of `mime_type => data` pairs for all registered MIME
-types. This is the format that Jupyter expects in `display_data` and
-`execute_result` messages.
-"""
-function display_dict(x)
+function _display_dict(x)
     data = Dict{String, Union{String, JSONText}}()
     for m in ijulia_mime_types
         try
@@ -136,6 +130,13 @@ function display_dict(x)
     return data
 
 end
+
+"""
+Generate a dictionary of `mime_type => data` pairs for all registered MIME
+types. This is the format that Jupyter expects in `display_data` and
+`execute_result` messages.
+"""
+display_dict(x) = _display_dict(x)
 
 # remove x from the display queue
 function undisplay(x, kernel)

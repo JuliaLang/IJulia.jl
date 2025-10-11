@@ -1,6 +1,10 @@
 import Changelog
 using Documenter, IJulia
 
+if isdefined(Main, :Revise)
+    Revise.revise()
+end
+
 # Build the changelog
 Changelog.generate(
     Changelog.Documenter(),
@@ -16,7 +20,7 @@ makedocs(;
     sitename="IJulia",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        assets = ["assets/favicon.ico"],
+        assets = ["assets/favicon.ico", "assets/custom.css"],
     ),
     pages=[
         "Home" => "index.md",

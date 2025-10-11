@@ -135,3 +135,68 @@ By default, IJulia evaluates user code using "soft" global scope, via the [SoftG
 To opt out of this behavior, making notebooks behave similarly to global code in Julia `.jl` files,
 you can set `IJulia.SOFTSCOPE[] = false` at runtime, or include the environment variable `IJULIA_SOFTSCOPE=no`
 environment of the IJulia kernel when it is launched.
+
+## Python integration
+
+IJulia has an extension for PythonCall.jl that can integrate with ipywidgets and
+matplotlib to allow using their interactive widgets. Usage in Julia should be
+almost exactly the same as in Python, with the caveat that some libraries may
+expect `numpy.ndarray` arguments and not know what to do with
+`juliacall.ArrayValue` arguments (see the `mpl-interactions` example). In this
+case you should convert the array to an `ndarray` by calling `Py(x).to_numpy()`.
+
+To enable the integrations you should call one of the [Python initializer
+functions](../library/public.md#Python-initializers) *after* loading PythonCall
+and *before* importing any other Python libraries. Otherwise some hooks may be
+set up too late.
+
+### Examples
+
+Ipywidgets:
+```julia
+using PythonCall
+IJulia.init_ipywidgets()
+const ipywidgets = pyimport("ipywidgets")
+
+widget = ipywidgets.IntSlider(5)
+
+widget.value
+```
+![](../assets/ipywidgets.gif)
+
+Matplotlib:
+```julia
+using PythonCall
+IJulia.init_matplotlib()
+const plt = pyimport("matplotlib.pyplot")
+
+plt.figure()
+plt.imshow(rand(100, 100))
+plt.tight_layout()
+```
+![](../assets/matplotlib.gif)
+
+And a more complex example with
+[mpl-interactions](https://mpl-interactions.readthedocs.io/en/stable/):
+```julia
+using PythonCall
+IJulia.init_matplotlib()
+
+const plt = pyimport("matplotlib.pyplot")
+const iplt = pyimport("mpl_interactions.ipyplot")
+
+x = collect(range(0, pi, 100))
+tau = collect(range(0.5, 10, 100))
+
+f1(x; tau, beta) = @. sin(x * tau) * x * beta
+f2(x; tau, beta) = @. sin(x * beta) * x * tau
+
+fig, ax = plt.subplots(figsize=(7, 3.5))
+# Note the calls to Py(x).to_numpy() to convert `x` to an ndarray
+controls = iplt.plot(Py(x).to_numpy(), f1, tau=tau, beta=(1, 10, 100), label="f1")
+iplt.plot(Py(x).to_numpy(), f2, controls=controls, label="f2")
+plt.legend()
+plt.grid()
+plt.tight_layout()
+```
+![](../assets/mpl-interactions.gif)

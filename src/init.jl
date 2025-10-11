@@ -20,6 +20,14 @@ function __init__()
     orig_stderr[] = stderr
     orig_logger[] = Logging.global_logger()
     SOFTSCOPE[] = lowercase(get(ENV, "IJULIA_SOFTSCOPE", "yes")) in ("yes", "true")
+
+    Base.Experimental.register_error_hint(MethodError) do io, exc, argtypes, kwargs
+        if exc.f === IJulia.init_ipywidgets || exc.f === IJulia.init_matplotlib || exc.f === IJulia.init_ipython
+            if isempty(methods(exc.f))
+                print(io, "\nIJulia.$(nameof(exc.f))() cannot be called yet, you must load PythonCall first for the extension to be loaded.")
+            end
+        end
+    end
 end
 
 function getports(port_hint, n)
@@ -100,12 +108,12 @@ function init(args, kernel, profile=nothing)
         kernel.hmac_key = collect(UInt8, profile["key"])
     end
 
-    kernel.publish[] = Socket(PUB)
-    kernel.raw_input[] = Socket(ROUTER)
-    kernel.requests[] = Socket(ROUTER)
-    kernel.control[] = Socket(ROUTER)
-    kernel.heartbeat_context[] = Context()
-    kernel.heartbeat[] = Socket(kernel.heartbeat_context[], ROUTER)
+    kernel.zmq_context[] = Context()
+    kernel.publish[] = Socket(kernel.zmq_context[], PUB)
+    kernel.raw_input[] = Socket(kernel.zmq_context[], ROUTER)
+    kernel.requests[] = Socket(kernel.zmq_context[], ROUTER)
+    kernel.control[] = Socket(kernel.zmq_context[], ROUTER)
+    kernel.heartbeat[] = Socket(kernel.zmq_context[], ROUTER)
     sep = profile["transport"]=="ipc" ? "-" : ":"
     bind(kernel.publish[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["iopub_port"])")
     bind(kernel.requests[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["shell_port"])")
