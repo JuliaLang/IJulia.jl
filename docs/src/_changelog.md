@@ -7,7 +7,7 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
-## Unreleased
+## [v1.31.0] - 2025-10-13
 
 ### Added
 - Implemented a [PythonCall.jl extension](manual/usage.md#Python-integration) to
