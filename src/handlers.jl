@@ -124,7 +124,7 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#completi
 """
 function complete_request(socket, kernel, msg)
     code = msg.content["code"]::String
-    cursor_chr = msg.content["cursor_pos"]::Int
+    cursor_chr = msg.content["cursor_pos"]::Int64
     cursorpos = chr2ind(msg, code, cursor_chr)
     # Ensure that `cursorpos` is within bounds, Jupyter may send a position out
     # of bounds when autocompletion is enabled.
@@ -375,7 +375,7 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#introspe
 function inspect_request(socket, kernel, msg)
     try
         code = msg.content["code"]::String
-        cursor_pos = msg.content["cursor_pos"]::Int
+        cursor_pos = msg.content["cursor_pos"]::Int64
         s = get_token(code, chr2ind(msg, code, cursor_pos))
         if isempty(s)
             content = Dict("status" => "ok", "found" => false)
