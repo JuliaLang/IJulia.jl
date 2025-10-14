@@ -7,6 +7,11 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## Unreleased
+
+### Fixed
+- Fixed support for 32bit systems ([#1196]).
+
 ## [v1.31.0] - 2025-10-13
 
 ### Added

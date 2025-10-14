@@ -31,8 +31,17 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.julia-version }}
+          arch: ${{ matrix.arch }}
 
       - uses: julia-actions/cache@v2
+
+      # Installing Python on x86 is difficult and IJulia otherwise won't
+      # precompile, so we just remove PythonCall from the test deps so that the
+      # extension will never be built.
+      - name: Remove PythonCall on x86
+        if: matrix.arch == 'x86'
+        run: julia --project=test -e 'using Pkg; Pkg.rm("PythonCall")'
+
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
 
