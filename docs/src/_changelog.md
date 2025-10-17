@@ -9,6 +9,11 @@ Changelog](https://keepachangelog.com).
 
 ## Unreleased
 
+## [v1.31.1] - 2025-10-20
+
+### Added
+- Added support for JSON v1 ([#1197]).
+
 ### Fixed
 - Fixed support for 32bit systems ([#1196]).
 

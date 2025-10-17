@@ -34,7 +34,7 @@ module IJulia
 export notebook, jupyterlab, installkernel
 
 import SHA
-using ZMQ, JSON
+using ZMQ
 import Base: invokelatest, RefValue
 import Dates
 using Dates: now, format, UTC, ISODateTimeFormat
@@ -47,6 +47,14 @@ import Logging
 # InteractiveUtils is not used inside IJulia, but loaded in src/kernel.jl
 # and this import makes it possible to load InteractiveUtils from the IJulia namespace
 import InteractiveUtils
+
+import JSON
+using JSON: json, JSONText
+@static if pkgversion(JSON) >= v"1-"
+    parsejson(x; dicttype = Dict{String, Any}, kwargs...) = JSON.parse(x; dicttype, kwargs...)
+else
+    parsejson(x; kwargs...) = JSON.parse(x; kwargs...)
+end
 
 const depfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
 isfile(depfile) || error("IJulia not properly installed. Please run Pkg.build(\"IJulia\")")

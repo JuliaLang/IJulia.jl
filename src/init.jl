@@ -74,7 +74,7 @@ will be generated.
 function init(args, kernel, profile=nothing)
     !isnothing(IJulia._default_kernel) && error("IJulia is already running")
     if length(args) > 0
-        merge!(kernel.profile, open(JSON.parse, args[1])::Dict)
+        merge!(kernel.profile, open(parsejson, args[1])::Dict)
         kernel.verbose && println("PROFILE = $profile")
         kernel.connection_file = args[1]
     elseif !isnothing(profile)
