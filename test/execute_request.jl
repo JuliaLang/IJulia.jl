@@ -56,7 +56,7 @@ end
 
     # We stringify then re-parse the dict so that JSONText's are parsed as
     # actual JSON objects and we can index into them.
-    data = JSON.parse(JSON.json(IJulia.display_dict(friend)))
+    data = IJulia.parsejson(JSON.json(IJulia.display_dict(friend)))
     @test data[string(FRIENDLY_MIME)] == "Hello, world!"
     @test data[string(BINARY_MIME)] == base64encode("Hello, world!")
     @test data[string(JSON_MIME)]["name"] == "world"

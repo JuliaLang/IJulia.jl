@@ -47,6 +47,12 @@ import Logging
 # InteractiveUtils is not used inside IJulia, but loaded in src/kernel.jl
 # and this import makes it possible to load InteractiveUtils from the IJulia namespace
 import InteractiveUtils
+import JSON.json
+@static if isdefined(JSON, :Object)
+    parsejson(x; dicttype = Dict{String,Any}, kwargs...) = JSON.parse(x; dicttype, kwargs...)
+else
+    parsejson(x; kwargs...) = JSON.parse(x; kwargs...)
+end
 
 const depfile = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
 isfile(depfile) || error("IJulia not properly installed. Please run Pkg.build(\"IJulia\")")

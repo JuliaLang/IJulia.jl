@@ -102,7 +102,7 @@ function recv_ipython(socket::ZMQ.Socket, kernel::Kernel)
         # @show metadata
         # @show content
 
-        m = Msg(idents, JSON.parse(header), JSON.parse(content), JSON.parse(parent_header), JSON.parse(metadata), buffers)
+        m = Msg(idents, parsejson(header), parsejson(content), parsejson(parent_header), parsejson(metadata), buffers)
         @vprintln("RECEIVED $m")
         return m
     finally
