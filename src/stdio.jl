@@ -14,8 +14,6 @@ IJuliaStdio(io::IO, stream::AbstractString="unknown") =
                             :displaysize=>displaysize()))
 Base.pipe_reader(io::IJuliaStdio) = io.io.io
 Base.pipe_writer(io::IJuliaStdio) = io.io.io
-Base.lock(io::IJuliaStdio) = lock(io.io.io)
-Base.unlock(io::IJuliaStdio) = unlock(io.io.io)
 Base.in(key_value::Pair, io::IJuliaStdio) = in(key_value, io.io)
 Base.haskey(io::IJuliaStdio, key) = haskey(io.io, key)
 Base.getindex(io::IJuliaStdio, key) = getindex(io.io, key)
@@ -23,6 +21,11 @@ Base.get(io::IJuliaStdio, key, default) = get(io.io, key, default)
 Base.displaysize(io::IJuliaStdio) = displaysize(io.io)
 Base.unwrapcontext(io::IJuliaStdio) = Base.unwrapcontext(io.io)
 Base.setup_stdio(io::IJuliaStdio, readable::Bool) = Base.setup_stdio(io.io.io, readable)
+
+@static if get(ENV, "IJULIA_DISABLE_INVALIDATING_METHODS", "0") == "1"
+    Base.lock(io::IJuliaStdio) = lock(io.io.io)
+    Base.unlock(io::IJuliaStdio) = unlock(io.io.io)
+end
 
 # logging in verbose mode goes to original stdio streams.  Use macros
 # so that we do not even evaluate the arguments in no-verbose modes
