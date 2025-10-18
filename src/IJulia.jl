@@ -48,7 +48,7 @@ import Logging
 # and this import makes it possible to load InteractiveUtils from the IJulia namespace
 import InteractiveUtils
 import JSON.json
-@static if isdefined(JSON, :Object)
+@static if pkgversion(JSON) >= v"1-"
     parsejson(x; dicttype = Dict{String,Any}, kwargs...) = JSON.parse(x; dicttype, kwargs...)
 else
     parsejson(x; kwargs...) = JSON.parse(x; kwargs...)
