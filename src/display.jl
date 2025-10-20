@@ -147,7 +147,7 @@ end
 
 import Base: ip_matches_func
 
-function show_bt(io::IO, top_func::Symbol, t, set)
+function show_bt(io::IO, top_func::Symbol, t::Vector)
     # follow PR #17570 code in removing top_func from backtrace
     eval_ind = findlast(addr->ip_matches_func(addr, top_func), t)
     eval_ind !== nothing && (t = t[1:eval_ind-1])
@@ -164,7 +164,7 @@ function error_content(e, bt=catch_backtrace();
                        msg::AbstractString="")
     tb = map(String, split(sprint(show_bt,
                                         backtrace_top,
-                                        bt, 1:typemax(Int); context=:color => true),
+                                        bt; context=:color => true),
                                   "\n", keepempty=true))
 
     ename = string(typeof(e))
