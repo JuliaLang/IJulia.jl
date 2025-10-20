@@ -9,7 +9,7 @@ module PythonCallExt
 
 import IJulia
 using PythonCall
-
+import PrecompileTools: @compile_workload
 
 # `_repr_mimebundle_()` is a standard in the IPython ecosystem for returning all
 # the MIME's an object supports at once.
@@ -153,8 +153,11 @@ function manager_register_target(self, target_name, callback)
         target_name = pyconvert(String, target_name)
         comm_sym = Symbol(target_name)
 
-        @eval function IJulia.CommManager.register_comm(comm::IJulia.CommManager.Comm{$(QuoteNode(comm_sym))}, msg)
-            comm.on_msg = (msg) -> callback(comm, msg)
+        if @ccall(jl_generating_output()::Cint) == 0
+            # Only create the method if we aren't precompiling
+            @eval function IJulia.CommManager.register_comm(comm::IJulia.CommManager.Comm{$(QuoteNode(comm_sym))}, msg)
+                comm.on_msg = (msg) -> callback(comm, msg)
+            end
         end
     catch e
         @error "PyCommManager.register_target() failed" exception=(e, catch_backtrace())
@@ -170,6 +173,35 @@ function IJulia.init_ipython()
     nothing
 end
 
+function create_pycomm()
+    pytype("PyComm", (), [
+        "_comm" => nothing,
+        "comm_id" => pyproperty(; get=self -> self._comm.id),
+        pyfunc(pycomm_init; name="__init__"),
+        pycomm_notimplemented("publish_msg"),
+        pycomm_notimplemented("open"),
+        pyfunc(pycomm_close; name="close"),
+        pyfunc(pycomm_send; name="send"),
+        pycomm_notimplemented("on_close"),
+        pyfunc(pycomm_on_msg; name="on_msg"),
+        pycomm_notimplemented("handle_close"),
+        pycomm_notimplemented("handle_msg")
+    ])
+end
+
+function create_pycommmanager()
+    pytype("PyCommManager", (), [
+        pyfunc(manager_register_target; name="register_target"),
+        pycommmanager_notimplemented("unregister_target"),
+        pycommmanager_notimplemented("register_comm"),
+        pycommmanager_notimplemented("unregister_comm"),
+        pycommmanager_notimplemented("get_comm"),
+        pycommmanager_notimplemented("comm_open"),
+        pycommmanager_notimplemented("comm_msg"),
+        pycommmanager_notimplemented("comm_close"),
+    ])
+end
+
 function IJulia.init_ipywidgets()
     global PyComm
     global PyCommManager
@@ -177,31 +209,10 @@ function IJulia.init_ipywidgets()
     IJulia.init_ipython()
 
     if isnothing(PyComm)
-        PyComm = pytype("PyComm", (), [
-            "_comm" => nothing,
-            "comm_id" => pyproperty(; get=self -> self._comm.id),
-            pyfunc(pycomm_init; name="__init__"),
-            pycomm_notimplemented("publish_msg"),
-            pycomm_notimplemented("open"),
-            pyfunc(pycomm_close; name="close"),
-            pyfunc(pycomm_send; name="send"),
-            pycomm_notimplemented("on_close"),
-            pyfunc(pycomm_on_msg; name="on_msg"),
-            pycomm_notimplemented("handle_close"),
-            pycomm_notimplemented("handle_msg")
-        ])
+        PyComm = create_pycomm()
     end
     if isnothing(PyCommManager)
-        PyCommManager = pytype("PyCommManager", (), [
-            pyfunc(manager_register_target; name="register_target"),
-            pycommmanager_notimplemented("unregister_target"),
-            pycommmanager_notimplemented("register_comm"),
-            pycommmanager_notimplemented("unregister_comm"),
-            pycommmanager_notimplemented("get_comm"),
-            pycommmanager_notimplemented("comm_open"),
-            pycommmanager_notimplemented("comm_msg"),
-            pycommmanager_notimplemented("comm_close"),
-        ])
+        PyCommManager = create_pycommmanager()
     end
 
     comm = pyimport("comm")
@@ -214,7 +225,7 @@ function IJulia.init_ipywidgets()
     nothing
 end
 
-function IJulia.init_matplotlib(backend="ipympl")
+function IJulia.init_matplotlib(backend::String="ipympl")
     IJulia.init_ipywidgets()
 
     # Make sure it's in interactive mode and it's using the backend
@@ -240,5 +251,25 @@ precompile(pycomm_init, (Py, Py, Py, Py, Py, Py))
 precompile(pycomm_on_msg, (Py, Py))
 precompile(pycomm_send, (Py, Py, Py, Py))
 precompile(pycomm_close, (Py,))
+
+@compile_workload begin
+    create_pycomm()
+    create_pycommmanager()
+
+    # If ipywidgets is installed in the environment try to precompile its
+    # initializer. This is useful because the `ipywigets.register_comm_target()`
+    # line is pretty heavy.
+    try
+        pyimport("ipywidgets")
+        IJulia.init_ipywidgets()
+    catch ex
+        if !(ex isa PyException)
+            @error "Ipywidgets precompilation failed" exception=(ex, catch_backtrace())
+        end
+    finally
+        global PyComm = nothing
+        global PyCommManager = nothing
+    end
+end
 
 end
