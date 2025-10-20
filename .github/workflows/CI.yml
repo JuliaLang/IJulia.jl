@@ -12,6 +12,7 @@ jobs:
     env:
       JULIA_CONDAPKG_BACKEND: System
     strategy:
+      fail-fast: false
       matrix:
         julia-version: ['1.10', '1']
         arch: [x64]

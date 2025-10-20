@@ -12,6 +12,11 @@ Changelog](https://keepachangelog.com).
 ### Fixed
 - Fixed support for 32bit systems ([#1196]).
 
+### Changed
+- Improved precompilation for the PythonCall.jl extension, if `ipywidgets` is
+  installed in the Python environment then it will be used to execute a simple
+  workload ([#1199]).
+
 ## [v1.31.0] - 2025-10-13
 
 ### Added
