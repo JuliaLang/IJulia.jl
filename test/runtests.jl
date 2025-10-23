@@ -24,7 +24,6 @@ end
     Aqua.test_all(IJulia; stale_deps=(; ignore=[:Pkg, :Conda]))
 end
 
-# Temporarily disabled because JET doesn't seem to play well with JSON v1
-# @testset "JET.jl" begin
-#     JET.test_package(IJulia; target_defined_modules=true)
-# end
+@testset "JET.jl" begin
+    JET.test_package(IJulia; target_modules=(IJulia,))
+end

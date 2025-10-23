@@ -252,7 +252,7 @@ import IJulia: JSONX
 
     @testset "AbstractVector{UInt8} Support" begin
         @test JSONX.parse(Vector{UInt8}("null")) === nothing
-        @test JSONX.parse(Vector{UInt8}("42")) === 42
+        @test JSONX.parse(Vector{UInt8}("42")) === Int64(42)
         @test JSONX.parse(Vector{UInt8}("\"hello\"")) == "hello"
         @test JSONX.parse(Vector{UInt8}("[1,2,3]")) == [1, 2, 3]
         @test JSONX.parse(Vector{UInt8}("{\"a\":1}")) == Dict("a" => 1)
