@@ -1,5 +1,6 @@
 using Test
-import IJulia, JSON
+import IJulia
+import IJulia: JSONX
 
 @testset "installkernel" begin
     let kspec = IJulia.installkernel("ijuliatest", "-O3", "-p2",
@@ -10,7 +11,7 @@ import IJulia, JSON
             @test isfile(joinpath(kspec, "kernel.json"))
             @test isfile(joinpath(kspec, "logo-32x32.png"))
             @test isfile(joinpath(kspec, "logo-64x64.png"))
-            let k = open(IJulia.parsejson, joinpath(kspec, "kernel.json"))
+            let k = JSONX.parsefile(joinpath(kspec, "kernel.json"))
                 debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
                 @test k["display_name"] == "ijuliatest" * " " * Base.VERSION_STRING * debugdesc
                 @test k["argv"][end] == "{connection_file}"
@@ -27,7 +28,7 @@ import IJulia, JSON
         try
             @test occursin("ahzahz019.-_-__________", basename(kspec))
 
-            let k = open(IJulia.parsejson, joinpath(kspec, "kernel.json"))
+            let k = JSONX.parsefile(joinpath(kspec, "kernel.json"))
                 @test k["display_name"] == "foo"
             end
         finally

@@ -90,3 +90,11 @@ IJulia.num_utf8_trailing
 IJulia.get_token
 IJulia.get_previous_token
 ```
+
+## JSONX
+
+```@docs
+IJulia.JSONX.json
+IJulia.JSONX.parse
+IJulia.JSONX.parsefile
+```

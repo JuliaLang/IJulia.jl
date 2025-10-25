@@ -9,6 +9,13 @@ Changelog](https://keepachangelog.com).
 
 ## Unreleased
 
+### Changed
+- Replaced JSON.jl with a vendored copy of
+  [JSONX](https://github.com/JuliaIO/JSON.jl/tree/master/vendor) ([#1200]). This
+  lets us remove one more dependency and remove all of the invalidations caused
+  by JSON.jl. Load time is also slightly improved, from ~0.08s to ~0.05s on
+  Julia 1.12.
+
 ## [v1.31.1] - 2025-10-20
 
 ### Added

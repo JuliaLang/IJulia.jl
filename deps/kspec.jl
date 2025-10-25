@@ -1,4 +1,22 @@
-import JSON
+include("jsonx.jl")
+
+function print_json_dict(io::IO, dict::AbstractDict)
+    print(io, '{')
+    first = true
+    for (key, value) in pairs(dict)
+        !first && print(io, ',')
+        first = false
+
+        println(io)
+        print(io, "  ")
+
+        JSONX.write_string(io, string(key))
+        print(io, ':')
+        JSONX.write_json(io, value)
+    end
+    println(io)
+    print(io, '}')
+end
 
 #######################################################################
 # Install Jupyter kernel-spec files.
@@ -142,8 +160,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
         mkpath(juliakspec)
 
         open(joinpath(juliakspec, "kernel.json"), "w") do f
-            # indent by 2 for readability of file
-            write(f, JSON.json(ks, 2))
+            print_json_dict(f, ks)
         end
 
         copy_config(joinpath(ijulia_dir,"deps","logo-32x32.png"), juliakspec)

@@ -73,6 +73,10 @@ for mime in ipy_mime
     @eval begin
         function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
             kernel = _default_kernel
+            if isnothing(kernel)
+                error("Kernel has not been instantiated, cannot display.")
+            end
+
             flush_all() # so that previous stream output appears in order
             send_ipython(kernel.publish[], kernel,
                          msg_pub(kernel.execute_msg, "display_data",

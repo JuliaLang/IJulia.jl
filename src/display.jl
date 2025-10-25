@@ -100,10 +100,10 @@ function display_mimejson(mime_array::Vector{MIME}, x)
     error("No displayable MIME types in mime array.")
 end
 
-display_mimejson(m::MIME, x) = (m, JSON.JSONText(limitstringmime(m, x, true)))
+display_mimejson(m::MIME, x) = (m, JSONX.JSONText(limitstringmime(m, x, true)))
 
 function _display_dict(x)
-    data = Dict{String, Union{String, JSONText}}()
+    data = Dict{String, Union{String, JSONX.JSONText}}()
     for m in ijulia_mime_types
         try
             if _showable(m, x)
