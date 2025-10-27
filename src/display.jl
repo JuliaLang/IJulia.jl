@@ -105,15 +105,9 @@ display_mimejson(m::MIME, x) = (m, JSONX.JSONText(limitstringmime(m, x, true)))
 function _display_dict(x)
     data = Dict{String, Union{String, JSONX.JSONText}}()
     for m in ijulia_mime_types
-        try
-            if _showable(m, x)
-                mime, mime_repr = display_mimestring(m, x)
-                data[string(mime)] = mime_repr
-            end
-        catch
-            if m == MIME("text/plain")
-                rethrow() # text/plain is required
-            end
+        if _showable(m, x)
+            mime, mime_repr = display_mimestring(m, x)
+            data[string(mime)] = mime_repr
         end
     end
 
