@@ -332,6 +332,10 @@ end
                 @test msg_ok(execute(client, "ans == 42"))
                 @test kernel.ans
 
+                # Test an edge-case with displaying Type's:
+                # https://github.com/JuliaLang/IJulia.jl/issues/1098
+                @test msg_ok(execute(client, "Pair.body"))
+
                 # Test shutdown_request
                 @test msg_ok(shutdown(client))
                 @test timedwait(() -> shutdown_called, 10) == :ok
