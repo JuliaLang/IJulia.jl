@@ -9,6 +9,9 @@ Changelog](https://keepachangelog.com).
 
 ## Unreleased
 
+### Fixed
+- Fixed the display of `UnionAll` types such as `Pair.body` ([#1203]).
+
 ### Changed
 - Replaced JSON.jl with a vendored copy of
   [JSONX](https://github.com/JuliaIO/JSON.jl/tree/master/vendor) ([#1200]). This

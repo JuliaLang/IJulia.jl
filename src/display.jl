@@ -134,7 +134,10 @@ display_dict(x) = _display_dict(x)
 
 # remove x from the display queue
 function undisplay(x, kernel)
-    i = findfirst(isequal(x), kernel.displayqueue)
+    # Note that we intentionally create an anonymous function as a comparator
+    # instead of using the Base.Fix version of `isequal(x)`. This avoids an
+    # edge-case with Type's: https://github.com/JuliaLang/IJulia.jl/issues/1098
+    i = findfirst(y -> isequal(x, y), kernel.displayqueue)
     i !== nothing && splice!(kernel.displayqueue, i)
     return x
 end
