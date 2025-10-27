@@ -20,6 +20,12 @@ Changelog](https://keepachangelog.com).
   Julia 1.12.
 - Switched the default matplotlib backend for [`IJulia.init_matplotlib()`](@ref)
   to `widget`, which should be more backwards compatible ([#1205]).
+- IJulia now checks if juliaup is used during the build step when installing the
+  default kernel, and if it is used then it will set the kernel command to the
+  equivalent of `julia +major.minor` ([#1201]). This has the advantage of not
+  needing to rebuild IJulia to update the kernel after every patch release of
+  Julia, but it does mean that IJulia will only create kernels for each Julia
+  minor release instead of each patch release.
 
 ## [v1.31.1] - 2025-10-20
 
