@@ -23,7 +23,7 @@ ZMQ = "c2297ded-f4af-51ae-bb23-16f91089e4e1"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 
 [extensions]
-PythonCallExt = "PythonCall"
+IJuliaPythonCallExt = "PythonCall"
 
 [compat]
 Base64 = "1"
