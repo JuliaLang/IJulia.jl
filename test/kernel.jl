@@ -446,7 +446,7 @@ end
     end
 
     @testset "Utilities" begin
-        ext = Base.get_extension(IJulia, :PythonCallExt)
+        ext = Base.get_extension(IJulia, :IJuliaPythonCallExt)
 
         x = Dict(1 => Dict{Int, Any}(2 => [1, 2]), "foo" => "bar")
         ext.arrays_to_pylist!(x)

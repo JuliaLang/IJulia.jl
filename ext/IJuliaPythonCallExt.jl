@@ -5,7 +5,7 @@
 # interfaces it specifies we can get full support for ipywidgets and all other
 # libraries that use ipywidgets (like matplotlib/ipympl).
 
-module PythonCallExt
+module IJuliaPythonCallExt
 
 import IJulia
 using PythonCall
@@ -225,7 +225,7 @@ function IJulia.init_ipywidgets()
     nothing
 end
 
-function IJulia.init_matplotlib(backend::String="ipympl")
+function IJulia.init_matplotlib(backend::String="widget")
     IJulia.init_ipywidgets()
 
     # Make sure it's in interactive mode and it's using the backend

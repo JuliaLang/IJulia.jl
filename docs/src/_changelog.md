@@ -18,6 +18,8 @@ Changelog](https://keepachangelog.com).
   lets us remove one more dependency and remove all of the invalidations caused
   by JSON.jl. Load time is also slightly improved, from ~0.08s to ~0.05s on
   Julia 1.12.
+- Switched the default matplotlib backend for [`IJulia.init_matplotlib()`](@ref)
+  to `widget`, which should be more backwards compatible ([#1205]).
 
 ## [v1.31.1] - 2025-10-20
 

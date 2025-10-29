@@ -551,7 +551,7 @@ Julia's `display()` instead.
 function init_ipython end
 
 """
-    init_matplotlib()
+    init_matplotlib(backend="widget")
 
 Initialize the integration with matplotlib.
 """
