@@ -1,5 +1,5 @@
 # Copied from:
-# https://github.com/JuliaIO/JSON.jl/tree/52d8b907fd26c02a13f6d6f807524e71859cc5bb/vendor
+# https://github.com/JuliaIO/JSON.jl/tree/b2787c38d18aa5a6828eefabc8d4f4726e1c09e7/vendor
 
 
 module JSONX
@@ -142,10 +142,14 @@ function unescape_string(str::String, start_pos::Int, end_pos::Int)
                 b == 0x00 && throw(ArgumentError("Invalid escape sequence \\$(Char(esc_c))"))
                 print(io, Char(b))
             end
+
+            pos += 1
         else
-            print(io, Char(c))
+            # Regular character
+            print(io, str[pos])
+            pos = nextind(str, pos)
         end
-        pos += 1
+
     end
     return String(take!(io))
 end

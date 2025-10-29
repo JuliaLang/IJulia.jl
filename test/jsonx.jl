@@ -1,5 +1,5 @@
 # Copied from:
-# https://github.com/JuliaIO/JSON.jl/tree/52d8b907fd26c02a13f6d6f807524e71859cc5bb/vendor
+# https://github.com/JuliaIO/JSON.jl/tree/b2787c38d18aa5a6828eefabc8d4f4726e1c09e7/vendor
 
 # Tests for JSONX module
 using Test
@@ -267,6 +267,8 @@ import IJulia: JSONX
         @test JSONX.parse("\"\\uD83C\\uDF55\"") == "🍕"  # Pizza emoji
         # Mixed content
         @test JSONX.parse("\"Hello \\u0041\\u006E\\u0064\\u0072\\u0065\\u0077!\"") == "Hello Andrew!"
+        # String unescaping
+        @test JSONX.parse(raw"\"𝔸\\a\"") == "𝔸\\a"
         # Writing Unicode
         @test JSONX.json("A") == "\"A\""
         @test JSONX.json("😀") == "\"😀\""
