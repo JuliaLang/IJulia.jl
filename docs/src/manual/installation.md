@@ -62,16 +62,22 @@ Pkg.update()
 If you download and install a new version of Julia from the Julia web
 site, you will also probably want to update the packages with
 `Pkg.update()` (in case newer versions of the packages are required
-for the most recent Julia).  In any case, if you install a new Julia
-binary (or do anything that *changes the location of Julia* on your
-computer), you *must* update the IJulia installation (to tell Jupyter
-where to find the new Julia) by running
+for the most recent Julia). If you're using juliaup to manage Julia, then for
+every Julia *minor release* you will need to explicitly update the IJulia
+installation to tell Jupyter where to find the new Julia version:
 ```julia
 Pkg.build("IJulia")
 ```
 
-!!! important
+This is because IJulia creates default kernels for every minor version if
+juliaup is used.
 
+If you are not using juliaup to manage Julia, then you *must* update the IJulia
+installation every time you install a new Julia binary (or do anything that
+*changes the location of Julia* on your computer).
+
+
+!!! important
     `Pkg.build("IJulia")` **must** be run at the Julia command line.
     It will error and fail if run within IJulia.
 

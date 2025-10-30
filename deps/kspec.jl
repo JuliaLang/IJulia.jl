@@ -81,7 +81,22 @@ end
 
 function display_name(name::AbstractString)
     debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
-    return name * " " * Base.VERSION_STRING * debugdesc
+    return name * " $(VERSION.major).$(VERSION.minor)" * debugdesc
+end
+
+function julia_cmd(bindir=Sys.BINDIR)
+    bindir_components = splitpath(bindir)
+    juliaup_idx = findlast(==("juliaup"), bindir_components)
+
+    if !isnothing(juliaup_idx)
+        juliaup_dir = joinpath(bindir_components[1:juliaup_idx])
+        julia_exe = joinpath(juliaup_dir, joinpath("bin", exe("julia")))
+        julia_version = "$(VERSION.major).$(VERSION.minor)"
+
+        `$(julia_exe) +$(julia_version)`
+    else
+        `$(joinpath(bindir, exe("julia")))`
+    end
 end
 
 """
@@ -129,11 +144,10 @@ installkernel(
 ```
 """
 function installkernel(name::AbstractString, julia_options::AbstractString...;
-                   julia::Cmd = `$(joinpath(Sys.BINDIR,exe("julia")))`,
-                   specname::AbstractString = kernelspec_name(name),
-                   displayname::AbstractString = display_name(name),
-                   env::Dict{<:AbstractString}=Dict{String,Any}())
-
+                       julia::Cmd = julia_cmd(),
+                       specname::AbstractString = kernelspec_name(name),
+                       displayname::AbstractString = display_name(name),
+                       env::Dict{<:AbstractString}=Dict{String,Any}())
     if isnothing(match(r"^[a-zA-Z0-9._-]+$", specname))
         error("Invalid specname=$(repr(specname)): Must contain only ASCII letters, ASCII numbers, and the simple separators: - hyphen, . period, _ underscore")
     end

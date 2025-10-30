@@ -4,7 +4,7 @@ import IJulia: JSONX
 
 @testset "installkernel" begin
     let kspec = IJulia.installkernel("ijuliatest", "-O3", "-p2",
-                    env=Dict("FOO"=>"yes"), specname="Yef1rLr4kXKxq9rbEh3m")
+                                     env=Dict("FOO"=>"yes"), specname="Yef1rLr4kXKxq9rbEh3m")
         try
             @test basename(kspec) == "Yef1rLr4kXKxq9rbEh3m"  # should not contain Julia version suffix
             @test dirname(kspec) == IJulia.kerneldir()
@@ -13,7 +13,7 @@ import IJulia: JSONX
             @test isfile(joinpath(kspec, "logo-64x64.png"))
             let k = JSONX.parsefile(joinpath(kspec, "kernel.json"))
                 debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
-                @test k["display_name"] == "ijuliatest" * " " * Base.VERSION_STRING * debugdesc
+                @test k["display_name"] == "ijuliatest $(VERSION.major).$(VERSION.minor)$(debugdesc)"
                 @test k["argv"][end] == "{connection_file}"
                 @test k["argv"][end-4:end-3] == ["-O3", "-p2"]
                 @test k["language"] == "julia"
@@ -35,4 +35,10 @@ import IJulia: JSONX
             rm(kspec, force=true, recursive=true)
         end
     end
+
+    # Test juliaup detection
+    julia_exe = IJulia.exe("julia")
+    @test IJulia.julia_cmd("bin") == `$(joinpath("bin", julia_exe))`
+    juliaup_dir = joinpath("foo", "juliaup")
+    @test IJulia.julia_cmd(juliaup_dir) == `$(joinpath(juliaup_dir, "bin", julia_exe)) +$(VERSION.major).$(VERSION.minor)`
 end
