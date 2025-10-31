@@ -11,6 +11,8 @@ Changelog](https://keepachangelog.com).
 
 ### Fixed
 - Fixed the display of `UnionAll` types such as `Pair.body` ([#1203]).
+- Fixed a bug in the PythonCall extension that would break opening comms from
+  the frontend side ([#1206]).
 
 ### Changed
 - Replaced JSON.jl with a vendored copy of
@@ -19,7 +21,7 @@ Changelog](https://keepachangelog.com).
   by JSON.jl. Load time is also slightly improved, from ~0.08s to ~0.05s on
   Julia 1.12.
 - Switched the default matplotlib backend for [`IJulia.init_matplotlib()`](@ref)
-  to `widget`, which should be more backwards compatible ([#1205]).
+  to the ipympl default, which should be more backwards compatible ([#1206]).
 - IJulia now checks if juliaup is used during the build step when installing the
   default kernel, and if it is used then it will set the kernel command to the
   equivalent of `julia +major.minor` ([#1201]). This has the advantage of not

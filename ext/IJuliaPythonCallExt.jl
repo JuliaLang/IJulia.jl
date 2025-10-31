@@ -15,7 +15,7 @@ import PrecompileTools: @compile_workload
 # the MIME's an object supports at once.
 function IJulia.display_dict(x::Py)
     if hasproperty(x, :_repr_mimebundle_) && !pyis(x._repr_mimebundle_, pybuiltins.None)
-        pyconvert(Dict, x._repr_mimebundle_())
+        recursive_pyconvert(x._repr_mimebundle_())
     else
         IJulia._display_dict(x)
     end
@@ -40,9 +40,20 @@ function recursive_pyconvert(x)
     return x
 end
 
+function recursive_pydict(x)
+    dict_py = pydict(x)
+    for (key, value) in x
+        if value isa Dict
+            dict_py[key] = recursive_pydict(value)
+        end
+    end
+
+    dict_py
+end
+
 function convert_buffers(buffers)
     if !(buffers isa Py)
-        x
+        buffers
     elseif pyis(buffers, pybuiltins.None)
         Vector{UInt8}[]
     else
@@ -65,14 +76,28 @@ function arrays_to_pylist!(dict::Dict)
     end
 end
 
-function pycomm_init(self; target_name="comm", data=nothing, metadata=nothing, buffers=nothing, comm_id=IJulia.uuid4())
+function pycomm_init(self; target_name="comm", data=nothing, metadata=nothing, buffers=nothing,
+                     comm_id=IJulia.uuid4(), comm=nothing)
     try
-        target_name = pyconvert(String, target_name)
-        data = recursive_pyconvert(data)
-        metadata = recursive_pyconvert(metadata)
+        if target_name isa Py
+            target_name = pyconvert(String, target_name)
+        end
+        if data isa Py
+            data = recursive_pyconvert(data)
+        end
+        if metadata isa Py
+            metadata = recursive_pyconvert(metadata)
+        end
+        if comm_id isa Py
+            comm_id = pyconvert(String, comm_id)
+        end
         buffers = convert_buffers(buffers)
 
-        self._comm = IJulia.Comm(target_name, comm_id, true; data, metadata, buffers)
+        if isnothing(comm)
+            comm = IJulia.Comm(target_name, comm_id, true; data, metadata, buffers)
+        end
+        self._comm = comm
+        IJuliaPythonCallExt.pycomm_registry[comm_id] = self
     catch e
         @error "pycomm_init() failed" exception=(e, catch_backtrace())
     end
@@ -91,11 +116,11 @@ function pycomm_on_msg(self, callback)
         arrays_to_pylist!(msg.content)
 
         msg_dict = Dict("idents" => msg.idents,
-            "header" => msg.header,
-            "content" => msg.content,
-            "parent_header" => msg.parent_header,
-            "metadata" => msg.metadata,
-            "buffers" => msg.buffers
+                        "header" => msg.header,
+                        "content" => msg.content,
+                        "parent_header" => msg.parent_header,
+                        "metadata" => msg.metadata,
+                        "buffers" => msg.buffers
         )
         callback(msg_dict)
     catch e
@@ -122,11 +147,17 @@ function pycomm_send(self; data=Dict(), metadata=Dict(), buffers=nothing)
     end
 end
 
+# This method is needed by ipywidgets. Unlike Julia, Python allows mixing
+# keyword and positional arguments so we need to have overloads for all the
+# calls with different numbers of positional arguments.
+pycomm_send(self, data; buffers=nothing) = pycomm_send(self; data, buffers)
+
 function pycomm_close(self)
     try
         if !isnothing(IJulia._default_kernel)
             comm = IJulia._default_kernel.comms[pyconvert(String, self.comm_id)]
             IJulia.CommManager.close_comm(comm)
+            delete!(IJuliaPythonCallExt.pycomm_registry, comm.id)
         end
     catch e
         @error "pycomm_close() failed" exception=(e, catch_backtrace())
@@ -143,6 +174,8 @@ pycommmanager_notimplemented(func_name::String) = pyfunc(Base.Fix1(py_notimpleme
 PyComm::Union{Py, Nothing} = nothing
 PyCommManager::Union{Py, Nothing} = nothing
 
+const pycomm_registry = Dict{String, Py}()
+
 function manager_register_target(self, target_name, callback)
     try
         if callback isa String
@@ -152,11 +185,33 @@ function manager_register_target(self, target_name, callback)
 
         target_name = pyconvert(String, target_name)
         comm_sym = Symbol(target_name)
+        self.on_open_callbacks[comm_sym] = callback
 
         if @ccall(jl_generating_output()::Cint) == 0
             # Only create the method if we aren't precompiling
-            @eval function IJulia.CommManager.register_comm(comm::IJulia.CommManager.Comm{$(QuoteNode(comm_sym))}, msg)
-                comm.on_msg = (msg) -> callback(comm, msg)
+            @eval function IJulia.CommManager.register_comm(comm::IJulia.CommManager.Comm{$(QuoteNode(comm_sym))}, msg::IJulia.Msg)
+                msg_dict = Dict("idents" => msg.idents,
+                                "header" => msg.header,
+                                "content" => msg.content,
+                                "parent_header" => msg.parent_header,
+                                "metadata" => msg.metadata,
+                                "buffers" => msg.buffers)
+                # We need to convert the Msg to a Python dict because that's
+                # what the callbacks expect, and they may call `.get()` etc on
+                # the dict.
+                msg_dict_py = recursive_pydict(msg_dict)
+                callback = IJuliaPythonCallExt.PyCommManager.on_open_callbacks[$(QuoteNode(comm_sym))]
+
+                # Register a PyComm corresponding to the new `comm`
+                if !haskey(IJuliaPythonCallExt.pycomm_registry, comm.id)
+                    PyComm(; target_name=$(target_name), comm_id=comm.id, comm)
+                end
+
+                try
+                    callback(IJuliaPythonCallExt.pycomm_registry[comm.id], msg_dict_py)
+                catch ex
+                    @error "PyCommManager.register_target() callback failed" exception=(ex, catch_backtrace())
+                end
             end
         end
     catch e
@@ -191,6 +246,7 @@ end
 
 function create_pycommmanager()
     pytype("PyCommManager", (), [
+        "on_open_callbacks" => Dict{Symbol, Py}(),
         pyfunc(manager_register_target; name="register_target"),
         pycommmanager_notimplemented("unregister_target"),
         pycommmanager_notimplemented("register_comm"),
@@ -225,7 +281,7 @@ function IJulia.init_ipywidgets()
     nothing
 end
 
-function IJulia.init_matplotlib(backend::String="widget")
+function IJulia.init_matplotlib(backend::String="module://ipympl.backend_nbagg")
     IJulia.init_ipywidgets()
 
     # Make sure it's in interactive mode and it's using the backend
@@ -256,6 +312,8 @@ precompile(pycomm_close, (Py,))
     create_pycomm()
     create_pycommmanager()
 
+    recursive_pydict(Dict{String, Any}("foo" => 2, "bar" => Dict("baz" => "quux")))
+
     # If ipywidgets is installed in the environment try to precompile its
     # initializer. This is useful because the `ipywigets.register_comm_target()`
     # line is pretty heavy.
@@ -269,6 +327,7 @@ precompile(pycomm_close, (Py,))
     finally
         global PyComm = nothing
         global PyCommManager = nothing
+        empty!(pycomm_registry)
     end
 end
 

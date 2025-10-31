@@ -551,7 +551,7 @@ Julia's `display()` instead.
 function init_ipython end
 
 """
-    init_matplotlib(backend="widget")
+    init_matplotlib(backend="module://ipympl.backend_nbagg")
 
 Initialize the integration with matplotlib.
 """
