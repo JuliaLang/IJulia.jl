@@ -31,6 +31,49 @@ function do_pkg_cmd(cmd::AbstractString)
     @invokelatest _do_pkg_cmd(cmd)
 end
 
+# Helper function to check if `code` is a valid special mode command. If it is,
+# then comment lines will be stripped. If it isn't, then the original `code`
+# will be returned.
+function special_mode_strip(code::String)
+    # Exit early if there are no comment or special mode characters at all
+    if !contains(code, r"#|;|\]|\?")
+        return code
+    end
+
+    # Loop over the string and look for lines that aren't comments and aren't
+    # all whitespace.
+    uncommented_line = ""
+    has_special_mode = false
+    for line in eachline(IOBuffer(code))
+        if isempty(line) || all(isspace, line)
+            continue
+        end
+
+        first_char = strip(line)[1]
+        if first_char != '#'
+            # If we've already found an uncommented line then bail out. We only
+            # support special modes with one line of commands.
+            if !isempty(uncommented_line)
+                return code
+            end
+
+            uncommented_line = line
+            has_special_mode = first_char ∈ (';', ']', '?')
+        end
+    end
+
+    if isempty(uncommented_line)
+        # If there are no uncommented lines then return the original code
+        code
+    elseif has_special_mode
+        # If there's one and it is a special mode return just that line
+        uncommented_line
+    else
+        # Otherwise return the original code
+        code
+    end
+end
+
 """
     execute_request(socket, kernel, msg)
 
@@ -59,6 +102,8 @@ function execute_request(socket, kernel, msg)
     if store_history
         kernel.In[kernel.n] = code
     end
+
+    code = special_mode_strip(code)
 
     # "; ..." cells are interpreted as shell commands for run
     code = replace(code, r"^\s*;.*$" =>
