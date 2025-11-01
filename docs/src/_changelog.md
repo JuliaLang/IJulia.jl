@@ -28,6 +28,17 @@ Changelog](https://keepachangelog.com).
   needing to rebuild IJulia to update the kernel after every patch release of
   Julia, but it does mean that IJulia will only create kernels for each Julia
   minor release instead of each patch release.
+- Previously running special mode commands like `] st` would not work if the
+  cell contained comment lines:
+  ```julia
+  # Check environment
+  ] st
+  ```
+
+  Now the comment lines are stripped from special mode commands so the above
+  will work ([#1207]). Note that this only applies to *whole comment lines*, the
+  inline comments in code like `] st # check environment` will still not be
+  stripped.
 
 ## [v1.31.1] - 2025-10-20
 
