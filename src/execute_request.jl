@@ -75,6 +75,9 @@ function execute_request(socket, kernel, msg)
     hcode = replace(code, r"^\s*\?" => "")
 
     try
+        if isassigned(kernel.revise_precompile_task)
+            wait(kernel.revise_precompile_task[])
+        end
         foreach(invokelatest, IJulia._preexecute_hooks)
 
         kernel.ans = result = if hcode != code # help request

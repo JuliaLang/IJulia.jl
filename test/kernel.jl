@@ -91,6 +91,7 @@ history(client) = make_request(client.history, client.get_shell_msg)
 shutdown(client; wait=true) = make_request(client.shutdown, client.get_control_msg; wait)
 execute(client, code) = make_request(client.execute, client.get_shell_msg; code)
 inspect(client, code) = make_request(client.inspect, client.get_shell_msg; code)
+complete(client, code) = make_request(client.complete, client.get_shell_msg; code)
 get_stdin_msg(client) = make_request(Returns(nothing), client.get_stdin_msg)
 get_iopub_msg(client) = make_request(Returns(nothing), client.get_iopub_msg)
 
@@ -129,6 +130,51 @@ function jupyter_client(f, profile)
         client.stop_channels()
     end
 end
+
+function run_precompile()
+    profile = IJulia.create_profile(; key=IJulia._TEST_KEY)
+
+    zmq_recv = """
+
+    ZMQ.send_multipart(requests_socket, [only(idents), "<IDS|MSG>", signature, header, parent_header, metadata, content])
+    ZMQ.recv_multipart(requests_socket, String)
+    """
+
+    Kernel(profile; capture_stdout=false, capture_stderr=false) do kernel
+        jupyter_client(profile) do client
+            println("# Kernel info")
+            kernel_info(client)
+            println(zmq_recv)
+
+            println("# Completion request")
+            complete(client, "mk")
+            println(zmq_recv)
+
+            println("# Execute `42`")
+            execute(client, "42")
+            println(zmq_recv)
+
+            println("# Execute `?import`")
+            execute(client, "?import")
+            println(zmq_recv)
+
+            println("""# Execute `error("foo")`""")
+            execute(client, """error("foo")""")
+            println(zmq_recv)
+
+            println("# Get history")
+            history(client)
+            println(zmq_recv)
+
+            println("# Get comm info")
+            comm_info(client)
+            println(zmq_recv)
+        end
+    end
+end
+
+# Uncomment this to run the precompilation workload
+# run_precompile()
 
 @testset "Kernel" begin
     profile = IJulia.create_profile(; key=IJulia._TEST_KEY)

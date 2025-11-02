@@ -8,7 +8,8 @@ function run_kernel()
     ENV["COLUMNS"] = get(ENV, "COLUMNS", "80")
 
     println(Core.stdout, "Starting kernel event loops.")
-    IJulia.init(ARGS, IJulia.Kernel())
+    kernel = Kernel()
+    IJulia.init(ARGS, kernel)
 
     let startupfile = !isempty(DEPOT_PATH) ? abspath(DEPOT_PATH[1], "config", "startup_ijulia.jl") : ""
         isfile(startupfile) && Base.JLOptions().startupfile != 2 && Base.include(Main, startupfile)
@@ -19,11 +20,12 @@ function run_kernel()
 
     # check whether Revise is running and as needed configure it to run before every prompt
     if isdefined(Main, :Revise)
-        let mode = get(ENV, "JULIA_REVISE", "auto")
-            mode == "auto" && IJulia.push_preexecute_hook(Main.Revise.revise)
+        if get(ENV, "JULIA_REVISE", "auto") == "auto"
+            IJulia.push_preexecute_hook(Main.Revise.revise)
+            kernel.revise_precompile_task[] = Threads.@spawn precompile(Main.Revise.revise, ())
         end
     end
 
-    wait(IJulia._default_kernel::Kernel)
-    close(IJulia._default_kernel::Kernel)
+    wait(kernel)
+    close(kernel)
 end

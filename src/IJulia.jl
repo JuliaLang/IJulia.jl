@@ -140,6 +140,14 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     stop_event::Base.Event = Base.Event()
     waitloop_task::RefValue{Task} = Ref{Task}()
 
+    # This is a bit strange, but IJulia invalidates a lot of Revise because of
+    # its definition of Base.lock(::IJuliaStdio). This contributes significantly
+    # to TTFX because Revise.revise() is automatically set as a preexecute hook,
+    # so if run_kernel() enables the preexecute hook it also spawns a task to
+    # precompile Revise.revise() asynchronously. We store the task here to
+    # prevent any lingering tasks upon shutdown that could cause hangs.
+    revise_precompile_task::RefValue{Task} = Ref{Task}()
+
     requests_task::RefValue{Task} = Ref{Task}()
     watch_stdout_task::RefValue{Task} = Ref{Task}()
     watch_stderr_task::RefValue{Task} = Ref{Task}()
@@ -199,6 +207,10 @@ function start_shutdown(kernel::Kernel)
 end
 
 function Base.close(kernel::Kernel)
+    if isassigned(kernel.revise_precompile_task)
+        wait(kernel.revise_precompile_task[])
+    end
+
     # Reset the IO streams first so that any later errors get printed
     if kernel.capture_stdout
         redirect_stdout(orig_stdout[])
