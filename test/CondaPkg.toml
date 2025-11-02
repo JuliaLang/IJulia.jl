@@ -7,4 +7,4 @@ jupyter_client = ""
 ipympl = ""
 comm = ""
 # Python 3.14 segfaults something awful
-python = "3.13.*"
+python = "<3.14"

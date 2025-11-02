@@ -1,3 +1,8 @@
+# Copy CondaPkg.toml to the test project so that it gets found by CondaPkg
+# during the tests. If this was instead in the project directory it would also
+# be used by CondaPkg outside of the tests, which we don't want.
+cp(joinpath(@__DIR__, "CondaPkg.toml"), joinpath(dirname(Base.active_project()), "CondaPkg.toml"))
+
 ENV["JULIA_CONDAPKG_ENV"] = "@ijulia-tests"
 ENV["JULIA_CONDAPKG_VERBOSITY"] = -1
 

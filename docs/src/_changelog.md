@@ -13,6 +13,9 @@ Changelog](https://keepachangelog.com).
 - Fixed the display of `UnionAll` types such as `Pair.body` ([#1203]).
 - Fixed a bug in the PythonCall extension that would break opening comms from
   the frontend side ([#1206]).
+- The PythonCall extension accidentally forced some test dependencies to be
+  installed outside of the tests, now they have been fully moved into the test
+  suite ([#1209]).
 
 ### Changed
 - Replaced JSON.jl with a vendored copy of
