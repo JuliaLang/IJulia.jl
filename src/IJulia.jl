@@ -584,4 +584,92 @@ include("inline.jl")
 include("kernel.jl")
 include("precompile.jl")
 
+#######################################################################
+# App entry point for `ijulia` command
+
+# Mutable function references for testing - allows tests to mock these functions
+notebook_cmd::Function = notebook
+jupyterlab_cmd::Function = jupyterlab
+
+function (@main)(ARGS)
+    # Show help if help flag
+    if !isempty(ARGS) && ARGS[1] in ("--help", "-h", "help")
+        println("""
+        IJulia Launcher
+
+        Usage: ijulia [command] [OPTIONS] [JUPYTER_ARGS...]
+
+        Commands:
+          notebook         Launch Jupyter notebook (default)
+          lab              Launch JupyterLab
+
+        Options:
+          --dir=PATH       Launch in the specified directory (default: home directory)
+          --port=N         Open on the specified port number
+          --detached       Run in detached mode (continues after Julia exits)
+          --verbose        Enable verbose output from Jupyter
+          --help, -h       Show this help message
+
+        Any additional arguments are passed directly to the jupyter command.
+
+        Examples:
+          ijulia --dir=/path/to/project --port=8888
+          ijulia notebook --dir=/path/to/project --port=8888
+          ijulia lab --detached --verbose
+          ijulia --no-browser
+        """)
+        return 0
+    end
+
+    # Parse subcommand (default to "notebook")
+    subcommand = "notebook"
+    args_start = 1
+    if !isempty(ARGS)
+        first_arg = ARGS[1]
+        if first_arg in ("notebook", "lab")
+            subcommand = first_arg
+            args_start = 2
+        elseif !startswith(first_arg, "--")
+            # First arg looks like a subcommand but isn't valid
+            @error "Unknown subcommand: $first_arg. Use 'notebook' or 'lab'."
+            return 1
+        end
+    end
+
+    # Parse options
+    dir = homedir()
+    port = nothing
+    detached = false
+    verbose = false
+    extra_args = String[]
+
+    for arg in ARGS[args_start:end]
+        if startswith(arg, "--dir=")
+            dir = arg[7:end]
+        elseif startswith(arg, "--port=")
+            port = parse(Int, arg[8:end])
+        elseif arg == "--detached"
+            detached = true
+        elseif arg == "--verbose"
+            verbose = true
+        else
+            push!(extra_args, arg)
+        end
+    end
+
+    # Launch the appropriate command
+    launch_func = subcommand == "notebook" ? notebook_cmd : jupyterlab_cmd
+    try
+        launch_func(Cmd(extra_args); dir=dir, detached=detached, port=port, verbose=verbose)
+        return 0
+    catch e
+        if e isa InterruptException
+            return 0
+        else
+            @error "Failed to launch $subcommand" exception=(e, catch_backtrace())
+            return 1
+        end
+    end
+end
+
 end # IJulia
