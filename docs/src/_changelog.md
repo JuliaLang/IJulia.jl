@@ -28,6 +28,8 @@ Changelog](https://keepachangelog.com).
   needing to rebuild IJulia to update the kernel after every patch release of
   Julia, but it does mean that IJulia will only create kernels for each Julia
   minor release instead of each patch release.
+- Extended the precompilation workload to cover more calls, and added a
+  workaround to minimize TTFX when Revise is used ([#1210]).
 
 ## [v1.31.1] - 2025-10-20
 

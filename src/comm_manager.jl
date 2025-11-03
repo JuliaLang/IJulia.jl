@@ -29,11 +29,11 @@ function Comm(target,
     return comm
 end
 
-comm_target(comm :: Comm{target}) where {target} = target
+comm_target(comm :: Comm{target}) where {target} = target::Symbol
 
 function comm_info_request(sock, kernel, msg)
     reply = if haskey(msg.content, "target_name")
-        t = Symbol(msg.content["target_name"])
+        t = Symbol(msg.content["target_name"]::String)
         filter(kv -> comm_target(kv.second) == t, kernel.comms)
     else
         # reply with all comms.
@@ -87,9 +87,9 @@ end
 
 function comm_open(sock, kernel, msg)
     if haskey(msg.content, "comm_id")
-        comm_id = msg.content["comm_id"]
+        comm_id = msg.content["comm_id"]::String
         if haskey(msg.content, "target_name")
-            target = msg.content["target_name"]
+            target = msg.content["target_name"]::String
             if !haskey(msg.content, "data")
                 msg.content["data"] = Dict()
             end
@@ -104,11 +104,13 @@ function comm_open(sock, kernel, msg)
                                   msg, "comm_close"))
         end
     end
+
+    nothing
 end
 
 function comm_msg(sock, kernel, msg)
     if haskey(msg.content, "comm_id")
-        comm_id = msg.content["comm_id"]
+        comm_id = msg.content["comm_id"]::String
         if haskey(kernel.comms, comm_id)
             comm = kernel.comms[comm_id]
         else
@@ -121,11 +123,13 @@ function comm_msg(sock, kernel, msg)
         end
         comm.on_msg(msg)
     end
+
+    nothing
 end
 
 function comm_close(sock, kernel, msg)
     if haskey(msg.content, "comm_id")
-        comm_id = msg.content["comm_id"]
+        comm_id = msg.content["comm_id"]::String
         comm = kernel.comms[comm_id]
 
         if !haskey(msg.content, "data")
@@ -135,6 +139,8 @@ function comm_close(sock, kernel, msg)
 
         delete!(kernel.comms, comm.id)
     end
+
+    nothing
 end
 
 end # module
