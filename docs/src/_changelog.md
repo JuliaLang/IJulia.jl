@@ -7,15 +7,26 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
-## Unreleased
+## [v1.32.0] - 2025-11-04
+
+### Added
+- The most important change in this release is that support for juliaup was
+  added. IJulia now checks if juliaup is used during the build step when
+  installing the default kernel, and if it is used then it will set the kernel
+  command to the equivalent of `julia +major.minor` ([#1201]). This has the
+  advantage of not needing to rebuild IJulia to update the kernel after every
+  patch release of Julia, but it does mean that IJulia will only create kernels
+  for each Julia minor release instead of each patch release.
 
 ### Fixed
 - Fixed the display of `UnionAll` types such as `Pair.body` ([#1203]).
 - Fixed a bug in the PythonCall extension that would break opening comms from
   the frontend side ([#1206]).
-- The PythonCall extension accidentally forced some test dependencies to be
-  installed outside of the tests, now they have been fully moved into the test
-  suite ([#1209]).
+- The PythonCall extension accidentally forced some Python test dependencies to
+  be installed outside of the tests, now they have been fully moved into the
+  test suite ([#1209]).
+- A long-standing issue with `show()` exceptions being silently discarded was
+  fixed ([#1202]).
 
 ### Changed
 - Replaced JSON.jl with a vendored copy of
@@ -25,15 +36,9 @@ Changelog](https://keepachangelog.com).
   Julia 1.12.
 - Switched the default matplotlib backend for [`IJulia.init_matplotlib()`](@ref)
   to the ipympl default, which should be more backwards compatible ([#1206]).
-- IJulia now checks if juliaup is used during the build step when installing the
-  default kernel, and if it is used then it will set the kernel command to the
-  equivalent of `julia +major.minor` ([#1201]). This has the advantage of not
-  needing to rebuild IJulia to update the kernel after every patch release of
-  Julia, but it does mean that IJulia will only create kernels for each Julia
-  minor release instead of each patch release.
 - Extended the precompilation workload to cover more calls, and added a
   workaround to minimize TTFX when Revise is used ([#1210]).
-- Previously running special mode commands like `] st` would not work if the
+- Previously, running special mode commands like `] st` would not work if the
   cell contained comment lines:
   ```julia
   # Check environment

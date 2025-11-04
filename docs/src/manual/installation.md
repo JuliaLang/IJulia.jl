@@ -63,14 +63,14 @@ If you download and install a new version of Julia from the Julia web
 site, you will also probably want to update the packages with
 `Pkg.update()` (in case newer versions of the packages are required
 for the most recent Julia). If you're using juliaup to manage Julia, then for
-every Julia *minor release* you will need to explicitly update the IJulia
-installation to tell Jupyter where to find the new Julia version:
+every Julia *minor release* (1.11, 1.12, etc) you will need to explicitly update
+the IJulia installation to tell Jupyter where to find the new Julia version:
 ```julia
 Pkg.build("IJulia")
 ```
 
-This is because IJulia creates default kernels for every minor version if
-juliaup is used.
+This is because IJulia creates default kernels for every minor version if it
+detects that juliaup is used.
 
 If you are not using juliaup to manage Julia, then you *must* update the IJulia
 installation every time you install a new Julia binary (or do anything that
