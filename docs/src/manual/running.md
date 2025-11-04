@@ -3,11 +3,13 @@
 
 ## Command-Line Launcher
 
-Starting with Julia 1.12, you can launch IJulia directly from the command line using the `ijulia` command. First, you need to install the app entry point by running in the Julia REPL:
+Starting with Julia 1.12, you can launch IJulia directly from the command line using the `ijulia` command. First, you need to install the app entry point (see [Julia app documentation](https://pkgdocs.julialang.org/v1/apps/)) by running in the Julia REPL:
 
 ```julia
 pkg> app add IJulia
 ```
+
+You may need to add `~/.julia/bin` to your PATH if it's not already there.
 
 Then you can use the `ijulia` command from your terminal:
 

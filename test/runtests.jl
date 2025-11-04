@@ -7,6 +7,10 @@ const TEST_FILES = [
     "inline.jl", "completion.jl", "jsonx.jl"
 ]
 
+if VERSION >= v"1.11"
+    push!(TEST_FILES, "main.jl")
+end
+
 for file in TEST_FILES
     println(file)
     include(file)

@@ -587,11 +587,8 @@ include("precompile.jl")
 #######################################################################
 # App entry point for `ijulia` command
 
-# Mutable function references for testing - allows tests to mock these functions
-notebook_cmd::Function = notebook
-jupyterlab_cmd::Function = jupyterlab
-
-function (@main)(ARGS)
+@static if VERSION >= v"1.11"
+function (@main)(ARGS; notebook_cmd::Function = notebook, jupyterlab_cmd::Function = jupyterlab)
     # Show help if help flag
     if !isempty(ARGS) && ARGS[1] in ("--help", "-h", "help")
         println("""
@@ -621,8 +618,8 @@ function (@main)(ARGS)
         return 0
     end
 
-    # Parse subcommand (default to "notebook")
-    subcommand = "notebook"
+    # Parse subcommand (default to "lab")
+    subcommand = "lab"
     args_start = 1
     if !isempty(ARGS)
         first_arg = ARGS[1]
@@ -660,7 +657,7 @@ function (@main)(ARGS)
     # Launch the appropriate command
     launch_func = subcommand == "notebook" ? notebook_cmd : jupyterlab_cmd
     try
-        launch_func(Cmd(extra_args); dir=dir, detached=detached, port=port, verbose=verbose)
+        launch_func(Cmd(extra_args); dir, detached, port, verbose)
         return 0
     catch e
         if e isa InterruptException
@@ -671,5 +668,6 @@ function (@main)(ARGS)
         end
     end
 end
+end # if VERSION
 
 end # IJulia

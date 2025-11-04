@@ -33,95 +33,70 @@ import IJulia
     end
 
     # Test argument parsing without actually launching
-    # We use mutable function references (notebook_cmd/jupyterlab_cmd) to test parsing
     @testset "argument parsing" begin
-        # Save original functions
-        orig_notebook = IJulia.notebook_cmd
-        orig_jupyterlab = IJulia.jupyterlab_cmd
-
-        # Test notebook (default)
+        # Test default subcommand (lab)
         called_with = nothing
-        IJulia.notebook_cmd = function(args=``; dir=homedir(), detached=false, port=nothing, verbose=false)
+        mock_jupyterlab = function(args=``; dir=homedir(), detached=false, port=nothing, verbose=false)
             called_with = (; args, dir, detached, port, verbose)
             return nothing
         end
 
-        try
-            ret = IJulia.main(["--dir=/test", "--port=9999", "--detached", "--verbose", "--no-browser"])
-            @test ret == 0
-            @test !isnothing(called_with)
-            @test called_with.dir == "/test"
-            @test called_with.port == 9999
-            @test called_with.detached == true
-            @test called_with.verbose == true
-            @test "--no-browser" in called_with.args
-        finally
-            IJulia.notebook_cmd = orig_notebook
-        end
+        ret = IJulia.main(["--dir=/test", "--port=9999", "--detached", "--verbose", "--no-browser"]; jupyterlab_cmd=mock_jupyterlab)
+        @test ret == 0
+        @test !isnothing(called_with)
+        @test called_with.dir == "/test"
+        @test called_with.port == 9999
+        @test called_with.detached == true
+        @test called_with.verbose == true
+        @test "--no-browser" in called_with.args
 
         # Test explicit notebook subcommand
         called_with = nothing
-        IJulia.notebook_cmd = function(args=``; dir=homedir(), detached=false, port=nothing, verbose=false)
+        mock_notebook = function(args=``; dir=homedir(), detached=false, port=nothing, verbose=false)
             called_with = (; args, dir, detached, port, verbose)
             return nothing
         end
 
-        try
-            ret = IJulia.main(["notebook", "--port=8888"])
-            @test ret == 0
-            @test !isnothing(called_with)
-            @test called_with.port == 8888
-            @test called_with.dir == homedir()
-            @test called_with.detached == false
-        finally
-            IJulia.notebook_cmd = orig_notebook
-        end
+        ret = IJulia.main(["notebook", "--dir=/test", "--port=9999", "--detached", "--verbose", "--no-browser"]; notebook_cmd=mock_notebook)
+        @test ret == 0
+        @test !isnothing(called_with)
+        @test called_with.dir == "/test"
+        @test called_with.port == 9999
+        @test called_with.detached == true
+        @test called_with.verbose == true
+        @test "--no-browser" in called_with.args
 
         # Test lab subcommand
         called_with = nothing
-        IJulia.jupyterlab_cmd = function(args=``; dir=homedir(), detached=false, port=nothing, verbose=false)
+        mock_jupyterlab = function(args=``; dir=homedir(), detached=false, port=nothing, verbose=false)
             called_with = (; args, dir, detached, port, verbose)
             return nothing
         end
 
-        try
-            ret = IJulia.main(["lab", "--dir=/lab", "--verbose"])
-            @test ret == 0
-            @test !isnothing(called_with)
-            @test called_with.dir == "/lab"
-            @test called_with.verbose == true
-        finally
-            IJulia.jupyterlab_cmd = orig_jupyterlab
-        end
+        ret = IJulia.main(["lab", "--dir=/lab", "--verbose"]; jupyterlab_cmd=mock_jupyterlab)
+        @test ret == 0
+        @test !isnothing(called_with)
+        @test called_with.dir == "/lab"
+        @test called_with.verbose == true
     end
 
     # Test InterruptException handling
     @testset "interrupt handling" begin
-        orig_notebook = IJulia.notebook_cmd
-        IJulia.notebook_cmd = function(args=``; kwargs...)
+        mock_notebook = function(args=``; kwargs...)
             throw(InterruptException())
         end
 
-        try
-            ret = IJulia.main([])
-            @test ret == 0  # InterruptException should return 0
-        finally
-            IJulia.notebook_cmd = orig_notebook
-        end
+        ret = IJulia.main(["notebook"]; notebook_cmd=mock_notebook)
+        @test ret == 0  # InterruptException should return 0
     end
 
     # Test error handling
     @testset "error handling" begin
-        orig_notebook = IJulia.notebook_cmd
-        IJulia.notebook_cmd = function(args=``; kwargs...)
+        mock_notebook = function(args=``; kwargs...)
             error("Test error")
         end
 
-        try
-            ret = @test_logs (:error, r"Failed to launch") IJulia.main([])
-            @test ret == 1  # Errors should return 1
-        finally
-            IJulia.notebook_cmd = orig_notebook
-        end
+        ret = @test_logs (:error, r"Failed to launch") IJulia.main(["notebook"]; notebook_cmd=mock_notebook)
+        @test ret == 1  # Errors should return 1
     end
 end
