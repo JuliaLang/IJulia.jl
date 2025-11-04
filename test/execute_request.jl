@@ -91,3 +91,45 @@ end
     @test !haskey(data, ANGRY_MIME_1)
     @test !haskey(data, ANGRY_MIME_3)
 end
+
+@testset "Special REPL mode detection" begin
+    code = "foo"
+    @test IJulia.special_mode_strip(code) == code
+    code = "foo # bar"
+    @test IJulia.special_mode_strip(code) == code
+    code = "# foo"
+    @test IJulia.special_mode_strip(code) == code
+    code = """
+    # foo
+    bar
+    """
+    @test IJulia.special_mode_strip(code) == code
+    code = """
+    foo
+    ] st
+    """
+    @test IJulia.special_mode_strip(code) == code
+
+    code = """
+    # foo
+    ] st
+    """
+    @test IJulia.special_mode_strip(code) == "] st"
+    code = """
+    # foo
+    ] st
+    ] st
+    """
+    @test IJulia.special_mode_strip(code) == code
+    code = "? foo"
+    @test IJulia.special_mode_strip(code) == code
+    code = "; foo # bar"
+    @test IJulia.special_mode_strip(code) == code
+    code = """
+     ? foo
+    # foo
+    """
+    @test IJulia.special_mode_strip(code) == " ? foo"
+    code = " ] st   "
+    @test IJulia.special_mode_strip(code) == code
+end

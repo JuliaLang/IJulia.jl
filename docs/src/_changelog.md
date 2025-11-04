@@ -33,6 +33,17 @@ Changelog](https://keepachangelog.com).
   minor release instead of each patch release.
 - Extended the precompilation workload to cover more calls, and added a
   workaround to minimize TTFX when Revise is used ([#1210]).
+- Previously running special mode commands like `] st` would not work if the
+  cell contained comment lines:
+  ```julia
+  # Check environment
+  ] st
+  ```
+
+  Now the comment lines are stripped from special mode commands so the above
+  will work ([#1207]). Note that this only applies to *whole comment lines*, the
+  inline comments in code like `] st # check environment` will still not be
+  stripped.
 
 ## [v1.31.1] - 2025-10-20
 
