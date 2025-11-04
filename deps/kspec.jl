@@ -85,18 +85,34 @@ function display_name(name::AbstractString)
 end
 
 function julia_cmd(bindir=Sys.BINDIR)
-    bindir_components = splitpath(bindir)
-    juliaup_idx = findlast(==("juliaup"), bindir_components)
+    # bindir_components = splitpath(bindir)
+    # juliaup_idx = findlast(==("juliaup"), bindir_components)
 
-    if !isnothing(juliaup_idx)
-        juliaup_dir = joinpath(bindir_components[1:juliaup_idx])
-        julia_exe = joinpath(juliaup_dir, joinpath("bin", exe("julia")))
-        julia_version = "$(VERSION.major).$(VERSION.minor)"
+    # # Attempt to use juliaup if that's being used
+    # if !isnothing(juliaup_idx) && get(ENV, "IJULIA_NO_JULIAUP", "0") == "0"
+    #     julia_version = "$(VERSION.major).$(VERSION.minor)"
+    #     cmd = `julia +$(julia_version)`
 
-        `$(julia_exe) +$(julia_version)`
-    else
-        `$(joinpath(bindir, exe("julia")))`
-    end
+    #     # Try running the binary to see if the right channel is installed
+    #     if success(`$(cmd) --version`)
+    #         return cmd
+    #     else
+    #         error("""
+    #               Juliaup has been detected but the command $(cmd) is not
+    #               available. Ensure that the $(julia_version) channel is
+    #               installed with `juliaup add 1.12` and try building IJulia
+    #               again.
+
+    #               If you want to use an absolute path to the Julia binary in the
+    #               kernel defintion instead of using juliaup, set the
+    #               `IJULIA_NO_JULIAUP` environment variable with
+    #               `ENV["IJULIA_NO_JULIAUP"] = "1"` and try building IJulia
+    #               again.
+    #               """)
+    #     end
+    # end
+
+    `$(joinpath(bindir, exe("julia")))`
 end
 
 """

@@ -7,10 +7,17 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## [v1.32.1] - 2025-11-05
+
+### Fixed
+- Disabled the juliaup binary detection, sadly it was too buggy ([#1214]).
+
 ## [v1.32.0] - 2025-11-04
 
 ### Added
-- The most important change in this release is that support for juliaup was
+- *Note: this turned out to be buggy and was disabled in v1.32.1.*
+
+  The most important change in this release is that support for juliaup was
   added. IJulia now checks if juliaup is used during the build step when
   installing the default kernel, and if it is used then it will set the kernel
   command to the equivalent of `julia +major.minor` ([#1201]). This has the
