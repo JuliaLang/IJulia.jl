@@ -84,10 +84,6 @@ installation every time you install a new Julia binary (or do anything that
 *changes the location of Julia* on your computer).
 
 
-!!! important
-    `IJulia.installkernel()` **must** be run in the Julia REPL.
-    It will error and fail if run within IJulia.
-
 ## Installing and customizing kernels
 
 You may find it helpful to run multiple Julia kernels to support different Julia

@@ -40,7 +40,7 @@ Changelog](https://keepachangelog.com).
   been replaced with runtime functions. Use [`installkernel()`](@ref) to install
   or update kernels, and [`update_jupyter_path()`](@ref) to configure the
   Jupyter executable path.
-- IJulia now uses [Scratch.jl](https://github.com/JuliaPackaging/Scratch.jl) to
+- IJulia now uses [Preferences.jl](https://github.com/JuliaPackaging/Preferences.jl) to
   store configuration preferences instead of writing to `DEPOT_PATH/prefs/`.
 - Kernel auto-installation (when calling `notebook()` or `jupyterlab()`) now
   checks if the **default** kernel for the current Julia version exists.

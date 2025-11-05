@@ -1,4 +1,4 @@
-using Scratch
+using Preferences
 
 # Initialized to empty string; will be lazily set on first use (e.g., notebook())
 # or explicitly via update_jupyter_path()
@@ -10,30 +10,25 @@ function ijulia_debug()
     return debug_val in ("1", "true", "yes")
 end
 
-# Load the user's Jupyter preference from the Scratch space.
+# Load the user's Jupyter preference.
 # Returns the stored Jupyter path, or empty string if not set.
 function load_jupyter_preference()
-    # Check new Scratch.jl location first
-    prefsfile = joinpath(@get_scratch!("prefs"), "jupyter")
-    if isfile(prefsfile)
-        return readchomp(prefsfile)
+    # Check Preferences.jl location first
+    pref = @load_preference("jupyter", nothing)
+    if pref !== nothing
+        return pref
     end
 
-    # Backwards compat with .julia/prefs
+    # Backwards compat: check old .julia/prefs location
     old_prefsfile = joinpath(first(DEPOT_PATH), "prefs", "IJulia")
     if isfile(old_prefsfile)
-        return readchomp(old_prefsfile)
+        jupyter = readchomp(old_prefsfile)
+        # Migrate to Preferences.jl
+        @set_preferences!("jupyter" => jupyter)
+        return jupyter
     end
 
     return ""
-end
-
-# Save the user's Jupyter preference to the Scratch space.
-function save_jupyter_preference(jupyter::AbstractString)
-    prefsfile = joinpath(@get_scratch!("prefs"), "jupyter")
-    mkpath(dirname(prefsfile))
-    write(prefsfile, jupyter)
-    return jupyter
 end
 
 # Determine the Jupyter executable path based on environment variables and preferences.
@@ -76,7 +71,7 @@ Set or determine the Jupyter executable path preference and save it.
 If `jupyter` is provided, that path is saved directly. Otherwise, the function
 automatically determines the Jupyter path by checking (in order):
 1. `ENV["JUPYTER"]` environment variable
-2. Previously saved preference (from Scratch storage)
+2. Previously saved preference
 3. System default (Conda-based Jupyter or system `jupyter`)
 
 The saved preference will be used by `IJulia.notebook()` and `IJulia.jupyterlab()`.
@@ -105,7 +100,7 @@ function update_jupyter_path(jupyter::Union{String,Nothing} = nothing)
         jupyter = determine_jupyter_path()
     end
 
-    save_jupyter_preference(jupyter)
+    @set_preferences!("jupyter" => jupyter)
     global JUPYTER = jupyter
     @info "Jupyter path updated: $jupyter"
     return jupyter
