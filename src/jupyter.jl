@@ -133,7 +133,7 @@ function run_subcommand(name, package_name, port, args...)
 end
 
 """
-    notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+    notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=ijulia_debug())
 
 The `notebook()` function launches the Jupyter notebook, and is
 equivalent to running `jupyter notebook` at the operating-system
@@ -160,33 +160,34 @@ When the optional keyword `port` is not `nothing`, open the notebook on the
 given port number.
 
 If `verbose=true` then the stdout/stderr from Jupyter will be echoed to the
-terminal. Try enabling this if you're having problems connecting to a kernel to
+terminal. By default, this is enabled when `ENV["IJULIA_DEBUG"]` is set.
+Try enabling this if you're having problems connecting to a kernel to
 see if there's any useful error messages from Jupyter.
 
 For launching a JupyterLab instance, see [`IJulia.jupyterlab()`](@ref).
 """
-function notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+function notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=ijulia_debug())
     run_subcommand("notebook", "jupyter", port, args, dir, detached, verbose)
 end
 
 """
-    jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+    jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=ijulia_debug())
 
 Similar to [`IJulia.notebook()`](@ref) but launches JupyterLab instead
 of the Jupyter notebook.
 """
-function jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+function jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=ijulia_debug())
     run_subcommand("lab", "jupyterlab", port, args, dir, detached, verbose)
 end
 
 """
-    nbclassic(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+    nbclassic(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=ijulia_debug())
 
 Similar to [`IJulia.notebook()`](@ref) but launches the v6
 [nbclassic](https://nbclassic.readthedocs.io) notebook instead of the v7
 notebook.
 """
-function nbclassic(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+function nbclassic(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=ijulia_debug())
     run_subcommand("nbclassic", "nbclassic", port, args, dir, detached, verbose)
 end
 
