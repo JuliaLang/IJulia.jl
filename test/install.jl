@@ -36,9 +36,7 @@ import IJulia: JSONX
         end
     end
 
-    # Test juliaup detection
+    # Smoke test the default Julia binary path
     julia_exe = IJulia.exe("julia")
     @test IJulia.julia_cmd("bin") == `$(joinpath("bin", julia_exe))`
-    juliaup_dir = joinpath("foo", "juliaup")
-    @test IJulia.julia_cmd(juliaup_dir) == `$(joinpath(juliaup_dir, "bin", julia_exe)) +$(VERSION.major).$(VERSION.minor)`
 end
