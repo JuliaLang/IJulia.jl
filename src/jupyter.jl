@@ -148,12 +148,13 @@ When the optional keyword `port` is not `nothing`, open the notebook on the
 given port number.
 
 If `verbose=true` then the stdout/stderr from Jupyter will be echoed to the
-terminal. Try enabling this if you're having problems connecting to a kernel to
+terminal. By default, this is enabled when `ENV["IJULIA_DEBUG"]` is set.
+Try enabling this if you're having problems connecting to a kernel to
 see if there's any useful error messages from Jupyter.
 
 For launching a JupyterLab instance, see [`IJulia.jupyterlab()`](@ref).
 """
-function notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+function notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=ijulia_debug())
     inited && error("IJulia is already running")
     maybe_install_default_kernel()
     notebook = find_jupyter_subcommand("notebook", port)
@@ -161,12 +162,12 @@ function notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,In
 end
 
 """
-    jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+    jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=ijulia_debug())
 
 Similar to [`IJulia.notebook()`](@ref) but launches JupyterLab instead
 of the Jupyter notebook.
 """
-function jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+function jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=ijulia_debug())
     inited && error("IJulia is already running")
     maybe_install_default_kernel()
     lab = find_jupyter_subcommand("lab", port)
