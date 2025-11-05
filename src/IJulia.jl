@@ -31,7 +31,7 @@ The `IJulia` module is used in three ways
   to the Jupyter server.
 """
 module IJulia
-export notebook, jupyterlab, installkernel, update_jupyter_path
+export notebook, jupyterlab, installkernel
 
 import SHA
 using ZMQ

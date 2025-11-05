@@ -1,4 +1,4 @@
-using Preferences
+using Preferences: @load_preference, @set_preferences!, @delete_preferences!
 
 # Initialized to empty string; will be lazily set on first use (e.g., notebook())
 # or explicitly via update_jupyter_path()
@@ -64,14 +64,18 @@ function determine_jupyter_path()
 end
 
 """
-    update_jupyter_path([jupyter::String])
+    update_jupyter_path()
 
 Set or determine the Jupyter executable path preference and save it.
 
-If `jupyter` is provided, that path is saved directly. Otherwise, the function
-automatically determines the Jupyter path by checking (in order):
+The function checks `ENV["JUPYTER"]` first:
+- If not set: uses existing preference, or searches if no preference exists
+- If set to a path: uses that path
+- If set to empty string `""`: deletes existing preference and forces a fresh search
+
+The search checks (in order):
 1. `ENV["JUPYTER"]` environment variable
-2. Previously saved preference
+2. Previously saved preference (from LocalPreferences.toml)
 3. System default (Conda-based Jupyter or system `jupyter`)
 
 The saved preference will be used by `IJulia.notebook()` and `IJulia.jupyterlab()`.
@@ -82,23 +86,31 @@ Returns the Jupyter path that was saved.
 ```julia
 using IJulia
 
-# Auto-detect Jupyter path (checks ENV, saved prefs, system default)
+# Use existing preference (or search if none exists)
 IJulia.update_jupyter_path()
 
-# Explicitly set Jupyter path
-IJulia.update_jupyter_path("/usr/local/bin/jupyter")
+# Explicitly set Jupyter path via ENV
+ENV["JUPYTER"] = "/usr/local/bin/jupyter"
+IJulia.update_jupyter_path()
 
-# Use Conda Jupyter (empty string triggers auto-detection)
-IJulia.update_jupyter_path("")
+# Force re-detection, ignoring saved preference
+ENV["JUPYTER"] = ""
+IJulia.update_jupyter_path()
 ```
 """
-function update_jupyter_path(jupyter::Union{String,Nothing} = nothing)
+function update_jupyter_path()
+    # Check ENV first
+    jupyter = get(ENV, "JUPYTER", nothing)
+
     if jupyter === nothing
+        # No ENV set - use existing preference or search if none exists
         jupyter = determine_jupyter_path()
     elseif isempty(jupyter)
-        # Empty string means "auto-detect" for convenience
+        # ENV set to "" - delete preference and force fresh search
+        @delete_preferences!("jupyter")
         jupyter = determine_jupyter_path()
     end
+    # else: ENV set to specific path - use it
 
     @set_preferences!("jupyter" => jupyter)
     global JUPYTER = jupyter
