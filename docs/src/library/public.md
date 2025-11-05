@@ -7,6 +7,7 @@
 IJulia.IJulia
 IJulia.inited
 IJulia.installkernel
+IJulia.update_jupyter_path
 ```
 
 

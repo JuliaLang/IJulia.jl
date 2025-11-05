@@ -1,17 +1,6 @@
 # Code to launch and interact with Jupyter, not via messaging protocol
 ##################################################################
 
-# Conda is a rather heavy dependency so we go to some effort to load it lazily
-const Conda_pkgid = Base.PkgId(Base.UUID("8f4d0f93-b110-5947-807f-2305c1781a2d"), "Conda")
-
-function get_Conda(f::Function)
-    if !haskey(Base.loaded_modules, Conda_pkgid)
-        @eval import Conda
-    end
-
-    @invokelatest f(Base.loaded_modules[Conda_pkgid])
-end
-
 isyes(s) = isempty(s) || lowercase(strip(s)) in ("y", "yes")
 
 """
@@ -20,6 +9,10 @@ isyes(s) = isempty(s) || lowercase(strip(s)) in ("y", "yes")
 Return a `Cmd` for the program `subcommand`.
 """
 function find_jupyter_subcommand(subcommand::AbstractString, port::Union{Nothing,Int}=nothing)
+    global JUPYTER
+    if isempty(JUPYTER)
+        JUPYTER = determine_jupyter_path()
+    end
     jupyter = JUPYTER
     scriptdir = get_Conda() do Conda
         Conda.SCRIPTDIR
@@ -48,6 +41,34 @@ function find_jupyter_subcommand(subcommand::AbstractString, port::Union{Nothing
     end
 
     return cmd
+end
+
+##################################################################
+
+# Check if the default Julia kernel is installed for the current Julia version.
+# If not (and IJULIA_NODEFAULTKERNEL is not set), automatically install it.
+function maybe_install_default_kernel()
+    if haskey(ENV, "IJULIA_NODEFAULTKERNEL")
+        return
+    end
+
+    # Check if the default kernel for the current version exists
+    specname = kernelspec_name("Julia")
+    kernel_path = joinpath(kerneldir(), specname)
+
+    if !isdir(kernel_path)
+        # No default kernel found, install it
+        debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
+        @info """
+        No default Julia kernel found for Julia $(VERSION.major).$(VERSION.minor)$(debugdesc).
+        Installing kernel automatically. You can reinstall or update the kernel
+        anytime by running: IJulia.installkernel()
+
+        To disable this auto-installation, set the environment variable:
+            ENV["IJULIA_NODEFAULTKERNEL"] = "true"
+        """
+        installkernel()
+    end
 end
 
 ##################################################################
@@ -91,6 +112,7 @@ end
 
 function run_subcommand(name, package_name, port, args...)
     inited && error("IJulia is already running")
+    maybe_install_default_kernel()
     subcmd = find_jupyter_subcommand(name, port)
     jupyter = first(subcmd)
     scriptdir = get_Conda() do Conda
