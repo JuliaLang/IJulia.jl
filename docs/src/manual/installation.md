@@ -15,17 +15,16 @@
    ```
 
 !!! info
-    This process installs a
-    [kernel specification](https://jupyter-client.readthedocs.io/en/latest/kernels.html#kernelspecs)
-    for IJulia. The IJulia kernelspec, shorthand for kernel specification,
-    contains the instructions for launching a Julia kernel that a notebook
-    frontend (Jupyter, JupyterLab, nteract) can use. The kernelspec does not
-    install the notebook frontend.
+    The Julia kernel will be automatically installed the first time you run
+    [`IJulia.notebook()`](@ref) or [`IJulia.jupyterlab()`](@ref), or you can
+    install it manually by running [`IJulia.installkernel()`](@ref). The kernel
+    specification contains the instructions for launching a Julia kernel that a
+    notebook frontend (Jupyter, JupyterLab, nteract) can use.
 
     IJulia respects the standard
     [`JUPYTER_DATA_DIR`](https://docs.jupyter.org/en/stable/use/jupyter-directories.html#data-files)
-    environment variable, so you can set that before installation if you want
-    the kernel to be installed in a specific location.
+    environment variable, so you can set that before installing the kernel if you want
+    it to be installed in a specific location.
 
 !!! warning
     The command, `Pkg.add("IJulia")`, does not install Jupyter
@@ -34,19 +33,26 @@
     You can install Jupyter Notebook by following the Notebook's
     installation instructions if you want. Conveniently, Jupyter
     Notebook can also be installed automatically when you run
-    `IJulia.notebook()`. 
+    `IJulia.notebook()`.
     See [Running the Julia notebook](running.md#Running-the-IJulia-Notebook).
-    
+
     You can direct `IJulia.notebook()` to use a specific Jupyter
-    installation by setting `ENV["JUPYTER"]` to the path of the
-    `jupyter` program executable. This environment variable should
-    be set before `Pkg.add` or before running `Pkg.build("IJulia")`,
-    and it will remember your preference for subsequent updates.
+    installation by passing the path directly to `IJulia.update_jupyter_path()`,
+    or by setting `ENV["JUPYTER"]` before calling it. This preference will be
+    remembered for subsequent updates. For example:
+    ```julia
+    # Option 1: Pass path directly
+    IJulia.update_jupyter_path("/usr/local/bin/jupyter")
+
+    # Option 2: Set environment variable
+    ENV["JUPYTER"] = "/usr/local/bin/jupyter"
+    IJulia.update_jupyter_path()
+    ```
 
 ## Updating Julia and IJulia
 
 Julia is improving rapidly, so it won't be long before you want to
-update your packages or Julia to a more recent version.  
+update your packages or Julia to a more recent version.
 
 ### Update packages
 
@@ -66,7 +72,8 @@ for the most recent Julia). If you're using juliaup to manage Julia, then for
 every Julia *minor release* (1.11, 1.12, etc) you will need to explicitly update
 the IJulia installation to tell Jupyter where to find the new Julia version:
 ```julia
-Pkg.build("IJulia")
+using IJulia
+IJulia.installkernel()
 ```
 
 This is because IJulia creates default kernels for every minor version if it
@@ -77,17 +84,13 @@ installation every time you install a new Julia binary (or do anything that
 *changes the location of Julia* on your computer).
 
 
-!!! important
-    `Pkg.build("IJulia")` **must** be run at the Julia command line.
-    It will error and fail if run within IJulia.
-
 ## Installing and customizing kernels
 
 You may find it helpful to run multiple Julia kernels to support different Julia
 executable versions and/or environment settings.
 
 You can install one or more custom Julia kernels by using the
-[`IJulia.installkernel`](@ref) function. For example, if you want to run Julia
+[`IJulia.installkernel()`](@ref) function. For example, if you want to run Julia
 with all deprecation warnings disabled, you can create a custom IJulia kernel:
 
 ```julia
@@ -99,7 +102,7 @@ will be installed (will show up in your main Jupyter kernel menu) that
 lets you open notebooks with this flag. Note that the default kernel
 that IJulia installs passes the `--project=@.` option to Julia, if you
 want to preserve this behaviour for custom kernels make sure to pass it
-explicitly to `IJulia.installkernel`:
+explicitly to [`IJulia.installkernel`](@ref):
 ```julia
 installkernel("Julia nodeps", "--depwarn=no", "--project=@.")
 ```
@@ -116,23 +119,27 @@ installkernel("Julia (4 threads)", env=Dict("JULIA_NUM_THREADS"=>"4"))
 
 The `env` keyword should be a `Dict` which maps environment variables to values.
 
-To *prevent* IJulia from installing a default kernel when the package is built,
-define the `IJULIA_NODEFAULTKERNEL` environment variable before adding or
-building IJulia.
+If you want to disable automatic installation of the default kernel (for example, if
+you only want custom kernels), set the `IJULIA_NODEFAULTKERNEL` environment variable:
+
+```julia
+using IJulia
+
+# Disable auto-installation of the default kernel
+ENV["IJULIA_NODEFAULTKERNEL"] = "true"
+
+# Install custom kernels
+IJulia.installkernel("Julia O3", "-O3")
+IJulia.installkernel("Julia (4 threads)", env=Dict("JULIA_NUM_THREADS"=>"4"))
+```
+
+With `IJULIA_NODEFAULTKERNEL` set, [`IJulia.notebook()`](@ref) will not
+auto-install the default kernel. You can still manually install the default
+kernel by calling [`IJulia.installkernel()`](@ref) without arguments.
 
 ## Low-level IPython Installations
 
 We recommend using IPython 7.15 or later as well as Python 3.
-
-### Using legacy IPython 2.x version
-
-We recognize that some users may need to use legacy IPython 2.x.  You
-can do this by checkout out the `ipython2` branch of the IJulia package:
-
-```julia
-Pkg.checkout("IJulia", "ipython2")
-Pkg.build("IJulia")
-```
 
 ### Manual installation of IPython
 
@@ -165,8 +172,10 @@ Once IPython 3.0+ and Julia 0.7+ are installed, you can install IJulia from a Ju
 Pkg.add("IJulia")
 ```
 
-This will download IJulia and a few other prerequisites, and will set up a
-Julia kernel for IPython.
+This will download IJulia and a few other prerequisites. The Julia kernel will be
+automatically installed the first time you run [`IJulia.notebook()`](@ref) or
+[`IJulia.jupyterlab()`](@ref).
 
 If the command above returns an error, you may need to run `Pkg.update()`, then
-retry it, or possibly run `Pkg.build("IJulia")` to force a rebuild.
+retry it. If you need to reinstall the kernel, run
+[`IJulia.installkernel()`](@ref).

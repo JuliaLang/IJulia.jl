@@ -16,8 +16,7 @@ Or, explore the data directory relevant to your system, e.g.,
 `~/.local/share/jupyter/kernels`.
 
 Make sure that you can find a Julia kernel. If you can't, run
-[`IJulia.installkernel`](@ref), e.g., as `import IJulia;
-IJulia.installkernel("Julia", "--project=@.")` in the Julia REPL.
+[`IJulia.installkernel()`](@ref) in the Julia REPL.
 
 The `kernel.json` file for the `IJulia` kernel should look something like this:
 ```json
@@ -72,7 +71,7 @@ You can edit the `kernel.json` file to fix any issues. Or, delete the entire
 folder containing the `kernel.json` file to start from scratch. This is entirely
 safe to do, or you could also use `jupyter kernelspec uninstall <name>` from the
 command line, see `jupyter kernelspec --help`. After deleting an old kernel,
-simply create a new one, using [`IJulia.installkernel`](@ref) from the Julia
+simply create a new one, using [`IJulia.installkernel()`](@ref) from the Julia
 REPL.
 
 For further insight into kernel connection issues, look at the error messages
@@ -86,14 +85,14 @@ cf. [Debugging IJulia problems](@ref), below.
 
 ## General troubleshooting tips
 
-* If you ran into a problem with the above steps, after fixing the
-  problem you can type `Pkg.build()` to try to rerun the install scripts.
-* If you tried it a while ago, try running `Pkg.update()` and try again:
-  this will fetch the latest versions of the Julia packages in case
-  the problem you saw was fixed.  Run `Pkg.build("IJulia")` if your Julia
-  version may have changed.  If this doesn't work, you could try just deleting
-  the whole `.julia/conda` directory in your home directory (on Windows, it is
-  called `Users\USERNAME\.julia\conda` in your home directory) via
+* If you ran into a problem with the above steps, after fixing the problem you
+  can run [`IJulia.installkernel()`](@ref) to try to reinstall the kernel.
+* If you tried it a while ago, try running `Pkg.update()` and try again: this
+  will fetch the latest versions of the Julia packages in case the problem you
+  saw was fixed.  Run [`IJulia.installkernel()`](@ref) if your Julia version may
+  have changed.  If this doesn't work, you could try just deleting the whole
+  `.julia/conda` directory in your home directory (on Windows, it is called
+  `Users\USERNAME\.julia\conda` in your home directory) via
   `rm(abspath(first(DEPOT_PATH), "conda"),recursive=true)` in Julia and
   re-adding the packages.
 * On MacOS, you currently need MacOS 10.7 or later; [MacOS 10.6 doesn't
@@ -118,7 +117,7 @@ cf. [Debugging IJulia problems](@ref), below.
   kernel that uses your required `Project.toml` (see [Julia projects](@ref)).
 * Try running `jupyter --version` and make sure that it prints `3.0.0` or
   larger; earlier versions of IPython are no longer supported by IJulia.
-* You can try setting `ENV["JUPYTER"]=""; Pkg.build("IJulia")` to force IJulia
+* You can try running `IJulia.update_jupyter_path("")` to force IJulia
   to go back to its own Conda-based Jupyter version (if you previously tried a
   different `jupyter`).
 
@@ -127,17 +126,15 @@ cf. [Debugging IJulia problems](@ref), below.
 
 If IJulia is crashing (e.g. it gives you a "kernel appears to have
 died" message), you can modify it to print more descriptive error
-messages to the terminal by doing:
+messages to the terminal by setting the `IJULIA_DEBUG` environment variable:
 
 ```julia
 ENV["IJULIA_DEBUG"]=true
-Pkg.build("IJulia")
 ```
 
-Restart the notebook and look for the error message when IJulia dies.
+Restart the notebook, and look for the error message when IJulia dies.
 (This changes IJulia to default to `verbose = true` mode, and sets
 `capture_stderr = false`, hopefully sending a bunch of debugging to
 the terminal where you launched `jupyter`).
 
-When you are done, set `ENV["IJULIA_DEBUG"]=false` and re-run
-`Pkg.build("IJulia")` to turn off the debugging output.
+When you are done, set `ENV["IJULIA_DEBUG"]=false` to turn off the debugging output.
