@@ -1,6 +1,6 @@
 # define our own method to avoid type piracy with Base.showable
-_showable(a::AbstractVector{<:MIME}, x) = any(m -> showable(m, x), a)
-_showable(m, x) = showable(m, x)
+_showable(a::AbstractVector{<:MIME}, @nospecialize(x)) = any(m -> showable(m, x), a)
+_showable(m, @nospecialize(x)) = showable(m, x)
 
 """
 A vector of MIME types (or vectors of MIME types) that IJulia will try to
@@ -68,7 +68,7 @@ Generate the preferred MIME representation of x.
 Returns a tuple with the selected MIME type and the representation of the data
 using that MIME type.
 """
-function display_mimestring(mime_array::Vector{MIME}, x)
+function display_mimestring(mime_array::Vector{MIME}, @nospecialize(x))
     for m in mime_array
         if _showable(m, x)
             return display_mimestring(m, x)
@@ -77,10 +77,10 @@ function display_mimestring(mime_array::Vector{MIME}, x)
     error("No displayable MIME types in mime array.")
 end
 
-display_mimestring(m::MIME, x) = (m, limitstringmime(m, x))
+display_mimestring(m::MIME, @nospecialize(x)) = (m, limitstringmime(m, x))
 
 # text/plain output must have valid Unicode data to display in Jupyter
-function display_mimestring(m::MIME"text/plain", x)
+function display_mimestring(m::MIME"text/plain", @nospecialize(x))
     s = limitstringmime(m, x)
     return m, (isvalid(s) ? s : "(binary data)")
 end
@@ -102,7 +102,7 @@ end
 
 display_mimejson(m::MIME, x) = (m, JSONX.JSONText(limitstringmime(m, x, true)))
 
-function _display_dict(x)
+function _display_dict(@nospecialize(x))
     data = Dict{String, Union{String, JSONX.JSONText}}()
     for m in ijulia_mime_types
         if _showable(m, x)
@@ -130,15 +130,21 @@ Generate a dictionary of `mime_type => data` pairs for all registered MIME
 types. This is the format that Jupyter expects in `display_data` and
 `execute_result` messages.
 """
-display_dict(x) = _display_dict(x)
+display_dict(@nospecialize(x)) = _display_dict(x)
 
 # remove x from the display queue
-function undisplay(x, kernel)
-    # Note that we intentionally create an anonymous function as a comparator
-    # instead of using the Base.Fix version of `isequal(x)`. This avoids an
-    # edge-case with Type's: https://github.com/JuliaLang/IJulia.jl/issues/1098
-    i = findfirst(y -> isequal(x, y), kernel.displayqueue)
-    i !== nothing && splice!(kernel.displayqueue, i)
+function undisplay(@nospecialize(x), kernel)
+    # We do an explicit loop instead of calling findfirst() because findfirst()
+    # ends up having a significant compile-time cost for complex types, and by
+    # writing a loop we can despecialize the `x` argument. For types like Dict's
+    # this removes ~0.5s from the display time.
+    for i in eachindex(kernel.displayqueue)
+        if isequal(x, kernel.displayqueue[i])
+            splice!(kernel.displayqueue, i)
+            break
+        end
+    end
+
     return x
 end
 

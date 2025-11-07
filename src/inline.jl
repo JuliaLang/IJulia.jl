@@ -1,5 +1,3 @@
-import Base: display, redisplay
-
 """
 Struct to dispatch on for inline display.
 """
@@ -49,7 +47,7 @@ InlineIOContext(io, KVs::Pair...) = IOContext(
 Convert x to a string of type mime, making sure to use an IOContext that tells
 the underlying show function to limit output.
 """
-function limitstringmime(mime::MIME, x, forcetext=false)
+function limitstringmime(mime::MIME, @nospecialize(x), forcetext=false)
     buf = IOBuffer()
     if forcetext || istextmime(mime)
         if israwtext(mime, x)
@@ -71,7 +69,7 @@ end
 
 for mime in ipy_mime
     @eval begin
-        function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
+        function Base.display(d::InlineDisplay, ::MIME{Symbol($mime)}, @nospecialize(x))
             kernel = _default_kernel
             if isnothing(kernel)
                 error("Kernel has not been instantiated, cannot display.")
@@ -85,20 +83,20 @@ for mime in ipy_mime
                                   "transient" => transient(x), # optional
                                   "data" => Dict($mime => limitstringmime(MIME($mime), x)))))
         end
-        displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
+        Base.displayable(d::InlineDisplay, ::MIME{Symbol($mime)}) = true
     end
 end
 
 # deal with annoying application/x-latex == text/latex synonyms
-display(d::InlineDisplay, m::MIME"application/x-latex", x) = display(d, MIME("text/latex"), limitstringmime(m, x))
+Base.display(d::InlineDisplay, m::MIME"application/x-latex", @nospecialize(x)) = display(d, MIME("text/latex"), limitstringmime(m, x))
 
 # deal with annoying text/javascript == application/javascript synonyms
-display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("application/javascript"), limitstringmime(m, x))
+Base.display(d::InlineDisplay, m::MIME"text/javascript", @nospecialize(x)) = display(d, MIME("application/javascript"), limitstringmime(m, x))
 
 # If the user explicitly calls display("foo/bar", x), we send
 # the display message, also sending text/plain for text data.
-displayable(d::InlineDisplay, M::MIME) = istextmime(M)
-function display(d::InlineDisplay, M::MIME, x)
+Base.displayable(d::InlineDisplay, M::MIME) = istextmime(M)
+function Base.display(d::InlineDisplay, M::MIME, @nospecialize(x))
     kernel = _default_kernel
     if isnothing(kernel)
         error("Kernel has not been initialized, cannot set its verbosity.")
@@ -119,7 +117,7 @@ end
 
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
-function display(d::InlineDisplay, x)
+function Base.display(d::InlineDisplay, @nospecialize(x))
     kernel = _default_kernel
     if isnothing(kernel)
         error("Kernel has not been initialized, cannot set its verbosity.")
@@ -137,15 +135,14 @@ end
 # we overload redisplay(d, x) to add x to a queue of objects to display,
 # with the actual display occurring when display() is called or when
 # an input cell has finished executing.
-
-function redisplay(d::InlineDisplay, x)
+function Base.redisplay(d::InlineDisplay, x)
     kernel = _default_kernel
     if !in(x, kernel.displayqueue)
         push!(kernel.displayqueue, x)
     end
 end
 
-function display(kernel::Kernel)
+function flush_kernel_display(kernel::Kernel)
     q = copy(kernel.displayqueue)
     empty!(kernel.displayqueue) # so that undisplay in display(x) is no-op
     for x in q
