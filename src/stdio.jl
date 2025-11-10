@@ -264,8 +264,7 @@ function oslibuv_flush()
     yield()
 end
 
-import Base.flush
-function flush(io::IJuliaStdio)
+function Base.flush(io::IJuliaStdio)
     flush(io.io)
     oslibuv_flush()
     send_stream(get(io,:jupyter_stream,"unknown"), IJulia._default_kernel)

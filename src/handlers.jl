@@ -163,6 +163,9 @@ function complete_request(socket, kernel, msg)
             pushfirst!(comps, code[positions])
         end
     end
+
+    maybe_launch_precompile(kernel)
+
     send_ipython(kernel.requests[], kernel, msg_reply(msg, "complete_reply",
                                      Dict("status" => "ok",
                                                   "matches" => comps,

@@ -120,9 +120,6 @@ function execute_request(socket, kernel, msg)
     hcode = replace(code, r"^\s*\?" => "")
 
     try
-        if isassigned(kernel.revise_precompile_task)
-            wait(kernel.revise_precompile_task[])
-        end
         foreach(invokelatest, IJulia._preexecute_hooks)
 
         kernel.ans = result = if hcode != code # help request
@@ -141,6 +138,8 @@ function execute_request(socket, kernel, msg)
                 kernel.Out[kernel.n] = result
             end
         end
+
+        maybe_launch_precompile(kernel)
 
         user_expressions = Dict()
         for (v::String, ex::String) in msg.content["user_expressions"]
@@ -175,7 +174,7 @@ function execute_request(socket, kernel, msg)
         end
 
         undisplay(result, kernel) # dequeue if needed, since we display result in pyout
-        @invokelatest display(kernel) # flush pending display requests
+        @invokelatest flush_kernel_display(kernel) # flush pending display requests
 
         if result !== nothing
             result_metadata = invokelatest(metadata, result)

@@ -21,9 +21,11 @@ ZMQ = "c2297ded-f4af-51ae-bb23-16f91089e4e1"
 
 [weakdeps]
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
 [extensions]
 IJuliaPythonCallExt = "PythonCall"
+IJuliaReviseExt = "Revise"
 
 [compat]
 Base64 = "1"
@@ -38,6 +40,7 @@ Printf = "1"
 PythonCall = "0.9"
 REPL = "1"
 Random = "1"
+Revise = "3"
 SHA = "0.7, 1"
 Sockets = "1"
 UUIDs = "1"

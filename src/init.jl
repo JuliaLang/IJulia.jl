@@ -64,6 +64,17 @@ function create_profile(port_hint=8080; key=uuid4())
     )
 end
 
+function maybe_launch_precompile(kernel::Kernel)
+    # Execution and completion are likely the most common requests for the user
+    # to observe latency, so only precompile those.
+    for (task_ref, handler) in ((kernel.execute_precompile_task, execute_request),
+                                (kernel.completion_precompile_task, complete_request))
+        if !isassigned(task_ref) || istaskdone(task_ref[])
+            task_ref[] = Threads.@spawn @invokelatest precompile(handler, (Socket, Kernel, Msg))
+        end
+    end
+end
+
 """
     init(args, kernel)
 
@@ -162,5 +173,6 @@ function init(args, kernel, profile=nothing)
     kernel.In = Dict{Int, String}()
     kernel.Out = Dict{Int, Any}()
 
+    maybe_launch_precompile(kernel)
     kernel.waitloop_task[] = @async waitloop(kernel)
 end

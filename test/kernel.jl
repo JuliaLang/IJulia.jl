@@ -267,6 +267,41 @@ end
             end
         end
 
+
+        # Revise integration
+        Kernel(profile; capture_stdout=false, capture_stderr=false) do _
+            jupyter_client(profile) do client
+                @test length(IJulia._preexecute_hooks) == 1
+                @test nameof(IJulia._preexecute_hooks[1]) == :revise_hook
+
+                mktemp() do path, _
+                    write(path, "foo() = 1")
+                    code = """
+                           using Revise
+                           includet($(repr(path)))
+                           """
+                    @test msg_ok(execute(client, code))
+
+                    # Test running the initial version of the code
+                    client.execute("foo()")
+                    msg = get_execute_result(client)
+                    @test msg["content"]["data"]["text/plain"] == "1"
+
+                    # Change the file and try again. Note that we allow multiple
+                    # attempts because file events on Mac OS have a bit of
+                    # latency so it might take some time for Revise to notice
+                    # the update.
+                    write(path, "foo() = 2")
+                    ret = timedwait(10; pollint=0.5) do
+                        client.execute("foo()")
+                        msg = get_execute_result(client)
+                        msg["content"]["data"]["text/plain"] == "2"
+                    end
+                    @test ret == :ok
+                end
+            end
+        end
+
         shutdown_called = false
         Kernel(profile; capture_stdout=false, capture_stderr=false, shutdown=(_) -> shutdown_called = true) do kernel
             jupyter_client(profile) do client
@@ -457,8 +492,10 @@ end
 
                     # Note that we don't wait for a reply because the kernel
                     # will shut down almost immediately and it's not guaranteed
-                    # we'll receive the reply.
+                    # we'll receive the reply. We also sleep for a bit to try to
+                    # ensure that the shutdown message is sent.
                     shutdown(client; wait=false)
+                    sleep(0.1)
                 end
 
                 @test timedwait(() -> process_exited(kernel_proc), 60) == :ok

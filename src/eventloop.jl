@@ -22,7 +22,8 @@ function eventloop(socket, kernel)
 
             try
                 send_status("busy", kernel, msg)
-                invokelatest(get(handlers, msg.header["msg_type"], unknown_request), socket, kernel, msg)
+                msg_type = msg.header["msg_type"]::String
+                invokelatest(get(handlers, msg_type, unknown_request), socket, kernel, msg)
             catch e
                 if e isa InterruptException && IJulia._shutting_down[]
                     # If we're shutting down, just return immediately

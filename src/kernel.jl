@@ -18,14 +18,6 @@ function run_kernel()
     # import things that we want visible in IJulia but not in REPL's using IJulia
     @eval Main import IJulia: ans, In, Out, clear_history
 
-    # check whether Revise is running and as needed configure it to run before every prompt
-    if isdefined(Main, :Revise)
-        if get(ENV, "JULIA_REVISE", "auto") == "auto"
-            IJulia.push_preexecute_hook(Main.Revise.revise)
-            kernel.revise_precompile_task[] = Threads.@spawn precompile(Main.Revise.revise, ())
-        end
-    end
-
     wait(kernel)
     close(kernel)
 end
