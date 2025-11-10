@@ -492,8 +492,10 @@ end
 
                     # Note that we don't wait for a reply because the kernel
                     # will shut down almost immediately and it's not guaranteed
-                    # we'll receive the reply.
+                    # we'll receive the reply. We also sleep for a bit to try to
+                    # ensure that the shutdown message is sent.
                     shutdown(client; wait=false)
+                    sleep(0.1)
                 end
 
                 @test timedwait(() -> process_exited(kernel_proc), 60) == :ok
