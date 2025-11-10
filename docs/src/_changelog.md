@@ -7,6 +7,19 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## Unreleased
+
+### Changed
+- Added speculative precompilation of common Jupyter request handlers to improve
+  TTFX ([#1220]).
+- Moved Revise.jl support into a package extension to improve TTFX and
+  implemented a special hook to lazily call `Revise.revise()` ([#1220]). This
+  helps improve TTFX from invalidations after loading packages in the common
+  case where no files need to be revised.
+- Some display methods have been selectively despecialized to improve TTFX, for
+  complex types like highly dimensional arrays this is often a ~2x speedup
+  ([#1220]).
+
 ## [v1.32.1] - 2025-11-05
 
 ### Fixed

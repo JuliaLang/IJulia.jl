@@ -1,5 +1,7 @@
-import JET
 import Aqua
+# Note that we import Revise before IJulia to prevent Revise adding its own
+# preexecute hook, which would mess up the tests.
+import Revise
 import IJulia
 
 const TEST_FILES = [
@@ -24,6 +26,13 @@ end
     Aqua.test_all(IJulia; stale_deps=(; ignore=[:Pkg, :Conda]))
 end
 
-@testset "JET.jl" begin
-    JET.test_package(IJulia; target_modules=(IJulia,))
+# JET does not play well on versions prior to 1.12, and we disable it on 32bit
+# because it seems to give false positives for the despecialized display methods
+# if the kernel tests aren't run.
+@static if VERSION >= v"1.12" && Sys.WORD_SIZE == 64
+    import JET
+
+    @testset "JET.jl" begin
+        JET.test_package(IJulia; target_modules=(IJulia,))
+    end
 end
