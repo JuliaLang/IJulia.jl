@@ -231,7 +231,7 @@ end
 function create_pycomm()
     pytype("PyComm", (), [
         "_comm" => nothing,
-        "comm_id" => pyproperty(; get=self -> self._comm.id),
+        "comm_id" => pyproperty(; get=self -> pystr(self._comm.id)),
         pyfunc(pycomm_init; name="__init__"),
         pycomm_notimplemented("publish_msg"),
         pycomm_notimplemented("open"),
