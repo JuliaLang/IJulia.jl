@@ -76,6 +76,12 @@ function arrays_to_pylist!(dict::Dict)
     end
 end
 
+function flush_pystdio()
+    sys = pyimport("sys")
+    sys.stdout.flush()
+    sys.stderr.flush()
+end
+
 function pycomm_init(self; target_name="comm", data=nothing, metadata=nothing, buffers=nothing,
                      comm_id=IJulia.uuid4(), comm=nothing)
     try
@@ -300,6 +306,10 @@ function IJulia.init_matplotlib(backend::String="module://ipympl.backend_nbagg")
     nothing
 end
 
+function __init__()
+    push!(IJulia._flush_hooks, flush_pystdio)
+end
+
 precompile(manager_register_target, (Py, Py, Py))
 precompile(IJulia.display_dict, (Py,))
 precompile(convert_buffers, (Py,))
@@ -311,6 +321,7 @@ precompile(pycomm_close, (Py,))
 @compile_workload begin
     create_pycomm()
     create_pycommmanager()
+    flush_pystdio()
 
     recursive_pydict(Dict{String, Any}("foo" => 2, "bar" => Dict("baz" => "quux")))
 

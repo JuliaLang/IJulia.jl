@@ -252,6 +252,9 @@ function flush_all()
     flush_cstdio() # flush writes to stdout/stderr by external C code
     flush(stdout)
     flush(stderr)
+    for f in _flush_hooks
+        @invokelatest f()
+    end
 end
 
 function oslibuv_flush()
