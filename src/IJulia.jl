@@ -442,6 +442,9 @@ history
 const _preexecute_hooks = Function[]
 const _postexecute_hooks = Function[]
 const _posterror_hooks = Function[]
+# This is an internal hooks list to be called when stdio is being flushed by
+# execute_request(). Used by the PythonCall extension.
+const _flush_hooks = Function[]
 
 function _pop_hook!(f, hooks)
     hook_idx = findlast(isequal(f), hooks)

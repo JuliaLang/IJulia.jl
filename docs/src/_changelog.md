@@ -9,6 +9,13 @@ Changelog](https://keepachangelog.com).
 
 ## Unreleased
 
+### Added
+- Added support for flushing the Python stdio streams in the PythonCall
+  extension, now the output from `pyprint()` etc will show up immediately in the
+  cell output just like with Julia ([#1223]). Note that Julia's stdio is flushed
+  first, so if you have interleaved print statements in both Julia and Python
+  then the output may not appear in order of execution.
+
 ### Changed
 - Added speculative precompilation of common Jupyter request handlers to improve
   TTFX ([#1220]).
