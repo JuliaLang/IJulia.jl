@@ -16,6 +16,10 @@ Changelog](https://keepachangelog.com).
   first, so if you have interleaved print statements in both Julia and Python
   then the output may not appear in order of execution.
 
+### Fixed
+- Previously the Python stacktraces from `PyException`'s were not displayed, now
+  they are displayed along with the corresponding Julia stacktrace ([#1224]).
+
 ### Changed
 - Added speculative precompilation of common Jupyter request handlers to improve
   TTFX ([#1220]).
