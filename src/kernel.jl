@@ -10,6 +10,7 @@ function run_kernel()
     println(Core.stdout, "Starting kernel event loops.")
     kernel = Kernel()
     IJulia.init(ARGS, kernel)
+    isempty(ARGS) || popfirst!(ARGS) # Jupyter argument should not be visible to user
 
     let startupfile = !isempty(DEPOT_PATH) ? abspath(DEPOT_PATH[1], "config", "startup_ijulia.jl") : ""
         isfile(startupfile) && Base.JLOptions().startupfile != 2 && Base.include(Main, startupfile)
