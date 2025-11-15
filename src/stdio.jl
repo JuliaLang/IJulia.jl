@@ -67,10 +67,8 @@ execution request since excessive output can bring browsers to a grinding halt.
 """
 function watch_stream(rd::IO, name::AbstractString, kernel)
     task_local_storage(:IJulia_task, "read $name task")
-    buf = IOBuffer()
-    buf_lock = ReentrantLock()
-    kernel.bufs[name] = buf
-    kernel.bufs_locks[name] = buf_lock
+    buf = kernel.bufs[name]
+    buf_lock = kernel.bufs_locks[name]
 
     while isopen(rd)
         try
@@ -258,12 +256,18 @@ end
 function watch_stdio(kernel)
     task_local_storage(:IJulia_task, "init task")
     if kernel.capture_stdout
+        kernel.bufs["stdout"] = IOBuffer()
+        kernel.bufs_locks["stdout"] = ReentrantLock()
+
         kernel.watch_stdout_task[] = @async watch_stream(kernel.read_stdout[], "stdout", kernel)
         errormonitor(kernel.watch_stdout_task[])
         #send stdout stream msgs every stream_interval secs (if there is output to send)
         kernel.flush_stdout_task[] = @async flush_loop("stdout", kernel.read_stdout[], kernel, stream_interval)
     end
     if kernel.capture_stderr
+        kernel.bufs["stderr"] = IOBuffer()
+        kernel.bufs_locks["stderr"] = ReentrantLock()
+
         kernel.watch_stderr_task[] = @async watch_stream(kernel.read_stderr[], "stderr", kernel)
         errormonitor(kernel.watch_stderr_task[])
         #send STDERR stream msgs every stream_interval secs (if there is output to send)
