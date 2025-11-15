@@ -19,6 +19,7 @@ Changelog](https://keepachangelog.com).
 ### Fixed
 - Previously the Python stacktraces from `PyException`'s were not displayed, now
   they are displayed along with the corresponding Julia stacktrace ([#1224]).
+- Significantly improved the reliability of interrupt handling ([#1227]).
 
 ### Changed
 - Added speculative precompilation of common Jupyter request handlers to improve

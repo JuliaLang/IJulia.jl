@@ -101,6 +101,7 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     verbose::Bool = IJULIA_DEBUG
     inited::Bool = false
     current_module::Module = Main
+    shutting_down::Threads.Atomic{Bool} = Threads.Atomic{Bool}(false)
 
     # These fields are special and are mirrored to their corresponding global
     # variables.
@@ -152,8 +153,8 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     requests_task::RefValue{Task} = Ref{Task}()
     watch_stdout_task::RefValue{Task} = Ref{Task}()
     watch_stderr_task::RefValue{Task} = Ref{Task}()
-    watch_stdout_timer::RefValue{Timer} = Ref{Timer}()
-    watch_stderr_timer::RefValue{Timer} = Ref{Timer}()
+    flush_stdout_task::RefValue{Task} = Ref{Task}()
+    flush_stderr_task::RefValue{Task} = Ref{Task}()
 
     # name=>iobuffer for each stream ("stdout","stderr") so they can be sent in flush
     bufs::Dict{String, IOBuffer} = Dict{String, IOBuffer}()
@@ -190,7 +191,7 @@ function Base.wait(kernel::Kernel)
 end
 
 function start_shutdown(kernel::Kernel)
-    IJulia._shutting_down[] = true
+    kernel.shutting_down[] = true
     kernel.inited = false
 
     # First we call zmq_ctx_shutdown() to close the context and stop all sockets
@@ -217,14 +218,14 @@ function Base.close(kernel::Kernel)
     # Reset the IO streams first so that any later errors get printed
     if kernel.capture_stdout
         redirect_stdout(orig_stdout[])
-        close(kernel.watch_stdout_timer[])
         close(kernel.read_stdout[])
+        wait(kernel.flush_stdout_task[])
         wait(kernel.watch_stdout_task[])
     end
     if kernel.capture_stderr
         redirect_stderr(orig_stderr[])
-        close(kernel.watch_stderr_timer[])
         close(kernel.read_stderr[])
+        wait(kernel.flush_stderr_task[])
         wait(kernel.watch_stderr_task[])
     end
     if kernel.capture_stdin
@@ -308,8 +309,6 @@ function set_current_module(m::Module; kernel=_default_kernel)
 
     kernel.current_module = m
 end
-
-_shutting_down::Threads.Atomic{Bool} = Threads.Atomic{Bool}(false)
 
 #######################################################################
 include(joinpath("..", "deps", "kspec.jl"))
