@@ -124,7 +124,7 @@ function init(args, kernel, profile=nothing)
     kernel.raw_input[] = Socket(kernel.zmq_context[], ROUTER)
     kernel.requests[] = Socket(kernel.zmq_context[], ROUTER)
     kernel.control[] = Socket(kernel.zmq_context[], ROUTER)
-    kernel.heartbeat[] = Socket(kernel.zmq_context[], ROUTER)
+    kernel.heartbeat[] = Socket(kernel.zmq_context[], REP)
     sep = profile["transport"]=="ipc" ? "-" : ":"
     bind(kernel.publish[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["iopub_port"])")
     bind(kernel.requests[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["shell_port"])")
