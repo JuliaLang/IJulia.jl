@@ -6,8 +6,8 @@ sockets](https://jupyter-client.readthedocs.io/en/latest/messaging.html#introduc
 """
 function eventloop(socket, kernel)
     task_local_storage(:IJulia_task, "write task")
-    try
-        while true
+    while true
+        try
             local msg
             try
                 msg = recv_ipython(socket, kernel)
@@ -25,7 +25,7 @@ function eventloop(socket, kernel)
                 msg_type = msg.header["msg_type"]::String
                 invokelatest(get(handlers, msg_type, unknown_request), socket, kernel, msg)
             catch e
-                if e isa InterruptException && IJulia._shutting_down[]
+                if e isa InterruptException && kernel.shutting_down[]
                     # If we're shutting down, just return immediately
                     return
                 elseif !isa(e, InterruptException)
@@ -41,21 +41,21 @@ function eventloop(socket, kernel)
                 flush_all()
                 send_status("idle", kernel, msg)
             end
-        end
-    catch e
-        if IJulia._shutting_down[]
-            return
-        end
+        catch e
+            if kernel.shutting_down[]
+                return
+            end
 
-        # the Jupyter manager may send us a SIGINT if the user
-        # chooses to interrupt the kernel; don't crash on this
-        if isa(e, InterruptException)
-            eventloop(socket, kernel)
-        elseif isa(e, ZMQ.StateError)
-            # This is almost certainly because of a closed socket
-            return
-        else
-            rethrow()
+            # the Jupyter manager may send us a SIGINT if the user
+            # chooses to interrupt the kernel; don't crash on this
+            if isa(e, InterruptException)
+                continue
+            elseif isa(e, ZMQ.StateError)
+                # This is almost certainly because of a closed socket
+                return
+            else
+                rethrow()
+            end
         end
     end
 end
@@ -81,8 +81,11 @@ function waitloop(kernel)
                 rethrow()
             end
         finally
-            wait(control_task)
-            wait(kernel.requests_task[])
+            # Only wait for tasks if we're actually exiting the loop
+            if !kernel.inited
+                wait(control_task)
+                wait(kernel.requests_task[])
+            end
         end
     end
 end

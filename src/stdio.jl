@@ -57,49 +57,51 @@ const max_bytes = 10*1024
 """
     watch_stream(rd::IO, name::AbstractString)
 
-Continually read from (size limited) Libuv/OS buffer into an `IObuffer` to avoid problems when
-the Libuv/OS buffer gets full (https://github.com/JuliaLang/julia/issues/8789). Send data immediately
-when buffer contains more than `max_bytes` bytes. Otherwise, if data is available it will be sent every
-`stream_interval` seconds (see the `Timer`'s set up in `watch_stdio`). Truncate the output to `max_output_per_request`
-bytes per execution request since excessive output can bring browsers to a grinding halt.
+Continually read from (size limited) Libuv/OS buffer into an `IObuffer` to avoid
+problems when the Libuv/OS buffer gets full
+(https://github.com/JuliaLang/julia/issues/8789). Send data immediately when
+buffer contains more than `max_bytes` bytes. Otherwise, if data is available it
+will be sent every `stream_interval` seconds (see the `flush_loop()`'s set up in
+`watch_stdio`). Truncate the output to `max_output_per_request` bytes per
+execution request since excessive output can bring browsers to a grinding halt.
 """
 function watch_stream(rd::IO, name::AbstractString, kernel)
     task_local_storage(:IJulia_task, "read $name task")
-    try
-        buf = IOBuffer()
-        buf_lock = ReentrantLock()
-        kernel.bufs[name] = buf
-        kernel.bufs_locks[name] = buf_lock
+    buf = kernel.bufs[name]
+    buf_lock = kernel.bufs_locks[name]
 
-        while !eof(rd) # blocks until something is available
-            nb = bytesavailable(rd)
-            if nb > 0
-                kernel.stdio_bytes += nb
-                # if this stream has surpassed the maximum output limit then ignore future bytes
-                if kernel.stdio_bytes >= kernel.max_output_per_request[]
-                    read(rd, nb) # read from libuv/os buffer and discard
-                    if kernel.stdio_bytes - nb < kernel.max_output_per_request[]
-                        send_ipython(kernel.publish[], kernel, msg_pub(kernel.execute_msg, "stream",
-                                     Dict("name" => "stderr", "text" => "Excessive output truncated after $(kernel.stdio_bytes) bytes.")))
+    while isopen(rd)
+        try
+            while !eof(rd) # blocks until something is available
+                nb = bytesavailable(rd)
+                if nb > 0
+                    kernel.stdio_bytes += nb
+                    # if this stream has surpassed the maximum output limit then ignore future bytes
+                    if kernel.stdio_bytes >= kernel.max_output_per_request[]
+                        read(rd, nb) # read from libuv/os buffer and discard
+                        if kernel.stdio_bytes - nb < kernel.max_output_per_request[]
+                            send_ipython(kernel.publish[], kernel, msg_pub(kernel.execute_msg, "stream",
+                                                                           Dict("name" => "stderr", "text" => "Excessive output truncated after $(kernel.stdio_bytes) bytes.")))
+                        end
+                    else
+                        @lock buf_lock write(buf, read(rd, nb))
                     end
-                else
-                    @lock buf_lock write(buf, read(rd, nb))
+                end
+                @lock buf_lock if buf.size > 0
+                    if buf.size >= max_bytes
+                        #send immediately
+                        send_stream(name, kernel)
+                    end
                 end
             end
-            @lock buf_lock if buf.size > 0
-                if buf.size >= max_bytes
-                    #send immediately
-                    send_stream(name, kernel)
-                end
+        catch e
+            # the IPython manager may send us a SIGINT if the user
+            # chooses to interrupt the kernel; don't crash on this
+            if isa(e, InterruptException)
+                @async Base.throwto(kernel.requests_task[], e)
+            else
+                rethrow()
             end
-        end
-    catch e
-        # the IPython manager may send us a SIGINT if the user
-        # chooses to interrupt the kernel; don't crash on this
-        if isa(e, InterruptException)
-            watch_stream(rd, name, kernel)
-        else
-            rethrow()
         end
     end
 end
@@ -232,19 +234,44 @@ function readline(io::IJuliaStdio)
     end
 end
 
+# This seems like the kind of thing that would be perfect for a Timer, but it's
+# quite easy for an interrupt triggered by the user to kill the Timer task. So
+# instead we have our own version that's robust against interrupts and correctly
+# throws the exceptions to the right task.
+function flush_loop(name::String, io::IO, kernel::Kernel, interval::Float64)
+    while isopen(io)
+        try
+            sleep(interval)
+            send_stdio(name, kernel)
+        catch e
+            if isa(e, InterruptException)
+                @async Base.throwto(kernel.requests_task[], e)
+            else
+                @error "Exception in flush_loop()" exception=(e, catch_backtrace())
+            end
+        end
+    end
+end
+
 function watch_stdio(kernel)
     task_local_storage(:IJulia_task, "init task")
     if kernel.capture_stdout
+        kernel.bufs["stdout"] = IOBuffer()
+        kernel.bufs_locks["stdout"] = ReentrantLock()
+
         kernel.watch_stdout_task[] = @async watch_stream(kernel.read_stdout[], "stdout", kernel)
         errormonitor(kernel.watch_stdout_task[])
         #send stdout stream msgs every stream_interval secs (if there is output to send)
-        kernel.watch_stdout_timer[] = Timer(_ -> send_stdout(kernel), stream_interval, interval=stream_interval)
+        kernel.flush_stdout_task[] = @async flush_loop("stdout", kernel.read_stdout[], kernel, stream_interval)
     end
     if kernel.capture_stderr
+        kernel.bufs["stderr"] = IOBuffer()
+        kernel.bufs_locks["stderr"] = ReentrantLock()
+
         kernel.watch_stderr_task[] = @async watch_stream(kernel.read_stderr[], "stderr", kernel)
         errormonitor(kernel.watch_stderr_task[])
         #send STDERR stream msgs every stream_interval secs (if there is output to send)
-        kernel.watch_stderr_timer[] = Timer(_ -> send_stderr(kernel), stream_interval, interval=stream_interval)
+        kernel.flush_stderr_task[] = @async flush_loop("stderr", kernel.read_stderr[], kernel, stream_interval)
     end
 end
 
