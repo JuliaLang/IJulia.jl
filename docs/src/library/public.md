@@ -15,6 +15,7 @@ IJulia.installkernel
 ```@docs
 IJulia.jupyterlab
 IJulia.notebook
+IJulia.nbclassic
 IJulia.qtconsole
 ```
 

@@ -15,6 +15,7 @@ Changelog](https://keepachangelog.com).
   cell output just like with Julia ([#1223]). Note that Julia's stdio is flushed
   first, so if you have interleaved print statements in both Julia and Python
   then the output may not appear in order of execution.
+- Added [`nbclassic()`](@ref) to run the classic notebook ([#1228]).
 
 ### Fixed
 - Previously the Python stacktraces from `PyException`'s were not displayed, now

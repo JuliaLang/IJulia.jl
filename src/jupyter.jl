@@ -17,8 +17,7 @@ isyes(s) = isempty(s) || lowercase(strip(s)) in ("y", "yes")
 """
     find_jupyter_subcommand(subcommand::AbstractString, port::Union{Nothing,Int}=nothing)
 
-Return a `Cmd` for the program `subcommand`. If the program is `jupyter` or
-`jupyterlab` it may prompt the user to install it.
+Return a `Cmd` for the program `subcommand`.
 """
 function find_jupyter_subcommand(subcommand::AbstractString, port::Union{Nothing,Int}=nothing)
     jupyter = JUPYTER
@@ -32,16 +31,6 @@ function find_jupyter_subcommand(subcommand::AbstractString, port::Union{Nothing
         end
     end
     isconda = dirname(jupyter) == abspath(scriptdir)
-    if !Sys.isexecutable(jupyter)
-        if isconda && isyes(Base.prompt("install Jupyter via Conda, y/n? [y]"))
-            get_Conda() do Conda
-                Conda.add(subcommand == "lab" ? "jupyterlab" : "jupyter")
-            end
-        else
-            error("$jupyter is not installed, cannot run $subcommand")
-        end
-    end
-
     port_flag = !isnothing(port) ? `--port=$(port)` : ``
     cmd = `$(jupyter) $(subcommand) $(port_flag)`
 
@@ -100,6 +89,27 @@ function launch(cmd, args, dir, detached, verbose)
     return p
 end
 
+function run_subcommand(name, package_name, port, args...)
+    inited && error("IJulia is already running")
+    subcmd = find_jupyter_subcommand(name, port)
+    jupyter = first(subcmd)
+    scriptdir = get_Conda() do Conda
+        Conda.SCRIPTDIR
+    end
+
+
+    if dirname(jupyter) == abspath(scriptdir) && !Sys.isexecutable(exe(jupyter, "-$(name)"))
+        if isyes(Base.prompt("install $(package_name) via Conda, y/n? [y]"))
+            get_Conda() do Conda
+                Conda.add(package_name)
+            end
+        else
+            error("Cannot run $(package_name), it is not installed")
+        end
+    end
+    return launch(subcmd, args...)
+end
+
 """
     notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
 
@@ -134,9 +144,7 @@ see if there's any useful error messages from Jupyter.
 For launching a JupyterLab instance, see [`IJulia.jupyterlab()`](@ref).
 """
 function notebook(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
-    inited && error("IJulia is already running")
-    notebook = find_jupyter_subcommand("notebook", port)
-    return launch(notebook, args, dir, detached, verbose)
+    run_subcommand("notebook", "jupyter", port, args, dir, detached, verbose)
 end
 
 """
@@ -146,21 +154,18 @@ Similar to [`IJulia.notebook()`](@ref) but launches JupyterLab instead
 of the Jupyter notebook.
 """
 function jupyterlab(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
-    inited && error("IJulia is already running")
-    lab = find_jupyter_subcommand("lab", port)
-    jupyter = first(lab)
-    scriptdir = get_Conda() do Conda
-        Conda.SCRIPTDIR
-    end
+    run_subcommand("lab", "jupyterlab", port, args, dir, detached, verbose)
+end
 
-    if dirname(jupyter) == abspath(scriptdir) &&
-       !Sys.isexecutable(exe(jupyter, "-lab")) &&
-       isyes(Base.prompt("install JupyterLab via Conda, y/n? [y]"))
-        get_Conda() do Conda
-            Conda.add("jupyterlab")
-        end
-    end
-    return launch(lab, args, dir, detached, verbose)
+"""
+    nbclassic(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+
+Similar to [`IJulia.notebook()`](@ref) but launches the v6
+[nbclassic](https://nbclassic.readthedocs.io) notebook instead of the v7
+notebook.
+"""
+function nbclassic(args=``; dir=homedir(), detached=false, port::Union{Nothing,Int}=nothing, verbose=false)
+    run_subcommand("nbclassic", "nbclassic", port, args, dir, detached, verbose)
 end
 
 """
