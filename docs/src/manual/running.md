@@ -71,9 +71,23 @@ using IJulia
 jupyterlab()
 ```
 
-Like `notebook()`, above, this will install JupyterLab via Conda if it is
-not installed already.   `jupyterlab()` also supports `detached` and `dir` keyword options similar to `notebook()`.
+Like [`notebook()`](@ref), above, this will install JupyterLab via Conda if it is
+not installed already. [`jupyterlab()`](@ref) also supports `detached` and `dir`
+keyword options similar to [`notebook()`](@ref).
 
+## Running nbclassic
+
+The notebook interface was significantly overhauled in v7, but the old v6
+interface is still available through
+[nbclassic](https://nbclassic.readthedocs.io). To start `nbclassic` you can run:
+
+```julia
+using IJulia
+nbclassic()
+```
+
+The behaviour of [`nbclassic()`](@ref) is exactly the same as
+[`notebook()`](@ref) and [`jupyterlab()`](@ref).
 
 ## Running nteract
 
