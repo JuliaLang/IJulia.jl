@@ -7,14 +7,15 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
-## Unreleased
+## [v1.33.0] - 2025-11-22
 
 ### Added
-- Added support for flushing the Python stdio streams in the PythonCall
-  extension, now the output from `pyprint()` etc will show up immediately in the
-  cell output just like with Julia ([#1223]). Note that Julia's stdio is flushed
-  first, so if you have interleaved print statements in both Julia and Python
-  then the output may not appear in order of execution.
+- Added support for flushing the Python stdio streams in the [PythonCall
+  extension](manual/usage.md#Python-integration), now the output from
+  `pyprint()` etc will show up immediately in the cell output just like with
+  Julia ([#1223]). Note that Julia's stdio is flushed first, so if you have
+  interleaved print statements in both Julia and Python then the output may not
+  appear in order of execution.
 - Added [`nbclassic()`](@ref) to run the classic notebook ([#1228]).
 
 ### Fixed
@@ -32,6 +33,7 @@ Changelog](https://keepachangelog.com).
 - Some display methods have been selectively despecialized to improve TTFX, for
   complex types like highly dimensional arrays this is often a ~2x speedup
   ([#1220]).
+- IJulia will now remove the Jupyter-specific arguments from `ARGS` ([#1226]).
 
 ## [v1.32.1] - 2025-11-05
 
@@ -53,11 +55,11 @@ Changelog](https://keepachangelog.com).
 
 ### Fixed
 - Fixed the display of `UnionAll` types such as `Pair.body` ([#1203]).
-- Fixed a bug in the PythonCall extension that would break opening comms from
-  the frontend side ([#1206]).
-- The PythonCall extension accidentally forced some Python test dependencies to
-  be installed outside of the tests, now they have been fully moved into the
-  test suite ([#1209]).
+- Fixed a bug in the [PythonCall extension](manual/usage.md#Python-integration)
+  that would break opening comms from the frontend side ([#1206]).
+- The [PythonCall extension](manual/usage.md#Python-integration) accidentally
+  forced some Python test dependencies to be installed outside of the tests, now
+  they have been fully moved into the test suite ([#1209]).
 - A long-standing issue with `show()` exceptions being silently discarded was
   fixed ([#1202]).
 
@@ -92,9 +94,10 @@ Changelog](https://keepachangelog.com).
 - Fixed support for 32bit systems ([#1196]).
 
 ### Changed
-- Improved precompilation for the PythonCall.jl extension, if `ipywidgets` is
-  installed in the Python environment then it will be used to execute a simple
-  workload ([#1199]).
+- Improved precompilation for the [PythonCall.jl
+  extension](manual/usage.md#Python-integration), if `ipywidgets` is installed
+  in the Python environment then it will be used to execute a simple workload
+  ([#1199]).
 
 ## [v1.31.0] - 2025-10-13
 
