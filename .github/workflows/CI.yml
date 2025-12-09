@@ -11,6 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       JULIA_CONDAPKG_BACKEND: System
+      JULIA_NUM_THREADS: auto,auto
     strategy:
       fail-fast: false
       matrix:

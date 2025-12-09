@@ -70,10 +70,7 @@ end
 for mime in ipy_mime
     @eval begin
         function Base.display(d::InlineDisplay, ::MIME{Symbol($mime)}, @nospecialize(x))
-            kernel = _default_kernel
-            if isnothing(kernel)
-                error("Kernel has not been instantiated, cannot display.")
-            end
+            kernel = get_kernel_or_error()
 
             flush_all() # so that previous stream output appears in order
             send_ipython(kernel.publish[], kernel,
@@ -97,10 +94,7 @@ Base.display(d::InlineDisplay, m::MIME"text/javascript", @nospecialize(x)) = dis
 # the display message, also sending text/plain for text data.
 Base.displayable(d::InlineDisplay, M::MIME) = istextmime(M)
 function Base.display(d::InlineDisplay, M::MIME, @nospecialize(x))
-    kernel = _default_kernel
-    if isnothing(kernel)
-        error("Kernel has not been initialized, cannot set its verbosity.")
-    end
+    kernel = get_kernel_or_error()
 
     sx = limitstringmime(M, x)
     d = Dict(string(M) => sx)
@@ -118,10 +112,7 @@ end
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
 function Base.display(d::InlineDisplay, @nospecialize(x))
-    kernel = _default_kernel
-    if isnothing(kernel)
-        error("Kernel has not been initialized, cannot set its verbosity.")
-    end
+    kernel = get_kernel_or_error()
 
     undisplay(x, kernel) # dequeue previous redisplay(x)
     flush_all() # so that previous stream output appears in order
@@ -136,7 +127,7 @@ end
 # with the actual display occurring when display() is called or when
 # an input cell has finished executing.
 function Base.redisplay(d::InlineDisplay, x)
-    kernel = _default_kernel
+    kernel = get_kernel_or_error()
     if !in(x, kernel.displayqueue)
         push!(kernel.displayqueue, x)
     end
