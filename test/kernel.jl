@@ -483,7 +483,16 @@ end
             # Write the connection file
             jupyter_client_lib.connect.write_connection_file(; fname=connection_file, profile_kwargs...)
 
-            cmd = `$julia --startup-file=no --project=$(Base.active_project()) -e 'import IJulia; IJulia.run_kernel()' $(connection_file)`
+            check_bounds = let arg = Base.JLOptions().check_bounds
+                if arg == 0
+                    "auto"
+                elseif arg == 1
+                    "yes"
+                else
+                    "no"
+                end
+            end
+            cmd = `$julia --startup-file=no --check-bounds=$(check_bounds) --project=$(Base.active_project()) -e 'import IJulia; IJulia.run_kernel()' $(connection_file)`
             kernel_proc = run(pipeline(cmd; stdout, stderr); wait=false)
             try
                 jupyter_client(profile) do client
