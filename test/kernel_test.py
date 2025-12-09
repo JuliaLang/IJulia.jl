@@ -92,7 +92,11 @@ class IJuliaTests(jupyter_kernel_test.KernelTests):
     # amount of text when debugging.
     code_display_data = [
         {
-            "code": 'using FileIO, ImageShow; display(load("mandrill.png")[1:5, 1:5])',
+            "code": '''
+                    struct FakePNG end
+                    Base.show(io::IO, ::MIME"image/png", ::FakePNG) = write(io, "fake png data")
+                    display(MIME"image/png"(), FakePNG())
+                    ''',
             "mime": "image/png"
         },
         {
