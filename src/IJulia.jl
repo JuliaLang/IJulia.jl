@@ -277,6 +277,13 @@ end
 
 _default_kernel::Union{Kernel, Nothing} = nothing
 
+function get_kernel_or_error(kernel=_default_kernel)
+    if isnothing(kernel)
+        error("Kernel has not been initialized.")
+    end
+    return kernel
+end
+
 """
     set_verbose(v=true)
 
@@ -287,10 +294,7 @@ This consists of log messages printed to the terminal window where
 or received by the kernel.   Used for debugging IJulia.
 """
 function set_verbose(v::Bool=true, kernel=_default_kernel)
-    if isnothing(kernel)
-        error("Kernel has not been initialized, cannot set its verbosity.")
-    end
-
+    kernel = get_kernel_or_error(kernel)
     kernel.verbose = v
 end
 
@@ -303,10 +307,7 @@ whether you are in an IJulia notebook, therefore, you can check
 inited::Bool = false
 
 function set_current_module(m::Module; kernel=_default_kernel)
-    if isnothing(kernel)
-        error("Kernel has not been initialized, cannot set the current module.")
-    end
-
+    kernel = get_kernel_or_error(kernel)
     kernel.current_module = m
 end
 
