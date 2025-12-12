@@ -27,7 +27,7 @@ jobs:
             julia-version: '1'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # We install micromamba ourselves because CondaPkg can't install it on 32 bit
       - uses: mamba-org/setup-micromamba@v2
       - uses: julia-actions/setup-julia@v2
