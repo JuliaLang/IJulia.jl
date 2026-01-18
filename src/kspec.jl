@@ -1,4 +1,4 @@
-include("jsonx.jl")
+include("../vendor/jsonx.jl")
 
 function print_json_dict(io::IO, dict::AbstractDict)
     print(io, '{')
@@ -116,6 +116,14 @@ function julia_cmd(bindir=Sys.BINDIR)
 end
 
 """
+    installkernel(; kwargs...)
+
+Convenience method that installs the default Julia kernel with `--project=@.`.
+Equivalent to `installkernel("Julia", "--project=@."; kwargs...)`.
+"""
+installkernel(; kwargs...) = installkernel("Julia", "--project=@."; kwargs...)
+
+"""
     installkernel(name::AbstractString, options::AbstractString...;
                   julia::Cmd,
                   specname::AbstractString,
@@ -193,9 +201,9 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
             print_json_dict(f, ks)
         end
 
-        copy_config(joinpath(ijulia_dir,"deps","logo-32x32.png"), juliakspec)
-        copy_config(joinpath(ijulia_dir,"deps","logo-64x64.png"), juliakspec)
-        copy_config(joinpath(ijulia_dir,"deps","logo-svg.svg"), juliakspec)
+        copy_config(joinpath(ijulia_dir,"assets","logo-32x32.png"), juliakspec)
+        copy_config(joinpath(ijulia_dir,"assets","logo-64x64.png"), juliakspec)
+        copy_config(joinpath(ijulia_dir,"assets","logo-svg.svg"), juliakspec)
 
         return juliakspec
     catch

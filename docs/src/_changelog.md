@@ -7,6 +7,32 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## Unreleased
+
+### Added
+- Added [`IJulia.update_jupyter_path()`](@ref) function to explicitly update the saved
+  Jupyter executable path preference.
+- Added a zero-argument [`installkernel()`](@ref) convenience method that installs
+  the default Julia kernel with `--project=@.`.
+
+### Changed
+- Removed `Pkg.build("IJulia")` support. IJulia no longer uses a
+  build step for kernel installation. The build-time configuration system has
+  been replaced with runtime functions. Use [`installkernel()`](@ref) to install
+  or update kernels, and [`update_jupyter_path()`](@ref) to configure the
+  Jupyter executable path.
+- IJulia now uses [Scratch.jl](https://github.com/JuliaPackaging/Scratch.jl) to
+  store configuration preferences instead of instead of writing to
+  `DEPOT_PATH/prefs/`.
+- Kernel auto-installation (when calling `notebook()` or `jupyterlab()`) now
+  checks if the **default** kernel for the current Julia version exists.
+  If not, it automatically installs it. This auto-installation can be disabled
+  by setting the `IJULIA_NODEFAULTKERNEL` environment variable. Note that
+  explicit calls to `installkernel()` always install/update a kernel for the
+  current Julia version, regardless of the environment variable.
+- `ENV["IJULIA_DEBUG"]` now automatically enables verbose output for `notebook()` and
+  `jupyterlab()`, making it easier to debug Jupyter launch issues.
+
 ## [v1.33.0] - 2025-11-22
 
 ### Added
@@ -52,6 +78,8 @@ Changelog](https://keepachangelog.com).
   advantage of not needing to rebuild IJulia to update the kernel after every
   patch release of Julia, but it does mean that IJulia will only create kernels
   for each Julia minor release instead of each patch release.
+
+
 
 ### Fixed
 - Fixed the display of `UnionAll` types such as `Pair.body` ([#1203]).
