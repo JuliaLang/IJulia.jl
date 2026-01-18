@@ -7,6 +7,13 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## [v1.34.0] - 2026-01-18
+
+### Changed
+- IJulia now handles exceptions like the REPL: types will be limited by default
+  and the `err` variable will be set appropriately for those who want to display
+  the full error ([#1237).
+
 ## [v1.33.0] - 2025-11-22
 
 ### Added
