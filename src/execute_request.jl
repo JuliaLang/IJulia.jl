@@ -195,6 +195,13 @@ function execute_request(socket, kernel, msg)
         empty!(kernel.execute_payloads)
     catch e
         bt = catch_backtrace()
+
+        # Set the `err` variable like the REPL does, so users can call show(err) for full types
+        errstack = scrub_backtrace(current_exceptions())
+        if !Base.istrivialerror(errstack)
+            setglobal!(Base.MainInclude, :err, errstack)
+        end
+
         try
             # flush pending stdio
             flush_all()

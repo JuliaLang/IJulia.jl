@@ -26,7 +26,7 @@ end
 # *only* want the Python stacktrace to be printed so we pass `backtrace=true`
 # but give an empty vector as a backtrace so that the Julia backtrace is not
 # printed twice.
-IJulia.showerror_nobt(io, e::PyException, _) = showerror(io, e, []; backtrace=true)
+IJulia.custom_showerror(io, e::PyException, _) = showerror(io, e, []; backtrace=true)
 
 function recursive_pyconvert(x)
     x_type = pyconvert(String, pytype(x).__name__)

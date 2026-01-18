@@ -150,31 +150,41 @@ end
 
 import Base: ip_matches_func
 
-function show_bt(io::IO, top_func::Symbol, t::Vector)
+# Scrub IJulia-related frames from backtrace, similar to Base.scrub_repl_backtrace
+function scrub_backtrace(bt, top_func::Symbol=:include_string)
     # follow PR #17570 code in removing top_func from backtrace
-    eval_ind = findlast(addr->ip_matches_func(addr, top_func), t)
-    eval_ind !== nothing && (t = t[1:eval_ind-1])
-    Base.show_backtrace(io, t)
+    eval_ind = findlast(addr->ip_matches_func(addr, top_func), bt)
+    !isnothing(eval_ind) ? bt[1:eval_ind-1] : bt
 end
 
-# wrapper for showerror(..., backtrace=false) since invokelatest
-# doesn't support keyword arguments.
-showerror_nobt(io, e, bt) = showerror(io, e, bt, backtrace=false)
+function scrub_backtrace(stack::Base.ExceptionStack, top_func::Symbol=:include_string)
+    Base.ExceptionStack(Any[(; x.exception, backtrace=scrub_backtrace(x.backtrace, top_func)) for x in stack])
+end
+
+function custom_showerror(io, e, bt)
+    showerror(io, e, bt; backtrace=false)
+end
 
 # return the content of a pyerr message for exception e
 function error_content(e, bt=catch_backtrace();
                        backtrace_top::Symbol=:include_string,
                        msg::AbstractString="")
-    tb = map(String, split(sprint(show_bt,
-                                        backtrace_top,
-                                        bt; context=:color => true),
-                                  "\n", keepempty=true))
+    # Use :stacktrace_types_limited to enable type abbreviation in backtraces (like the REPL does)
+    limitflag = Ref(false)
+    err_io_context = InlineIOContext(stderr, :stacktrace_types_limited => limitflag)
+
+    tb = map(String, split(sprint(Base.show_backtrace,
+                                  scrub_backtrace(bt, backtrace_top); context=err_io_context),
+                           "\n", keepempty=true))
+    if limitflag[]
+        push!(tb, "Some type information was truncated. Use `show(err)` to see complete types.")
+    end
 
     ename = string(typeof(e))
     evalue = try
         # Peel away one LoadError layer that comes from running include_string on the cell
         isa(e, LoadError) && (e = e.error)
-        sprint((io, e, bt) -> invokelatest(showerror_nobt, io, e, bt), e, bt; context=InlineIOContext(stderr))
+        sprint((io, e, bt) -> @invokelatest(custom_showerror(io, e, bt)), e, bt; context=err_io_context)
     catch
         "SYSTEM: show(lasterr) caused an error"
     end
