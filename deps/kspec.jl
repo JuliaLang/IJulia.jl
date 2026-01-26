@@ -44,8 +44,14 @@ copy_config(src::AbstractString, dest::AbstractString) = cp(src, joinpath(dest, 
     end
 elseif Sys.isapple()
   function default_jupyter_data_dir()
-        modern = joinpath(homedir(), "Library/Application Support/Jupyter")
-        return isdir(modern) ? modern : joinpath(homedir(), "Library/Jupyter")
+    try
+      path = readchomp(`jupyter --data-dir`)
+      if isdir(path)
+        return path
+      end
+    catch
+    end
+    return joinpath(homedir(), "Library/Jupyter")
   end
 else
     function default_jupyter_data_dir()
