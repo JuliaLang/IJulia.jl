@@ -35,6 +35,7 @@ export notebook, jupyterlab, nbclassic, installkernel
 
 import SHA
 using ZMQ
+using ZMQ: Poller
 import Base: invokelatest, RefValue
 import Dates
 using Dates: now, format, UTC, ISODateTimeFormat

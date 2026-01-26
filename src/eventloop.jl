@@ -53,15 +53,19 @@ Main loop of a kernel. Runs the event loops for the control, shell, and iopub so
 (note: in IJulia the shell socket is called `requests`).
 """
 function waitloop(kernel)
-    control_msgs = Channel{Msg}(32) do ch
+    control_msgs = Channel{Msg}(Inf) do ch
         task_local_storage(:IJulia_task, "control msgs receive task")
+        poller = Poller([kernel.control[]])
         while isopen(kernel.control[])
             try
-                msg::Msg = recv_ipython(kernel.control[], kernel)
+                pr = wait(poller)
+                msg::Msg = recv_ipython(pr.socket, kernel)
                 put!(ch, msg)
             catch e
-                if kernel.shutting_down[] || isa(e, EOFError)
-                    # an EOFError is because of a closed socket
+                if kernel.shutting_down[] || isa(e, EOFError) || !isopen(kernel.control[])
+                    # an EOFError is because of a closed socket when trying to read
+                    # wait(::PollResult) can throw either ArgumentError or ErrorException if the socket is closed;
+                    # checking if it's closed is simpler than checking for either possible error from wait
                     return
                 else
                     rethrow()
@@ -69,23 +73,28 @@ function waitloop(kernel)
             end
             yield()
         end
+        close(poller)
     end
 
-    iopub_msgs = Channel{Msg}(32)
-    request_msgs = Channel{Msg}(32) do ch
+    iopub_msgs = Channel{Msg}(Inf)
+    request_msgs = Channel{Msg}(Inf) do ch
         task_local_storage(:IJulia_task, "request msgs receive task")
+        poller = Poller([kernel.requests[]])
         while isopen(kernel.requests[])
             try
-                msg::Msg = recv_ipython(kernel.requests[], kernel)
+                pr = wait(poller)
+                msg::Msg = recv_ipython(pr.socket, kernel)
                 if haskey(iopub_handlers, msg.header["msg_type"])
                     put!(iopub_msgs, msg)
                 else
                     put!(ch, msg)
                 end
             catch e
-                if kernel.shutting_down[] || isa(e, EOFError)
+                if kernel.shutting_down[] || isa(e, EOFError) || !isopen(kernel.requests[])
                     close(iopub_msgs) # otherwise iopubs_msg would remain open, but with no producer anymore
-                    # an EOFError is because of a closed socket
+                    # an EOFError is because of a closed socket when trying to read
+                    # wait(::PollResult) can throw either ArgumentError or ErrorException if the socket is closed;
+                    # checking if it's closed is simpler than checking for either possible error from wait
                     return
                 else
                     rethrow()
@@ -93,6 +102,7 @@ function waitloop(kernel)
             end
             yield()
         end
+        close(poller)
     end
 
     # tasks must all be on the same thread as the `waitloop` calling thread, because
