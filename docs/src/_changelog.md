@@ -7,6 +7,11 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## [v1.34.1] - 2026-01-26
+
+### Changed
+* Prioritize `~/Library/Application Support/Jupyter` on macOS for modern Jupyter compatibility (#1238).
+
 ## [v1.34.0] - 2026-01-18
 
 ### Changed
