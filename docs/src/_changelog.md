@@ -10,7 +10,7 @@ Changelog](https://keepachangelog.com).
 ## [v1.34.1] - 2026-01-26
 
 ### Changed
-* Prioritize ``~/Library/Application Support/Jupyter` on macOS for modern Jupyter compatibility (#1238).
+* Prioritize `~/Library/Application Support/Jupyter` on macOS for modern Jupyter compatibility (#1238).
 
 ## [v1.34.0] - 2026-01-18
 
