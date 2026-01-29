@@ -10,14 +10,14 @@ Changelog](https://keepachangelog.com).
 ## [v1.34.1] - 2026-01-26
 
 ### Changed
-* Prioritize `~/Library/Application Support/Jupyter` on macOS for modern Jupyter compatibility (#1238).
+* Prioritize `~/Library/Application Support/Jupyter` on macOS for modern Jupyter compatibility ([#1238]).
 
 ## [v1.34.0] - 2026-01-18
 
 ### Changed
 - IJulia now handles exceptions like the REPL: types will be limited by default
   and the `err` variable will be set appropriately for those who want to display
-  the full error ([#1237).
+  the full error ([#1237]).
 
 ## [v1.33.0] - 2025-11-22
 
