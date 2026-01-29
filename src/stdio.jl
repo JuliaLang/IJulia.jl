@@ -97,7 +97,7 @@ function watch_stream(rd::IO, name::AbstractString, kernel)
         catch e
             # the IPython manager may send us a SIGINT if the user
             # chooses to interrupt the kernel; don't crash on this
-            if isa(e, InterruptException)
+            if isa(e, InterruptException) && isassigned(kernel.requests_task)
                 @async Base.throwto(kernel.requests_task[], e)
             else
                 rethrow()
@@ -244,7 +244,7 @@ function flush_loop(name::String, io::IO, kernel::Kernel, interval::Float64)
             sleep(interval)
             send_stdio(name, kernel)
         catch e
-            if isa(e, InterruptException)
+            if isa(e, InterruptException) && isassigned(kernel.requests_task)
                 @async Base.throwto(kernel.requests_task[], e)
             else
                 @error "Exception in flush_loop()" exception=(e, catch_backtrace())
