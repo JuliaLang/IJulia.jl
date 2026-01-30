@@ -132,9 +132,22 @@ function init(args, kernel, profile=nothing)
     bind(kernel.raw_input[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["stdin_port"])")
     bind(kernel.heartbeat[], "$(profile["transport"])://$(profile["ip"])$(sep)$(profile["hb_port"])")
 
+    # Create inproc socket pairs for bidirectional sockets
+    # Handlers send outgoing messages, conductor receives and forwards to Jupyter socket
+    for (name, send_ref, recv_ref) in [
+        ("requests", kernel.requests_inproc_push, kernel.requests_inproc_pull),
+        ("control", kernel.control_inproc_push, kernel.control_inproc_pull),
+    ]
+        send_ref[] = Socket(kernel.zmq_context[], PAIR)
+        recv_ref[] = Socket(kernel.zmq_context[], PAIR)
+        bind(recv_ref[], "inproc://ijulia-$(name)")
+        connect(send_ref[], "inproc://ijulia-$(name)")
+    end
+
     # associate a lock with each socket so that multi-part messages
     # on a given socket don't get inter-mingled between tasks.
-    for s in (kernel.publish[], kernel.raw_input[], kernel.requests[], kernel.control[])
+    for s in (kernel.publish[], kernel.raw_input[], kernel.requests[], kernel.control[],
+              kernel.requests_inproc_push[], kernel.control_inproc_push[])
         kernel.socket_locks[s] = ReentrantLock()
     end
 
