@@ -130,6 +130,12 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     requests::RefValue{Socket} = Ref{Socket}()
     control::RefValue{Socket} = Ref{Socket}()
     heartbeat::RefValue{Socket} = Ref{Socket}()
+
+    requests_inproc_push::RefValue{Socket} = Ref{Socket}()
+    requests_inproc_pull::RefValue{Socket} = Ref{Socket}()
+    control_inproc_push::RefValue{Socket} = Ref{Socket}()
+    control_inproc_pull::RefValue{Socket} = Ref{Socket}()
+
     zmq_context::RefValue{Context} = Ref{Context}()
     profile::Dict{String, Any} = Dict{String, Any}()
     connection_file::Union{String, Nothing} = nothing
@@ -579,8 +585,8 @@ function init_matplotlib end
 
 include("init.jl")
 include("hmac.jl")
-include("eventloop.jl")
 include("stdio.jl")
+include("eventloop.jl")
 include("msg.jl")
 include("display.jl")
 include("magics.jl")

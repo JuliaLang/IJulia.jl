@@ -52,21 +52,35 @@ end
 Main loop of a kernel. Runs the event loops for the control, shell, and iopub sockets
 (note: in IJulia the shell socket is called `requests`).
 """
-function waitloop(kernel)
-    control_msgs = Channel{Msg}(Inf) do ch
-        task_local_storage(:IJulia_task, "control msgs receive task")
-        poller = Poller([kernel.control[]])
-        while isopen(kernel.control[])
+function waitloop(kernel::Kernel)
+    control_msgs = Channel{Msg}(Inf)
+    request_msgs = Channel{Msg}(Inf)
+    iopub_msgs = Channel{Msg}(Inf)
+
+    bind(control_msgs, @async let control = kernel.control[], inproc = kernel.control_inproc_pull[]
+        task_local_storage(:IJulia_task, "control conductor")
+        poller = Poller([control, inproc])
+
+        while isopen(control)
             try
+                @vprintln("Control conductor: waiting on poller")
                 pr = wait(poller)
-                msg::Msg = recv_ipython(pr.socket, kernel)
-                put!(ch, msg)
+
+                if pr.socket === control
+                    @vprintln("Control conductor: received from Jupyter")
+                    msg::Msg = recv_ipython(control, kernel)
+                    put!(control_msgs, msg)
+                elseif pr.socket === inproc
+                    @vprintln("Control conductor: forwarding from inproc to Jupyter")
+                    data = ZMQ.recv_multipart(inproc)
+                    ZMQ.send_multipart(control, data)
+                end
             catch e
-                if kernel.shutting_down[] || isa(e, EOFError) || !isopen(kernel.control[])
+                if kernel.shutting_down[] || isa(e, EOFError) || !isopen(control)
                     # an EOFError is because of a closed socket when trying to read
                     # wait(::PollResult) can throw either ArgumentError or ErrorException if the socket is closed;
                     # checking if it's closed is simpler than checking for either possible error from wait
-                    return
+                    break
                 else
                     rethrow()
                 end
@@ -74,28 +88,37 @@ function waitloop(kernel)
             yield()
         end
         close(poller)
-    end
+    end)
 
-    iopub_msgs = Channel{Msg}(Inf)
-    request_msgs = Channel{Msg}(Inf) do ch
-        task_local_storage(:IJulia_task, "request msgs receive task")
-        poller = Poller([kernel.requests[]])
-        while isopen(kernel.requests[])
+    bind(request_msgs, @async let requests = kernel.requests[], inproc = kernel.requests_inproc_pull[]
+        task_local_storage(:IJulia_task, "requests conductor")
+        poller = Poller([requests, inproc])
+
+        while isopen(requests)
             try
+                @vprintln("Requests conductor: waiting on poller")
                 pr = wait(poller)
-                msg::Msg = recv_ipython(pr.socket, kernel)
-                if haskey(iopub_handlers, msg.header["msg_type"])
-                    put!(iopub_msgs, msg)
-                else
-                    put!(ch, msg)
+
+                if pr.socket === requests
+                    @vprintln("Requests conductor: received from Jupyter")
+                    msg::Msg = recv_ipython(requests, kernel)
+                    if haskey(iopub_handlers, msg.header["msg_type"])
+                        put!(iopub_msgs, msg)
+                    else
+                        put!(request_msgs, msg)
+                    end
+                elseif pr.socket === inproc
+                    @vprintln("Requests conductor: forwarding from inproc to Jupyter")
+                    data = ZMQ.recv_multipart(inproc)
+                    ZMQ.send_multipart(requests, data)
                 end
             catch e
-                if kernel.shutting_down[] || isa(e, EOFError) || !isopen(kernel.requests[])
+                if kernel.shutting_down[] || isa(e, EOFError) || !isopen(requests)
                     close(iopub_msgs) # otherwise iopubs_msg would remain open, but with no producer anymore
                     # an EOFError is because of a closed socket when trying to read
                     # wait(::PollResult) can throw either ArgumentError or ErrorException if the socket is closed;
                     # checking if it's closed is simpler than checking for either possible error from wait
-                    return
+                    break
                 else
                     rethrow()
                 end
@@ -103,21 +126,22 @@ function waitloop(kernel)
             yield()
         end
         close(poller)
-    end
+    end)
 
     # tasks must all be on the same thread as the `waitloop` calling thread, because
     # `throwto` can't cross/change threads
+    # Handler tasks - send via inproc sockets
     control_task = @async begin
-        task_local_storage(:IJulia_task, "control handle/write task")
-        eventloop(kernel.control[], kernel, control_msgs, handlers)
+        task_local_storage(:IJulia_task, "control handler")
+        eventloop(kernel.control_inproc_push[], kernel, control_msgs, handlers)
     end
     kernel.requests_task[] = @async begin
-        task_local_storage(:IJulia_task, "requests handle/write task")
-        eventloop(kernel.requests[], kernel, request_msgs, handlers)
+        task_local_storage(:IJulia_task, "requests handler")
+        eventloop(kernel.requests_inproc_push[], kernel, request_msgs, handlers)
     end
     kernel.iopub_task[] = @async begin
-        task_local_storage(:IJulia_task, "iopub handle/write task")
-        eventloop(kernel.requests[], kernel, iopub_msgs, iopub_handlers)
+        task_local_storage(:IJulia_task, "iopub handler")
+        eventloop(kernel.requests_inproc_push[], kernel, iopub_msgs, iopub_handlers)
     end
 
     # msg channels should close when tasks are terminated
