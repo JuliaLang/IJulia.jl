@@ -131,8 +131,10 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     control::RefValue{Socket} = Ref{Socket}()
     heartbeat::RefValue{Socket} = Ref{Socket}()
 
+    requests_poller::RefValue{Poller} = Ref{Poller}()
     requests_inproc_push::RefValue{Socket} = Ref{Socket}()
     requests_inproc_pull::RefValue{Socket} = Ref{Socket}()
+    control_poller::RefValue{Poller} = Ref{Poller}()
     control_inproc_push::RefValue{Socket} = Ref{Socket}()
     control_inproc_pull::RefValue{Socket} = Ref{Socket}()
 
@@ -247,10 +249,17 @@ function Base.close(kernel::Kernel)
     end
     popdisplay()
 
+    close(kernel.control_poller[])
+    close(kernel.requests_poller[])
     start_shutdown(kernel)
-    wait(kernel)
 
     # Close all sockets
+    close(kernel.requests_inproc_push[])
+    close(kernel.requests_inproc_pull[])
+    close(kernel.control_inproc_push[])
+    close(kernel.control_inproc_pull[])
+    wait(kernel)
+
     close(kernel.publish[])
     close(kernel.raw_input[])
     close(kernel.requests[])
