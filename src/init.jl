@@ -144,6 +144,10 @@ function init(args, kernel, profile=nothing)
         connect(send_ref[], "inproc://ijulia-$(name)")
     end
 
+    # Create pollers
+    kernel.control_poller[] = Poller([kernel.control[], kernel.control_inproc_pull[]])
+    kernel.requests_poller[] = Poller([kernel.requests[], kernel.requests_inproc_pull[]])
+
     # associate a lock with each socket so that multi-part messages
     # on a given socket don't get inter-mingled between tasks.
     for s in (kernel.publish[], kernel.raw_input[], kernel.requests[], kernel.control[],

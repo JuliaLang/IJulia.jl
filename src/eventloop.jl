@@ -57,9 +57,8 @@ function waitloop(kernel::Kernel)
     request_msgs = Channel{Msg}(Inf)
     iopub_msgs = Channel{Msg}(Inf)
 
-    bind(control_msgs, @async let control = kernel.control[], inproc = kernel.control_inproc_pull[]
+    bind(control_msgs, @async let poller = kernel.control_poller[], control = kernel.control[], inproc = kernel.control_inproc_pull[]
         task_local_storage(:IJulia_task, "control conductor")
-        poller = Poller([control, inproc])
 
         while isopen(control)
             try
@@ -76,7 +75,7 @@ function waitloop(kernel::Kernel)
                     ZMQ.send_multipart(control, data)
                 end
             catch e
-                if kernel.shutting_down[] || isa(e, EOFError) || !isopen(control)
+                if kernel.shutting_down[] || isa(e, EOFError) || !isopen(control) || !isopen(poller)
                     # an EOFError is because of a closed socket when trying to read
                     # wait(::PollResult) can throw either ArgumentError or ErrorException if the socket is closed;
                     # checking if it's closed is simpler than checking for either possible error from wait
@@ -87,12 +86,10 @@ function waitloop(kernel::Kernel)
             end
             yield()
         end
-        close(poller)
     end)
 
-    bind(request_msgs, @async let requests = kernel.requests[], inproc = kernel.requests_inproc_pull[]
+    t2 = @async let poller = kernel.requests_poller[], requests = kernel.requests[], inproc = kernel.requests_inproc_pull[]
         task_local_storage(:IJulia_task, "requests conductor")
-        poller = Poller([requests, inproc])
 
         while isopen(requests)
             try
@@ -102,7 +99,7 @@ function waitloop(kernel::Kernel)
                 if pr.socket === requests
                     @vprintln("Requests conductor: received from Jupyter")
                     msg::Msg = recv_ipython(requests, kernel)
-                    if haskey(iopub_handlers, msg.header["msg_type"])
+                    if haskey(IOPUB_HANDLERS, msg.header["msg_type"])
                         put!(iopub_msgs, msg)
                     else
                         put!(request_msgs, msg)
@@ -113,7 +110,7 @@ function waitloop(kernel::Kernel)
                     ZMQ.send_multipart(requests, data)
                 end
             catch e
-                if kernel.shutting_down[] || isa(e, EOFError) || !isopen(requests)
+                if kernel.shutting_down[] || isa(e, EOFError) || !isopen(requests) || !isopen(poller)
                     close(iopub_msgs) # otherwise iopubs_msg would remain open, but with no producer anymore
                     # an EOFError is because of a closed socket when trying to read
                     # wait(::PollResult) can throw either ArgumentError or ErrorException if the socket is closed;
@@ -125,23 +122,24 @@ function waitloop(kernel::Kernel)
             end
             yield()
         end
-        close(poller)
-    end)
+    end
+    errormonitor(t2)
+    bind(request_msgs, t2)
 
     # tasks must all be on the same thread as the `waitloop` calling thread, because
     # `throwto` can't cross/change threads
     # Handler tasks - send via inproc sockets
     control_task = @async begin
         task_local_storage(:IJulia_task, "control handler")
-        eventloop(kernel.control_inproc_push[], kernel, control_msgs, handlers)
+        eventloop(kernel.control_inproc_push[], kernel, control_msgs, HANDLERS)
     end
     kernel.requests_task[] = @async begin
         task_local_storage(:IJulia_task, "requests handler")
-        eventloop(kernel.requests_inproc_push[], kernel, request_msgs, handlers)
+        eventloop(kernel.requests_inproc_push[], kernel, request_msgs, HANDLERS)
     end
     kernel.iopub_task[] = @async begin
         task_local_storage(:IJulia_task, "iopub handler")
-        eventloop(kernel.requests_inproc_push[], kernel, iopub_msgs, iopub_handlers)
+        eventloop(kernel.requests_inproc_push[], kernel, iopub_msgs, IOPUB_HANDLERS)
     end
 
     # msg channels should close when tasks are terminated

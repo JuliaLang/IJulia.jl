@@ -448,7 +448,7 @@ function unknown_request(socket, kernel, msg)
     @vprintln("UNKNOWN MESSAGE TYPE $(msg.header["msg_type"])")
 end
 
-const handlers = Dict{String,Function}(
+const HANDLERS = Dict{String,Function}(
     "execute_request" => execute_request,
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,
@@ -464,7 +464,7 @@ const handlers = Dict{String,Function}(
     "comm_close" => comm_close,
 )
 
-const iopub_handlers = Dict{String,Function}(
+const IOPUB_HANDLERS = Dict{String,Function}(
     "comm_open" => comm_open,
     "comm_msg" => comm_msg,
     "comm_close" => comm_close,
