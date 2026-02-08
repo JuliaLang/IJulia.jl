@@ -43,11 +43,7 @@ copy_config(src::AbstractString, dest::AbstractString) = cp(src, joinpath(dest, 
         return !isempty(APPDATA) ? joinpath(APPDATA, "jupyter") : joinpath(get(ENV, "JUPYTER_CONFIG_DIR", joinpath(homedir(), ".jupyter")), "data")
     end
 elseif Sys.isapple()
-  function default_jupyter_data_dir()
-    modern = joinpath(homedir(), "Library", "Application Support", "Jupyter")
-    legacy = joinpath(homedir(), "Library", "Jupyter")
-    return isdir(legacy) && !isdir(modern) ? legacy : modern
-  end
+    default_jupyter_data_dir() = joinpath(homedir(), "Library", "Jupyter")
 else
     function default_jupyter_data_dir()
         xdg_data_home = get(ENV, "XDG_DATA_HOME", "")
