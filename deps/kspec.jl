@@ -42,15 +42,20 @@ copy_config(src::AbstractString, dest::AbstractString) = cp(src, joinpath(dest, 
         APPDATA = appdata()
         return !isempty(APPDATA) ? joinpath(APPDATA, "jupyter") : joinpath(get(ENV, "JUPYTER_CONFIG_DIR", joinpath(homedir(), ".jupyter")), "data")
     end
-elseif Sys.isapple()
-    function default_jupyter_data_dir()
-        # Check if JUPYTER_PLATFORM_DIRS environment variable is set to enable platformdirs
-        if haskey(ENV, "JUPYTER_PLATFORM_DIRS")
-            val = ENV["JUPYTER_PLATFORM_DIRS"]
-            if val == "1" || val == ""
-                platformdir = joinpath(homedir(), "Library", "Application Support", "Jupyter")
-                isdir(platformdir) && return platformdir
-            end
+    function envset(name::AbstractString, default::Bool=false)::Bool
+        if !haskey(ENV, name)
+            return default
+        end
+        val = lowercase(strip(get(ENV, name, "")))
+        return !(val in ("no", "n", "false", "off", "0", "0.0"))
+    end
+
+    elseif Sys.isapple()
+        function default_jupyter_data_dir()
+        # Use the same logic as Jupyter for checking JUPYTER_PLATFORM_DIRS
+        if envset("JUPYTER_PLATFORM_DIRS", false)
+            platformdir = joinpath(homedir(), "Library", "Application Support", "Jupyter")
+            return platformdir
         end
         return joinpath(homedir(), "Library", "Jupyter")
     end
