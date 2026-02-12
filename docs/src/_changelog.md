@@ -10,7 +10,7 @@ Changelog](https://keepachangelog.com).
 ## [v1.34.3] - 2026-02-12
 
 ### Changed
--  Prioritize `~/Library/Application Support/Jupyter` on macOS when JUPYTER_PLATFORM_DIRS is positively set ([#1242]).
+-  Prioritize `~/Library/Application Support/Jupyter` on macOS when the `JUPYTER_PLATFORM_DIRS` environment variable is positively set ([#1242]).
 
 
 ## [v1.34.2] - 2026-02-08
