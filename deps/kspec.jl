@@ -45,7 +45,7 @@ copy_config(src::AbstractString, dest::AbstractString) = cp(src, joinpath(dest, 
     elseif Sys.isapple()
         function default_jupyter_data_dir()
         # Use the same logic as Jupyter's envset() for checking JUPYTER_PLATFORM_DIRS
-            val = lowercase( get(ENV, "JUPYTER_PLATFORM_DIRS", "0"))
+            val = lowercase(get(ENV, "JUPYTER_PLATFORM_DIRS", "0"))
             if !(val in ("no", "n", "false", "off", "0", "0.0"))
                 platformdir = joinpath(homedir(), "Library", "Application Support", "Jupyter")
                 return platformdir
