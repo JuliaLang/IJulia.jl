@@ -7,7 +7,7 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
-## [v1.34.3] - 2026-02-12
+## [v1.34.3] - 2026-02-13
 
 ### Changed
 -  Prioritize `~/Library/Application Support/Jupyter` on macOS when the `JUPYTER_PLATFORM_DIRS` environment variable is positively set ([#1242]).
