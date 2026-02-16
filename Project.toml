@@ -2,6 +2,9 @@ name = "IJulia"
 uuid = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
 version = "1.34.3"
 
+[apps]
+ijulia = {}
+
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
