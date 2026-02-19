@@ -131,7 +131,7 @@ function complete_request(socket, kernel, msg)
     cursorpos = min(cursorpos, lastindex(code))
 
     if all(isspace, code[1:cursorpos])
-        send_ipython(kernel.requests[], kernel, msg_reply(msg, "complete_reply",
+        send_ipython(socket, kernel, msg_reply(msg, "complete_reply",
                                  Dict("status" => "ok",
                                               "metadata" => Dict(),
                                               "matches" => String[],
@@ -166,7 +166,7 @@ function complete_request(socket, kernel, msg)
 
     maybe_launch_precompile(kernel)
 
-    send_ipython(kernel.requests[], kernel, msg_reply(msg, "complete_reply",
+    send_ipython(socket, kernel, msg_reply(msg, "complete_reply",
                                      Dict("status" => "ok",
                                                   "matches" => comps,
                                                   "metadata" => metadata,
@@ -213,7 +213,7 @@ Handle a [connect
 request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#connect).
 """
 function connect_request(socket, kernel, msg)
-    send_ipython(kernel.requests[], kernel,
+    send_ipython(socket, kernel,
                  msg_reply(msg, "connect_reply",
                            Dict("shell_port" => kernel.profile["shell_port"],
                                 "iopub_port" => kernel.profile["iopub_port"],
@@ -229,7 +229,11 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#kernel-s
 sending the reply this will exit the process.
 """
 function shutdown_request(socket, kernel, msg)
-    send_ipython(kernel.control[], kernel,
+    kernel.shutting_down[] = true
+    @async Base.throwto(kernel.requests_task[], InterruptException())
+    @async Base.throwto(kernel.iopub_task[], InterruptException())
+
+    send_ipython(socket, kernel,
                  msg_reply(msg, "shutdown_reply", msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
 
@@ -389,11 +393,11 @@ function inspect_request(socket, kernel, msg)
                            "data" => d,
                            "metadata" => Dict())
         end
-        send_ipython(kernel.requests[], kernel, msg_reply(msg, "inspect_reply", content))
+        send_ipython(socket, kernel, msg_reply(msg, "inspect_reply", content))
     catch e
         content = error_content(e, backtrace_top=:inspect_request);
         content["status"] = "error"
-        send_ipython(kernel.requests[], kernel,
+        send_ipython(socket, kernel,
                      msg_reply(msg, "inspect_reply", content))
     end
 end
@@ -408,7 +412,7 @@ is currently only a dummy implementation that doesn't actually do anything.
 function history_request(socket, kernel, msg)
     # we will just send back empty history for now, pending clarification
     # as requested in ipython/ipython#3806
-    send_ipython(kernel.requests[], kernel,
+    send_ipython(socket, kernel,
                  msg_reply(msg, "history_reply",
                            Dict("history" => [])))
 end
@@ -422,7 +426,7 @@ request](https://jupyter-client.readthedocs.io/en/latest/messaging.html#code-com
 function is_complete_request(socket, kernel, msg)
     ex = Meta.parse(msg.content["code"]::String, raise=false)
     status = Meta.isexpr(ex, :incomplete) ? "incomplete" : Meta.isexpr(ex, :error) ? "invalid" : "complete"
-    send_ipython(kernel.requests[], kernel,
+    send_ipython(socket, kernel,
                  msg_reply(msg, "is_complete_reply",
                            Dict("status"=>status, "indent"=>"")))
 end
@@ -436,6 +440,7 @@ will throw an `InterruptException` to the currently executing request handler.
 """
 function interrupt_request(socket, kernel, msg)
     @async Base.throwto(kernel.requests_task[], InterruptException())
+    @async Base.throwto(kernel.iopub_task[], InterruptException())
     send_ipython(socket, kernel, msg_reply(msg, "interrupt_reply", Dict()))
 end
 
@@ -443,7 +448,7 @@ function unknown_request(socket, kernel, msg)
     @vprintln("UNKNOWN MESSAGE TYPE $(msg.header["msg_type"])")
 end
 
-const handlers = Dict{String,Function}(
+const HANDLERS = Dict{String,Function}(
     "execute_request" => execute_request,
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,
@@ -456,5 +461,11 @@ const handlers = Dict{String,Function}(
     "comm_open" => comm_open,
     "comm_info_request" => comm_info_request,
     "comm_msg" => comm_msg,
-    "comm_close" => comm_close
+    "comm_close" => comm_close,
+)
+
+const IOPUB_HANDLERS = Dict{String,Function}(
+    "comm_open" => comm_open,
+    "comm_msg" => comm_msg,
+    "comm_close" => comm_close,
 )

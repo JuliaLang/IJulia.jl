@@ -40,25 +40,24 @@ end
 Send a message `m`. This will lock `socket`.
 """
 function send_ipython(socket::ZMQ.Socket, kernel::Kernel, m::Msg)
-    lock(kernel.socket_locks[socket])
-    try
+    header = JSONX.json(m.header)
+    parent_header = JSONX.json(m.parent_header)
+    metadata = JSONX.json(m.metadata)
+    content = JSONX.json(m.content)
+    signature = hmac(header, parent_header, metadata, content, kernel)
+
+    @lock kernel.socket_locks[socket] begin
         @vprintln("SENDING ", m)
         for i in m.idents
             send(socket, i, more=true)
         end
         send(socket, "<IDS|MSG>", more=true)
-        header = JSONX.json(m.header)
-        parent_header = JSONX.json(m.parent_header)
-        metadata = JSONX.json(m.metadata)
-        content = JSONX.json(m.content)
-        send(socket, hmac(header, parent_header, metadata, content, kernel), more=true)
+        send(socket, signature, more=true)
         send(socket, header, more=true)
         send(socket, parent_header, more=true)
         send(socket, metadata, more=true)
         send(socket, content, more=!isempty(m.buffers))
         ZMQ.send_multipart(socket, m.buffers)
-    finally
-        unlock(kernel.socket_locks[socket])
     end
 end
 
@@ -68,9 +67,11 @@ end
 Wait for and get a message. This will lock `socket`.
 """
 function recv_ipython(socket::ZMQ.Socket, kernel::Kernel)
-    lock(kernel.socket_locks[socket])
-    try
-        idents = String[]
+    idents = String[]
+    local header::String, parent_header::String, metadata::String, content::String
+    buffers = Vector{UInt8}[]
+
+    @lock kernel.socket_locks[socket] begin
         s = recv(socket, String)
         @vprintln("got msg part $s")
         while s != "<IDS|MSG>"
@@ -84,7 +85,6 @@ function recv_ipython(socket::ZMQ.Socket, kernel::Kernel)
         metadata = recv(socket, String)
         content = recv(socket, String)
 
-        buffers = Vector{UInt8}[]
         while socket.rcvmore
             push!(buffers, recv(socket, Vector{UInt8}))
         end
@@ -101,13 +101,11 @@ function recv_ipython(socket::ZMQ.Socket, kernel::Kernel)
         # @show parent_header
         # @show metadata
         # @show content
-
-        m = Msg(idents, JSONX.parse(header), JSONX.parse(content), JSONX.parse(parent_header), JSONX.parse(metadata), buffers)
-        @vprintln("RECEIVED $m")
-        return m
-    finally
-        unlock(kernel.socket_locks[socket])
     end
+
+    m = Msg(idents, JSONX.parse(header), JSONX.parse(content), JSONX.parse(parent_header), JSONX.parse(metadata), buffers)
+    @vprintln("RECEIVED $m")
+    return m
 end
 
 """
