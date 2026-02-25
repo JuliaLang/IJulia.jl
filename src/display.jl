@@ -133,7 +133,7 @@ types. This is the format that Jupyter expects in `display_data` and
 display_dict(@nospecialize(x)) = _display_dict(x)
 
 # remove x from the display queue
-function undisplay(@nospecialize(x), kernel)
+function undisplay(@nospecialize(x), kernel=_default_kernel)
     # We do an explicit loop instead of calling findfirst() because findfirst()
     # ends up having a significant compile-time cost for complex types, and by
     # writing a loop we can despecialize the `x` argument. For types like Dict's
