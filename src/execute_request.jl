@@ -186,7 +186,7 @@ function execute_request(socket, kernel, msg)
                                       "data" => result_data)))
 
         end
-        send_ipython(kernel.requests[], kernel,
+        send_ipython(socket, kernel,
                      msg_reply(msg, "execute_reply",
                                Dict("status" => "ok",
                                     "payload" => kernel.execute_payloads,
@@ -213,6 +213,6 @@ function execute_request(socket, kernel, msg)
         send_ipython(kernel.publish[], kernel, msg_pub(msg, "error", content))
         content["status"] = "error"
         content["execution_count"] = kernel.n
-        send_ipython(kernel.requests[], kernel, msg_reply(msg, "execute_reply", content))
+        send_ipython(socket, kernel, msg_reply(msg, "execute_reply", content))
     end
 end
