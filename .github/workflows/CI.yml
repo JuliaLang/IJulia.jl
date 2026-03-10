@@ -35,7 +35,7 @@ jobs:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.arch }}
 
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
 
       # Installing Python on x86 is difficult and IJulia otherwise won't
       # precompile, so we just remove PythonCall from the test deps so that the
