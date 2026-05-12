@@ -1,7 +1,7 @@
 <div align="center"><img src="deps/ijulialogo.png" alt="IJulia logo" width="150"/></div>
 
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaLang.github.io/IJulia.jl/stable)
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaLang.github.io/IJulia.jl/dev)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://ijulia.org/stable)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://ijulia.org/dev)
 [![Run tests](https://github.com/JuliaLang/IJulia.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaLang/IJulia.jl/actions/workflows/CI.yml)
 
 # IJulia
@@ -56,4 +56,4 @@ package to install a minimal Python+Jupyter distribution (via
 private to Julia (not in your `PATH`).
 
 For more advanced installation options, such as specifying a specific Jupyter
-installation to use, see the [documentation](https://JuliaLang.github.io/IJulia.jl/stable).
+installation to use, see the [documentation](https://ijulia.org/stable).
