@@ -246,6 +246,11 @@ function flush_loop(name::String, io::IO, kernel::Kernel, interval::Float64)
         catch e
             if isa(e, InterruptException) && isassigned(kernel.requests_task)
                 @async Base.throwto(kernel.requests_task[], e)
+            elseif kernel.shutting_down[] || isa(e, ZMQ.StateError)
+                # During shutdown the ZMQ context is terminated out from under
+                # us, so a final flush fails with a StateError("Context was
+                # terminated"). This is expected so we ignore it.
+                return
             else
                 @error "Exception in flush_loop()" exception=(e, catch_backtrace())
             end
