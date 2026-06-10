@@ -35,6 +35,7 @@ export notebook, jupyterlab, nbclassic, installkernel
 
 import SHA
 using ZMQ
+using ZMQ: Poller
 import Base: invokelatest, RefValue
 import Dates
 using Dates: now, format, UTC, ISODateTimeFormat
@@ -129,6 +130,14 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     requests::RefValue{Socket} = Ref{Socket}()
     control::RefValue{Socket} = Ref{Socket}()
     heartbeat::RefValue{Socket} = Ref{Socket}()
+
+    requests_poller::RefValue{Poller} = Ref{Poller}()
+    requests_inproc_push::RefValue{Socket} = Ref{Socket}()
+    requests_inproc_pull::RefValue{Socket} = Ref{Socket}()
+    control_poller::RefValue{Poller} = Ref{Poller}()
+    control_inproc_push::RefValue{Socket} = Ref{Socket}()
+    control_inproc_pull::RefValue{Socket} = Ref{Socket}()
+
     zmq_context::RefValue{Context} = Ref{Context}()
     profile::Dict{String, Any} = Dict{String, Any}()
     connection_file::Union{String, Nothing} = nothing
@@ -151,6 +160,7 @@ REPL.REPLDisplay(repl::MiniREPL) = repl.display
     completion_precompile_task::RefValue{Task} = Ref{Task}()
 
     requests_task::RefValue{Task} = Ref{Task}()
+    iopub_task::RefValue{Task} = Ref{Task}()
     watch_stdout_task::RefValue{Task} = Ref{Task}()
     watch_stderr_task::RefValue{Task} = Ref{Task}()
     flush_stdout_task::RefValue{Task} = Ref{Task}()
@@ -239,10 +249,17 @@ function Base.close(kernel::Kernel)
     end
     popdisplay()
 
+    close(kernel.control_poller[])
+    close(kernel.requests_poller[])
     start_shutdown(kernel)
-    wait(kernel)
 
     # Close all sockets
+    close(kernel.requests_inproc_push[])
+    close(kernel.requests_inproc_pull[])
+    close(kernel.control_inproc_push[])
+    close(kernel.control_inproc_pull[])
+    wait(kernel)
+
     close(kernel.publish[])
     close(kernel.raw_input[])
     close(kernel.requests[])
@@ -577,8 +594,8 @@ function init_matplotlib end
 
 include("init.jl")
 include("hmac.jl")
-include("eventloop.jl")
 include("stdio.jl")
+include("eventloop.jl")
 include("msg.jl")
 include("display.jl")
 include("magics.jl")

@@ -23,6 +23,9 @@ ZMQ = "c2297ded-f4af-51ae-bb23-16f91089e4e1"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
+[sources]
+ZMQ = {url = "https://github.com/JuliaInterop/ZMQ.jl.git", rev = "poller"}
+
 [extensions]
 IJuliaPythonCallExt = "PythonCall"
 IJuliaReviseExt = "Revise"
