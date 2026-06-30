@@ -120,6 +120,6 @@ end
 precompile(run_kernel, ())
 
 # Precompile all the handlers
-for f in values(handlers)
+for f in values(HANDLERS)
     precompile(f, (ZMQ.Socket, Kernel, Msg))
 end
