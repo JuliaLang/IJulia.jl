@@ -40,15 +40,24 @@ Note that `IJulia` should generally be installed in Julia's global package envir
 install a custom kernel that specifies a particular environment.
 
 Alternatively, you can have IJulia create and manage its own Python/Jupyter installation.
-To do this, type the following in Julia, at the `julia>` prompt:
 
+**With Julia 1.12+**, you can launch IJulia directly from the command line. First install the app entry point:
+```julia
+pkg> app add IJulia
+```
+Then run:
+```bash
+ijulia --help
+```
+
+**With Julia 1.10-1.11**, type the following in Julia, at the `julia>` prompt:
 ```julia
 using IJulia
 notebook()
 ```
 
 to launch the IJulia notebook in your browser.
-The first time you run `notebook()`, it will prompt you
+The first time you run `notebook()` or `ijulia`, it will prompt you
 for whether it should install Jupyter.  Hit enter to
 have it use the [Conda.jl](https://github.com/Luthaf/Conda.jl)
 package to install a minimal Python+Jupyter distribution (via
