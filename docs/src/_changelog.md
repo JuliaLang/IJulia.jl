@@ -7,6 +7,14 @@ CurrentModule = IJulia
 This documents notable changes in IJulia.jl. The format is based on [Keep a
 Changelog](https://keepachangelog.com).
 
+## Unreleased
+
+### Fixed
+- Fixed a race condition in `close(::Kernel)` where the captured stdio streams
+  were torn down before the eventloop tasks were stopped, which could cause
+  precompilation to intermittently fail with an `EPIPE` when an eventloop
+  flushed the already-closed stream ([#1253]).
+
 ## [v1.34.3] - 2026-02-13
 
 ### Changed
