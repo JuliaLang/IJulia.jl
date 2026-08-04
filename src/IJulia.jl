@@ -215,7 +215,15 @@ function Base.close(kernel::Kernel)
         end
     end
 
-    # Reset the IO streams first so that any later errors get printed
+    # Stop the eventloop tasks before touching the captured IO streams. The
+    # eventloops call flush_all() after every message, which flushes the
+    # captured streams, so tearing the streams down while the tasks are still
+    # running can make a final flush() fail with an EPIPE on the closed pipe
+    # (#1253).
+    start_shutdown(kernel)
+    wait(kernel)
+
+    # Reset the IO streams so that any later errors get printed
     if kernel.capture_stdout
         redirect_stdout(orig_stdout[])
         close(kernel.read_stdout[])
@@ -238,9 +246,6 @@ function Base.close(kernel::Kernel)
         Logging.global_logger(orig_logger[])
     end
     popdisplay()
-
-    start_shutdown(kernel)
-    wait(kernel)
 
     # Close all sockets
     close(kernel.publish[])

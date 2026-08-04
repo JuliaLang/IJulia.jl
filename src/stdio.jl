@@ -99,6 +99,9 @@ function watch_stream(rd::IO, name::AbstractString, kernel)
             # chooses to interrupt the kernel; don't crash on this
             if isa(e, InterruptException)
                 @async Base.throwto(kernel.requests_task[], e)
+            elseif kernel.shutting_down[]
+                # The sockets are being torn down, drop any remaining output
+                return
             else
                 rethrow()
             end
@@ -246,6 +249,9 @@ function flush_loop(name::String, io::IO, kernel::Kernel, interval::Float64)
         catch e
             if isa(e, InterruptException)
                 @async Base.throwto(kernel.requests_task[], e)
+            elseif kernel.shutting_down[]
+                # The sockets are being torn down, drop any remaining output
+                return
             else
                 @error "Exception in flush_loop()" exception=(e, catch_backtrace())
             end
