@@ -141,19 +141,19 @@ First, you will need to install a few prerequisites:
 * You need **version 3.0** or later of IPython, or version 4 or later
   of Jupyter.  Note that IPython 3.0 was released in February 2015, so
   if you have an older operating system you may have to
-  [install IPython manually](http://ipython.org/ipython-doc/stable/install/install.html).
+  [install IPython manually](https://ipython.readthedocs.io/en/stable/install/install.html).
   On Mac and Windows systems, it is currently easiest to use the
   [Anaconda Python](http://continuum.io/downloads) installer.
 
-* To use the [IPython notebook](http://ipython.org/notebook.html) interface, which runs in your web
+* To use the [IPython notebook](https://jupyter-notebook.readthedocs.io/en/stable/) interface, which runs in your web
   browser and provides a rich multimedia environment, you will need
   to install the [jsonschema](https://pypi.python.org/pypi/jsonschema), [Jinja2](http://jinja.pocoo.org/docs/), [Tornado](http://www.tornadoweb.org/en/stable/),
   and [pyzmq](https://github.com/zeromq/pyzmq) (requires `apt-get install libzmq-dev` and possibly `pip install --upgrade --force-reinstall pyzmq` on Ubuntu if you are using `pip`) Python packages.
   (Given the [pip](http://www.pip-installer.org/en/latest/) installer, `pip install jsonschema jinja2 tornado pyzmq`
   should normally be sufficient.)  These should have been automatically installed if you installed IPython itself
-  [via `easy_install` or `pip`](http://ipython.org/ipython-doc/stable/install/install.html#quickstart).
+  [via `easy_install` or `pip`](https://ipython.readthedocs.io/en/stable/install/install.html).
 
-* To use the [IPython qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html) interface,
+* To use the [IPython qtconsole](https://qtconsole.readthedocs.io/en/stable/) interface,
   you will need to install [PyQt4](http://www.riverbankcomputing.com/software/pyqt/download) or
   [PySide](http://qt-project.org/wiki/Category:LanguageBindings::PySide).
 

@@ -71,7 +71,7 @@ in one of two ways:
 
 ### Clearing output
 
-Analogous to the [IPython.display.clear_output()](http://ipython.org/ipython-doc/dev/api/generated/IPython.display.html#IPython.display.clear_output) function in IPython, IJulia provides a function:
+Analogous to the [IPython.display.clear_output()](https://ipython.readthedocs.io/en/stable/api/generated/IPython.display.html#IPython.display.clear_output) function in IPython, IJulia provides a function:
 
 ```julia
 IJulia.clear_output(wait=false)
