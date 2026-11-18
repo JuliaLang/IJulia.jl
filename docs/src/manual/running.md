@@ -98,7 +98,7 @@ The [nteract Desktop](https://nteract.io/) is an application that lets you work 
 
 Most people will use the notebook (browser-based) interface, but you
 can also use the IPython
-[qtconsole](http://ipython.org/ipython-doc/dev/interactive/qtconsole.html)
+[qtconsole](https://qtconsole.readthedocs.io/en/stable/)
 or IPython terminal interfaces by running `ipython qtconsole --kernel
 julia-0.7` or `ipython console --kernel julia-0.7`, respectively.
 (Replace `0.7` with whatever major Julia version you are using.)
