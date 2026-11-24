@@ -172,7 +172,7 @@ function installkernel(name::AbstractString, julia_options::AbstractString...;
                        specname::AbstractString = kernelspec_name(name),
                        displayname::AbstractString = display_name(name),
                        env::Dict{<:AbstractString}=Dict{String,Any}())
-    if isnothing(match(r"^[a-zA-Z0-9._-]+$", specname))
+    if !isnothing(match(r"[^a-zA-Z0-9._-]", specname))
         error("Invalid specname=$(repr(specname)): Must contain only ASCII letters, ASCII numbers, and the simple separators: - hyphen, . period, _ underscore")
     end
 
